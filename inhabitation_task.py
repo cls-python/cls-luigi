@@ -132,7 +132,7 @@ class RepoMeta(Register):
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
     @staticmethod
-    def cls_tpe(cls):
+    def cls_tpe(cls) -> str:
         return f'{cls.__module__}.{cls.__qualname__}'
 
     @dataclass(frozen=True)
