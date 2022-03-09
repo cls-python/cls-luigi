@@ -191,20 +191,16 @@ if __name__ == '__main__':
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Build Repository...")
-    print(deep_str(repository))
-    print(deep_str(RepoMeta.subtypes))
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
     print("Build Tree Grammar and inhabit Pipelines...")
 
     inhabitation_result = fcl.inhabit(target)
     print("Enumerating results...")
-    print(deep_str(inhabitation_result.rules))
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
-    if not actual is None or actual == 0:
+    if actual > 0:
         max_results = actual
-    print(inhabitation_result.raw[0])
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     if results:
         print("Number of results", max_results)
