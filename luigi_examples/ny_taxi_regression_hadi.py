@@ -368,6 +368,8 @@ class TrainLinearRegressionModel(TrainRegressionModel):
 
     def output(self):
         return luigi.LocalTarget('data/linear_reg_model.pkl')
+
+
 #
 #
 class TrainRandomForestModel(TrainRegressionModel):
@@ -453,3 +455,9 @@ if __name__ == '__main__':
         luigi.build(results, local_scheduler=False)  # für luigid: local_scheduler = True weglassen!
     else:
         print("No results!")
+
+## todo: hash each task and use the hash to generate the name of each file.
+## todo: hash must be saved somewhere so we can know which file corresponds to which task variant
+## todo: datasplit before fitting model
+## todo: seperating fit and transform of scalers and encoders and so on, so that they can bes used on training and testing dat seperatly to avoid data leaking
+## todo: add add visuals for regression
