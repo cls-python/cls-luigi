@@ -291,12 +291,12 @@ class JoinAndFilterFeatures(luigi.Task, LuigiCombinator):
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
-    preprocessed_filtered_scaled = ClsParameter(tpe=JoinAndFilterFeatures.return_type())
+    preprocessed_filtered = ClsParameter(tpe=JoinAndFilterFeatures.return_type())
     setup = ClsParameter(tpe=WriteSetupJson.return_type())
     var_ix = luigi.IntParameter()
 
     def requires(self):
-        return [self.preprocessed_filtered_scaled(self.var_ix), self.setup()]
+        return [self.preprocessed_filtered(self.var_ix), self.setup()]
 
     def _read_setup(self):
         with open(self.input()[1].open().name) as file:
