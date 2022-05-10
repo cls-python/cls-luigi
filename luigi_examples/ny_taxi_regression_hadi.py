@@ -1,11 +1,9 @@
 import luigi
-import numpy as np
 import pandas as pd
 import json
 from pickle import dump
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import OneHotEncoder
 from xgboost import XGBRegressor
 from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
@@ -13,7 +11,7 @@ from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
 
 
 class WriteCSVRegressionSetupJson(WriteSetupJson):
-    abstract = False
+    abstract= False
 
     def run(self):
         d = {
@@ -120,33 +118,6 @@ class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget('data/raw_temporal_features.pkl')
 
 
-# class BinaryEncodePickupIsInWeekend(luigi.Task, LuigiCombinator):
-#     abstract = False
-#     raw_temporal_data = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
-#
-#     def requires(self):
-#         return [self.raw_temporal_data()]
-#
-#     def _read_tabular_data(self):
-#         return pd.read_pickle(self.input()[0].open().name)
-#
-#     def run(self):
-#         raw_temporal_data = self._read_tabular_data()
-#         df_is_weekend = pd.DataFrame(index=raw_temporal_data.index)
-#
-#         def weekend_mapping(weekday):
-#             if weekday >= 5:
-#                 return 1
-#             return 0
-#
-#         df_is_weekend["is_weekend"] = raw_temporal_data["pickup_datetime_WEEKDAY"].map(
-#             weekend_mapping)
-#         df_is_weekend.to_pickle(self.output().path)
-#
-#     def output(self):
-#         return luigi.LocalTarget('data/is_weekend.pkl')
-
-
 class BinaryEncodePickupIsAtHour(luigi.Task, LuigiCombinator):
     abstract = False
     raw_temporal_data = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
@@ -174,49 +145,6 @@ class BinaryEncodePickupIsAtHour(luigi.Task, LuigiCombinator):
 
     def output(self):
         return luigi.LocalTarget('data/pickup_hour_binary.pkl')
-
-
-# class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
-#     abstract = False
-#     raw_temporal_data = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
-#
-#     def requires(self):
-#         return [self.raw_temporal_data()]
-#
-#     def _read_tabular_data(self):
-#         return pd.read_pickle(self.input()[0].open().name)
-#
-#     def run(self):
-#         raw_temporal_data = self._read_tabular_data()
-#
-#         def map_weekday_num_to_name(weekday_num):
-#             weekdays = {
-#                 0: "Monday",
-#                 1: "Tuesday",
-#                 2: "Wednesday",
-#                 3: "Thursday",
-#                 4: "Friday",
-#                 5: "Saturday",
-#                 6: "Sunday"
-#             }
-#             return "pickup " + weekdays[weekday_num]
-#
-#         raw_temporal_data["pickup_datetime_WEEKDAY"] = raw_temporal_data["pickup_datetime_WEEKDAY"].map(
-#             map_weekday_num_to_name
-#         )
-#         transformer = OneHotEncoder(sparse=False)
-#         encoded_features = transformer.fit_transform(raw_temporal_data[["pickup_datetime_WEEKDAY"]])
-#
-#         category_columns = np.concatenate(transformer.categories_)
-#         onehot_weekdays = pd.DataFrame(
-#             encoded_features,
-#             columns=category_columns,
-#             index=raw_temporal_data.index)
-#
-#         onehot_weekdays.to_pickle(self.output().path)
-#
-#     def output(self):
-#         return luigi.LocalTarget('data/one_hot_weekday.pkl')
 
 
 class ExtractFeatures(luigi.Task, LuigiCombinator):
@@ -387,6 +315,7 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+
     if results:
         print("Number of results", max_results)
         print("Run Pipelines")
