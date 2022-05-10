@@ -1,3 +1,4 @@
+from pathlib import Path
 import luigi
 import numpy as np
 import pandas as pd
@@ -258,11 +259,11 @@ class ExtractFeatures(luigi.Task, LuigiCombinator):
         return self.input()
 
 
-class TrainRegressionModel(luigi.Task, LuigiCombinator):
-    abstract = True
+class AssembleFinalDataset(luigi.Task, LuigiCombinator):
+    abstract = False
     extracted = ClsParameter(tpe=ExtractFeatures.return_type())
     setup = ClsParameter(tpe=WriteSetupJson.return_type())
-    index = luigi.IntParameter()
+    outfile_name = luigi.OptionalParameter(default='')
 
     def requires(self):
         return [self.extracted(), self.setup()]
@@ -272,7 +273,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
             setup = json.load(file)
         return setup
 
-    def _assemble_final_dataset(self):
+    def run(self):
         setup = self._read_setup()
         df_joined = None
         for i in self.input()[0]:
@@ -283,10 +284,35 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
                 else:
                     data = pd.read_pickle(path)
                     df_joined = pd.merge(df_joined, data, left_index=True, right_index=True)
+                if not self.outfile_name:
+                    self.outfile_name = Path(path).stem
+                else:
+                    self.outfile_name = self.outfile_name + '_' + Path(path).stem
 
         if len(setup["drop_column"]) != 0:
             df_joined = df_joined.drop(setup["drop_column"], axis="columns")
-        return df_joined
+        df_joined.to_pickle(self.output().path)
+
+    def output(self):
+        return luigi.LocalTarget('data/' + self.outfile_name + '.pkl')
+
+
+class TrainRegressionModel(luigi.Task, LuigiCombinator):
+    abstract = True
+    tabular = ClsParameter(tpe=AssembleFinalDataset.return_type())
+    setup = ClsParameter(tpe=WriteSetupJson.return_type())
+    variant_label = luigi.OptionalParameter(default='not_named')
+
+    def requires(self):
+        return [self.tabular(), self.setup()]
+
+    def _read_setup(self):
+        with open(self.input()[1].open().name) as file:
+            setup = json.load(file)
+        return setup
+
+    def _label_variant(self):
+        self.variant_label = Path(self.input()[0].open().name).stem
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
@@ -294,7 +320,7 @@ class TrainLinearRegressionModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._assemble_final_dataset()
+        tabular = pd.read_pickle(self.input()[0].open().name)
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT LINEAR REGRESSION MODEL")
 
@@ -308,12 +334,12 @@ class TrainLinearRegressionModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         reg = LinearRegression().fit(X, y)
-
+        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(reg, f)
 
     def output(self):
-        return luigi.LocalTarget('data/linear_reg_model_variant_' + str(self.index) + '.pkl')
+        return luigi.LocalTarget('data/linear_reg_model_variant_' + self.variant_label + '.pkl')
 
 
 class TrainRandomForestModel(TrainRegressionModel):
@@ -321,7 +347,7 @@ class TrainRandomForestModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._assemble_final_dataset()
+        tabular = pd.read_pickle(self.input()[0].open().name)
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT RANDOM FOREST MODEL")
 
@@ -335,13 +361,12 @@ class TrainRandomForestModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         rfr = RandomForestRegressor(random_state=setup["seed"]).fit(X, y)
-
+        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(rfr, f)
 
     def output(self):
-        return luigi.LocalTarget(
-            'data/random_forest_reg_model_variant_' + str(self.index) + '.pkl')
+        return luigi.LocalTarget('data/random_forest_reg_model_variant_' + self.variant_label + '.pkl')
 
 
 class TrainXgBoostModel(TrainRegressionModel):
@@ -349,7 +374,7 @@ class TrainXgBoostModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._assemble_final_dataset()
+        tabular = pd.read_pickle(self.input()[0].open().name)
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT XGBOOST MODEL")
 
@@ -363,19 +388,19 @@ class TrainXgBoostModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         xgb = XGBRegressor(random_state=setup["seed"]).fit(X, y)
-
+        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(xgb, f)
 
     def output(self):
-        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + str(self.index) + '.pkl')
+        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + self.variant_label + '.pkl')
 
 
 class FinalNode(luigi.WrapperTask, LuigiCombinator):
     train = ClsParameter(tpe=TrainRegressionModel.return_type())
 
     def requires(self):
-        return self.train(self.config_index)
+        return self.train()
 
 
 if __name__ == '__main__':
@@ -394,10 +419,6 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
-    for index, r in enumerate(results):
-        r.config_index = index
-
-    print(results[0])
     if results:
         print("Number of results", max_results)
         print("Run Pipelines")
