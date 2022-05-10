@@ -396,6 +396,8 @@ if __name__ == '__main__':
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     for index, r in enumerate(results):
         r.config_index = index
+
+    print(results[0])
     if results:
         print("Number of results", max_results)
         print("Run Pipelines")
