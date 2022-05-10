@@ -142,6 +142,7 @@ class BinaryEncodePickupIsInWeekend(luigi.Task, LuigiCombinator):
         df_is_weekend["is_weekend"] = raw_temporal_data["pickup_datetime_WEEKDAY"].map(
             weekend_mapping)
         df_is_weekend.to_pickle(self.output().path)
+        print('NOW WE BINARY ENCODE Weekend')
 
     def output(self):
         return luigi.LocalTarget('data/is_weekend.pkl')
@@ -214,6 +215,7 @@ class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
             index=raw_temporal_data.index)
 
         onehot_weekdays.to_pickle(self.output().path)
+        print('NOW WE ONE HOT ENCODE WEEKDAY')
 
     def output(self):
         return luigi.LocalTarget('data/one_hot_weekday.pkl')
@@ -225,10 +227,10 @@ class DummyEncodingNode(BinaryEncodePickupIsInWeekend,
 
     def run(self):
         with open(self.output().path, "w") as f:
-            f.write("DummyEncodingNode")
+            f.write("Don't Mind Me; I'm Just A Dummy:D")
 
     def output(self):
-        return luigi.LocalTarget('data/no_encoding.txt')
+        return luigi.LocalTarget('data/no_encoding')
 
 
 s = {BinaryEncodePickupIsInWeekend,
@@ -249,32 +251,33 @@ class ExtractFeatures(luigi.Task, LuigiCombinator):
         if EncodePickupWeekdayOneHotSklearn in s else DummyEncodingNode.return_type())
 
     def requires(self):
-        return [self.filtered_trips(), self.raw_temporal_features(),self.is_after_7am(7),
+        return [self.filtered_trips(), self.raw_temporal_features(), self.is_after_7am(7),
                 self.is_weekend(), self.onehot_weekdays()]
 
     def output(self):
         return self.input()
 
 
-class JoinAndFilterFeatures(luigi.Task, LuigiCombinator):
-    abstract = False
+class TrainRegressionModel(luigi.Task, LuigiCombinator):
+    abstract = True
     extracted = ClsParameter(tpe=ExtractFeatures.return_type())
-    # var_ix = luigi.IntParameter()
+    setup = ClsParameter(tpe=WriteSetupJson.return_type())
+    index = luigi.IntParameter()
 
     def requires(self):
-        return self.extracted()
+        return [self.extracted(), self.setup()]
 
     def _read_setup(self):
-        with open('data/setup.json') as file:
+        with open(self.input()[1].open().name) as file:
             setup = json.load(file)
         return setup
 
-    def run(self):
+    def _assemble_final_dataset(self):
         setup = self._read_setup()
         df_joined = None
-        for i in self.input():
+        for i in self.input()[0]:
             path = i.open().name
-            if path != 'data/no_encoding.txt':
+            if 'no_encoding' not in path:
                 if df_joined is None:
                     df_joined = pd.read_pickle(path)
                 else:
@@ -283,29 +286,7 @@ class JoinAndFilterFeatures(luigi.Task, LuigiCombinator):
 
         if len(setup["drop_column"]) != 0:
             df_joined = df_joined.drop(setup["drop_column"], axis="columns")
-        df_joined.to_pickle(self.output().path)
-
-    def output(self):
-        # return luigi.LocalTarget("data/processed_data_" + str(self.var_ix) + ".pkl")
-        return luigi.LocalTarget("data/processed_data.pkl")
-
-
-class TrainRegressionModel(luigi.Task, LuigiCombinator):
-    abstract = True
-    preprocessed_filtered = ClsParameter(tpe=JoinAndFilterFeatures.return_type())
-    setup = ClsParameter(tpe=WriteSetupJson.return_type())
-    # var_ix = luigi.IntParameter()
-
-    def requires(self):
-        return [self.preprocessed_filtered(), self.setup()]
-
-    def _read_setup(self):
-        with open(self.input()[1].open().name) as file:
-            setup = json.load(file)
-        return setup
-
-    def _read_tabular_data(self):
-        return pd.read_pickle(self.input()[0].open().name)
+        return df_joined
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
@@ -313,7 +294,7 @@ class TrainLinearRegressionModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._read_tabular_data()
+        tabular = self._assemble_final_dataset()
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT LINEAR REGRESSION MODEL")
 
@@ -328,15 +309,11 @@ class TrainLinearRegressionModel(TrainRegressionModel):
         print(y.shape)
         reg = LinearRegression().fit(X, y)
 
-        print(reg.coef_)
-
         with open(self.output().path, 'wb') as f:
             dump(reg, f)
 
     def output(self):
-        # return luigi.LocalTarget(
-        #     'data/linear_reg_model_var_' + str(self.var_ix) + '.pkl')
-        return luigi.LocalTarget('data/linear_reg_model.pkl')
+        return luigi.LocalTarget('data/linear_reg_model_variant_' + str(self.index) + '.pkl')
 
 
 class TrainRandomForestModel(TrainRegressionModel):
@@ -344,7 +321,7 @@ class TrainRandomForestModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._read_tabular_data()
+        tabular = self._assemble_final_dataset()
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT RANDOM FOREST MODEL")
 
@@ -363,9 +340,8 @@ class TrainRandomForestModel(TrainRegressionModel):
             dump(rfr, f)
 
     def output(self):
-        # return luigi.LocalTarget(
-        #     'data/random_forest_reg_model_var_' + str(self.var_ix) + '.pkl')
-        return luigi.LocalTarget('data/random_forest_reg_model.pkl')
+        return luigi.LocalTarget(
+            'data/random_forest_reg_model_variant_' + str(self.index) + '.pkl')
 
 
 class TrainXgBoostModel(TrainRegressionModel):
@@ -373,7 +349,7 @@ class TrainXgBoostModel(TrainRegressionModel):
 
     def run(self):
         setup = self._read_setup()
-        tabular = self._read_tabular_data()
+        tabular = self._assemble_final_dataset()
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT XGBOOST MODEL")
 
@@ -392,15 +368,14 @@ class TrainXgBoostModel(TrainRegressionModel):
             dump(xgb, f)
 
     def output(self):
-        return luigi.LocalTarget('data/xgboost_reg_model.pkl')
-        # return luigi.LocalTarget('data/xgboost_reg_model_var_' + str(self.var_ix) + '.pkl')
+        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + str(self.index) + '.pkl')
 
 
 class FinalNode(luigi.WrapperTask, LuigiCombinator):
     train = ClsParameter(tpe=TrainRegressionModel.return_type())
 
     def requires(self):
-        return self.train()
+        return self.train(self.config_index)
 
 
 if __name__ == '__main__':
@@ -419,8 +394,8 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
-    # for var_ix, r in enumerate(results):
-    #     r.config_index = var_ix
+    for index, r in enumerate(results):
+        r.config_index = index
     if results:
         print("Number of results", max_results)
         print("Run Pipelines")
