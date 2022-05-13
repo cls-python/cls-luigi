@@ -5,9 +5,10 @@ import pandas as pd
 import json
 from pickle import dump
 
+from sklearn import linear_model
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, RobustScaler, MinMaxScaler
 from xgboost import XGBRegressor
 from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
@@ -298,9 +299,62 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget("data/" + self._get_variant_label_name() + ".pkl")
 
 
+class FitTransformScaler(luigi.Task, LuigiCombinator):
+    abstract = True
+    final_dataset = ClsParameter(tpe=AssembleFinalDataset.return_type())
+    setup = ClsParameter(tpe=WriteSetupJson.return_type())
+
+    def requires(self):
+        return [self.final_dataset(), self.setup()]
+
+    def _read_setup(self):
+        with open(self.input()[1].open().name) as file:
+            setup = json.load(file)
+        return setup
+
+    def _get_variant_label_name(self):
+        return Path(self.input()[0].path).stem
+
+
+class FitTransformRobustScaler(FitTransformScaler):
+    abstract = False
+
+    def run(self):
+        scaler = RobustScaler()
+        setup = self._read_setup()
+        tabular = pd.read_pickle(self.input()[0].open().name)
+        X = tabular.drop(setup["target_column"], axis="columns")
+        y = tabular[[setup["target_column"]]]
+        scaler.fit(X)
+        scaled = pd.DataFrame(scaler.transform(X), columns=scaler.feature_names_in_, index=X.index)
+        scaled[setup["target_column"]] = y
+        scaled.to_pickle(self.output().path)
+
+    def output(self):
+        return luigi.LocalTarget('data/robust_scaled_' + self._get_variant_label_name() + '.pkl')
+
+
+class FitTransformMinMaxScaler(FitTransformScaler):
+    abstract = False
+
+    def run(self):
+        scaler = MinMaxScaler()
+        setup = self._read_setup()
+        tabular = pd.read_pickle(self.input()[0].open().name)
+        X = tabular.drop(setup["target_column"], axis="columns")
+        y = tabular[[setup["target_column"]]]
+        scaler.fit(X)
+        scaled = pd.DataFrame(scaler.transform(X), columns=scaler.feature_names_in_, index=X.index)
+        scaled[setup["target_column"]] = y
+        scaled.to_pickle(self.output().path)
+
+    def output(self):
+        return luigi.LocalTarget('data/minmax_scaled_' + self._get_variant_label_name() + '.pkl')
+
+
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
-    tabular = ClsParameter(tpe=AssembleFinalDataset.return_type())
+    tabular = ClsParameter(tpe=FitTransformScaler.return_type())
     setup = ClsParameter(tpe=WriteSetupJson.return_type())
 
     def requires(self):
@@ -341,14 +395,14 @@ class TrainLinearRegressionModel(TrainRegressionModel):
         return luigi.LocalTarget('data/linear_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
 
 
-class TrainRandomForestModel(TrainRegressionModel):
+class TrainLassoRegressionModel(TrainRegressionModel):
     abstract = False
 
     def run(self):
         setup = self._read_setup()
         tabular = pd.read_pickle(self.input()[0].open().name)
         print("TARGET:", setup["target_column"])
-        print("NOW WE FIT RANDOM FOREST MODEL")
+        print("NOW WE FIT LASSO MODEL")
 
         X = tabular.drop(setup["target_column"], axis="columns")
         y = tabular[[setup["target_column"]]].values.ravel()
@@ -359,12 +413,12 @@ class TrainRandomForestModel(TrainRegressionModel):
         print("AND Target")
         print(y)
         print(y.shape)
-        rfr = RandomForestRegressor(random_state=setup["seed"]).fit(X, y)
+        reg = linear_model.Lasso(alpha=0.1, random_state=setup["seed"]).fit(X, y)
         with open(self.output().path, 'wb') as f:
-            dump(rfr, f)
+            dump(reg, f)
 
     def output(self):
-        return luigi.LocalTarget('data/random_forest_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/lasso_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
 
 
 class TrainXgBoostModel(TrainRegressionModel):
