@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import json
 from pickle import dump
+
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder
@@ -238,7 +239,7 @@ s = {BinaryEncodePickupIsInWeekend,
      EncodePickupWeekdayOneHotSklearn}
 
 
-class ExtractFeatures(luigi.Task, LuigiCombinator):
+class ExtractFeatures(luigi.WrapperTask, LuigiCombinator):
     abstract = False
     filtered_trips = ClsParameter(tpe=FilterImplausibleTrips.return_type())
     raw_temporal_features = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
@@ -261,22 +262,26 @@ class ExtractFeatures(luigi.Task, LuigiCombinator):
 
 class AssembleFinalDataset(luigi.Task, LuigiCombinator):
     abstract = False
-    extracted = ClsParameter(tpe=ExtractFeatures.return_type())
     setup = ClsParameter(tpe=WriteSetupJson.return_type())
-    outfile_name = luigi.OptionalParameter(default='')
+    extracted = ClsParameter(tpe=ExtractFeatures.return_type())
 
     def requires(self):
-        return [self.extracted(), self.setup()]
+        return [self.setup(), self.extracted()]
 
     def _read_setup(self):
-        with open(self.input()[1].open().name) as file:
+        with open(self.input()[0].open().name) as file:
             setup = json.load(file)
         return setup
+
+    def _get_variant_label_name(self):
+        var_label_name = list(filter(lambda x: "no_encoding" not in x.path, self.input()[1]))
+        var_label_name = list(map(lambda x: Path(x.path).stem, var_label_name))
+        return "_".join(var_label_name)
 
     def run(self):
         setup = self._read_setup()
         df_joined = None
-        for i in self.input()[0]:
+        for i in self.input()[1]:
             path = i.open().name
             if 'no_encoding' not in path:
                 if df_joined is None:
@@ -284,24 +289,19 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
                 else:
                     data = pd.read_pickle(path)
                     df_joined = pd.merge(df_joined, data, left_index=True, right_index=True)
-                if not self.outfile_name:
-                    self.outfile_name = Path(path).stem
-                else:
-                    self.outfile_name = self.outfile_name + '_' + Path(path).stem
 
         if len(setup["drop_column"]) != 0:
             df_joined = df_joined.drop(setup["drop_column"], axis="columns")
         df_joined.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/' + self.outfile_name + '.pkl')
+        return luigi.LocalTarget("data/" + self._get_variant_label_name() + ".pkl")
 
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
     tabular = ClsParameter(tpe=AssembleFinalDataset.return_type())
     setup = ClsParameter(tpe=WriteSetupJson.return_type())
-    variant_label = luigi.OptionalParameter(default='not_named')
 
     def requires(self):
         return [self.tabular(), self.setup()]
@@ -311,8 +311,8 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
             setup = json.load(file)
         return setup
 
-    def _label_variant(self):
-        self.variant_label = Path(self.input()[0].open().name).stem
+    def _get_variant_label_name(self):
+        return Path(self.input()[0].path).stem
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
@@ -334,12 +334,11 @@ class TrainLinearRegressionModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         reg = LinearRegression().fit(X, y)
-        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(reg, f)
 
     def output(self):
-        return luigi.LocalTarget('data/linear_reg_model_variant_' + self.variant_label + '.pkl')
+        return luigi.LocalTarget('data/linear_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
 
 
 class TrainRandomForestModel(TrainRegressionModel):
@@ -361,12 +360,11 @@ class TrainRandomForestModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         rfr = RandomForestRegressor(random_state=setup["seed"]).fit(X, y)
-        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(rfr, f)
 
     def output(self):
-        return luigi.LocalTarget('data/random_forest_reg_model_variant_' + self.variant_label + '.pkl')
+        return luigi.LocalTarget('data/random_forest_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
 
 
 class TrainXgBoostModel(TrainRegressionModel):
@@ -388,12 +386,11 @@ class TrainXgBoostModel(TrainRegressionModel):
         print(y)
         print(y.shape)
         xgb = XGBRegressor(random_state=setup["seed"]).fit(X, y)
-        self._label_variant()
         with open(self.output().path, 'wb') as f:
             dump(xgb, f)
 
     def output(self):
-        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + self.variant_label + '.pkl')
+        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
 
 
 class FinalNode(luigi.WrapperTask, LuigiCombinator):
