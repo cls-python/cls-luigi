@@ -98,7 +98,7 @@ class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
         return [self.filtered_tabular_data(), self.setup()]
 
     def _read_setup(self):
-        with open('data/setup.json') as file:
+        with open(self.input()[1].open().name) as file:
             setup = json.load(file)
         return setup
 
@@ -240,6 +240,8 @@ s = {BinaryEncodePickupIsInWeekend,
      EncodePickupWeekdayOneHotSklearn}
 
 
+
+
 class ExtractFeatures(luigi.WrapperTask, LuigiCombinator):
     abstract = False
     filtered_trips = ClsParameter(tpe=FilterImplausibleTrips.return_type())
@@ -274,9 +276,11 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
             setup = json.load(file)
         return setup
 
-    def _get_variant_label_name(self):
-        var_label_name = list(filter(lambda x: "no_encoding" not in x.path, self.input()[1]))
-        var_label_name = list(map(lambda x: Path(x.path).stem, var_label_name))
+    def _get_variant_label(self):
+        var_label_name = list(filter(
+            lambda local_target: "no_encoding" not in local_target.path, self.input()[1]))
+        var_label_name = list(map(
+            lambda local_target: Path(local_target.path).stem, var_label_name))
         return "_".join(var_label_name)
 
     def run(self):
@@ -296,7 +300,7 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
         df_joined.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget("data/" + self._get_variant_label_name() + ".pkl")
+        return luigi.LocalTarget("data/" + self._get_variant_label() + ".pkl")
 
 
 class FitTransformScaler(luigi.Task, LuigiCombinator):
@@ -312,7 +316,7 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
             setup = json.load(file)
         return setup
 
-    def _get_variant_label_name(self):
+    def _get_variant_label(self):
         return Path(self.input()[0].path).stem
 
 
@@ -326,12 +330,14 @@ class FitTransformRobustScaler(FitTransformScaler):
         X = tabular.drop(setup["target_column"], axis="columns")
         y = tabular[[setup["target_column"]]]
         scaler.fit(X)
-        scaled = pd.DataFrame(scaler.transform(X), columns=scaler.feature_names_in_, index=X.index)
+        scaled = pd.DataFrame(scaler.transform(X),
+                              columns=scaler.feature_names_in_,
+                              index=X.index)
         scaled[setup["target_column"]] = y
         scaled.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/robust_scaled_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/robust_scaled_' + self._get_variant_label() + '.pkl')
 
 
 class FitTransformMinMaxScaler(FitTransformScaler):
@@ -349,7 +355,7 @@ class FitTransformMinMaxScaler(FitTransformScaler):
         scaled.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/minmax_scaled_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/minmax_scaled_' + self._get_variant_label() + '.pkl')
 
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
@@ -365,7 +371,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
             setup = json.load(file)
         return setup
 
-    def _get_variant_label_name(self):
+    def _get_variant_label(self):
         return Path(self.input()[0].path).stem
 
 
@@ -392,7 +398,7 @@ class TrainLinearRegressionModel(TrainRegressionModel):
             dump(reg, f)
 
     def output(self):
-        return luigi.LocalTarget('data/linear_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/linear_reg_model_variant_' + self._get_variant_label() + '.pkl')
 
 
 class TrainLassoRegressionModel(TrainRegressionModel):
@@ -418,7 +424,7 @@ class TrainLassoRegressionModel(TrainRegressionModel):
             dump(reg, f)
 
     def output(self):
-        return luigi.LocalTarget('data/lasso_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/lasso_reg_model_variant_' + self._get_variant_label() + '.pkl')
 
 
 class TrainXgBoostModel(TrainRegressionModel):
@@ -444,7 +450,7 @@ class TrainXgBoostModel(TrainRegressionModel):
             dump(xgb, f)
 
     def output(self):
-        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + self._get_variant_label_name() + '.pkl')
+        return luigi.LocalTarget('data/xgboost_reg_model_variant_' + self._get_variant_label() + '.pkl')
 
 
 class FinalNode(luigi.WrapperTask, LuigiCombinator):
