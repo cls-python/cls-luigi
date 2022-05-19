@@ -332,10 +332,10 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
 
 class FitTransformScaler(luigi.Task, LuigiCombinator):
     abstract = True
-    train_test = ClsParameter(tpe=TrainTestSplit.return_type())
+    splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
 
     def requires(self):
-        return [self.train_test()]
+        return [self.splitted_data()]
 
     def _read_training_data(self):
         return pd.read_pickle(self.input()[0][0].open().name)
@@ -441,7 +441,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
         return Path(self.input()[0][0].path).stem
 
     def _later_dependency(self):
-        return self.input()[0][1].path
+        return self.input()[0][1].path # scaled testing data
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
@@ -527,10 +527,10 @@ class TrainRidgeRegressionModel(TrainRegressionModel):
 
 class Predict(luigi.Task, LuigiCombinator):
     abstract = False
-    trained_model = ClsParameter(tpe=TrainRegressionModel.return_type())
+    reg_and_testing_data = ClsParameter(tpe=TrainRegressionModel.return_type())
 
     def requires(self):
-        return [self.trained_model()]
+        return [self.reg_and_testing_data()]
 
     def _load_regressor(self):
         with open(self.input()[0][0].path, 'rb') as file:
@@ -668,7 +668,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         y_true, y_pred = self._read_y_true_and_prediction()
         self._compute_metrics(y_true, y_pred)
         self._update_leaderboard()
-        self._visualize(y_true, y_pred)
+        self._visualize(y_true, y_pred, show=True)
         self.done = True
 
     def output(self):
@@ -693,7 +693,7 @@ if __name__ == '__main__':
 
     inhabitation_result = fcl.inhabit(target)
     print("Enumerating results...")
-    max_tasks_when_infinite = 2
+    max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
     if actual > 0:
