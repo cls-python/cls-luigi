@@ -1,7 +1,39 @@
+from collections.abc import Iterable
+
 import luigi
 from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
 
+
+class UniqueTaskPipelineValidator(object):
+
+    def __init__(self, unique_abstract_classes):
+        self.unique_abstract_classes = unique_abstract_classes
+
+    def validate(self, pipeline):
+        traversal = self.dfs(pipeline)
+        concrete_cls_map = dict()
+        for obj in traversal:
+            for cls in self.unique_abstract_classes:
+                if isinstance(obj, cls):
+                    if cls in concrete_cls_map:
+                        concrete_cls = concrete_cls_map[cls]
+                        if not isinstance(obj, concrete_cls):
+                            return False
+                    else:
+                        concrete_cls_map[cls] = obj.__class__
+        return True
+
+    def dfs(self, start):
+        traversal = [start]
+        dependencies = start.requires()
+        if isinstance(dependencies, Iterable):
+            for dependency in start.requires():
+                traversal.extend(self.dfs(dependency))
+        else:
+            traversal.extend(self.dfs(dependencies))
+
+        return traversal
 
 class Task1(luigi.Task, LuigiCombinator):
     abstract = False
@@ -67,10 +99,10 @@ class Task3(luigi.Task, LuigiCombinator):
 class Task4(luigi.Task, LuigiCombinator):
     abstract = False
     task2 = ClsParameter(tpe=Task2Abstract.return_type())
-    # task3 = ClsParameter(tpe=Task3.return_type())
+    task3 = ClsParameter(tpe=Task3.return_type())
 
     def requires(self):
-        return [self.task2()]
+        return [self.task2(), self.task3()]
 
     def run(self):
         print("Now Task4")
@@ -137,7 +169,9 @@ if __name__ == '__main__':
     max_results = max_tasks_when_infinite
     if actual > 0:
         max_results = actual
-    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+    validator = UniqueTaskPipelineValidator([Task2Abstract])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+
     if results:
         print("Number of results", max_results)
         print("Run Pipelines")
