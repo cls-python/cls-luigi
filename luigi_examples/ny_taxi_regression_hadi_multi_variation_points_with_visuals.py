@@ -21,6 +21,8 @@ from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+
 sns.set_style('darkgrid')
 sns.set_context('talk')
 
@@ -98,7 +100,7 @@ class FilterImplausibleTrips(luigi.Task, LuigiCombinator):
         taxi.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/filtered_trips.pkl')
+        return luigi.LocalTarget('data/filtered.pkl')
 
 
 class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
@@ -129,9 +131,10 @@ class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget('data/raw_temporal_features.pkl')
 
 
-class BinaryEncodePickupIsInWeekend(luigi.Task, LuigiCombinator):
+class BinaryEncodePickupAtWeekend(luigi.Task, LuigiCombinator):
     abstract = False
     raw_temporal_data = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
+    weekend_start_ix = luigi.IntParameter(default=5)
 
     def requires(self):
         return [self.raw_temporal_data()]
@@ -144,20 +147,20 @@ class BinaryEncodePickupIsInWeekend(luigi.Task, LuigiCombinator):
         df_is_weekend = pd.DataFrame(index=raw_temporal_data.index)
 
         def weekend_mapping(weekday):
-            if weekday >= 5:
+            if weekday >= self.weekend_start_ix:
                 return 1
             return 0
 
-        df_is_weekend["is_weekend"] = raw_temporal_data["pickup_datetime_WEEKDAY"].map(
+        df_is_weekend["pickup_at_weekend"] = raw_temporal_data["pickup_datetime_WEEKDAY"].map(
             weekend_mapping)
         df_is_weekend.to_pickle(self.output().path)
         print('NOW WE BINARY ENCODE Weekend')
 
     def output(self):
-        return luigi.LocalTarget('data/is_weekend.pkl')
+        return luigi.LocalTarget('data/pickup_at_weekend.pkl')
 
 
-class BinaryEncodePickupIsAtHour(luigi.Task, LuigiCombinator):
+class BinaryEncodePickupAtHour(luigi.Task, LuigiCombinator):
     abstract = False
     raw_temporal_data = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
     hour = luigi.IntParameter(default=7)
@@ -177,13 +180,13 @@ class BinaryEncodePickupIsAtHour(luigi.Task, LuigiCombinator):
                 return 1
             return 0
 
-        col_name = "is after_" + str(self.hour)
+        col_name = "is_or_after_" + str(self.hour)
         df_pickup_hour_encoded[col_name] = raw_temporal_data["pickup_datetime_HOUR"].map(
             pickup_hour_mapper)
         df_pickup_hour_encoded.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/pickup_hour_binary.pkl')
+        return luigi.LocalTarget('data/pickup_hour_' + str(self.hour) + '_binary.pkl')
 
 
 class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
@@ -230,53 +233,30 @@ class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget('data/one_hot_weekday.pkl')
 
 
-class DummyEncodingNode(BinaryEncodePickupIsInWeekend,
-                        EncodePickupWeekdayOneHotSklearn):
-    abstract = False
-
-    def run(self):
-        with open(self.output().path, "w") as f:
-            f.write("Don't Mind Me; I'm Just A Dummy:D")
-
-    def output(self):
-        return luigi.LocalTarget('data/no_encoding')
-
-
-s = {BinaryEncodePickupIsInWeekend,
-     EncodePickupWeekdayOneHotSklearn}
-
-
-class ExtractFeatures(luigi.WrapperTask, LuigiCombinator):
-    abstract = False
-    filtered_trips = ClsParameter(tpe=FilterImplausibleTrips.return_type())
-    raw_temporal_features = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
-
-    is_after_7am = ClsParameter(tpe=BinaryEncodePickupIsAtHour.return_type())
-
-    is_weekend = ClsParameter(tpe=BinaryEncodePickupIsInWeekend.return_type() \
-        if BinaryEncodePickupIsInWeekend in s else DummyEncodingNode.return_type())
-
-    onehot_weekdays = ClsParameter(tpe=EncodePickupWeekdayOneHotSklearn.return_type() \
-        if EncodePickupWeekdayOneHotSklearn in s else DummyEncodingNode.return_type())
-
-    def requires(self):
-        return [self.filtered_trips(), self.raw_temporal_features(), self.is_after_7am(7),
-                self.is_weekend(), self.onehot_weekdays()]
-
-    def output(self):
-        return self.input()
-
+# class DummyEncodingNode(BinaryEncodePickupIsInWeekend,
+#                         EncodePickupWeekdayOneHotSklearn):
+#     abstract = False
+#
+#     def run(self):
+#         with open(self.output().path, "w") as f:
+#             f.write("Don't Mind Me; I'm Just A Dummy:D")
+#
+#     def output(self):
+#         return luigi.LocalTarget('data/no_encoding')
+#
+#
+# s = {BinaryEncodePickupIsInWeekend,
+#      EncodePickupWeekdayOneHotSklearn}
 
 class AssembleFinalDataset(luigi.Task, LuigiCombinator):
-    abstract = False
-    extracted = ClsParameter(tpe=ExtractFeatures.return_type())
-
-    def requires(self):
-        return [self.extracted()]
+    abstract = True
+    filtered_trips = ClsParameter(tpe=FilterImplausibleTrips.return_type())
+    raw_temporal_features = ClsParameter(tpe=ExtractRawTemporalFeatures.return_type())
+    is_after_7am = ClsParameter(tpe=BinaryEncodePickupAtHour.return_type())
 
     def _get_variant_label(self):
         var_label_name = list(filter(
-            lambda local_target: "no_encoding" not in local_target.path, self.input()[0]))
+            lambda local_target: "no_encoding" not in local_target.path, self.input()))
         var_label_name = list(map(
             lambda local_target: Path(local_target.path).stem, var_label_name))
         return "_".join(var_label_name)
@@ -284,21 +264,57 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
     def run(self):
         setup = read_setup()
         df_joined = None
-        for i in self.input()[0]:
+        for i in self.input():
             path = i.open().name
-            if 'no_encoding' not in path:
-                if df_joined is None:
-                    df_joined = pd.read_pickle(path)
-                else:
-                    data = pd.read_pickle(path)
-                    df_joined = pd.merge(df_joined, data, left_index=True, right_index=True)
+            # if 'no_encoding' not in path:
+            if df_joined is None:
+                df_joined = pd.read_pickle(path)
+            else:
+                data = pd.read_pickle(path)
+                df_joined = pd.merge(df_joined, data, left_index=True, right_index=True)
 
         if len(setup["drop_column"]) != 0:
             df_joined = df_joined.drop(setup["drop_column"], axis="columns")
         df_joined.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget("data/" + self._get_variant_label() + ".pkl")
+        return luigi.LocalTarget("data/final_" + self._get_variant_label() + ".pkl")
+
+
+class AssembleFinalDataset1(AssembleFinalDataset):
+    abstract = False
+    is_weekend = ClsParameter(tpe=BinaryEncodePickupAtWeekend.return_type())
+
+    def requires(self):
+        return [self.filtered_trips(), self.raw_temporal_features(),
+                self.is_after_7am(), self.is_weekend()]
+
+
+class AssembleFinalDataset2(AssembleFinalDataset):
+    abstract = False
+    onehot_weekdays = ClsParameter(tpe=EncodePickupWeekdayOneHotSklearn.return_type())
+
+    def requires(self):
+        return [self.filtered_trips(), self.raw_temporal_features(),
+                self.is_after_7am(), self.onehot_weekdays()]
+
+
+class AssembleFinalDataset3(AssembleFinalDataset):
+    abstract = False
+
+    def requires(self):
+        return [self.filtered_trips(), self.raw_temporal_features(),
+                self.is_after_7am()]
+
+
+class AssembleFinalDataset4(AssembleFinalDataset):
+    abstract = False
+    is_weekend = ClsParameter(tpe=BinaryEncodePickupAtWeekend.return_type())
+    onehot_weekdays = ClsParameter(tpe=EncodePickupWeekdayOneHotSklearn.return_type())
+
+    def requires(self):
+        return [self.filtered_trips(), self.raw_temporal_features(),
+                self.is_after_7am(), self.onehot_weekdays(), self.is_weekend()]
 
 
 class TrainTestSplit(luigi.Task, LuigiCombinator):
@@ -432,16 +448,13 @@ class FitTransformMinMaxScaler(FitTransformScaler):
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
-    tabular = ClsParameter(tpe=FitTransformScaler.return_type())
+    scaled_data = ClsParameter(tpe=FitTransformScaler.return_type())
 
     def requires(self):
-        return [self.tabular()]
+        return [self.scaled_data()]
 
     def _get_variant_label(self):
         return Path(self.input()[0][0].path).stem
-
-    def _later_dependency(self):
-        return self.input()[0][1].path # scaled testing data
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
@@ -467,8 +480,7 @@ class TrainLinearRegressionModel(TrainRegressionModel):
             dump(reg, f)
 
     def output(self):
-        return [luigi.LocalTarget('data/reg_linear_' + self._get_variant_label() + '.pkl'),
-                luigi.LocalTarget(self._later_dependency())]
+        return [luigi.LocalTarget('data/reg_linear_' + self._get_variant_label() + '.pkl')]
 
 
 class TrainLassoRegressionModel(TrainRegressionModel):
@@ -494,8 +506,7 @@ class TrainLassoRegressionModel(TrainRegressionModel):
             dump(reg, f)
 
     def output(self):
-        return [luigi.LocalTarget('data/reg_lasso_' + self._get_variant_label() + '.pkl'),
-                luigi.LocalTarget(self._later_dependency())]
+        return [luigi.LocalTarget('data/reg_lasso_' + self._get_variant_label() + '.pkl')]
 
 
 class TrainRidgeRegressionModel(TrainRegressionModel):
@@ -521,16 +532,16 @@ class TrainRidgeRegressionModel(TrainRegressionModel):
             dump(reg, f)
 
     def output(self):
-        return [luigi.LocalTarget('data/reg_ridge_' + self._get_variant_label() + '.pkl'),
-                luigi.LocalTarget(self._later_dependency())]
+        return [luigi.LocalTarget('data/reg_ridge_' + self._get_variant_label() + '.pkl')]
 
 
 class Predict(luigi.Task, LuigiCombinator):
     abstract = False
-    reg_and_testing_data = ClsParameter(tpe=TrainRegressionModel.return_type())
+    regressor = ClsParameter(tpe=TrainRegressionModel.return_type())
+    scaled_data = ClsParameter(tpe=FitTransformScaler.return_type())
 
     def requires(self):
-        return [self.reg_and_testing_data()]
+        return [self.regressor(), self.scaled_data()]
 
     def _load_regressor(self):
         with open(self.input()[0][0].path, 'rb') as file:
@@ -539,7 +550,7 @@ class Predict(luigi.Task, LuigiCombinator):
         return reg
 
     def _read_scaled_test_data(self):
-        p = self.input()[0][1].path
+        p = self.input()[1][1].path
         with open(p, 'rb') as file:
             test_data = pickle.load(file)
 
@@ -610,59 +621,59 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
     def _visualize(self, y_true, y_pred, show=False):
 
-        if os.path.exists(self.output()[1].path) is False:
+        # if os.path.exists(self.output()[1].path) is False:
 
-            fig, axes = plt.subplots(2, 2, figsize=(17, 12))
-            fig.suptitle(
-                "\nPerformance Evaluation\nRMSE: {}\nMAE: {}\nR\u00b2: {}\n".format(self.rmse, self.mae, self.r2),
-                x=0.05, ha="left")
+        fig, axes = plt.subplots(2, 2, figsize=(17, 12))
+        fig.suptitle(
+            "\nPerformance Evaluation\nRMSE: {}\nMAE: {}\nR\u00b2: {}\n".format(self.rmse, self.mae, self.r2),
+            x=0.05, ha="left")
 
-            df_prediction = pd.DataFrame({
-                'Actual': y_true,
-                'Predicted': y_pred})
+        df_prediction = pd.DataFrame({
+            'Actual': y_true,
+            'Predicted': y_pred})
 
-            def compute_residual(row):
-                return row['Predicted'] - row['Actual']
+        def compute_residual(row):
+            return row['Predicted'] - row['Actual']
 
-            df_prediction['Prediction Residual'] = df_prediction.apply(
-                compute_residual, axis=1)
+        df_prediction['Prediction Residual'] = df_prediction.apply(
+            compute_residual, axis=1)
 
-            residual_plot = sns.scatterplot(x='Actual', y='Prediction Residual',
-                                            data=df_prediction, color='r', ax=axes[0][0])
-            residual_plot.set_title('Residual Scatter Plot\nIdeal Situation (Predicted = Actual) in Green', loc='left')
-            residual_plot.axhline(
-                y=0, color='green',
-                ls='-', lw=3)
+        residual_plot = sns.scatterplot(x='Actual', y='Prediction Residual',
+                                        data=df_prediction, color='r', ax=axes[0][0])
+        residual_plot.set_title('Residual Scatter Plot\nIdeal Situation (Predicted = Actual) in Green', loc='left')
+        residual_plot.axhline(
+            y=0, color='green',
+            ls='-', lw=3)
 
-            scatter_plot = sns.scatterplot(x='Actual', y='Predicted',
-                                           data=df_prediction, color='r', ax=axes[0][1])
-            scatter_plot.set_title(
-                'Predictions -- Ground Truth Scatter plot\n'
-                'Ideal Situation (Predicted = Actual) in Green', loc='left')
-            xlims = (-10, max(max(y_true), max(y_pred)))
-            scatter_plot.plot(xlims, xlims, color='g', ls="-", lw=3)
+        scatter_plot = sns.scatterplot(x='Actual', y='Predicted',
+                                       data=df_prediction, color='r', ax=axes[0][1])
+        scatter_plot.set_title(
+            'Predictions -- Ground Truth Scatter plot\n'
+            'Ideal Situation (Predicted = Actual) in Green', loc='left')
+        xlims = (-10, max(max(y_true), max(y_pred)))
+        scatter_plot.plot(xlims, xlims, color='g', ls="-", lw=3)
 
-            histogram_residuals = sns.histplot(data=df_prediction, x='Prediction Residual',
-                                               kde=True, stat="density", ax=axes[1][0])
-            histogram_residuals.set_title('Residuals Histogram\nIdeal Situation (Predicted = Actual) in Green ',
-                                          loc='left')
-            histogram_residuals.axvline(
-                x=0, color='green',
-                ls='-', lw=3)
+        histogram_residuals = sns.histplot(data=df_prediction, x='Prediction Residual',
+                                           kde=True, stat="density", ax=axes[1][0])
+        histogram_residuals.set_title('Residuals Histogram\nIdeal Situation (Predicted = Actual) in Green ',
+                                      loc='left')
+        histogram_residuals.axvline(
+            x=0, color='green',
+            ls='-', lw=3)
 
-            df_prediction["i"] = df_prediction.index
-            df_histplot = pd.melt(df_prediction, id_vars=['i'],
-                                  value_vars=['Actual', 'Predicted'],
-                                  var_name='Curve', value_name='Target Variable')
+        df_prediction["i"] = df_prediction.index
+        df_histplot = pd.melt(df_prediction, id_vars=['i'],
+                              value_vars=['Actual', 'Predicted'],
+                              var_name='Curve', value_name='Target Variable')
 
-            histogram_target_value = sns.histplot(data=df_histplot, x='Target Variable', hue="Curve",
-                                                  kde=True, stat="density", ax=axes[1][1])
-            histogram_target_value.set_title('Ground Truth & Prediction Values Histogram', loc='left')
+        histogram_target_value = sns.histplot(data=df_histplot, x='Target Variable', hue="Curve",
+                                              kde=True, stat="density", ax=axes[1][1])
+        histogram_target_value.set_title('Ground Truth & Prediction Values Histogram', loc='left')
 
-            plt.tight_layout()
-            plt.savefig(self.output()[1].path)
-            if show:
-                plt.show()
+        plt.tight_layout()
+        plt.savefig(self.output()[1].path)
+        if show:
+            plt.show()
 
     def run(self):
         y_true, y_pred = self._read_y_true_and_prediction()
@@ -676,15 +687,16 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
                 luigi.LocalTarget('data/' + self._get_reg_name() + ".png")]
 
 
-class FinalNode(luigi.WrapperTask, LuigiCombinator):
-    train = ClsParameter(tpe=EvaluateAndVisualize.return_type())
-
-    def requires(self):
-        return self.train()
+# class FinalNode(luigi.WrapperTask, LuigiCombinator):
+#     evaluate = ClsParameter(tpe=EvaluateAndVisualize.return_type())
+#
+#     def requires(self):
+#         return self.evaluate()
 
 
 if __name__ == '__main__':
-    target = FinalNode.return_type()
+
+    target = EvaluateAndVisualize.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Build Repository...")
@@ -698,10 +710,14 @@ if __name__ == '__main__':
     max_results = max_tasks_when_infinite
     if actual > 0:
         max_results = actual
-    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+
+    validator = UniqueTaskPipelineValidator([AssembleFinalDataset, FitTransformScaler, TrainRegressionModel])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+
     if results:
         print("Number of results", max_results)
+        print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True)
+        luigi.build(results, local_scheduler=False, detailed_summary=True)
     else:
         print("No results!")
