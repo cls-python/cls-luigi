@@ -417,7 +417,7 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
                               columns=self.scaler.feature_names_in_,
                               index=X.index)
         scaled[setup["target_column"]] = y
-        scaled.to_pickle(self.output()[0].path)
+        scaled.to_pickle(self.output()["scaled_train"].path)
 
         test = self._read_testing_data()
         X = test.drop(setup["target_column"], axis="columns")
@@ -426,21 +426,15 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
                               columns=self.scaler.feature_names_in_,
                               index=X.index)
         scaled[setup["target_column"]] = y
-        scaled.to_pickle(self.output()[1].path)
+        scaled.to_pickle(self.output()["scaled_test"].path)
 
-        with open(self.output()[2].path, 'wb') as outfile:
+        with open(self.output()["scaler"].path, 'wb') as outfile:
             pickle.dump(self.scaler, outfile)
 
     def output(self):
-        return [
-            # scaled training data
-            luigi.LocalTarget('data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
-            # scaled testing data
-            luigi.LocalTarget('data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
-            # scaler it self
-            luigi.LocalTarget(
-                'data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')
-        ]
+        return {"scaled_train": luigi.LocalTarget('data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
+                "scaled_test": luigi.LocalTarget('data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
+                "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')}
 
     def _init_scaler(self, args=None):
         pass
@@ -482,17 +476,20 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
         return [self.scaled_data()]
 
     def _get_variant_label(self):
-        return Path(self.input()[0][0].path).stem
+        return Path(self.input()[0]["scaled_train"].path).stem
+
+    def _read_scaled_training_data(self):
+        return pd.read_pickle(self.input()[0]["scaled_train"].path)
 
     def run(self):
         setup = read_setup()
         self._init_regressor()
-        tabular = pd.read_pickle(self.input()[0][0].path)
+
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT LINEAR REGRESSION MODEL")
-
-        X = tabular.drop(setup["target_column"], axis="columns")
-        y = tabular[[setup["target_column"]]].values.ravel()
+        train_data = self._read_scaled_training_data()
+        X = train_data.drop(setup["target_column"], axis="columns")
+        y = train_data[[setup["target_column"]]].values.ravel()
         print("WITH THE FEATURES")
         print(X.columns)
         print(X)
@@ -565,7 +562,7 @@ class Predict(luigi.Task, LuigiCombinator):
         return reg
 
     def _read_scaled_test_data(self):
-        p = self.input()[1][1].path
+        p = self.input()[1]["scaled_test"].path
         with open(p, 'rb') as file:
             test_data = pickle.load(file)
 
@@ -697,7 +694,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         y_true, y_pred = self._read_y_true_and_prediction()
         self._compute_metrics(y_true, y_pred)
         self._update_leaderboard()
-        self._visualize(y_true, y_pred, show=True)
+        self._visualize(y_true, y_pred, show=False)
         self.done = True
 
     def output(self):
