@@ -432,11 +432,13 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
             pickle.dump(self.scaler, outfile)
 
     def output(self):
-        return {"scaled_train": luigi.LocalTarget('data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
-                "scaled_test": luigi.LocalTarget('data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
-                "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')}
+        return {
+            "scaled_train": luigi.LocalTarget('data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
+            "scaled_test": luigi.LocalTarget('data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
+            "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')
+        }
 
-    def _init_scaler(self, args=None):
+    def _init_scaler(self):  # this method maybe used to initialize the scaler and to pass some parameters as well
         pass
 
 
@@ -446,11 +448,8 @@ class FitTransformRobustScaler(FitTransformScaler):
     scaled_files_label = luigi.Parameter(default="_robust_scaled")
     scaler_label = luigi.Parameter(default="robust_scaler")
 
-    def _init_scaler(self, args=None):
-        if args is None:
-            self.scaler = self.scaler()
-        else:
-            self.scaler = self.scaler(args)
+    def _init_scaler(self):
+        self.scaler = self.scaler()
 
 
 class FitTransformMinMaxScaler(FitTransformScaler):
@@ -459,11 +458,8 @@ class FitTransformMinMaxScaler(FitTransformScaler):
     scaled_files_label = luigi.Parameter(default="_minmax_scaled")
     scaler_label = luigi.Parameter(default="minmax_scaler")
 
-    def _init_scaler(self, args=None):
-        if args is None:
-            self.scaler = self.scaler()
-        else:
-            self.scaler = self.scaler(args)
+    def _init_scaler(self):
+        self.scaler = self.scaler()
 
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
@@ -506,7 +502,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
         return [
             luigi.LocalTarget('data/' + self.regressor_label + self._get_variant_label() + '.pkl')]
 
-    def _init_regressor(self):
+    def _init_regressor(self):  # this method maybe used to initialize the regressor and to pass some parameters as well
         pass
 
 
@@ -515,11 +511,8 @@ class TrainLinearRegressionModel(TrainRegressionModel):
     regressor = luigi.Parameter(default=LinearRegression)
     regressor_label = luigi.Parameter(default="linear_reg_")
 
-    def _init_regressor(self, args=None):
-        if args is None:
-            self.regressor = self.regressor()
-        else:
-            self.regressor = self.regressor(args)
+    def _init_regressor(self):
+        self.regressor = self.regressor()
 
 
 class TrainLassoRegressionModel(TrainRegressionModel):
@@ -527,11 +520,8 @@ class TrainLassoRegressionModel(TrainRegressionModel):
     regressor = luigi.Parameter(default=linear_model.Lasso)
     regressor_label = luigi.Parameter(default="lasso_reg_")
 
-    def _init_regressor(self, args=None):
-        if args is None:
-            self.regressor = self.regressor()
-        else:
-            self.regressor = self.regressor(args)
+    def _init_regressor(self):
+        self.regressor = self.regressor()
 
 
 class TrainRidgeRegressionModel(TrainRegressionModel):
@@ -539,12 +529,9 @@ class TrainRidgeRegressionModel(TrainRegressionModel):
     regressor = luigi.Parameter(default=linear_model.Ridge)
     regressor_label = luigi.Parameter(default="ridge_reg_")
 
-    def _init_regressor(self, args=None):
+    def _init_regressor(self):
         setup = read_setup()
-        if args is None:
-            self.regressor = self.regressor()
-        else:
-            self.regressor = self.regressor(**setup["ridge_args"])
+        self.regressor = self.regressor(**setup["ridge_args"])
 
 
 class Predict(luigi.Task, LuigiCombinator):
