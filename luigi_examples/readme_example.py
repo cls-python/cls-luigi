@@ -1,11 +1,9 @@
 import luigi
 import inhabitation_task
 
-from anne_test_3 import WriteFileTask
+
 from inhabitation_task import RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
-
-
+from cls_python import FiniteCombinatoryLogic, Subtypes, deep_str
 
 
 class WriteFileTask(luigi.Task, inhabitation_task.LuigiCombinator):
@@ -68,21 +66,29 @@ class FinalNode(luigi.WrapperTask, inhabitation_task.LuigiCombinator):
         return self.substitute_name()
 
 
-
-
-
 if __name__ == "__main__":
     target = FinalNode.return_type()
-    repository = RepoMeta.repository
-    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
+    print("Collecting Repo")
+    rm = RepoMeta
+    repository = rm.repository
+    subtpes = rm.subtypes
+    print(deep_str(repository))
+
+    print("Build Repository...")
+    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
+    print("Build Tree Grammar and inhabit Pipelines...")
+
     inhabitation_result = fcl.inhabit(target)
+    print("Enumerating results...")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
-    if not actual is None or actual == 0:
+    if actual > 0:
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     if results:
-        luigi.build(results, local_scheduler=False) # für luigid: local_scheduler = True weglassen!
+        print("Number of results", max_results)
+        print("Run Pipelines")
+        luigi.build(results, local_scheduler=True)  # für luigid: local_scheduler = True weglassen!
     else:
         print("No results!")
