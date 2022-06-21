@@ -387,7 +387,6 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
 class FitTransformScaler(luigi.Task, LuigiCombinator):
     abstract = True
     splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
-    scaler = luigi.Parameter()  # the scaler class itself without instantiating. (without ())
     scaled_files_label = luigi.Parameter()  # string to be used in the output naming
     scaler_label = luigi.Parameter()  # string to be used in the output naming
 
@@ -411,10 +410,10 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
         train = self._read_training_data()
         X = train.drop(setup["target_column"], axis="columns")
         y = train[[setup["target_column"]]]
-        self._init_scaler()
-        self.scaler.fit(X)
-        scaled = pd.DataFrame(self.scaler.transform(X),
-                              columns=self.scaler.feature_names_in_,
+        scaler = self._init_scaler()
+        scaler.fit(X)
+        scaled = pd.DataFrame(scaler.transform(X),
+                              columns=scaler.feature_names_in_,
                               index=X.index)
         scaled[setup["target_column"]] = y
         scaled.to_pickle(self.output()["scaled_train"].path)
@@ -422,14 +421,14 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
         test = self._read_testing_data()
         X = test.drop(setup["target_column"], axis="columns")
         y = test[[setup["target_column"]]]
-        scaled = pd.DataFrame(self.scaler.transform(X),
-                              columns=self.scaler.feature_names_in_,
+        scaled = pd.DataFrame(scaler.transform(X),
+                              columns=scaler.feature_names_in_,
                               index=X.index)
         scaled[setup["target_column"]] = y
         scaled.to_pickle(self.output()["scaled_test"].path)
 
         with open(self.output()["scaler"].path, 'wb') as outfile:
-            pickle.dump(self.scaler, outfile)
+            pickle.dump(scaler, outfile)
 
     def output(self):
         return {
@@ -438,34 +437,31 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
             "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')
         }
 
-    def _init_scaler(self):  # this method maybe used to initialize the scaler and to pass some parameters as well
+    def _init_scaler(self):  # this method may be used to initialize the scaler and to pass some parameters as well
         pass
 
 
 class FitTransformRobustScaler(FitTransformScaler):
     abstract = False
-    scaler = luigi.Parameter(default=RobustScaler)
     scaled_files_label = luigi.Parameter(default="_robust_scaled")
     scaler_label = luigi.Parameter(default="robust_scaler")
 
     def _init_scaler(self):
-        self.scaler = self.scaler()
+        return RobustScaler()
 
 
 class FitTransformMinMaxScaler(FitTransformScaler):
     abstract = False
-    scaler = luigi.Parameter(default=MinMaxScaler)
     scaled_files_label = luigi.Parameter(default="_minmax_scaled")
     scaler_label = luigi.Parameter(default="minmax_scaler")
 
     def _init_scaler(self):
-        self.scaler = self.scaler()
+        return MinMaxScaler()
 
 
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
     scaled_data = ClsParameter(tpe=FitTransformScaler.return_type())
-    regressor = luigi.Parameter()  # the regressor class itself without instantiating. (without ())
     regressor_label = luigi.Parameter()  # string to be used in the output naming
 
     def requires(self):
@@ -479,7 +475,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
 
     def run(self):
         setup = read_setup()
-        self._init_regressor()
+        regressor = self._init_regressor()
 
         print("TARGET:", setup["target_column"])
         print("NOW WE FIT LINEAR REGRESSION MODEL")
@@ -494,44 +490,41 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
         print(y)
         print(y.shape)
 
-        self.regressor.fit(X, y)
+        regressor.fit(X, y)
         with open(self.output()[0].path, 'wb') as f:
-            dump(self.regressor, f)
+            dump(regressor, f)
 
     def output(self):
         return [
             luigi.LocalTarget('data/' + self.regressor_label + self._get_variant_label() + '.pkl')]
 
-    def _init_regressor(self):  # this method maybe used to initialize the regressor and to pass some parameters as well
+    def _init_regressor(self):  # this method may be used to initialize the regressor and to pass some parameters as well
         pass
 
 
 class TrainLinearRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor = luigi.Parameter(default=LinearRegression)
     regressor_label = luigi.Parameter(default="linear_reg_")
 
     def _init_regressor(self):
-        self.regressor = self.regressor()
+        return LinearRegression()
 
 
 class TrainLassoRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor = luigi.Parameter(default=linear_model.Lasso)
     regressor_label = luigi.Parameter(default="lasso_reg_")
 
     def _init_regressor(self):
-        self.regressor = self.regressor()
+        return linear_model.Lasso()
 
 
 class TrainRidgeRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor = luigi.Parameter(default=linear_model.Ridge)
     regressor_label = luigi.Parameter(default="ridge_reg_")
 
     def _init_regressor(self):
         setup = read_setup()
-        self.regressor = self.regressor(**setup["ridge_args"])
+        return linear_model.Lasso(**setup["ridge_args"])
 
 
 class Predict(luigi.Task, LuigiCombinator):
@@ -577,7 +570,7 @@ class Predict(luigi.Task, LuigiCombinator):
 class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
     abstract = False
     y_true_and_pred = ClsParameter(tpe=Predict.return_type())
-    sort_by = luigi.Parameter(default="rmse")
+    sort_by = luigi.ChoiceParameter(default="rmse", choices=["rmse", "mae", "r2"])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -612,6 +605,8 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
             leaderboard.loc[leaderboard.shape[0]] = [self._get_reg_name(), self.rmse, self.mae, self.r2]
             leaderboard = leaderboard.sort_values(by=self.sort_by, ascending=False)
             leaderboard.to_csv(self.output()[0].path, index_label="index")
+        else:
+            print("scores already exist for: ", self._get_reg_name())
 
     def _compute_metrics(self, y_true, y_pred):
         self.rmse = round(mean_squared_error(y_true, y_pred, squared=False), 3)
@@ -681,7 +676,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         y_true, y_pred = self._read_y_true_and_prediction()
         self._compute_metrics(y_true, y_pred)
         self._update_leaderboard()
-        self._visualize(y_true, y_pred, show=False)
+        self._visualize(y_true, y_pred, show=True)
         self.done = True
 
     def output(self):
