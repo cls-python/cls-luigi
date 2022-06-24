@@ -299,7 +299,7 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
     def _get_variant_label(self):
         var_label_name = list(map(
             lambda local_target: Path(local_target.path).stem, self.input()))
-        return "_".join(var_label_name)
+        return "-".join(var_label_name)
 
     def run(self):
         setup = read_setup()
@@ -317,7 +317,7 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
         df_joined.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget("data/final_" + self._get_variant_label() + ".pkl")
+        return luigi.LocalTarget("data/final_dataset-" + self._get_variant_label() + ".pkl")
 
 
 class AssembleFinalDataset1(AssembleFinalDataset):
@@ -380,8 +380,8 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
         test.to_pickle(self.output()["test"].path)
 
     def output(self):
-        return {"train": luigi.LocalTarget('data/train_' + self._get_variant_label() + '.pkl'),
-                "test": luigi.LocalTarget('data/test_' + self._get_variant_label() + '.pkl')}
+        return {"train": luigi.LocalTarget('data/train-' + self._get_variant_label() + '.pkl'),
+                "test": luigi.LocalTarget('data/test-' + self._get_variant_label() + '.pkl')}
 
 
 class FitTransformScaler(luigi.Task, LuigiCombinator):
@@ -433,10 +433,10 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
     def output(self):
         return {
             "scaled_train": luigi.LocalTarget(
-                'data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
+                'data/' + self._get_training_variant_label() + "-" + self.scaled_files_label + '.pkl'),
             "scaled_test": luigi.LocalTarget(
-                'data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
-            "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')
+                'data/' + self._get_testing_variant_label() + "-" + self.scaled_files_label + '.pkl'),
+            "scaler": luigi.LocalTarget('data/' + self.scaler_label + "-" + self._get_training_variant_label() + '.pkl')
         }
 
     def _init_scaler(self):  # this method may be used to initialize the scaler and to pass some parameters as well
@@ -445,7 +445,7 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
 
 class FitTransformRobustScaler(FitTransformScaler):
     abstract = False
-    scaled_files_label = luigi.Parameter(default="_robust_scaled")
+    scaled_files_label = luigi.Parameter(default="robust_scaled")
     scaler_label = luigi.Parameter(default="robust_scaler")
 
     def _init_scaler(self):
@@ -454,7 +454,7 @@ class FitTransformRobustScaler(FitTransformScaler):
 
 class FitTransformMinMaxScaler(FitTransformScaler):
     abstract = False
-    scaled_files_label = luigi.Parameter(default="_minmax_scaled")
+    scaled_files_label = luigi.Parameter(default="minmax_scaled")
     scaler_label = luigi.Parameter(default="minmax_scaler")
 
     def _init_scaler(self):
@@ -498,7 +498,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
 
     def output(self):
         return [
-            luigi.LocalTarget('data/' + self.regressor_label + self._get_variant_label() + '.pkl')]
+            luigi.LocalTarget('data/' + self.regressor_label + "-" + self._get_variant_label() + '.pkl')]
 
     def _init_regressor(self):  # this method may be used to initialize the regressor and to pass some parameters as well
         pass
@@ -506,7 +506,7 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
 
 class TrainLinearRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor_label = luigi.Parameter(default="linear_reg_")
+    regressor_label = luigi.Parameter(default="linear_reg")
 
     def _init_regressor(self):
         return LinearRegression()
@@ -514,7 +514,7 @@ class TrainLinearRegressionModel(TrainRegressionModel):
 
 class TrainLassoRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor_label = luigi.Parameter(default="lasso_reg_")
+    regressor_label = luigi.Parameter(default="lasso_reg")
 
     def _init_regressor(self):
         return linear_model.Lasso()
@@ -522,7 +522,7 @@ class TrainLassoRegressionModel(TrainRegressionModel):
 
 class TrainRidgeRegressionModel(TrainRegressionModel):
     abstract = False
-    regressor_label = luigi.Parameter(default="ridge_reg_")
+    regressor_label = luigi.Parameter(default="ridge_reg")
 
     def _init_regressor(self):
         setup = read_setup()
@@ -566,7 +566,7 @@ class Predict(luigi.Task, LuigiCombinator):
             pickle.dump(y_true_and_pred, outfile)
 
     def output(self):
-        return luigi.LocalTarget('data/true_and_prediction_' + self._get_variant_label() + '.pkl')
+        return luigi.LocalTarget('data/true_and_prediction' + "-" + self._get_variant_label() + '.pkl')
 
 
 class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
@@ -595,8 +595,8 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
     def _get_reg_name(self):
         p = Path(self.input().path).name
-        p = p.split('_')[3:]
-        return '_'.join(p)
+        p = p.split('-')[1:]
+        return '-'.join(p)
 
     def _compute_metrics(self, y_true, y_pred):
         self.rmse = round(mean_squared_error(y_true, y_pred, squared=False), 3)
