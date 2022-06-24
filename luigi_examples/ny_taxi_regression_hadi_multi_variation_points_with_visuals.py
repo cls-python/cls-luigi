@@ -432,8 +432,10 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
 
     def output(self):
         return {
-            "scaled_train": luigi.LocalTarget('data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
-            "scaled_test": luigi.LocalTarget('data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
+            "scaled_train": luigi.LocalTarget(
+                'data/' + self._get_training_variant_label() + self.scaled_files_label + '.pkl'),
+            "scaled_test": luigi.LocalTarget(
+                'data/' + self._get_testing_variant_label() + self.scaled_files_label + '.pkl'),
             "scaler": luigi.LocalTarget('data/' + self.scaler_label + "_" + self._get_training_variant_label() + '.pkl')
         }
 
@@ -524,7 +526,7 @@ class TrainRidgeRegressionModel(TrainRegressionModel):
 
     def _init_regressor(self):
         setup = read_setup()
-        return linear_model.Lasso(**setup["ridge_args"])
+        return linear_model.Ridge(**setup["ridge_args"])
 
 
 class Predict(luigi.Task, LuigiCombinator):
@@ -570,11 +572,12 @@ class Predict(luigi.Task, LuigiCombinator):
 class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
     abstract = False
     y_true_and_pred = ClsParameter(tpe=Predict.return_type())
-    sort_by = luigi.ChoiceParameter(default="rmse", choices=["rmse", "mae", "r2"])
+    sort_by = luigi.ChoiceParameter(default="RMSE", choices=["RMSE", "MAE", "R2"])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.done = False
+        self.leaderboard = None
         self.rmse = None
         self.mae = None
         self.r2 = None
@@ -595,27 +598,54 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         p = p.split('_')[3:]
         return '_'.join(p)
 
-    def _update_leaderboard(self):
-        if os.path.exists(self.output()[0].path) is False:
-            leaderboard = pd.DataFrame(columns=["regressor", "rmse", "mae", "r2"])
-        else:
-            leaderboard = pd.read_csv(self.output()[0].path, index_col="index")
-
-        if self._get_reg_name() not in leaderboard["regressor"].values:
-            leaderboard.loc[leaderboard.shape[0]] = [self._get_reg_name(), self.rmse, self.mae, self.r2]
-            leaderboard = leaderboard.sort_values(by=self.sort_by, ascending=False)
-            leaderboard.to_csv(self.output()[0].path, index_label="index")
-        else:
-            print("scores already exist for: ", self._get_reg_name())
-
     def _compute_metrics(self, y_true, y_pred):
         self.rmse = round(mean_squared_error(y_true, y_pred, squared=False), 3)
         self.mae = round(mean_absolute_error(y_true, y_pred), 3)
         self.r2 = round(r2_score(y_true, y_pred), 3)
 
-    def _visualize(self, y_true, y_pred, show=False):
+    def _update_leaderboard(self, show_summary=False):
+        if os.path.exists(self.output()[0].path) is False:
+            self.leaderboard = pd.DataFrame(columns=["regressor", "RMSE", "MAE", "R2"])
+        else:
+            self.leaderboard = pd.read_csv(self.output()[0].path, index_col="index")
 
-        if os.path.exists(self.output()[1].path) is False:
+        if self._get_reg_name() not in self.leaderboard["regressor"].values:
+            self.leaderboard.loc[self.leaderboard.shape[0]] = [self._get_reg_name(), self.rmse, self.mae, self.r2]
+            self.leaderboard = self.leaderboard.sort_values(by=self.sort_by, ascending=False)
+            self.leaderboard.to_csv(self.output()[0].path, index_label="index")
+            self._visualize_leaderboard(show=show_summary)
+        else:
+            print("scores already exist for: ", self._get_reg_name())
+
+    def _visualize_leaderboard(self, top_results_max_limit=5, show=False):
+        top_models = self.leaderboard.head(top_results_max_limit)
+
+        top_models = top_models.reset_index()
+        top_models = top_models.rename(columns={
+            "index": "Leaderboard Index",
+            "RMSE": "Root Mean Squared Error",
+            "MAE": "Mean Absolute Error",
+            "R2": "Coefficient of Determination (R\u00b2)"
+        })
+
+        fig, axes = plt.subplots(1, 3, figsize=(16, 8))
+        fig.suptitle(
+            "\nLeaderboard Top {} Models Metrics\nSorted by:{}\n\n".format(len(top_models), self.sort_by),
+            x=0.05, ha="left")
+
+        sns.barplot(x="Leaderboard Index", y="Root Mean Squared Error", data=top_models, ax=axes[0])
+        sns.barplot(x="Leaderboard Index", y="Mean Absolute Error", data=top_models, ax=axes[1])
+        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2])
+
+        plt.tight_layout()
+        plt.savefig(self.output()[1].path)
+        if show:
+            plt.show()
+        plt.close(fig)
+
+    def _visualize_model(self, y_true, y_pred, show=False):
+
+        if os.path.exists(self.output()[2].path) is False:
 
             fig, axes = plt.subplots(2, 2, figsize=(17, 12))
             fig.suptitle(
@@ -665,23 +695,24 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
             histogram_target_value.set_title('Ground Truth & Prediction Values Histogram', loc='left')
 
             plt.tight_layout()
-            plt.savefig(self.output()[1].path)
+            plt.savefig(self.output()[2].path)
             if show:
                 plt.show()
             plt.close(fig)
         else:
-            print(self.output()[1].path, ' already exists!')
+            print(self.output()[2].path, ' already exists!')
 
     def run(self):
         y_true, y_pred = self._read_y_true_and_prediction()
         self._compute_metrics(y_true, y_pred)
-        self._update_leaderboard()
-        self._visualize(y_true, y_pred, show=True)
+        self._update_leaderboard(show_summary=False)
+        self._visualize_model(y_true, y_pred, show=False)
         self.done = True
 
     def output(self):
         return [luigi.LocalTarget('data/leaderboard.csv'),
-                luigi.LocalTarget('data/' + self._get_reg_name() + ".png")]
+                luigi.LocalTarget("data/leaderboard_summary.png"),
+        luigi.LocalTarget('data/' + self._get_reg_name() + ".png")]
 
 
 if __name__ == '__main__':
