@@ -1,4 +1,4 @@
-import os
+from os.path import exists, join
 import pickle
 import warnings
 from pathlib import Path
@@ -29,8 +29,10 @@ sns.set_context('talk')
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
+PATH = "data/"
 
-def read_setup(path='data/setup.json'):
+
+def read_setup(path=join(PATH, 'setup.json')):
     with open(path, 'rb') as f:
         setup = json.load(f)
     return setup
@@ -80,7 +82,7 @@ class DropDuplicatesAndNA(luigi.Task, LuigiCombinator):
         taxi.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/cleaned_data.pkl')
+        return luigi.LocalTarget(join(PATH, 'cleaned_data.pkl'))
 
 
 class FilterImplausibleTrips(luigi.Task, LuigiCombinator):
@@ -101,7 +103,7 @@ class FilterImplausibleTrips(luigi.Task, LuigiCombinator):
         taxi.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/filtered.pkl')
+        return luigi.LocalTarget(join(PATH, 'filtered.pkl'))
 
 
 class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
@@ -129,7 +131,7 @@ class ExtractRawTemporalFeatures(luigi.Task, LuigiCombinator):
         raw_temporal_features.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/raw_temporal_features.pkl')
+        return luigi.LocalTarget(join(PATH, 'raw_temporal_features.pkl'))
 
 
 class BinaryEncodePickupAtWeekend(luigi.Task, LuigiCombinator):
@@ -158,7 +160,7 @@ class BinaryEncodePickupAtWeekend(luigi.Task, LuigiCombinator):
         print('NOW WE BINARY ENCODE Weekend')
 
     def output(self):
-        return luigi.LocalTarget('data/pickup_at_weekend.pkl')
+        return luigi.LocalTarget(join(PATH, 'pickup_at_weekend.pkl'))
 
 
 class BinaryEncodePickupAtOrAfterHour(luigi.Task, LuigiCombinator):
@@ -187,7 +189,7 @@ class BinaryEncodePickupAtOrAfterHour(luigi.Task, LuigiCombinator):
         df_pickup_hour_encoded.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget('data/pickup_hour_at_or_after' + str(self.hour) + '_binary.pkl')
+        return luigi.LocalTarget(join(PATH, 'pickup_hour_at_or_after' + str(self.hour) + '_binary.pkl'))
 
 
 class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
@@ -231,7 +233,7 @@ class EncodePickupWeekdayOneHotSklearn(luigi.Task, LuigiCombinator):
         print('NOW WE ONE HOT ENCODE WEEKDAY')
 
     def output(self):
-        return luigi.LocalTarget('data/one_hot_weekday.pkl')
+        return luigi.LocalTarget(join(PATH, 'one_hot_weekday.pkl'))
 
 
 # class DummyEncodingNode(EncodePickupWeekdayOneHotSklearn, BinaryEncodePickupAtWeekend):
@@ -317,7 +319,7 @@ class AssembleFinalDataset(luigi.Task, LuigiCombinator):
         df_joined.to_pickle(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget("data/final_dataset-" + self._get_variant_label() + ".pkl")
+        return luigi.LocalTarget(join(PATH, "final_dataset-" + self._get_variant_label() + ".pkl"))
 
 
 class AssembleFinalDataset1(AssembleFinalDataset):
@@ -380,8 +382,8 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
         test.to_pickle(self.output()["test"].path)
 
     def output(self):
-        return {"train": luigi.LocalTarget('data/train-' + self._get_variant_label() + '.pkl'),
-                "test": luigi.LocalTarget('data/test-' + self._get_variant_label() + '.pkl')}
+        return {"train": luigi.LocalTarget(join(PATH, 'train-' + self._get_variant_label() + '.pkl')),
+                "test": luigi.LocalTarget(join(PATH, 'test-' + self._get_variant_label() + '.pkl'))}
 
 
 class FitTransformScaler(luigi.Task, LuigiCombinator):
@@ -433,11 +435,11 @@ class FitTransformScaler(luigi.Task, LuigiCombinator):
     def output(self):
         return {
             "scaled_train": luigi.LocalTarget(
-                'data/' + self._get_training_variant_label() + "-" + self.scaled_files_label + '.pkl'),
+                join(PATH, self._get_training_variant_label() + "-" + self.scaled_files_label + '.pkl')),
             "scaled_test": luigi.LocalTarget(
-                'data/' + self._get_testing_variant_label() + "-" + self.scaled_files_label + '.pkl'),
-            "scaler": luigi.LocalTarget('data/' + self.scaler_label + "-" + self._get_training_variant_label() + '.pkl')
-        }
+                join(PATH, self._get_testing_variant_label() + "-" + self.scaled_files_label + '.pkl')),
+            "scaler": luigi.LocalTarget(
+                join(PATH, self.scaler_label + "-" + self._get_training_variant_label() + '.pkl'))}
 
     def _init_scaler(self):  # this method may be used to initialize the scaler and to pass some parameters as well
         pass
@@ -498,9 +500,10 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
 
     def output(self):
         return [
-            luigi.LocalTarget('data/' + self.regressor_label + "-" + self._get_variant_label() + '.pkl')]
+            luigi.LocalTarget(join(PATH, self.regressor_label + "-" + self._get_variant_label() + '.pkl'))]
 
-    def _init_regressor(self):  # this method may be used to initialize the regressor and to pass some parameters as well
+    def _init_regressor(
+            self):  # this method may be used to initialize the regressor and to pass some parameters as well
         pass
 
 
@@ -566,7 +569,7 @@ class Predict(luigi.Task, LuigiCombinator):
             pickle.dump(y_true_and_pred, outfile)
 
     def output(self):
-        return luigi.LocalTarget('data/true_and_prediction' + "-" + self._get_variant_label() + '.pkl')
+        return luigi.LocalTarget(join(PATH, 'true_and_prediction' + "-" + self._get_variant_label() + '.pkl'))
 
 
 class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
@@ -604,7 +607,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         self.r2 = round(r2_score(y_true, y_pred), 3)
 
     def _update_leaderboard(self, show_summary=False):
-        if os.path.exists(self.output()[0].path) is False:
+        if exists(self.output()[0].path) is False:
             self.leaderboard = pd.DataFrame(columns=["regressor", "RMSE", "MAE", "R2"])
         else:
             self.leaderboard = pd.read_csv(self.output()[0].path, index_col="index")
@@ -645,7 +648,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
     def _visualize_model(self, y_true, y_pred, show=False):
 
-        if os.path.exists(self.output()[2].path) is False:
+        if exists(self.output()[2].path) is False:
 
             fig, axes = plt.subplots(2, 2, figsize=(17, 12))
             fig.suptitle(
@@ -710,9 +713,9 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
         self.done = True
 
     def output(self):
-        return [luigi.LocalTarget('data/leaderboard.csv'),
-                luigi.LocalTarget("data/leaderboard_summary.png"),
-        luigi.LocalTarget('data/' + self._get_reg_name() + ".png")]
+        return [luigi.LocalTarget(join(PATH, 'leaderboard.csv')),
+                luigi.LocalTarget(join(PATH, "leaderboard_summary.png")),
+                luigi.LocalTarget(join(PATH, self._get_reg_name() + ".png"))]
 
 
 if __name__ == '__main__':
