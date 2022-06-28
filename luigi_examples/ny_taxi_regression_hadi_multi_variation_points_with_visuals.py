@@ -614,7 +614,7 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
         if self._get_reg_name() not in self.leaderboard["regressor"].values:
             self.leaderboard.loc[self.leaderboard.shape[0]] = [self._get_reg_name(), self.rmse, self.mae, self.r2]
-            self.leaderboard = self.leaderboard.sort_values(by=self.sort_by, ascending=False)
+            self.leaderboard = self.leaderboard.sort_values(by=self.sort_by, ascending=True)
             self.leaderboard.to_csv(self.output()[0].path, index_label="index")
             self._visualize_leaderboard(show=show_summary)
         else:
@@ -636,9 +636,11 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
             "\nLeaderboard Top {} Models Metrics\nSorted by:{}\n\n".format(len(top_models), self.sort_by),
             x=0.05, ha="left")
 
-        sns.barplot(x="Leaderboard Index", y="Root Mean Squared Error", data=top_models, ax=axes[0])
-        sns.barplot(x="Leaderboard Index", y="Mean Absolute Error", data=top_models, ax=axes[1])
-        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2])
+        order = top_models["Leaderboard Index"].values
+
+        sns.barplot(x="Leaderboard Index", y="Root Mean Squared Error", data=top_models, ax=axes[0], order=order)
+        sns.barplot(x="Leaderboard Index", y="Mean Absolute Error", data=top_models, ax=axes[1], order=order)
+        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2], order=order)
 
         plt.tight_layout()
         plt.savefig(self.output()[1].path)
