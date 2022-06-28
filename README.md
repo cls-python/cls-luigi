@@ -15,8 +15,9 @@ All we need to implement is a pure luigi task, i.e., the methods ``run()``, ``ou
 
 ## Run a pipeline consisting of one task
 
-The following task simply writes "Hello World" to a file ``pure_hello_world.txt``:
+The script for this example is to be found [here](hello_world_examples/hello_world.py)
 
+The following task simply writes "Hello World" to a file ``pure_hello_world.txt``:
 ````python
 import luigi
 import inhabitation_task
@@ -37,10 +38,8 @@ If only this task exists, a pipeline simply consists of this task.
 However, we can run it as follows:
 
 ````python
-import luigi
-from anne_test_3 import WriteFileTask
 from inhabitation_task import RepoMeta
-from fcl import FiniteCombinatoryLogic, Subtypes
+from cls_python import FiniteCombinatoryLogic, Subtypes
 
 if __name__ == "__main__":
     target = WriteFileTask.return_type()
@@ -68,11 +67,13 @@ All inhabitants (luigi pipelines) are scheduled.
 
 ## Define dependencies on other tasks
 
+The script for this example is to be found [here](hello_world_examples/defining_dependencies.py)
+
 The following task depends on the WriteFileTask.
 It reads the file written in the WriteFileTask and substitutes "world" by "welt" and writes
 a new file.
-To determine this dependency, we define a class variable write_file_class and return it
-in the requires method.
+To determine this dependency, we define a class variable `write_file_class` and return it
+in the `requires` method.
 The rest of this class is "pure luigi".
 
 ````python
@@ -97,6 +98,12 @@ class SubstituteWeltTask(luigi.Task, inhabitation_task.LuigiCombinator):
 
 Let's now define our target as ``target = SubstituteWeltTask.return_type()`` in the scripting
 before.
+
+```python
+if __name__ == "__main__":
+    target = SubstituteWeltTask.return_type()
+    ...
+```
 Then a pipeline with the two tasks is scheduled.
 
 ## Add variation points
@@ -104,6 +111,8 @@ Then a pipeline with the two tasks is scheduled.
 To determine different pipelines, we have to add variation points.
 
 ### Using inheritance
+The script for this example is to be found [here](hello_world_examples/simple_variation_point.py)
+
 
 Let's assume as an example that there exist two different variants for substituting the "world" 
 string as variation point.
@@ -171,11 +180,66 @@ This progress looks :) because there were no failed tasks or missing dependencie
 ### Using different configurations
 
 
+## Variation points as a dependency
+
+A ready example is to be found [here](hello_world_examples/variation_point_as_dependency.py)
 
 
+When variation points are used as dependency in a following tasks, they must be uniquely identifiable by luigi,
+such that their outputs won't be overwritten or considered as completed before they
+are executed in subsequent pipelines.
+
+For that we can use the output names of variation points as unique identifiers.
+
+Here are the steps for that:
+1. Make sure that each variation point has a unique output name in the `output` method.
+2. In the Task, where the variation point is "required", implement the such a method in order to
+    uniquely identify the task :
+   ````python
+    from pathlib import Path
+    
+   # Case: singe input
+    def _get_variant_label(self):
+        output = self.input().path # this is the output of the variation point task
+        return Path(output).stem
+   
+   # Case: multiple inputs
+   # here we use the names of all inputs and joined them together
+   def _get_variant_label(self):
+       var_label_name = list(map(
+            lambda outputs: Path(outputs.path).stem, self.input()))
+       return "-".join(var_label_name)
+    ````
+3. Use the `_get_variant_label` method in the output of the task in a similar manner:
+    ````python
+    def output(self):
+        return luigi.LocalTarget(self._get_variant_label() + "-" + "output name of your choosing.suffix")
+        # Using "-" between your variant label and the name of your choosing is recommended for better readiness 
+    ````
+Note that You have to such a method in all subsequent tasks from here on, 
+in order to avoid files overwritten by subsequent pipelines.
+
+## Managing variation points when required more than once 
+
+A ready example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
+
+In case a variation point is required by more than one task,
+we must validate the inhabitation results in the `__main__` before passing them to luigi.
+We do that to filter out pipelines that execute variation points more than once.  
+
+For that we instantiate the `UniqueTaskPipelineValidator` with a list of all abstract tasks, and them filter through them as follows:
+
+```python
+    from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+
+    validator = UniqueTaskPipelineValidator([Your Variation Point Name])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+```
+
+
+   
 # Annes offene Fragen:
 * Welche LuigiCombinators werden ins Repo aufgenommen und wie passiert das :)?
 * Wie funktioniert ClsParameter? return_type() gibt ein Constructor zurück;
-
 
 
