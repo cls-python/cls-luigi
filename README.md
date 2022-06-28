@@ -198,7 +198,7 @@ Here are the steps for that:
    ````python
     from pathlib import Path
     
-   # Case: singe input
+   # Case: single input
     def _get_variant_label(self):
         output = self.input().path # this is the output of the variation point task
         return Path(output).stem
@@ -236,10 +236,5 @@ For that we instantiate the `UniqueTaskPipelineValidator` with a list of all abs
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
-
-   
-# Annes offene Fragen:
-* Welche LuigiCombinators werden ins Repo aufgenommen und wie passiert das :)?
-* Wie funktioniert ClsParameter? return_type() gibt ein Constructor zurück;
 
 
