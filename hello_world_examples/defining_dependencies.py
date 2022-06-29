@@ -12,7 +12,7 @@ class SubstituteWeltTask(luigi.Task, inhabitation_task.LuigiCombinator):
         return self.write_file_task()
 
     def output(self):
-        return luigi.LocalTarget('../pure_hello_welt.txt')
+        return luigi.LocalTarget('pure_hello_welt.txt')
 
     def run(self):
         print("============= NameSubstituter: run")
