@@ -111,7 +111,7 @@ Then a pipeline with the two tasks is scheduled.
 To determine different pipelines, we have to add variation points.
 
 ### Using inheritance
-The script for this example is to be found [here](hello_world_examples/generation_variation_by_inheritance.py)
+The script for this example is to be found [here](hello_world_examples/generating_variation_by_inheritance.py)
 
 
 Let's assume as an example that there exist two different variants for substituting the "world" 
