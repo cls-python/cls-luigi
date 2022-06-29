@@ -13,7 +13,15 @@ luigi tasks that are part of the task repository.
 All we need to implement is a pure luigi task, i.e., the methods ``run()``, ``output()`` and
 ``requires()``.
 
-## Run a pipeline consisting of one task
+In the following we give a short intro of how to use cls-luigi. For each section, we also 
+provide you with a running example in the folder hello_world_examples.
+
+* [Run a pipeline consisting of one task](#rpc) 
+* [Define dependencies on other tasks](#dfo)
+* [Add variation points](#avp)
+* [Variation points as a dependency](#vpa)
+
+## Run a pipeline consisting of one task<a name="rpc"/>
 
 The script for this example is to be found [here](hello_world_examples/hello_world.py)
 
@@ -65,7 +73,7 @@ As the number of resulting variants can be infinite, we only store ``max_tasks_w
 number of inhabitants in the results lists.
 All inhabitants (luigi pipelines) are scheduled.
 
-## Define dependencies on other tasks
+## Define dependencies on other tasks<a name="dfo"/>
 
 The script for this example is to be found [here](hello_world_examples/defining_dependencies.py)
 
@@ -106,7 +114,7 @@ if __name__ == "__main__":
 ```
 Then a pipeline with the two tasks is scheduled.
 
-## Add variation points
+## Add variation points<a name="avp"/>
 
 To determine different pipelines, we have to add variation points.
 
@@ -122,14 +130,14 @@ implementations.
 ````python
 class SubstituteNameTask(luigi.Task, inhabitation_task.LuigiCombinator):
     abstract = True
-    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
-
+    
     def requires(self):
         return self.write_file_task()
 
 
 class SubstituteNameByAnneTask(SubstituteNameTask):
     abstract = False
+    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def output(self):
         return luigi.LocalTarget('pure_hello_anne.txt')
@@ -146,6 +154,7 @@ class SubstituteNameByAnneTask(SubstituteNameTask):
 
 class SubstituteNameByJanTask(SubstituteNameTask):
     abstract = False
+    read_data_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def output(self):
         return luigi.LocalTarget('pure_hello_jan.txt')
@@ -257,7 +266,7 @@ There are 5 scheduled tasks in total:
 
 
 
-## Variation points as a dependency
+## Variation points as a dependency<a name="vpa"/>
 
 A ready example is to be found [here](hello_world_examples/variation_point_as_dependency.py)
 
@@ -296,7 +305,7 @@ Here are the steps for that:
 Note that You have to such a method in all subsequent tasks from here on, 
 in order to avoid files overwritten by subsequent pipelines.
 
-## Variation points usages in multiple tasks
+## Variation points usages in multiple tasks<a name="vpu"/>
 
 In case a variation point is required by more than one task,
 we must validate the inhabitation results before passing them to luigi.
