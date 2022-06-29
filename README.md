@@ -219,22 +219,49 @@ Here are the steps for that:
 Note that You have to such a method in all subsequent tasks from here on, 
 in order to avoid files overwritten by subsequent pipelines.
 
-## Managing variation points when required more than once 
-
-A ready example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
+## Variation points usages in multiple tasks
 
 In case a variation point is required by more than one task,
-we must validate the inhabitation results in the `__main__` before passing them to luigi.
-We do that to filter out pipelines that execute variation points more than once.  
+we must validate the inhabitation results before passing them to luigi.
+We do that to filter out pipelines that 
+simultaneously execute concrete implementations of a variation point more than once. 
 
-For that we instantiate the `UniqueTaskPipelineValidator` with a list of all abstract tasks, and them filter through them as follows:
+#### Abstract example
+The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
+
+
+Consider this general pipeline where the variation point `Task1 Abstract` is a dependency for Task2,
+Task3 and Task4. Since we have 1 variation point with 2 concrete implementations, 
+we should have 2 pipelines.
+However, CLS produces 8 different pipelines, 6 of which are faulty.  
+<img src="hello_world_examples/variation_point_multi_usage.jpg" alt="Alt text">
+
+For that we must instantiate the `UniqueTaskPipelineValidator` with a list all abstract tasks
+(whose outputs are used more than once), and them filter through them as follows:
 
 ```python
-    from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
-    validator = UniqueTaskPipelineValidator([Your Variation Point Name])
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+validator = UniqueTaskPipelineValidator([Task1Abstract])
+results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
+#### ML-Pipeline example
+The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage.py)
+
+Consider this regression pipeline for diabetes dataset from Scikit-Learn,
+where we have 2 variation points, each producing 2 concrete implementations.
+So we should have only 4 pipelines in this case, But CLS produces 8. 
+
+
+<img src="hello_world_examples/ML_example_variation_point_multi_usage.jpg" alt="Alt text">
+
+We can see that `Scale Data` is required by `Train Reg. Model` and `Predict Target`.
+So the pipeline validation in this case looks like this:
+
+```python
+validator = UniqueTaskPipelineValidator([FitTransformScaler])
+results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+```
 
 

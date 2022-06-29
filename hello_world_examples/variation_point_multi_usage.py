@@ -84,7 +84,9 @@ class Task4(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget("Task4.txt")
 
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+
     target = Task4.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
@@ -99,8 +101,12 @@ if __name__ == '__main__':
     max_results = max_tasks_when_infinite
     if actual > 0:
         max_results = actual
+
     validator = UniqueTaskPipelineValidator([Task1Abstract])
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+
+    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using :)
+
     if results:
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
@@ -108,3 +114,7 @@ if __name__ == '__main__':
         luigi.build(results, local_scheduler=False, detailed_summary=True)
     else:
         print("No results!")
+
+
+
+
