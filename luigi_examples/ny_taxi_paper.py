@@ -1,17 +1,16 @@
 from os.path import exists, join
 import pickle
-import warnings
 from pathlib import Path
 import luigi
 import pandas as pd
 import json
 from pickle import dump
 
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, StandardScaler
-from sklearn.tree import DecisionTreeRegressor, ExtraTreeRegressor
+from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBRegressor
 import lightgbm as lgb
 
@@ -26,7 +25,6 @@ from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 sns.set_style('darkgrid')
 sns.set_context('talk')
-
 
 PATH = "data/"
 
@@ -53,23 +51,44 @@ class WriteCSVRegressionSetupJson(WriteSetupJson):
                             "totalleft", "haversine_distance", "totalsteps"],
             "target_column": 'trip_duration',
             "seed": 42,
-            "params": {
-                "dt": {"max_depth": None, #23,
-                       # "min_child_weight": 100,
-                       "random_state": 42
-                       },
-                "rf": {
-                    "max_depth": None, #28,
-                    # "colsample_bytree": 0.8,
-                    # "subsample": 0.9,
-                    "n_estimators": 100, # 80,
+            "reg_params": {
+                "decision_tree": {
+                    "max_depth": 23,
+                    "min_samples_leaf": 100,  # min_child_weight
                     "random_state": 42
                 },
-                "ert": {
-                    # "n_trees": 60,
-                    "max_depth": None, #28
-                    # "colsample_bytree": 0.6,
+                "random_forest": {
+                    "max_depth": 28,
+                    "max_features": 0.8,  # colsample_bytree
+                    "max_samples": 0.9,  # subsample
+                    "n_estimators": 80,  # n_trees
                     "random_state": 42
+                },
+                "extra_trees": {
+                    "n_estimators": 60,  # n_trees
+                    "max_depth": 28,  # n_trees
+                    "max_features": 0.6,  # colsample_bytree
+                    "random_state": 42
+                },
+                "xgb": {
+                    "eta": 0.01,
+                    "lambda": 1,
+                    "max_depth": 21,
+                    "gamma": 0,
+                    "min_child_weight": 110,
+                    "subsample": 1.0,
+                    "colsample_bytree": 1.0,
+                    "seed": 42
+
+                },
+                "light_gbm": {
+                    "max_leaves": 900,
+                    "min_data_in_leaf": 130,
+                    "gamma": 20,
+                    "lambda": 1,
+                    "learning_rate": 0.05,
+                    "seed": 42
+
                 }
 
             }
@@ -346,7 +365,7 @@ class TrainDecisionTreeModel(TrainRegressionModel):
     regressor_label = luigi.Parameter(default="decision_tree")
 
     def _init_regressor(self):
-        params = read_setup()["params"]["dt"]
+        params = read_setup()["reg_params"]["decision_tree"]
         return DecisionTreeRegressor(**params)
         # return DecisionTreeRegressor()
 
@@ -356,8 +375,8 @@ class TrainExtraTreeModel(TrainRegressionModel):
     regressor_label = luigi.Parameter(default="extra_tree")
 
     def _init_regressor(self):
-        params = read_setup()["params"]["ert"]
-        return ExtraTreeRegressor(**params)
+        params = read_setup()["reg_params"]["extra_trees"]
+        return ExtraTreesRegressor(**params)
         # return ExtraTreeRegressor()
 
 
@@ -366,7 +385,7 @@ class TrainRandomForrestModel(TrainRegressionModel):
     regressor_label = luigi.Parameter(default="random_forest")
 
     def _init_regressor(self):
-        params = read_setup()["params"]["rf"]
+        params = read_setup()["reg_params"]["random_forest"]
         return RandomForestRegressor(**params)
         # return RandomForestRegressor()
 
@@ -376,7 +395,8 @@ class TrainXgBoostModel(TrainRegressionModel):
     regressor_label = luigi.Parameter(default="xgboost")
 
     def _init_regressor(self):
-        return XGBRegressor()
+        params = read_setup()["reg_params"]["xgb"]
+        return XGBRegressor(**params)
 
 
 class TrainLightGBMModel(TrainRegressionModel):
@@ -384,7 +404,8 @@ class TrainLightGBMModel(TrainRegressionModel):
     regressor_label = luigi.Parameter(default="light_gbm")
 
     def _init_regressor(self):
-        return lgb.LGBMRegressor()
+        params = read_setup()["reg_params"]["light_gbm"]
+        return lgb.LGBMRegressor(**params)
 
 
 class Predict(luigi.Task, LuigiCombinator):
@@ -495,7 +516,8 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
         sns.barplot(x="Leaderboard Index", y="Root Mean Squared Error", data=top_models, ax=axes[0], order=order)
         sns.barplot(x="Leaderboard Index", y="Mean Absolute Error", data=top_models, ax=axes[1], order=order)
-        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2], order=order)
+        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2],
+                    order=order)
 
         plt.tight_layout()
         plt.savefig(self.output()[1].path)
@@ -594,6 +616,7 @@ if __name__ == '__main__':
 
     validator = UniqueTaskPipelineValidator([FitTransformScaler, TrainRegressionModel])
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+
 
     if results:
         print("Number of results", max_results)
