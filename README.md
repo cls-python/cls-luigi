@@ -111,7 +111,7 @@ Then a pipeline with the two tasks is scheduled.
 To determine different pipelines, we have to add variation points.
 
 ### Using inheritance
-The script for this example is to be found [here](hello_world_examples/simple_variation_point.py)
+The script for this example is to be found [here](hello_world_examples/generation_variation_by_inheritance.py)
 
 
 Let's assume as an example that there exist two different variants for substituting the "world" 
@@ -179,6 +179,84 @@ This progress looks :) because there were no failed tasks or missing dependencie
 
 ### Using different configurations
 
+The code of this example is to be found [here](hello_world_examples/generating_variation_by_config.py)
+
+Another way to produce variation points is to use different configuration.
+Let's consider the same above example for substituting the "world" 
+string as variation point.
+
+First we implement both `SubstituteNameByJanTask` and `SubstituteNameByAnneTask` as a normal non-abstract task.
+```python
+class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
+    abstract = False
+    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
+
+    def requires(self):
+        return self.write_file_task()
+
+    def output(self):
+        return luigi.LocalTarget('../pure_hello_anne.txt')
+
+    def run(self):
+        print("============= NameSubstitute: run")
+        with self.input().open() as infile:
+            text = infile.read()
+
+        with self.output().open('w') as outfile:
+            text = text.replace('World', "Anne")
+            outfile.write(text)
+
+
+class SubstituteNameByJanTask(luigi.Task, LuigiCombinator):
+    abstract = False
+
+    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
+
+    def requires(self):
+        return self.write_file_task()
+
+    def output(self):
+        return luigi.LocalTarget('../pure_hello_jan.txt')
+
+    def run(self):
+        print("============= NameSubstitute: run")
+        with self.input().open() as infile:
+            text = infile.read()
+
+        with self.output().open('w') as outfile:
+            text = text.replace('World', "Jan")
+            outfile.write(text)
+```
+
+Then, In the `FinalTask` We pass both tasks as a single ClsParameter represented by a dictionary,
+where the keys are our configuration index (1,2), and the items are the returned type of each task.
+
+Note that defining a domain for our configurations indices is optional.
+However, by defining a domain, we are specifying which variant is going to be implemented,
+such that variants with configuration indices not in the domain will not be executed. 
+
+````python
+class FinalTask(luigi.WrapperTask, LuigiCombinator):
+    substitute_name = ClsParameter(tpe={1: SubstituteNameByJanTask.return_type(),
+                                        2: SubstituteNameByAnneTask.return_type()})
+    config_domain = {1, 2}
+    def requires(self):
+        return self.substitute_name()
+````
+Side Note: The `config_domain` could hold integers as well as strings simultaneously. 
+
+Finally, we set `FinalTask` as our target as follows``target = FinalTask.return_type()``.
+
+
+There are 5 scheduled tasks in total:
+* 2 FinalTask
+* 1 SubstituteNameByJanTask
+* 1 SubstituteNameByAnneTask
+* 1 WriteFileTask
+
+
+
+
 
 ## Variation points as a dependency
 
@@ -212,7 +290,8 @@ Here are the steps for that:
 3. Use the `_get_variant_label` method in the output of the task in a similar manner:
     ````python
     def output(self):
-        return luigi.LocalTarget(self._get_variant_label() + "-" + "output name of your choosing.suffix")
+        return luigi.LocalTarget(
+            self._get_variant_label() + "-" + "output name of your choosing.suffix")
         # Using "-" between your variant label and the name of your choosing is recommended for better readiness 
     ````
 Note that You have to such a method in all subsequent tasks from here on, 
@@ -225,7 +304,7 @@ we must validate the inhabitation results before passing them to luigi.
 We do that to filter out pipelines that 
 simultaneously execute concrete implementations of a variation point more than once. 
 
-#### Abstract example
+### Abstract example
 The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
 
 
@@ -245,7 +324,7 @@ validator = UniqueTaskPipelineValidator([Task1Abstract])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
-#### ML-Pipeline example
+### ML-Pipeline example
 The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage.py)
 
 Consider this regression pipeline for diabetes dataset from Scikit-Learn,
