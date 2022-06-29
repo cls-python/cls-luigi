@@ -4,6 +4,8 @@ from inhabitation_task import RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
 from hello_world import WriteFileTask
 from pathlib import Path
+from collections.abc import Iterable
+
 
 
 class SubstituteNameTask(luigi.Task, inhabitation_task.LuigiCombinator):
@@ -51,8 +53,14 @@ class AddHadiToSubstituteNameTask(luigi.Task, inhabitation_task.LuigiCombinator)
     substituted_name = inhabitation_task.ClsParameter(tpe=SubstituteNameTask.return_type())
 
     def _get_variant_label(self):
-        label = self.input().path
-        return Path(label).stem
+        if isinstance(self.input(), luigi.LocalTarget):
+            label = self.input().path
+            return Path(label).stem
+
+        elif isinstance(self.input(), Iterable):
+            var_label_name = list(map(
+                lambda outputs: Path(outputs.path).stem, self.input()))
+            return "-".join(var_label_name)
 
     def requires(self):
         return self.substituted_name()

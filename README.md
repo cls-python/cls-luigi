@@ -196,19 +196,18 @@ Here are the steps for that:
 2. In the Task, where the variation point is "required", implement the such a method in order to
     uniquely identify the task :
    ````python
-    from pathlib import Path
+   from collections.abc import Iterable
+   from pathlib import Path
     
-   # Case: single input
     def _get_variant_label(self):
-        output = self.input().path # this is the output of the variation point task
-        return Path(output).stem
-   
-   # Case: multiple inputs
-   # here we use the names of all inputs and joined them together
-   def _get_variant_label(self):
-       var_label_name = list(map(
-            lambda outputs: Path(outputs.path).stem, self.input()))
-       return "-".join(var_label_name)
+        if isinstance(self.input(), luigi.LocalTarget):
+            label = self.input().path
+            return Path(label).stem
+
+        elif isinstance(self.input(), Iterable):
+            var_label_name = list(map(
+                lambda outputs: Path(outputs.path).stem, self.input()))
+            return "-".join(var_label_name)
     ````
 3. Use the `_get_variant_label` method in the output of the task in a similar manner:
     ````python
