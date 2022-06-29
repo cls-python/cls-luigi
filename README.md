@@ -236,7 +236,7 @@ class SubstituteNameByJanTask(luigi.Task, LuigiCombinator):
             outfile.write(text)
 ```
 
-Then, In the `FinalTask` We pass both tasks as a single ClsParameter represented by a dictionary,
+Then, in the `FinalTask` We pass both tasks as a single ClsParameter represented by a dictionary,
 where the keys are our configuration index (1,2), and the items are the returned type of each task.
 
 Note that defining a domain for our configurations indices is optional.
@@ -253,7 +253,7 @@ class FinalTask(luigi.WrapperTask, LuigiCombinator):
 ````
 Side Note: The `config_domain` could hold integers as well as strings simultaneously. 
 
-Finally, we set `FinalTask` as our target as follows``target = FinalTask.return_type()``.
+Finally, we set `FinalTask` as our target as follows ``target = FinalTask.return_type()``.
 
 
 There are 5 scheduled tasks in total:
@@ -271,16 +271,18 @@ There are 5 scheduled tasks in total:
 A ready example is to be found [here](hello_world_examples/variation_point_as_dependency.py)
 
 
-When variation points are used as dependency in a following tasks, they must be uniquely identifiable by luigi,
+When variation points are used as dependency in a following task, they must be uniquely identifiable by luigi,
 such that their outputs won't be overwritten or considered as completed before they
-are executed in subsequent pipelines.
+are executed in other (later scheduled) pipelines.
 
 For that we can use the output names of variation points as unique identifiers.
 
 Here are the steps for that:
-1. Make sure that each variation point has a unique output name in the `output` method.
+1. Make sure that each variation point has a unique output name in the `output` method (that's a
+prerequesite of luigi anyway).
 2. In the Task, where the variation point is "required", implement the such a method in order to
-    uniquely identify the task :
+    uniquely identify the task:
+    
    ````python
    from collections.abc import Iterable
    from pathlib import Path
@@ -295,15 +297,17 @@ Here are the steps for that:
                 lambda outputs: Path(outputs.path).stem, self.input()))
             return "-".join(var_label_name)
     ````
+    
 3. Use the `_get_variant_label` method in the output of the task in a similar manner:
     ````python
     def output(self):
         return luigi.LocalTarget(
             self._get_variant_label() + "-" + "output name of your choosing.suffix")
-        # Using "-" between your variant label and the name of your choosing is recommended for better readiness 
+        # Using "-" between your variant label and the name of your choosing is recommended for better readability 
     ````
-Note that You have to such a method in all subsequent tasks from here on, 
-in order to avoid files overwritten by subsequent pipelines.
+
+Note that You have to implement such a method in all subsequent tasks from here on, 
+in order to avoid files being overwritten by subsequent (later scheduled) pipelines.
 
 ## Variation points usages in multiple tasks<a name="vpu"/>
 
@@ -314,7 +318,6 @@ simultaneously execute concrete implementations of a variation point more than o
 
 ### Abstract example
 The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
-
 
 Consider this general pipeline where the variation point `Task1 Abstract` is a dependency for Task2,
 Task3 and Task4. Since we have 1 variation point with 2 concrete implementations, 
