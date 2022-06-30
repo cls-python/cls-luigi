@@ -186,6 +186,7 @@ class GenerateAndUpdateLeaderboard(luigi.Task, LuigiCombinator):
 
 class VisualizeLeaderboard(luigi.Task):
     sort_by = luigi.ChoiceParameter(default="RMSE", choices=["RMSE", "MAE", "R2"])
+    leaderboard_path = luigi.Parameter(default="leaderboard.csv")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -194,12 +195,8 @@ class VisualizeLeaderboard(luigi.Task):
     def complete(self):
         return self.done
 
-    # def requires(self):
-    #     return GenerateAndUpdateLeaderboard()
-    #     # return GenerateAndUpdateLeaderboard(regressor = "weeee", splitted_data = "eeeey")
-
     def run(self):
-        lb = pd.read_csv("leaderboard.csv")
+        lb = pd.read_csv(self.leaderboard_path)
         lb = lb.sort_values(by=self.sort_by, ascending=True)
 
         lb = lb.reset_index()
