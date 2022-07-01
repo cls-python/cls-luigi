@@ -60,14 +60,6 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
         y_test.to_pickle(self.output()[3].path)
 
 
-class FitTransformScaler(luigi.Task, LuigiCombinator):
-    abstract = True
-    splitted_data = inhabitation_task.ClsParameter(tpe=TrainTestSplit.return_type())
-
-    def requires(self):
-        return self.splitted_data()
-
-
 class TrainRegressionModel(luigi.Task, LuigiCombinator):
     abstract = True
     splitted_data = inhabitation_task.ClsParameter(tpe=TrainTestSplit.return_type())
@@ -192,6 +184,10 @@ class VisualizeLeaderboard(luigi.Task):
         super().__init__(*args, **kwargs)
         self.done = False
 
+    # def requires(self):
+    #     return GenerateAndUpdateLeaderboard(regressor=TrainRegressionModel(),
+    #                                         splitted_data=TrainTestSplit())
+
     def complete(self):
         return self.done
 
@@ -246,8 +242,7 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
 
-    validator = UniqueTaskPipelineValidator([FitTransformScaler])
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
 
     results.append(VisualizeLeaderboard())
 
