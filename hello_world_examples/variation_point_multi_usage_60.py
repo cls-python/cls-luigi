@@ -67,27 +67,27 @@ class Task3(luigi.Task, LuigiCombinator):
         return luigi.LocalTarget("Task3.txt")
 
 
-class Task4(luigi.Task, LuigiCombinator):
-    abstract = False
-    task3 = ClsParameter(tpe=Task3.return_type())
-    task1 = ClsParameter(tpe=Task1Abstract.return_type())
-
-    def requires(self):
-        return [self.task1(), self.task3()]
-
-    def run(self):
-        print("Now Task4")
-        with open(self.output().path, "w+") as outfile:
-            outfile.write("Task4")
-
-    def output(self):
-        return luigi.LocalTarget("Task4.txt")
+# class Task4(luigi.Task, LuigiCombinator):
+#     abstract = False
+#     task3 = ClsParameter(tpe=Task3.return_type())
+#     task1 = ClsParameter(tpe=Task1Abstract.return_type())
+#
+#     def requires(self):
+#         return [self.task1(), self.task3()]
+#
+#     def run(self):
+#         print("Now Task4")
+#         with open(self.output().path, "w+") as outfile:
+#             outfile.write("Task4")
+#
+#     def output(self):
+#         return luigi.LocalTarget("Task4.txt")
 
 
 
 if __name__ == "__main__":
 
-    target = Task4.return_type()
+    target = Task3.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Build Repository...")
@@ -105,7 +105,6 @@ if __name__ == "__main__":
     validator = UniqueTaskPipelineValidator([Task1Abstract])
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using :)
 
     if results:
         print("Number of results", max_results)

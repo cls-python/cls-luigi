@@ -23,7 +23,7 @@ provide you with a running example in the folder hello_world_examples.
 
 ## Run a pipeline consisting of one task<a name="rpc"/>
 
-The script for this example is to be found [here](hello_world_examples/hello_world.py)
+The script for this example is to be found [here](hello_world_examples/hello_world_10.py)
 
 The following task simply writes "Hello World" to a file ``pure_hello_world.txt``:
 ````python
@@ -75,7 +75,7 @@ All inhabitants (luigi pipelines) are scheduled.
 
 ## Define dependencies on other tasks<a name="dfo"/>
 
-The script for this example is to be found [here](hello_world_examples/defining_dependencies.py)
+The script for this example is to be found [here](hello_world_examples/defining_dependencies_20.py)
 
 The following task depends on the WriteFileTask.
 It reads the file written in the WriteFileTask and substitutes "world" by "welt" and writes
@@ -119,7 +119,7 @@ Then a pipeline with the two tasks is scheduled.
 To determine different pipelines, we have to add variation points.
 
 ### Using inheritance
-The script for this example is to be found [here](hello_world_examples/generating_variation_by_inheritance.py)
+The script for this example is to be found [here](hello_world_examples/generating_variation_by_inheritance_30.py)
 
 
 Let's assume as an example that there exist two different variants for substituting the "world" 
@@ -187,7 +187,7 @@ This progress looks :) because there were no failed tasks or missing dependencie
 
 ### Using different configurations
 
-The code of this example is to be found [here](hello_world_examples/generating_variation_by_config.py)
+The code of this example is to be found [here](hello_world_examples/generating_variation_by_config_40.py)
 
 Another way to produce variation points is to use different configuration.
 Let's consider the same above example for substituting the "world" 
@@ -268,7 +268,7 @@ There are 5 scheduled tasks in total:
 
 ## Variation points as a dependency<a name="vpa"/>
 
-A ready example is to be found [here](hello_world_examples/variation_point_as_dependency.py)
+A ready example is to be found [here](hello_world_examples/variation_point_as_dependency_50.py)
 
 
 When variation points are used as dependency in a following task, they must be uniquely identifiable by luigi,
@@ -312,18 +312,26 @@ in order to avoid files being overwritten by subsequent (later scheduled) pipeli
 ## Variation points usages in multiple tasks<a name="vpu"/>
 
 In case a variation point is required by more than one task,
-we must validate the inhabitation results before passing them to luigi.
-We do that to filter out pipelines that 
-simultaneously execute concrete implementations of a variation point more than once. 
+its concrete implementation may simultaneously get triggered more than once within the same pipeline.
+Depending on your desired use-case you may want to filter out pipelines that includes multiple 
+implementation of a given variation point. 
+
+For that you can validate the inhabitation results before we must validate the inhabitation results before passing them to luigi.
+
+ 
 
 ### Abstract example
-The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage.py)
+The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage_60.py)
 
-Consider this general pipeline where the variation point `Task1 Abstract` is a dependency for Task2,
-Task3 and Task4. Since we have 1 variation point with 2 concrete implementations, 
-we should have 2 pipelines.
-However, CLS produces 8 different pipelines, 6 of which are faulty.  
-<img src="hello_world_examples/variation_point_multi_usage.jpg" alt="Alt text">
+Consider this dummy pipeline where the variation point `Task1 Abstract` is a dependency for Task2 and
+Task3. CLS-Luigi produces in this case 4 pipelines, 2 of which contain different implementations of the same 
+variation point. 
+
+If you wish to filter out those 2 pipelines, such that you will have the remaining pipelines in the image below, 
+you must use the 'UniqueTaskPipelineValidator'. 
+
+<img src="hello_world_examples/variation_point_multi_usage_60.jpg" alt="Alt text">
+
 
 For that we must instantiate the `UniqueTaskPipelineValidator` with a list all abstract tasks
 (whose outputs are used more than once), and them filter through them as follows:
@@ -334,18 +342,31 @@ from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 validator = UniqueTaskPipelineValidator([Task1Abstract])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
+Now you may pass the results onto luigi as usual. 
 
 ### ML-Pipeline example
-The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage.py)
+The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage_70.py)
 
-Consider this regression pipeline for diabetes dataset from Scikit-Learn,
-where we have 2 variation points, each producing 2 concrete implementations.
-So we should have only 4 pipelines in this case, But CLS produces 8. 
+Let's consider an example where we predict the blood sugar level of some patients.
+In this example we first start by loading the dataset from Scikit-Learn, then we split it into 
+2 subsets for training and testing.
+
+The first variation point is the scaling method. We introduce 2 concrete implementation, namely `RobustScaler`&  `MinMaxScaler`.
+After scaling we have our second variation point which is the regression model. Here we have also 2
+concrete implementation, namely `LinearRegression` & `LassoLars`.
+
+Lastly we evaluate each regression model by predicting the testing target and calculating the root mean squared error.
 
 
-<img src="hello_world_examples/ML_example_variation_point_multi_usage.jpg" alt="Alt text">
+In this specific case we should have the following 4 pipelines: 
 
-We can see that `Scale Data` is required by `Train Reg. Model` and `Predict Target`.
+<img src="hello_world_examples/ML_example_variation_point_multi_usage_70.jpg" alt="Alt text">
+
+
+
+We can see that `RobustScaler` & `MinMaxScaler` is required by both the 
+`TrainLinearRegressionModel` & `TrainLassoLarsModel`, and `EvaluateRegressionModel`
+
 So the pipeline validation in this case looks like this:
 
 ```python

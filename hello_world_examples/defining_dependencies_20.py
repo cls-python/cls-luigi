@@ -2,7 +2,7 @@ import luigi
 import inhabitation_task
 from inhabitation_task import RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
-from hello_world import WriteFileTask
+from hello_world_10 import WriteFileTask
 
 
 class SubstituteWeltTask(luigi.Task, inhabitation_task.LuigiCombinator):

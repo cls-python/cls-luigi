@@ -1,26 +1,22 @@
 import luigi
 import inhabitation_task
-from inhabitation_task import RepoMeta
+from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, deep_str
 from cls_python import FiniteCombinatoryLogic, Subtypes
-from hello_world import WriteFileTask
+from hello_world_10 import WriteFileTask
 
 
-class SubstituteNameTask(luigi.Task, inhabitation_task.LuigiCombinator):
-    abstract = True
+class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
+    abstract = False
     write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def requires(self):
         return self.write_file_task()
 
-
-class SubstituteNameByAnneTask(SubstituteNameTask):
-    abstract = False
-
     def output(self):
         return luigi.LocalTarget('pure_hello_anne.txt')
 
     def run(self):
-        print("============= NameSubstituter: run")
+        print("============= NameSubstitute: run")
         with self.input().open() as infile:
             text = infile.read()
 
@@ -29,14 +25,19 @@ class SubstituteNameByAnneTask(SubstituteNameTask):
             outfile.write(text)
 
 
-class SubstituteNameByJanTask(SubstituteNameTask):
+class SubstituteNameByJanTask(luigi.Task, LuigiCombinator):
     abstract = False
+
+    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
+
+    def requires(self):
+        return self.write_file_task()
 
     def output(self):
         return luigi.LocalTarget('pure_hello_jan.txt')
 
     def run(self):
-        print("============= NameSubstituter: run")
+        print("============= NameSubstitute: run")
         with self.input().open() as infile:
             text = infile.read()
 
@@ -45,8 +46,17 @@ class SubstituteNameByJanTask(SubstituteNameTask):
             outfile.write(text)
 
 
-if __name__ == "__main__":
-    target = SubstituteNameTask.return_type()
+class FinalTask(luigi.WrapperTask, LuigiCombinator):
+    substitute_name = ClsParameter(tpe={1: SubstituteNameByJanTask.return_type(),
+                                        "2": SubstituteNameByAnneTask.return_type()})
+    config_domain = {1, "2"}
+
+    def requires(self):
+        return self.substitute_name()
+
+
+if __name__ == '__main__':
+    target = FinalTask.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
