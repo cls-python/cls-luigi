@@ -1,0 +1,173 @@
+body {
+  width: 100%;
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  background: #e8eef5;
+}
+
+.live.map {
+  width: 97%;
+  height: 800px;
+  display: block;
+  margin-left: 1%;
+  margin-right: 200px;
+  margin-top: 80px;
+  background-color: #333;
+  display: block;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.live.map .node rect {
+  stroke-width: 1.5px;
+  stroke: #bbb;
+  fill: #666;
+  display: inline-table;
+  }
+
+.live.map .status {
+  height: 8px;
+  width: 100%;
+  display: block;
+  float: left;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px; 
+}
+
+.live.map .abstractComponent .status {
+  background-color: #dd4b39;
+}
+
+.live.map .notAbstractComponent .status {
+  background-color: white;
+}
+
+.abstract-color{
+background-color: #dd4b39;
+
+}
+.non-abstract-color{
+background-color: #fff;
+}
+
+.live.map .name {
+  display: inline;
+  float: left;
+  width: 100%;
+  height: 20px;
+  font-size: 20px;
+  font-weight: 1000;
+  margin-top: 4px;
+  text-align: center;
+}
+
+
+.live.map .queue {
+  display: block;
+  float: left;
+  width: 300px;
+  height: 20px;
+  font-size: 18px;
+  margin-left: 6px;
+  margin-bottom: 4px;
+}
+
+.live.map .node g div {
+  width: 300px;
+  height: max-content;
+  color: #fff;
+}
+
+.live.map .edgeLabel text {
+  width: 50px;
+  fill: #fff;
+}
+
+.live.map .edgePath path {
+  stroke: #999;
+  stroke-width: 1.5px;
+  fill: #999;
+}
+
+h1  {
+  margin: -10px;
+  margin-block-end: 10px;
+  height:75px;
+  background-color:#00a65a;
+  color: white;
+  display: block;
+  text-align: left;
+  line-height: 70px;
+  font-size: 35px;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-weight: 300;
+  text-indent: 60px;
+
+}
+
+.legend{
+width: 350px;
+height: 150px;
+border: solid #999;
+}
+
+.legend .legend-title {
+
+text-align: left;
+margin-bottom: 10px;
+margin-top: 10px;
+margin-left: 8px;
+font-size: 30px;
+font-weight: 500;
+color: black;
+}
+
+.legend .legend-scale ul {
+margin: 0;
+margin-bottom: 5px;
+margin-left: 12px;
+padding: 0;
+float: left;
+list-style: none;
+}
+.legend .legend-scale ul li {
+font-size: 22px;
+list-style: none;
+margin-left: 0;
+line-height: 18px;
+margin-right: 10px;
+margin-top: 10px;
+color: #333;
+}
+
+.legend ul.legend-labels li span {
+display: block;
+float: left;
+height: 16px;
+width: 30px;
+margin-right: 5px;
+margin-left: 0;
+border: transparent;
+}
+
+.total-piplelines {
+width: 350px;
+height: 120px;
+border: solid #999;
+margin-top: 5px;
+}
+
+.total-piplelines  .title {
+
+text-align: left;
+margin-bottom: 10px;
+margin-top: 10px;
+margin-left: 8px;
+font-size: 30px;
+font-weight: 500;
+color: #333;
+}
