@@ -1,31 +1,11 @@
-var repo = {
-    "LoadDataset": {
-      "abstract": false
-    },
-    "SplitDataset": {
-      "inputQueue": ["LoadDataset"],
-      "abstract": false
-    },
-    "FitTransformScaler": {
-      "inputQueue": ["SplitDataset"],
-      "abstract": true,
-      "concreteImplementations": ["FitTransformScalerRobustScaler", "FitTransformScalerMinMaxScaler"]
-    },
-    "TrainRegressionModel": {
-      "inputQueue": ["FitTransformScaler", "SplitDataset"],
-      "abstract": true,
-      "concreteImplementations": ["TrainLinearRegressor", "TrainDecisionTreeRegressor", "TrainLassorRegressor"]
+async function fetchJSONRepo(path = "repo.json") {
+  const response = await fetch(path);
 
-    },
-    "PredictTestingTarget": {
-      "inputQueue": ["TrainRegressionModel", "FitTransformScaler", "SplitDataset"],
-      "abstract": false
-    }
-  };
+  return response.json();
+};
 
-// var repo; 
-// fetch("repo_example.json").then(res => {return res.json()}).then(data => repo = data);
-  
+const repo = await fetchRepo();
+
 
 
   // Set up zoom support
