@@ -14,7 +14,7 @@
     "TrainRegressionModel": {
       "inputQueue": ["FitTransformScaler", "SplitDataset"],
       "abstract": true,
-      "concreteImpleSmentations": ["TrainLinearRegressor", "TrainDecisionTreeRegressor", "TrainLassorRegressor"]
+      "concreteImplementations": ["TrainLinearRegressor", "TrainDecisionTreeRegressor", "TrainLassorRegressor"]
 
     },
     "PredictTestingTarget": {
