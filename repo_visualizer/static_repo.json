@@ -1,0 +1,40 @@
+{
+    "LoadDiabetesData": {
+        "abstract": false
+    },
+    "TrainTestSplit": {
+        "abstract": false,
+        "inputQueue": [
+            "LoadDiabetesData"
+        ]
+    },
+    "FitTransformScaler": {
+        "abstract": true,
+        "concreteImplementations": [
+            "FitTransformMinMaxScaler",
+            "FitTransformRobustScaler"
+        ],
+        "inputQueue": [
+            "TrainTestSplit"
+        ]
+    },
+    "TrainRegressionModel": {
+        "abstract": true,
+        "concreteImplementations": [
+            "TrainLinearRegressionModel",
+            "TrainLassoLarsModel"
+        ],
+        "inputQueue": [
+            "FitTransformScaler",
+            "TrainTestSplit"
+        ]
+    },
+    "EvaluateRegressionModel": {
+        "abstract": false,
+        "inputQueue": [
+            "TrainRegressionModel",
+            "FitTransformScaler",
+            "TrainTestSplit"
+        ]
+    }
+}

@@ -4,8 +4,9 @@ from os.path import join
 
 class StaticJSONRepo:
     """
-    Creates a json representation of all tasks in repository, their types,
-    their concrete implementations (if the task is abstract), and their dependencies
+    Creates a json representation of all components in repository, their types,
+    their concrete implementations (if the task is abstract), and their dependencies.
+
 
     usage:
       static_repo = StaticJSONRepo(RepoMeta)
@@ -69,7 +70,7 @@ class StaticJSONRepo:
                     self.repo_dict[component_name]["inputQueue"] = [dependency]
 
     def dump_repo(self, path=""):
-        full_path = join(path, "repo.json")
+        full_path = join(path, "static_repo.json")
         print(full_path)
         with open(full_path, "w+") as r:
             json.dump(self.repo_dict, r, indent=4)
