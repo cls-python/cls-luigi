@@ -1,0 +1,108 @@
+{
+    "EvaluateRegressionModel_61e045f0ae": {
+        "inputQueue": [
+            "TrainLassoLarsModel_ea85eb11bd",
+            "FitTransformRobustScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "EvaluateRegressionModel______type______in_____type______in_61e045f0ae",
+        "abstract": false
+    },
+    "TrainLassoLarsModel_ea85eb11bd": {
+        "inputQueue": [
+            "FitTransformRobustScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "TrainLassoLarsModel______type______in_____type______in_ea85eb11bd",
+        "abstract": false
+    },
+    "FitTransformRobustScaler_9ab82c90ab": {
+        "inputQueue": [
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "FitTransformRobustScaler______type______in_9ab82c90ab",
+        "abstract": false
+    },
+    "TrainTestSplit_4f510636f7": {
+        "inputQueue": [
+            "LoadDiabetesData_3f1076e1ad"
+        ],
+        "status": "PENDING",
+        "luigiName": "TrainTestSplit______type______in_4f510636f7",
+        "abstract": false
+    },
+    "LoadDiabetesData_3f1076e1ad": {
+        "inputQueue": [],
+        "status": "PENDING",
+        "luigiName": "LoadDiabetesData__3f1076e1ad",
+        "abstract": false
+    },
+    "EvaluateRegressionModel_d1c48ceecb": {
+        "inputQueue": [
+            "TrainLassoLarsModel_2776f8817f",
+            "FitTransformMinMaxScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "EvaluateRegressionModel______type______in_____type______in_d1c48ceecb",
+        "abstract": false
+    },
+    "TrainLassoLarsModel_2776f8817f": {
+        "inputQueue": [
+            "FitTransformMinMaxScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "TrainLassoLarsModel______type______in_____type______in_2776f8817f",
+        "abstract": false
+    },
+    "FitTransformMinMaxScaler_9ab82c90ab": {
+        "inputQueue": [
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "FitTransformMinMaxScaler______type______in_9ab82c90ab",
+        "abstract": false
+    },
+    "EvaluateRegressionModel_67a7cd5573": {
+        "inputQueue": [
+            "TrainLinearRegressionModel_ea85eb11bd",
+            "FitTransformRobustScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "EvaluateRegressionModel______type______in_____type______in_67a7cd5573",
+        "abstract": false
+    },
+    "TrainLinearRegressionModel_ea85eb11bd": {
+        "inputQueue": [
+            "FitTransformRobustScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "TrainLinearRegressionModel______type______in_____type______in_ea85eb11bd",
+        "abstract": false
+    },
+    "EvaluateRegressionModel_70840b249c": {
+        "inputQueue": [
+            "TrainLinearRegressionModel_2776f8817f",
+            "FitTransformMinMaxScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "EvaluateRegressionModel______type______in_____type______in_70840b249c",
+        "abstract": false
+    },
+    "TrainLinearRegressionModel_2776f8817f": {
+        "inputQueue": [
+            "FitTransformMinMaxScaler_9ab82c90ab",
+            "TrainTestSplit_4f510636f7"
+        ],
+        "status": "PENDING",
+        "luigiName": "TrainLinearRegressionModel______type______in_____type______in_2776f8817f",
+        "abstract": false
+    }
+}
