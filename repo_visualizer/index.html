@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Task Repository</title>
+  <title>Repository Visualizer</title>
   <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
   <script src="dagre-d3.js"></script>
   <link rel="stylesheet" href="css.css">
@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <h1>Task Repository Visualization</h1>
+  <h1>Repository DAG Visualization</h1>
 
   <legend></legend>
 
@@ -28,19 +28,19 @@
 <total-pipelines></total-pipelines>
 
 <h2>
-  Static Pipeline
+  Static Repository DAG
 </h2>
 
-<div class="live map">
-  <svg class = "live-map"></svg>
+<div class="static repo">
+  <svg class = "static-repo"></svg>
 </div>
 
 <h2>
-  Dynamic Pipeline
+  Dynamic Repository DAG
 </h2>
 
-<div class = "repo detailed">
-  <svg class = "detailed-repo"></svg>
+<div class = "dynamic repo">
+  <svg class = "dynamic-repo"></svg>
 </div>
 <script src="app.js"></script>
 </body>

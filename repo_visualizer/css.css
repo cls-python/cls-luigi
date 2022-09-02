@@ -1,46 +1,38 @@
 body {
-  width: 100%;
+  width: 98%;
   height: 100%;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
   background: #e8eef5;
 }
 
-.live.map {
-  width: 97%;
-  height: 800px;
+.static.repo {
+  width: 98%;
+  height: 1200px;
   display: block;
   margin-left: 1%;
-  margin-right: 200px;
+  margin-right: 1%;
   margin-top: 80px;
   background-color: #333;
   display: block;
-}
 
-.repo.detailed {
-  width: 97%;
-  height: 800px;
-  display: block;
-  margin-left: 1%;
-  margin-right: 200px;
-  margin-top: 80px;
-  background-color: #333;
-  display: block;
 }
 
 svg {
-  width: 100%;
-  height: 100%;
+  width: 96%;
+  height: 93%;
   overflow: hidden;
+  margin-left: 2%;
+  margin-top: 2%;
 }
 
-.live.map .node rect {
+.static.repo .node rect {
   stroke-width: 1.5px;
   stroke: #bbb;
   fill: #666;
   display: inline;
   }
 
-.live.map .status {
+.static.repo .status {
   height: 8px;
   width: 100%;
   display: block;
@@ -49,11 +41,11 @@ svg {
   border-top-right-radius: 5px; 
 }
 
-.live.map .abstractComponent .status {
+.static.repo .abstractComponent .status {
   background-color: #dd4b39;
 }
 
-.live.map .notAbstractComponent .status {
+.static.repo .notAbstractComponent .status {
   background-color: white;
 }
 
@@ -65,7 +57,7 @@ background-color: #dd4b39;
 background-color: #fff;
 }
 
-.live.map .name {
+.static.repo .name {
   display: inline;
   float: left;
   width: 100%;
@@ -74,10 +66,11 @@ background-color: #fff;
   font-weight: 1000;
   margin-top: 4px;
   text-align: center;
+  
 }
 
 
-.live.map .queue {
+.static.repo .queue {
   display: block;
   float: left;
   width: 300px;
@@ -87,18 +80,18 @@ background-color: #fff;
   margin-bottom: 4px;
 }
 
-.live.map .node g div {
+.static.repo .node g div {
   width: 450px;
   height: max-content;
   color: #fff;
 }
 
-.live.map .edgeLabel text {
+.static.repo .edgeLabel text {
   width: 50px;
   fill: #fff;
 }
 
-.live.map .edgePath path {
+.static.repo .edgePath path {
   stroke: #999;
   stroke-width: 1.5px;
   fill: #999;
@@ -141,6 +134,7 @@ h2  {
 width: 350px;
 height: 150px;
 border: solid #999;
+margin-left: 27px;
 }
 
 .legend .legend-title {
@@ -187,6 +181,7 @@ width: 350px;
 height: 120px;
 border: solid #999;
 margin-top: 5px;
+margin-left: 27px;
 }
 
 .total-pipelines  .title {
@@ -201,71 +196,48 @@ color: #333;
 }
 
 
-.live.map {
-  width: 97%;
-  height: 800px;
+.dynamic.repo {
+  width: 98%;
+  height: 1800px;
   display: block;
   margin-left: 1%;
-  margin-right: 200px;
+  margin-right: 1%;
   margin-top: 80px;
   background-color: #333;
   display: block;
 }
 
-.repo.detailed {
-  width: 97%;
-  height: 1250px;
-  display: block;
-  margin-left: 1%;
-  margin-right: 200px;
-  margin-top: 80px;
-  background-color: #333;
-  display: block;
-}
-
-svg {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.repo.detailed .node rect {
+.dynamic.repo .node rect {
   stroke-width: 1.5px;
   stroke: #bbb;
   fill: #666;
-  display: inline;
   }
 
-.repo.detailed .status {
-  height: 8px;
-  width: 100%;
+.dynamic.repo .status {
+  height: 100%;
+  width: 3%;
   display: block;
   float: left;
   border-top-left-radius: 5px;
-  border-top-right-radius: 5px; 
+  border-bottom-left-radius: 5px;
+  margin-right: 4px;
 }
 
-.repo.detailed.abstractComponent .status {
-  background-color: #dd4b39;
-}
 
-.repo.detailed .notAbstractComponent .status {
-  background-color: white;
-}
-
-.repo.detailed .name {
+.dynamic.repo .name {
   display: inline;
   float: left;
   width: 100%;
   height: 20px;
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 1000;
-  margin-top: 4px;
   text-align: center;
+  margin-top: -60px;
+
 }
 
 
-.repo.detailed .queue {
+.dynamic.repo .queue {
   display: block;
   float: left;
   width: 300px;
@@ -275,19 +247,41 @@ svg {
   margin-bottom: 4px;
 }
 
-.repo.detailed .node g div {
-  width: 450px;
-  height: max-content;
+.dynamic.repo .node g div {
+  width: max-content;
+  height: 80px;
   color: #fff;
 }
 
-.repo.detailed .edgeLabel text {
+.dynamic.repo .edgeLabel text {
   width: 50px;
   fill: #fff;
 }
 
-.repo.detailed .edgePath path {
+.dynamic.repo .edgePath path {
   stroke: #999;
   stroke-width: 1.5px;
   fill: #999;
 }
+
+
+.dynamic.repo .FAILED .status {
+  background-color: #f77;
+}
+
+.dynamic.repo .RUNNING .status {
+  background-color: #80a0ec;
+}
+
+.dynamic.repo .PENDING .status {
+  background-color: #EEBB00;
+}
+
+.dynamic.repo .DONE .status {
+  background-color: #7f7;
+}
+
+.dynamic.repo .NOTASSIGNED .status {
+  background-color: rgb(235, 235, 235);
+}
+

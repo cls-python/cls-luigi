@@ -1,18 +1,82 @@
 {
-    "LoadDiabetesData": {
-        "abstract": false
+    "WriteSetupJson": {
+        "abstract": true,
+        "concreteImplementations": [
+            "WriteCSVRegressionSetupJson"
+        ]
+    },
+    "ReadTabularData": {
+        "abstract": true,
+        "concreteImplementations": [
+            "ReadTaxiData"
+        ],
+        "inputQueue": [
+            "WriteSetupJson"
+        ]
+    },
+    "DropDuplicatesAndNA": {
+        "abstract": false,
+        "inputQueue": [
+            "ReadTabularData"
+        ]
+    },
+    "FilterImplausibleTrips": {
+        "abstract": false,
+        "inputQueue": [
+            "DropDuplicatesAndNA"
+        ]
+    },
+    "ExtractRawTemporalFeatures": {
+        "abstract": false,
+        "inputQueue": [
+            "FilterImplausibleTrips"
+        ]
+    },
+    "BinaryEncodePickupAtWeekend": {
+        "abstract": false,
+        "inputQueue": [
+            "ExtractRawTemporalFeatures"
+        ]
+    },
+    "BinaryEncodePickupAtOrAfterHour": {
+        "abstract": false,
+        "inputQueue": [
+            "ExtractRawTemporalFeatures"
+        ]
+    },
+    "EncodePickupWeekdayOneHotSklearn": {
+        "abstract": false,
+        "inputQueue": [
+            "ExtractRawTemporalFeatures"
+        ]
+    },
+    "AssembleFinalDataset": {
+        "abstract": true,
+        "concreteImplementations": [
+            "AssembleFinalDataset1",
+            "AssembleFinalDataset2",
+            "AssembleFinalDataset3",
+            "AssembleFinalDataset4"
+        ],
+        "inputQueue": [
+            "FilterImplausibleTrips",
+            "ExtractRawTemporalFeatures",
+            "BinaryEncodePickupAtOrAfterHour",
+            "BinaryEncodePickupAtWeekend",
+            "EncodePickupWeekdayOneHotSklearn"
+        ]
     },
     "TrainTestSplit": {
         "abstract": false,
         "inputQueue": [
-            "LoadDiabetesData"
+            "AssembleFinalDataset"
         ]
     },
     "FitTransformScaler": {
         "abstract": true,
         "concreteImplementations": [
-            "FitTransformMinMaxScaler",
-            "FitTransformRobustScaler"
+            "FitTransformRobustScaler",
+            "FitTransformMinMaxScaler"
         ],
         "inputQueue": [
             "TrainTestSplit"
@@ -22,19 +86,24 @@
         "abstract": true,
         "concreteImplementations": [
             "TrainLinearRegressionModel",
-            "TrainLassoLarsModel"
+            "TrainLassoRegressionModel",
+            "TrainRidgeRegressionModel"
         ],
         "inputQueue": [
-            "FitTransformScaler",
-            "TrainTestSplit"
+            "FitTransformScaler"
         ]
     },
-    "EvaluateRegressionModel": {
+    "Predict": {
         "abstract": false,
         "inputQueue": [
             "TrainRegressionModel",
-            "FitTransformScaler",
-            "TrainTestSplit"
+            "FitTransformScaler"
+        ]
+    },
+    "EvaluateAndVisualize": {
+        "abstract": false,
+        "inputQueue": [
+            "Predict"
         ]
     }
 }

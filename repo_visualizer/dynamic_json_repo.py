@@ -1,6 +1,10 @@
 import json
 from os.path import join
+from time import sleep
+
+import requests
 from luigi.task import flatten
+from threading import Thread
 
 
 class DynamicJSONRepo:
@@ -27,7 +31,7 @@ class DynamicJSONRepo:
 
             self.dynamic_pipeline_dict[name] = {
                 "inputQueue": [],
-                "status": "PENDING",
+                "status": "NOTASSIGNED",
                 "luigiName": task.task_id,  # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
                 "abstract": False
             }
@@ -42,9 +46,14 @@ class DynamicJSONRepo:
 
     def dump_dynamic_pipeline_dict(self, path=""):
         full_path = join(path, "dynamic_repo.json")
-        print(full_path)
-        with open(full_path, "w+") as r:
-            json.dump(self.dynamic_pipeline_dict, r, indent=4)
+        json_file = open(full_path, "w+")
+        json.dump(self.dynamic_pipeline_dict, json_file, indent=6)
+        json_file.close()
+
+
+
+
+
 
 
 
