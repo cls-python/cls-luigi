@@ -3,36 +3,49 @@ from threading import Thread
 from time import sleep
 import requests
 import json
-import http.server
-import socketserver
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+PORT = 8000
 
 
-def main(PORT=8000):
-    status_update_daemon = Thread(target=update_tasks_status, daemon=True)
+def main():
+    luigi_daemon = Thread(target=start_luigi_daemon)
+    luigi_daemon.start()
+    print("Started luigid\n")
+    status_update_daemon = Thread(target=update_tasks_status)
     status_update_daemon.start()
+    print("Task-Status Updater is ready\n")
 
-    h = http.server.SimpleHTTPRequestHandler
-    with socketserver.TCPServer(("", PORT), h) as httpd:
+    try:
+        httpd = HTTPServer(('', PORT), SimpleHTTPRequestHandler)
         print("Navigate to: ", link("http://localhost:{}/".format(PORT)))
         httpd.serve_forever()
+    except:
+        pass
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
 
 
 def link(uri, label=None):
     if label is None:
         label = uri
     parameters = ''
-
     escape_mask = '\033]8;{};{}\033\\{}\033]8;;\033\\'
-
     return escape_mask.format(parameters, uri, label)
 
 
-def update_tasks_status(file='dynamic_repo.json'):
-    path = os.path.join(os.getcwd(), file)
+def start_luigi_daemon():
+    os.system("luigid")
+
+
+def update_tasks_status():
+    FILE = 'dynamic_repo.json'
+    path = os.path.join(os.getcwd(), FILE)
     while True:
         try:
-            with open(path, 'r') as file:
-                loaded = json.load(file)
+            with open(path, 'r') as FILE:
+                loaded = json.load(FILE)
 
             luigi_task_updates = requests.get("http://localhost:8082/api/task_list").json()["response"]
 
@@ -52,5 +65,5 @@ def update_tasks_status(file='dynamic_repo.json'):
 
 
 if __name__ == '__main__':
-
     main()
+
