@@ -7,7 +7,7 @@ body {
 
 .static.repo {
   width: 98%;
-  height: 1200px;
+  height: 900px;
   display: block;
   margin-left: 1%;
   margin-right: 1%;
@@ -198,7 +198,7 @@ color: #333;
 
 .dynamic.repo {
   width: 98%;
-  height: 1800px;
+  height: 1400px;
   display: block;
   margin-left: 1%;
   margin-right: 1%;
@@ -235,7 +235,6 @@ color: #333;
   margin-top: -60px;
 
 }
-
 
 .dynamic.repo .queue {
   display: block;
