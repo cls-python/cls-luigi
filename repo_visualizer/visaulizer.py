@@ -17,8 +17,9 @@ def main():
     print("Task-Status Updater is ready\n")
 
     try:
+
         httpd = HTTPServer(('', PORT), SimpleHTTPRequestHandler)
-        print("Navigate to: ", link("http://localhost:{}/".format(PORT)))
+        print("\nStarted visualization server\n\n'Navigate to: ", link("http://localhost:{}/\n\n\n".format(PORT)))
         httpd.serve_forever()
     except:
         pass
