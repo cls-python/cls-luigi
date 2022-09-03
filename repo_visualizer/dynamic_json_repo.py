@@ -1,10 +1,6 @@
 import json
 from os.path import join
-from time import sleep
-
-import requests
 from luigi.task import flatten
-from threading import Thread
 
 
 class DynamicJSONRepo:
@@ -21,13 +17,15 @@ class DynamicJSONRepo:
         self.cls_results = cls_results
         self.dynamic_pipeline_dict = {}
 
-    def prettify_task_name(self, task):
+        self._construct_dynamic_pipeline_dict()
+
+    def _prettify_task_name(self, task):
         listed_task_id = task.task_id.split("_")
         return listed_task_id[0] + "_" + listed_task_id[-1]  # @ [-1] is the hash of the task
 
-    def construct_dynamic_pipeline_dict(self):
+    def _construct_dynamic_pipeline_dict(self):
         def get_deps_tree(task):
-            name = self.prettify_task_name(task)
+            name = self._prettify_task_name(task)
 
             self.dynamic_pipeline_dict[name] = {
                 "inputQueue": [],
@@ -37,8 +35,8 @@ class DynamicJSONRepo:
             }
             children = flatten(task.requires())
             for child in children:
-                if self.prettify_task_name(child) not in self.dynamic_pipeline_dict[name]["inputQueue"]:
-                    self.dynamic_pipeline_dict[name]["inputQueue"] = self.dynamic_pipeline_dict[name]["inputQueue"] + [self.prettify_task_name(child)]
+                if self._prettify_task_name(child) not in self.dynamic_pipeline_dict[name]["inputQueue"]:
+                    self.dynamic_pipeline_dict[name]["inputQueue"] = self.dynamic_pipeline_dict[name]["inputQueue"] + [self._prettify_task_name(child)]
                 get_deps_tree(child)
 
         for r in self.cls_results:

@@ -20,11 +20,13 @@ class StaticJSONRepo:
         self.concrete_to_abstract_mapper = {}  # used for mapping the concrete implementations to their abstract components
         self.repo_dict = {}
 
+        self._construct_repo_dict()
+
     @staticmethod
     def _prettify_name(name):
         return name.split(".")[-1]
 
-    def construct_repo_dict(self):
+    def _construct_repo_dict(self):
 
         # Adding component, their type (abstract, non-abstract), and their concrete implementations
         for st in self.repo_meta.subtypes.keys():
@@ -69,7 +71,7 @@ class StaticJSONRepo:
                 else:
                     self.repo_dict[component_name]["inputQueue"] = [dependency]
 
-    def dump_repo(self, path=""):
+    def dump_static_repo(self, path=""):
         full_path = join(path, "static_repo.json")
         print(full_path)
         with open(full_path, "w+") as r:
