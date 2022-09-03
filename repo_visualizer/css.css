@@ -111,14 +111,14 @@ h1  {
   font-weight: 300;
   text-indent: 60px;
 
+
+
 }
 
 h2  {
   margin-top: 60px;
   margin-bottom: -60px;
-  /* margin-block-end: 10px; */
   height:100px;
-  /* background-color:#00a65a; */
   color: black;
   display: block;
   text-align: center;
@@ -126,7 +126,7 @@ h2  {
   font-size: 35px;
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 300;
-  /* text-indent: 60px; */
+  
 
 }
 
@@ -281,6 +281,27 @@ color: #333;
 }
 
 .dynamic.repo .NOTASSIGNED .status {
-  background-color: rgb(235, 235, 235);
+  background-color: rgb(231, 179, 231);
+}
+
+
+.FAILED {
+  background-color: #f77;
+}
+
+.RUNNING {
+  background-color: #80a0ec;
+}
+
+.PENDING {
+  background-color: #EEBB00;
+}
+
+.DONE {
+  background-color: #7f7;
+}
+
+.NOTASSIGNED {
+  background-color: rgb(231, 179, 231);
 }
 
