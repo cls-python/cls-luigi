@@ -143,14 +143,33 @@ async function dynamicGraph(path="dynamic_repo.json") {
   let repo = await fetchJSON(path);
   await draw(repo, g, svg, zoom, inner, render, true);
 
-  setInterval(async function () {
-    let repo = await fetchJSON(path);
-    for (let task in repo) {
-      let element = d3.select("#" + task);
-      if (element.attr("class") !== "node " + repo[task]["status"]) {
-        element.attr("class", "node " + repo[task]["status"])
+  // status updating commands
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  const n_tasks = Object.keys(repo).length;
+  let n_done = 0;
+
+  while (n_tasks >= n_done){
+    let repo  =await fetchJSON(path);
+    for (const k in repo){
+      if (repo[k]["status"] === "DONE"){
+        n_done +=1;
+      } else {
+        n_done =0;
       }
-    }}, 1000);
+    }
+    async function update(){
+      for (let task in repo) {
+        let element = d3.select("#" + task);
+        if (element.attr("class") !== "node " + repo[task]["status"]) {
+          element.attr("class", "node " + repo[task]["status"])
+        }
+      }
+    }
+    await update();
+    await sleep(1000);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", staticGraph());
