@@ -16,24 +16,24 @@
     Static Repository DAG
   </h2>
 
-  <legend></legend>
+<!--  <legend></legend>-->
 
-  <div class='legend'>
-    <div class='legend-title'>Component Type</div>
-    <div class='legend-scale'>
-      <ul class='legend-labels'>
-        <li><span class="abstract-color"></span>Abstract Component</li>
-        <li><span class="non-abstract-color"></span>Non-Abstract Component</li>
-      </ul>
-    </div>
-  </div>    
-  </div>
 
-<total-pipelines></total-pipelines>
+
 
 
 
 <div class="static repo">
+  <div class='legend'  style="position:relative; top:30px">
+    <div class='legend-title', style="color: white; text-align: center;">Component Type</div>
+    <div class='legend-scale'>
+      <ul class='legend-labels'>
+        <li style="color:white; text-indent:10px;"><span class="abstract-color"></span>  Abstract Component</li>
+        <li style="color:white; text-indent:10px;"><span class="non-abstract-color"></span>Non-Abstract Component</li>
+      </ul>
+    </div>
+  </div>
+  <total-pipelines></total-pipelines>
   <svg class = "static-repo"></svg>
 </div>
 
@@ -44,15 +44,15 @@
 
 
 <div class = "dynamic repo">
-      <div class='legend', style="height:225px; position:relative; left:-5px; top:40px; margin: 40px;">
-      <div class='legend-title', style="color: white;"> Task Status</div>
+      <div class='legend', style="height:225px; position:relative; left:-5px; top:0px; margin: 40px;">
+      <div class='legend-title', style="color: white; text-align: center;"> Task Status</div>
       <div class='legend-scale'>
         <ul class='legend-labels'>
-          <li style="color:white;"><span class="FAILED"></span>Failed</li>
-          <li style="color:white;"><span class="PENDING"></span>Pending</li>
-          <li style="color:white;"><span class="DONE"></span>Done</li>
-          <li style="color:white;"><span class="RUNNING"></span>Running</li>
-          <li style="color:white;"><span class="NOTASSIGNED"></span>No Status Assigned</li>
+          <li style="color:white; text-indent:10px;"><span class="FAILED"></span>Failed</li>
+          <li style="color:white; text-indent:10px;"><span class="PENDING"></span>Pending</li>
+          <li style="color:white; text-indent:10px;"><span class="DONE"></span>Done</li>
+          <li style="color:white; text-indent:10px;"><span class="RUNNING"></span>Running</li>
+          <li style="color:white; text-indent:10px;"><span class="NOTASSIGNED"></span>No Status Assigned</li>
         </ul>
       </div>
     </div>

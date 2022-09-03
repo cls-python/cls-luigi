@@ -18,11 +18,12 @@ body {
 }
 
 svg {
-  width: 96%;
+  width: 98%;
   height: 93%;
   overflow: hidden;
-  margin-left: 2%;
-  margin-top: 2%;
+  margin-left: 1px;
+  margin-right: 1px;
+  margin-top: -185px;
 }
 
 .static.repo .node rect {
@@ -62,7 +63,7 @@ background-color: #fff;
   float: left;
   width: 100%;
   height: 20px;
-  font-size: 20px;
+  font-size: 29px;
   font-weight: 1000;
   margin-top: 4px;
   text-align: center;
@@ -75,13 +76,13 @@ background-color: #fff;
   float: left;
   width: 300px;
   height: 20px;
-  font-size: 18px;
+  font-size: 23px;
   margin-left: 6px;
   margin-bottom: 4px;
 }
 
 .static.repo .node g div {
-  width: 450px;
+  width: 550px;
   height: max-content;
   color: #fff;
 }
@@ -178,11 +179,14 @@ border: transparent;
 }
 
 .total-pipelines {
-width: 350px;
-height: 120px;
-border: solid #999;
-margin-top: 5px;
-margin-left: 27px;
+  width: 350px;
+  height: 150px;
+  border: solid #999;
+  margin-top: 5px;
+  margin-left: 27px;
+  position: relative;
+  top: -128px;
+  left: 381px;
 }
 
 .total-pipelines  .title {
@@ -193,7 +197,7 @@ margin-top: 10px;
 margin-left: 8px;
 font-size: 30px;
 font-weight: 500;
-color: #333;
+color: white;
 }
 
 
@@ -230,7 +234,7 @@ color: #333;
   display: inline;
   float: left;
   width: 100%;
-  height: 20px;
+  height: 26px;
   font-size: 30px;
   font-weight: 1000;
   text-align: center;
