@@ -2,6 +2,7 @@ from os.path import exists, join
 import pickle
 import warnings
 from pathlib import Path
+
 import luigi
 import numpy as np
 import pandas as pd
@@ -21,6 +22,8 @@ from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from repo_visualizer.static_json_repo import StaticJSONRepo
 from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 sns.set_style('darkgrid')
@@ -69,7 +72,7 @@ class ReadTaxiData(ReadTabularData):
 
 class DropDuplicatesAndNA(luigi.Task, LuigiCombinator):
     abstract = False
-    taxi_data = ClsParameter(tpe=ReadTaxiData.return_type())
+    taxi_data = ClsParameter(tpe=ReadTabularData.return_type())
 
     def requires(self):
         return [self.taxi_data()]
@@ -640,7 +643,8 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
         sns.barplot(x="Leaderboard Index", y="Root Mean Squared Error", data=top_models, ax=axes[0], order=order)
         sns.barplot(x="Leaderboard Index", y="Mean Absolute Error", data=top_models, ax=axes[1], order=order)
-        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2], order=order)
+        sns.barplot(x="Leaderboard Index", y="Coefficient of Determination (R\u00b2)", data=top_models, ax=axes[2],
+                    order=order)
 
         plt.tight_layout()
         plt.savefig(self.output()[1].path)
@@ -725,6 +729,8 @@ if __name__ == '__main__':
     target = EvaluateAndVisualize.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
+    StaticJSONRepo(RepoMeta).dump_static_repo("../repo_visualizer")
+
     print("Build Repository...")
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
     print("Build Tree Grammar and inhabit Pipelines...")
@@ -741,6 +747,7 @@ if __name__ == '__main__':
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     if results:
+        DynamicJSONRepo(results).dump_dynamic_pipeline_dict("../repo_visualizer")
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
