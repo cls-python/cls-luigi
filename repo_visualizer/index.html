@@ -41,23 +41,23 @@
   Dynamic Repository DAG
 </h2>
 
-<div class='legend', style="height:225px">
-  <div class='legend-title'>Task Status</div>
-  <div class='legend-scale'>
-    <ul class='legend-labels'>
-      <li><span class="FAILED"></span>Failed</li>
-      <li><span class="PENDING"></span>Pending</li>
-      <li><span class="DONE"></span>Done</li>
-      <li><span class="RUNNING"></span>Running</li>
-      <li><span class="NOTASSIGNED"></span>No Status Assigned</li>
 
-    </ul>
-  </div>
-</div>    
-</div>
 
 <div class = "dynamic repo">
-  <svg class = "dynamic-repo"></svg>
+      <div class='legend', style="height:225px; position:relative; left:-5px; top:40px; margin: 40px;">
+      <div class='legend-title', style="color: white;"> Task Status</div>
+      <div class='legend-scale'>
+        <ul class='legend-labels'>
+          <li style="color:white;"><span class="FAILED"></span>Failed</li>
+          <li style="color:white;"><span class="PENDING"></span>Pending</li>
+          <li style="color:white;"><span class="DONE"></span>Done</li>
+          <li style="color:white;"><span class="RUNNING"></span>Running</li>
+          <li style="color:white;"><span class="NOTASSIGNED"></span>No Status Assigned</li>
+        </ul>
+      </div>
+    </div>
+  <svg class = "dynamic-repo" style="margin-top: -10%;">
+  </svg>
 </div>
 <script src="app.js"></script>
 </body>

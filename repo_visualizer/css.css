@@ -2,7 +2,7 @@ body {
   width: 98%;
   height: 100%;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
-  background: #e8eef5;
+  background: #d8dadf;
 }
 
 .static.repo {
@@ -117,7 +117,7 @@ h1  {
 
 h2  {
   margin-top: 60px;
-  margin-bottom: -60px;
+  margin-bottom: 60px;
   height:100px;
   color: black;
   display: block;
@@ -126,6 +126,7 @@ h2  {
   font-size: 35px;
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 300;
+  padding: 1%;
   
 
 }
@@ -198,13 +199,14 @@ color: #333;
 
 .dynamic.repo {
   width: 98%;
-  height: 1400px;
+  height: 1500px;
   display: block;
   margin-left: 1%;
   margin-right: 1%;
   margin-top: 80px;
   background-color: #333;
   display: block;
+  overflow: hidden;
 }
 
 .dynamic.repo .node rect {
