@@ -11,54 +11,47 @@
 
 <body>
   <h1>Repository DAG Visualization</h1>
-
   <h2>
     Static Repository DAG
   </h2>
 
-<!--  <legend></legend>-->
 
-
-
-
-
-
-<div class="static repo">
-  <div class='legend'  style="position:relative; top:30px">
-    <div class='legend-title', style="color: white; text-align: center;">Component Type</div>
-    <div class='legend-scale'>
-      <ul class='legend-labels'>
-        <li style="color:white; text-indent:10px;"><span class="abstract-color"></span>  Abstract Component</li>
-        <li style="color:white; text-indent:10px;"><span class="non-abstract-color"></span>Non-Abstract Component</li>
-      </ul>
-    </div>
-  </div>
-  <total-pipelines></total-pipelines>
-  <svg class = "static-repo"></svg>
-</div>
-
-<h2>
-  Dynamic Repository DAG
-</h2>
-
-
-
-<div class = "dynamic repo">
-      <div class='legend', style="height:225px; position:relative; left:-5px; top:0px; margin: 40px;">
-      <div class='legend-title', style="color: white; text-align: center;"> Task Status</div>
+  <div class="static repo">
+    <div class='legend'  style="top:30px">
+      <div class='legend-title'>Component Type</div>
       <div class='legend-scale'>
         <ul class='legend-labels'>
-          <li style="color:white; text-indent:10px;"><span class="FAILED"></span>Failed</li>
-          <li style="color:white; text-indent:10px;"><span class="PENDING"></span>Pending</li>
-          <li style="color:white; text-indent:10px;"><span class="DONE"></span>Done</li>
-          <li style="color:white; text-indent:10px;"><span class="RUNNING"></span>Running</li>
-          <li style="color:white; text-indent:10px;"><span class="NOTASSIGNED"></span>No Status Assigned</li>
+          <li><span class="abstract-color"></span>  Abstract Component</li>
+          <li><span class="non-abstract-color"></span>Non-Abstract Component</li>
         </ul>
       </div>
     </div>
-  <svg class = "dynamic-repo" style="margin-top: -10%;">
-  </svg>
-</div>
-<script src="app.js"></script>
+    <total-pipelines></total-pipelines>
+    <svg class = "static-repo"></svg>
+  </div>
+
+  <h2>
+    Dynamic Repository DAG
+  </h2>
+
+
+
+  <div class = "dynamic repo">
+        <div class='legend', style="height:225px; left:-5px; top:0px; margin: 40px;">
+        <div class='legend-title'> Task Status</div>
+        <div class='legend-scale'>
+          <ul class='legend-labels'>
+            <li><span class="FAILED"></span>Failed</li>
+            <li><span class="PENDING"></span>Pending</li>
+            <li><span class="DONE"></span>Done</li>
+            <li><span class="RUNNING"></span>Running</li>
+            <li><span class="NOTASSIGNED"></span>No Status Assigned Yet</li>
+          </ul>
+        </div>
+      </div>
+    <svg class = "dynamic-repo">
+    </svg>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>

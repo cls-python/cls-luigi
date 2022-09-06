@@ -51,11 +51,11 @@ svg {
 }
 
 .abstract-color{
-background-color: #dd4b39;
+  background-color: #dd4b39;
 
 }
 .non-abstract-color{
-background-color: #fff;
+  background-color: #fff;
 }
 
 .static.repo .name {
@@ -101,16 +101,18 @@ background-color: #fff;
 h1  {
   margin: -10px;
   margin-block-end: 10px;
-  height:75px;
+  height:80px;
+  width: 102.1%;
   background-color:#00a65a;
   color: white;
   display: block;
   text-align: left;
   line-height: 70px;
-  font-size: 35px;
+  font-size: 38px;
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 300;
   text-indent: 60px;
+  padding-top: 5px;
 
 
 
@@ -133,49 +135,56 @@ h2  {
 }
 
 .legend{
-width: 350px;
-height: 150px;
-border: solid #999;
-margin-left: 27px;
+  width: 350px;
+  height: 150px;
+  border: solid #999;
+  margin-left: 27px;
+  position: relative;
 }
 
 .legend .legend-title {
 
-text-align: left;
-margin-bottom: 10px;
-margin-top: 10px;
-margin-left: 8px;
-font-size: 30px;
-font-weight: 500;
-color: black;
+  text-align: left;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-left: 8px;
+  font-size: 30px;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+
 }
 
 .legend .legend-scale ul {
-margin: 0;
-margin-bottom: 5px;
-margin-left: 12px;
-padding: 0;
-float: left;
-list-style: none;
+  margin: 0;
+  margin-bottom: 5px;
+  margin-left: 12px;
+  padding: 0;
+  float: left;
+  list-style: none;
 }
 .legend .legend-scale ul li {
-font-size: 22px;
-list-style: none;
-margin-left: 0;
-line-height: 18px;
-margin-right: 10px;
-margin-top: 10px;
-color: #333;
+  font-size: 22px;
+  list-style: none;
+  margin-left: 0;
+  line-height: 18px;
+  margin-right: 10px;
+  margin-top: 10px;
+  color: #333;
+
+  text-indent: 10px;
+  color: white;
+
 }
 
 .legend ul.legend-labels li span {
-display: block;
-float: left;
-height: 16px;
-width: 30px;
-margin-right: 5px;
-margin-left: 0;
-border: transparent;
+  display: block;
+  float: left;
+  height: 16px;
+  width: 30px;
+  margin-right: 5px;
+  margin-left: 0;
+  border: transparent;
 }
 
 .total-pipelines {
@@ -187,17 +196,18 @@ border: transparent;
   position: relative;
   top: -128px;
   left: 381px;
+
 }
 
 .total-pipelines  .title {
 
-text-align: left;
-margin-bottom: 10px;
-margin-top: 10px;
-margin-left: 8px;
-font-size: 30px;
-font-weight: 500;
-color: white;
+  text-align: left;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-left: 8px;
+  font-size: 30px;
+  font-weight: 500;
+  color: white;
 }
 
 
@@ -211,6 +221,7 @@ color: white;
   background-color: #333;
   display: block;
   overflow: hidden;
+  margin-top: -10%;
 }
 
 .dynamic.repo .node rect {
