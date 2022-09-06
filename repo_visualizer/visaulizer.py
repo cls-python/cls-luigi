@@ -17,9 +17,9 @@ def main():
     print("Task-Status Updater is ready\n")
 
     try:
-
         httpd = HTTPServer(('', PORT), SimpleHTTPRequestHandler)
-        print("\nStarted visualization server\n\n'Navigate to: ", link("http://localhost:{}/\n\n\n".format(PORT)))
+        print("\nStarted visualization server\n\n'Navigate to: ",
+              link("http://localhost:{}/\n\n\n".format(PORT)))
         httpd.serve_forever()
     except:
         pass
@@ -43,7 +43,8 @@ def start_luigi_daemon():
 def update_tasks_status():
     FILE = 'dynamic_repo.json'
     path = os.path.join(os.getcwd(), FILE)
-    while True:
+    keep_updating = True
+    while keep_updating:
         try:
             with open(path, 'r') as FILE:
                 loaded = json.load(FILE)
@@ -51,17 +52,22 @@ def update_tasks_status():
             luigi_task_updates = requests.get("http://localhost:8082/api/task_list").json()["response"]
 
             for k in loaded.keys():
-
                 if loaded[k]['luigiName'] in luigi_task_updates:
                     loaded[k]["status"] = luigi_task_updates[loaded[k]["luigiName"]]["status"]
 
             with open(path, 'w+') as updated:
                 json.dump(loaded, updated, indent=6)
+
+            status_set = set(
+                map(lambda key: loaded[key]["status"], list(loaded.keys)))
+            if len(status_set) == 1:
+                if next(iter(status_set)) == "DONE":  # All the tasks are DONE
+                    keep_updating = False
         except:
-            sleep(10)
+            sleep(4)
             pass
         finally:
-            sleep(2)
+            sleep(1)
             pass
 
 
