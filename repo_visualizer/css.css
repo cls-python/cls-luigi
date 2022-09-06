@@ -221,9 +221,7 @@ h2  {
   background-color: #333;
   display: block;
   overflow: hidden;
-  margin-top: -10%;
-  position: relative;
-  top:200px;
+  /*margin-top: -10%;*/
 }
 
 .dynamic.repo .node rect {
