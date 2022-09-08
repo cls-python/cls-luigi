@@ -31,7 +31,6 @@ class DynamicJSONRepo:
                 "inputQueue": [],
                 "status": "NOTASSIGNED",
                 "luigiName": task.task_id,  # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
-                "abstract": False
             }
             children = flatten(task.requires())
             for child in children:
