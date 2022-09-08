@@ -43,19 +43,27 @@ svg {
 }
 
 .static.repo .abstractComponent .status {
-  background-color: #dd4b39;
+  background-color: #e67d6f;
 }
 
 .static.repo .notAbstractComponent .status {
   background-color: white;
 }
 
+.static.repo .indexed .status {
+  background-color: rgb(100, 234, 109);
+}
+
 .abstract-color{
-  background-color: #dd4b39;
+  background-color: #e67d6f;
 
 }
 .non-abstract-color{
   background-color: #fff;
+}
+
+.indexed-color {
+  background-color: rgb(100, 234, 109);
 }
 
 .static.repo .name {
@@ -189,14 +197,13 @@ h2  {
 
 .total-pipelines {
   width: 350px;
-  height: 150px;
+  height: 180px;
   border: solid #999;
   margin-top: 5px;
   margin-left: 27px;
   position: relative;
-  top: -128px;
-  left: 381px;
-
+  top: -160px;
+  left: 400px;
 }
 
 .total-pipelines  .title {
@@ -321,4 +328,3 @@ h2  {
 .NOTASSIGNED {
   background-color: rgb(231, 179, 231);
 }
-

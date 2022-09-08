@@ -14,3 +14,9 @@ for file in os.listdir(hello_world_path):
     if not file.endswith(".py") and not file.endswith(".jpg"):
         if not os.path.isdir(os.path.join(hello_world_path, file)):
             os.remove(os.path.join(hello_world_path, file))
+
+
+jsons = "../repo_visualizer"
+for file in os.listdir(jsons):
+    if file.endswith(".json"):
+            os.remove(os.path.join(jsons, file))

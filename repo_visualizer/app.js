@@ -1,4 +1,3 @@
-
 async function fetchJSON(path){
   const fetched = await fetch(path);
 
@@ -25,7 +24,11 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
           html += "<span class=queue>" + i + "</span>";
         }
         html += "<span class=queue>" + "" + "</span>";
-      } else {
+      }
+      else if (componentDetails.configIndexes){
+        className = "indexed"
+      }
+      else {
       className = "notAbstractComponent";
       }
     }
@@ -106,6 +109,9 @@ async function staticGraph(path = "static_repo.json") {
       if (r[component]["abstract"]){
         n = n * r[component]["concreteImplementations"].length;
       }
+      else if (r[component]["configIndexes"]){
+        n = n * r[component]["configIndexes"].length
+      }
     }
     return n;
   }
@@ -174,7 +180,3 @@ async function dynamicGraph(path="dynamic_repo.json") {
 
 document.addEventListener("DOMContentLoaded", staticGraph());
 document.addEventListener("DOMContentLoaded", dynamicGraph());
-
-
-
-
