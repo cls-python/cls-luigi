@@ -54,6 +54,9 @@ def update_tasks_status():
             for k in loaded.keys():
                 if loaded[k]['luigiName'] in luigi_task_updates:
                     loaded[k]["status"] = luigi_task_updates[loaded[k]["luigiName"]]["status"]
+                    loaded[k]["timeRunning"] = luigi_task_updates[loaded[k]["luigiName"]]["time_running"]
+                    loaded[k]["startTime"] = luigi_task_updates[loaded[k]["luigiName"]]["start_time"]
+                    loaded[k]["lastUpdated"] = luigi_task_updates[loaded[k]["luigiName"]]["last_updated"]
 
             with open(path, 'w+') as updated:
                 json.dump(loaded, updated, indent=6)
@@ -73,4 +76,3 @@ def update_tasks_status():
 
 if __name__ == '__main__':
     main()
-
