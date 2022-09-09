@@ -73,7 +73,7 @@ async function draw(repo, g, svg, zoom, inner, render, dynamic=false){
 
   // Zoom and scale to fit
   let graphWidth =  g.graph().width + 80;
-  let graphHeight =  g.graph().height + 40;
+  let graphHeight =  g.graph().height + 150;
   let width =  parseInt(svg.style("width").replace(/px/, ""));
   let height =  parseInt(svg.style("height").replace(/px/, ""));
   let zoomScale =  Math.min(width / graphWidth, height / graphHeight);
