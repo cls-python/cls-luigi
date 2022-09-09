@@ -31,23 +31,20 @@ class StaticJSONRepo:
     def _construct_repo_dict(self):
 
         # Adding component, their type (abstract, non-abstract), and their concrete implementations
-        for st in self.repo_meta.subtypes.keys():
-            component_name = self._prettify_name(st.cls_tpe)
-            component_value = self.repo_meta.subtypes[st]
+        for key in self.repo_meta.subtypes.keys():
+            if not isinstance(key, RepoMeta.ClassIndex):
 
-            if not isinstance(st, RepoMeta.ClassIndex):
+                component_name = self._prettify_name(key.cls_tpe)
+                value = self.repo_meta.subtypes[key]
 
-                if component_value:
+                if value:
                     # If the value isn't an empty set ==> the value is an abstract component and the key is one of its concrete implementations
                     abstract_component_name = self._prettify_name(
-                        list(component_value)[0].cls_tpe)
+                        list(value)[0].cls_tpe)
                     self.repo_dict[abstract_component_name]["abstract"] = True
 
-                    if "concreteImplementations" in self.repo_dict[abstract_component_name]:
-                        self.repo_dict[abstract_component_name]["concreteImplementations"] = \
-                            self.repo_dict[abstract_component_name]["concreteImplementations"] + [component_name]
-                    else:
-                        self.repo_dict[abstract_component_name]["concreteImplementations"] = [component_name]
+                    self.repo_dict[abstract_component_name]["concreteImplementations"] = self.repo_dict[abstract_component_name]["concreteImplementations"] + \
+                                                                                         [component_name] if "concreteImplementations" in self.repo_dict[abstract_component_name] else [component_name]
 
                     self.concrete_to_abstract_mapper[component_name] = abstract_component_name
 
@@ -59,6 +56,7 @@ class StaticJSONRepo:
 
         # Adding dependencies of components
         for k in self.repository.keys():
+            if not isinstance(k, RepoMeta.ClassIndex):
                 for item in self.repository[k].organized:
                     # Path is a tuple of 2 elements; 1st element is a list of the dependencies for the component in the 2nd element
                     path = item.path
@@ -71,24 +69,27 @@ class StaticJSONRepo:
                         dependency = self._prettify_name(d.name.cls_tpe)
 
                         if dependency != component_name:
+
                             if "inputQueue" in self.repo_dict[component_name]:
                                 if dependency not in self.repo_dict[component_name]["inputQueue"]:
-                                    self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name][
-                                                                                       "inputQueue"] + [
-                                                                                       dependency]
+                                    self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name]["inputQueue"] + [dependency]
                             else:
                                 self.repo_dict[component_name]["inputQueue"] = [dependency]
 
-                        try:
-                            d.name.at_index  # If no error ==> we have a task with indexes
-                            indexed_task_name = str(d.name.at_index) + " : " + self._prettify_name(deps[1].name.cls_tpe)
+                if k.has_index:
+                    item = list(self.repository[k].organized)
+                    component_name = self._prettify_name(k.name)
+
+                    for c in item:
+                        path = c.path[0]
+                        index = path[0].name.at_index
+                        for i in path[1:]:
+                            indexed_task_name = str(index)  + " : " + self._prettify_name(i.name.cls_tpe)
                             if "configIndexes" in self.repo_dict[component_name]:
                                 self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [indexed_task_name]
+
                             else:
                                 self.repo_dict[component_name]["configIndexes"] = [indexed_task_name]
-
-                        except AttributeError:
-                            pass
 
     def dump_static_repo(self, path=""):
         full_path = join(path, "static_repo.json")
