@@ -21,14 +21,18 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
       if (componentDetails.concreteImplementations) {
         className = "abstractComponent";
         for (let i of componentDetails.concreteImplementations) {
-          html += "<span class=queue>" + i + "</span>";
+          html += "<span class=queue>" + "  " + i + "</span>";
         }
         html += "<span class=queue>" + "" + "</span>";
       }
       else if (componentDetails.configIndexes){
-        className = "indexed";
-        for (let i of componentDetails.configIndexes) {
-          html += "<span class=queue>" + i + "</span>";
+        className = "indexedComponent";
+        let indexes = Object.keys(componentDetails.configIndexes);
+
+        for (let i of indexes) {
+          for (let j of componentDetails.configIndexes[i]) {
+            html += "<span class=queue>" + i + " : " + j + "</span>";
+          }
         }
         html += "<span class=queue>" + "" + "</span>";
       }
@@ -40,6 +44,9 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
 
     else if (graphType === "dynamic") {
       className = componentDetails["status"];
+      if (className == "RUNNING"){
+        className += " warn";
+      }
       html += "<span class=status></span>";
       html += "<span class=name>"+component+"</span>";
       html += "<span class=queue>"+""+"</span>";
@@ -115,7 +122,7 @@ async function staticGraph(path = "static_repo.json") {
         n = n * r[component]["concreteImplementations"].length;
       }
       else if (r[component]["configIndexes"]){
-        n = n * r[component]["configIndexes"].length
+        n = n * Object.keys(r[component]["configIndexes"]).length
       }
     }
     return n;
@@ -173,8 +180,12 @@ async function dynamicGraph(path="dynamic_repo.json") {
     async function update(){
       for (let task in repo) {
         let element = d3.select("#" + task);
-        if (element.attr("class") !== "node " + repo[task]["status"]) {
-          element.attr("class", "node " + repo[task]["status"])
+        let node_status = repo[task]["status"]
+        if (node_status == "RUNNING"){
+          node_status += " warn";
+        }
+        if (element.attr("class") !== "node " + node_status) {
+          element.attr("class", "node " + node_status)
         }
       }
     }

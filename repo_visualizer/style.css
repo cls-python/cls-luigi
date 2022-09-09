@@ -5,6 +5,43 @@ body {
   background: #d8dadf;
 }
 
+
+@-webkit-keyframes flash {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes flash {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0.2;
+  }
+}
+
+.warn {
+  -webkit-animation-duration: 5s;
+  animation-duration: 5s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-iteration-count: 1;
+  animation-iteration-count: 1;
+}
+
+.warn {
+  -webkit-animation-name: flash;
+  animation-name: flash;
+}
+
+
+
 .static.repo {
   width: 98%;
   height: 900px;
@@ -51,7 +88,7 @@ svg {
   background-color: white;
 }
 
-.static.repo .indexed .status {
+.static.repo .indexedComponent .status {
   background-color: rgb(100, 234, 109);
 }
 
@@ -292,7 +329,7 @@ h2  {
   background-color: #f77;
 }
 
-.dynamic.repo .RUNNING .status {
+.dynamic.repo .RUNNING.warn .status {
   background-color: #80a0ec;
 }
 
