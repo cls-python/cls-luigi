@@ -79,13 +79,16 @@ class StaticJSONRepo:
                             else:
                                 self.repo_dict[component_name]["inputQueue"] = [dependency]
 
-                if isinstance(k,  RepoMeta.ClassIndex):
-                    component_name = self._prettify_name(k.cls_tpe)
-                    if "configIndexes" in self.repo_dict[component_name]:
-                        self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [k.at_index]
-                    else:
-                        self.repo_dict[component_name]["configIndexes"] = [k.at_index]
+                        try:
+                            d.name.at_index  # If no error ==> we have a task with indexes
+                            indexed_task_name = str(d.name.at_index) + " : " + self._prettify_name(deps[1].name.cls_tpe)
+                            if "configIndexes" in self.repo_dict[component_name]:
+                                self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [indexed_task_name]
+                            else:
+                                self.repo_dict[component_name]["configIndexes"] = [indexed_task_name]
 
+                        except AttributeError:
+                            pass
 
     def dump_static_repo(self, path=""):
         full_path = join(path, "static_repo.json")
