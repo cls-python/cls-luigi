@@ -19,17 +19,22 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
       html += "<span class=queue>" + "" + "</span>";
 
       if (componentDetails.concreteImplementations) {
-        className = "abstractComponent"
+        className = "abstractComponent";
         for (let i of componentDetails.concreteImplementations) {
           html += "<span class=queue>" + i + "</span>";
         }
         html += "<span class=queue>" + "" + "</span>";
       }
       else if (componentDetails.configIndexes){
-        className = "indexed"
+        className = "indexed";
+        for (let i of componentDetails.configIndexes) {
+          html += "<span class=queue>" + i + "</span>";
+        }
+        html += "<span class=queue>" + "" + "</span>";
       }
       else {
-      className = "notAbstractComponent";
+
+        className = "notAbstractComponent";
       }
     }
 
@@ -37,7 +42,7 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
       className = componentDetails["status"];
       html += "<span class=status></span>";
       html += "<span class=name>"+component+"</span>";
-      html += "<span class=queue>" + ""+"</span>";
+      html += "<span class=queue>"+""+"</span>";
     }
 
     html += "</div>";
