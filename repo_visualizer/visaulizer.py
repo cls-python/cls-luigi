@@ -70,7 +70,7 @@ def update_tasks_status():
             sleep(4)
             pass
         finally:
-            sleep(1)
+            sleep(2)
             pass
 
 
