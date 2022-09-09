@@ -79,17 +79,19 @@ class StaticJSONRepo:
                 if k.has_index:
                     item = list(self.repository[k].organized)
                     component_name = self._prettify_name(k.name)
+                    self.repo_dict[component_name]["configIndexes"] = {}
 
                     for c in item:
                         path = c.path[0]
                         index = path[0].name.at_index
                         for i in path[1:]:
-                            indexed_task_name = str(index)  + " : " + self._prettify_name(i.name.cls_tpe)
-                            if "configIndexes" in self.repo_dict[component_name]:
-                                self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [indexed_task_name]
-
+                            indexed_task_name = self._prettify_name(i.name.cls_tpe)
+                            if index in self.repo_dict[component_name]["configIndexes"]:
+                                self.repo_dict[component_name]["configIndexes"][index] = self.repo_dict[component_name]["configIndexes"][index] + \
+                                                                                         [indexed_task_name]
                             else:
-                                self.repo_dict[component_name]["configIndexes"] = [indexed_task_name]
+                                self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
+                            # self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [indexed_task_name]
 
     def dump_static_repo(self, path=""):
         full_path = join(path, "static_repo.json")
