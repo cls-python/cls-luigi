@@ -1,8 +1,11 @@
 import luigi
 import inhabitation_task
 from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, deep_str
+
 from cls_python import FiniteCombinatoryLogic, Subtypes
 from hello_world_10 import WriteFileTask
+from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from repo_visualizer.static_json_repo import StaticJSONRepo
 
 
 class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
@@ -58,6 +61,7 @@ class FinalTask(luigi.WrapperTask, LuigiCombinator):
 if __name__ == '__main__':
     target = FinalTask.return_type()
     repository = RepoMeta.repository
+    StaticJSONRepo(RepoMeta).dump_static_repo("../repo_visualizer")
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10
@@ -67,6 +71,7 @@ if __name__ == '__main__':
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     if results:
-        luigi.build(results, local_scheduler=True)  # für luigid: local_scheduler = True weglassen!
+        DynamicJSONRepo(results).dump_dynamic_pipeline_dict("../repo_visualizer")
+        luigi.build(results, local_scheduler=False)  # für luigid: local_scheduler = True weglassen!
     else:
         print("No results!")
