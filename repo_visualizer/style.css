@@ -1,6 +1,6 @@
 body {
   width: 98%;
-  height: 3400px;
+  height: 3800px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
   background: #d8dadf;
 }
@@ -278,7 +278,7 @@ h2  {
 
 .dynamic.repo {
   width: 98%;
-  height: 1700px;
+  height: 2100px;
   display: block;
   margin-left: 1%;
   margin-right: 1%;
