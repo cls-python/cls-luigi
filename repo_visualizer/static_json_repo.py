@@ -91,7 +91,6 @@ class StaticJSONRepo:
                                                                                          [indexed_task_name]
                             else:
                                 self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
-                            # self.repo_dict[component_name]["configIndexes"] = self.repo_dict[component_name]["configIndexes"] + [indexed_task_name]
 
     def dump_static_repo(self, path=""):
         full_path = join(path, "static_repo.json")
