@@ -20,20 +20,29 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
 
       if (componentDetails.concreteImplementations) {
         className = "abstractComponent";
-        for (let i of componentDetails.concreteImplementations) {
-          html += "<span class=queue>" + "  " + i + "</span>";
-        }
+        componentDetails.concreteImplementations.map(function(item){
+          html += "<span class=queue>" + "  " + item + "</span>";
+        })
+        // for (let i of componentDetails.concreteImplementations) {
+        //   html += "<span class=queue>" + "  " + i + "</span>";
+        // }
         html += "<span class=queue>" + "" + "</span>";
       }
       else if (componentDetails.configIndexes){
         className = "indexedComponent";
         let indexes = Object.keys(componentDetails.configIndexes);
 
-        for (let i of indexes) {
-          for (let j of componentDetails.configIndexes[i]) {
+        indexes.map(function(i) {
+          componentDetails.configIndexes[i].map(function(j) {
             html += "<span class=queue>" + i + " : " + j + "</span>";
-          }
-        }
+          })
+        })
+
+        // for (let i of indexes) {
+        //   for (let j of componentDetails.configIndexes[i]) {
+        //     html += "<span class=queue>" + i + " : " + j + "</span>";
+        //   }
+        // }
         html += "<span class=queue>" + "" + "</span>";
       }
       else {
@@ -65,9 +74,13 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
     });
 
     if (componentDetails.inputQueue) {
-      for (let d of componentDetails.inputQueue) {
+
+      componentDetails.inputQueue.map(function(d) {
         graph.setEdge(d, component, {});
-      }
+      })
+      // for (let d of componentDetails.inputQueue) {
+      //   graph.setEdge(d, component, {});
+      // }
     }
   }
 }
@@ -80,7 +93,7 @@ async function draw(repo, g, svg, zoom, inner, render, dynamic=false){
 
   // Zoom and scale to fit
   let graphWidth =  g.graph().width + 80;
-  let graphHeight =  g.graph().height + 150;
+  let graphHeight =  g.graph().height + 200;
   let width =  parseInt(svg.style("width").replace(/px/, ""));
   let height =  parseInt(svg.style("height").replace(/px/, ""));
   let zoomScale =  Math.min(width / graphWidth, height / graphHeight);
@@ -117,6 +130,7 @@ async function staticGraph(path = "static_repo.json") {
     await r;
 
     let n = 1;
+
     for (let component in r){
       if (r[component]["abstract"]){
         n = n * r[component]["concreteImplementations"].length;
@@ -159,6 +173,25 @@ async function dynamicGraph(path="dynamic_repo.json") {
   });
 
   let repo = await fetchJSON(path);
+
+  async function getTotalNumberOfTasks(r){
+    await r;
+    return Object.keys(r).length;
+  }
+
+  d3.select("total-tasks")
+    .append("div")
+    .classed("total-tasks", true)
+    .append("div")
+    .classed("title", true)
+    .text("Total Number \nof Tasks: " + await getTotalNumberOfTasks(repo));
+
+
+
+
+
+
+
   await draw(repo, g, svg, zoom, inner, render, true);
 
   // status updating commands

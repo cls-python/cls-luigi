@@ -217,7 +217,6 @@ h2  {
   margin-right: 10px;
   margin-top: 10px;
   color: #333;
-
   text-indent: 10px;
   color: white;
 
@@ -231,6 +230,28 @@ h2  {
   margin-right: 5px;
   margin-left: 0;
   border: transparent;
+}
+
+
+.total-tasks {
+  width: 325px;
+  height: 220px;
+  border: solid #999;
+  margin-top: 5px;
+  margin-left: 27px;
+  position: relative;
+  top: -269px;
+  left: 390px;
+}
+
+.total-tasks  .title {
+  text-align: left;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-left: 20px;
+  font-size: 30px;
+  font-weight: 500;
+  color: white;
 }
 
 .total-pipelines {
