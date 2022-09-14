@@ -19,4 +19,5 @@ for file in os.listdir(hello_world_path):
 jsons = "../repo_visualizer"
 for file in os.listdir(jsons):
     if file.endswith(".json"):
+        if 'config.json' not in file:
             os.remove(os.path.join(jsons, file))

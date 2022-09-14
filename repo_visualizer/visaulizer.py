@@ -1,12 +1,15 @@
 import os
+from os.path import join
 from threading import Thread
 from time import sleep
 import requests
 import json
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-PORT = 8000
+from json_io import load_json, dump_json
 
+PORT = 8000
+CONFIG = "config.json"
 
 def main():
     luigi_daemon = Thread(target=start_luigi_daemon)
@@ -18,8 +21,8 @@ def main():
 
     try:
         httpd = HTTPServer(('', PORT), SimpleHTTPRequestHandler)
-        print("\nStarted visualization server\n\n'Navigate to: ",
-              link("http://localhost:{}/\n\n\n".format(PORT)))
+        print("\nStarted visualization server\n\nNavigate to: ",
+              link('http://localhost:{}/\n\n\n'.format(PORT)))
         httpd.serve_forever()
     except:
         pass
@@ -41,14 +44,12 @@ def start_luigi_daemon():
 
 
 def update_tasks_status():
-    FILE = 'dynamic_repo.json'
-    path = os.path.join(os.getcwd(), FILE)
+    dynamic_repo_name = load_json(CONFIG)['dynamic_repo']
+
     keep_updating = True
     while keep_updating:
         try:
-            with open(path, 'r') as FILE:
-                loaded = json.load(FILE)
-
+            loaded = load_json(dynamic_repo_name)
             luigi_task_updates = requests.get("http://localhost:8082/api/task_list").json()["response"]
 
             for k in loaded.keys():
@@ -58,8 +59,12 @@ def update_tasks_status():
                     loaded[k]["startTime"] = luigi_task_updates[loaded[k]["luigiName"]]["start_time"]
                     loaded[k]["lastUpdated"] = luigi_task_updates[loaded[k]["luigiName"]]["last_updated"]
 
-            with open(path, 'w+') as updated:
-                json.dump(loaded, updated, indent=6)
+            dump_json(dynamic_repo_name, loaded)
+
+            # with open(full_path, 'w+') as updated:
+            #     json.dump(loaded, updated, indent=6)
+            #
+            # dump_json()
 
             status_set = set(
                 map(lambda key: loaded[key]["status"], list(loaded.keys)))

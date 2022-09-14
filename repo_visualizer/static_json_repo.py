@@ -1,9 +1,7 @@
-import json
-from os.path import join
-
-from luigi import WrapperTask
-
 from inhabitation_task import RepoMeta
+from repo_visualizer.json_io import load_json, dump_json
+
+CONFIG = "config.json"
 
 
 class StaticJSONRepo:
@@ -43,8 +41,10 @@ class StaticJSONRepo:
                         list(value)[0].cls_tpe)
                     self.repo_dict[abstract_component_name]["abstract"] = True
 
-                    self.repo_dict[abstract_component_name]["concreteImplementations"] = self.repo_dict[abstract_component_name]["concreteImplementations"] + \
-                                                                                         [component_name] if "concreteImplementations" in self.repo_dict[abstract_component_name] else [component_name]
+                    self.repo_dict[abstract_component_name]["concreteImplementations"] = \
+                    self.repo_dict[abstract_component_name]["concreteImplementations"] + \
+                    [component_name] if "concreteImplementations" in self.repo_dict[abstract_component_name] else [
+                        component_name]
 
                     self.concrete_to_abstract_mapper[component_name] = abstract_component_name
 
@@ -72,7 +72,8 @@ class StaticJSONRepo:
 
                             if "inputQueue" in self.repo_dict[component_name]:
                                 if dependency not in self.repo_dict[component_name]["inputQueue"]:
-                                    self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name]["inputQueue"] + [dependency]
+                                    self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name][
+                                                                                       "inputQueue"] + [dependency]
                             else:
                                 self.repo_dict[component_name]["inputQueue"] = [dependency]
 
@@ -87,13 +88,12 @@ class StaticJSONRepo:
                         for i in path[1:]:
                             indexed_task_name = self._prettify_name(i.name.cls_tpe)
                             if index in self.repo_dict[component_name]["configIndexes"]:
-                                self.repo_dict[component_name]["configIndexes"][index] = self.repo_dict[component_name]["configIndexes"][index] + \
-                                                                                         [indexed_task_name]
+                                self.repo_dict[component_name]["configIndexes"][index] = \
+                                self.repo_dict[component_name]["configIndexes"][index] + \
+                                [indexed_task_name]
                             else:
                                 self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
 
-    def dump_static_repo(self, path=""):
-        full_path = join(path, "static_repo.json")
-        print(full_path)
-        with open(full_path, "w+") as r:
-            json.dump(self.repo_dict, r, indent=4)
+    def dump_static_repo_json(self):
+        outfile_name = load_json(CONFIG)['static_repo']
+        dump_json(outfile_name, self.repo_dict)

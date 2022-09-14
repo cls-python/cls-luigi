@@ -1,10 +1,12 @@
+let config = 'config.json';
+
 async function fetchJSON(path){
   const fetched = await fetch(path);
 
   return fetched.json();
 }
 
-async function addNodesAndEdges(jsonRepo, graph, graphType) {
+async function addNodesAndEdges(jsonRepo, graph, static=true) {
   await jsonRepo;
 
   for (let component in jsonRepo) {
@@ -13,7 +15,7 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
     let className;
 
 
-    if (graphType === "static"){
+    if (static === true){
       html += "<span class=status></span>";
       html += "<span class=name>" + component + "</span>";
       html += "<span class=queue>" + "" + "</span>";
@@ -23,9 +25,6 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
         componentDetails.concreteImplementations.map(function(item){
           html += "<span class=queue>" + "  " + item + "</span>";
         })
-        // for (let i of componentDetails.concreteImplementations) {
-        //   html += "<span class=queue>" + "  " + i + "</span>";
-        // }
         html += "<span class=queue>" + "" + "</span>";
       }
       else if (componentDetails.configIndexes){
@@ -37,23 +36,16 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
             html += "<span class=queue>" + i + " : " + j + "</span>";
           })
         })
-
-        // for (let i of indexes) {
-        //   for (let j of componentDetails.configIndexes[i]) {
-        //     html += "<span class=queue>" + i + " : " + j + "</span>";
-        //   }
-        // }
         html += "<span class=queue>" + "" + "</span>";
       }
       else {
-
         className = "notAbstractComponent";
       }
     }
 
-    else if (graphType === "dynamic") {
+    else if (static === false) {
       className = componentDetails["status"];
-      if (className == "RUNNING"){
+      if (className === "RUNNING"){
         className += " warn";
       }
       html += "<span class=status></span>";
@@ -78,16 +70,13 @@ async function addNodesAndEdges(jsonRepo, graph, graphType) {
       componentDetails.inputQueue.map(function(d) {
         graph.setEdge(d, component, {});
       })
-      // for (let d of componentDetails.inputQueue) {
-      //   graph.setEdge(d, component, {});
-      // }
     }
   }
 }
 
-async function draw(repo, g, svg, zoom, inner, render, dynamic=false){
+async function draw(repo, g, svg, zoom, inner, render, static=true){
 
-  await addNodesAndEdges(repo, g,  "static");
+  await addNodesAndEdges(repo, g,  static);
 
   inner.call(render, g);
 
@@ -104,7 +93,10 @@ async function draw(repo, g, svg, zoom, inner, render, dynamic=false){
 }
 
 
-async function staticGraph(path = "static_repo.json") {
+async function staticGraph() {
+
+  let path = await fetchJSON(config);
+  path = path['static_repo']
 
   // Set up zoom support
   let svg = d3.select("svg.static-repo"),
@@ -153,7 +145,11 @@ async function staticGraph(path = "static_repo.json") {
 }
 
 
-async function dynamicGraph(path="dynamic_repo.json") {
+async function dynamicGraph() {
+
+   let path = await fetchJSON(config);
+   path = path['dynamic_repo']
+
 
   let svg = d3.select("svg.dynamic-repo"),
   inner = svg.append("g"),
@@ -188,11 +184,7 @@ async function dynamicGraph(path="dynamic_repo.json") {
 
 
 
-
-
-
-
-  await draw(repo, g, svg, zoom, inner, render, true);
+  await draw(repo, g, svg, zoom, inner, render, false);
 
   // status updating commands
   function sleep(ms) {
