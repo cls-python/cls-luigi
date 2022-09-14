@@ -7,11 +7,10 @@ CONFIG = "config.json"
 class StaticJSONRepo:
     """
     Creates a json representation of all components in repository, their types,
-    their concrete implementations (if the task is abstract), and their dependencies.
-
+    their concrete implementations or config indexes, and their dependencies.
 
     usage:
-      static_repo = StaticJSONRepo(RepoMeta)      static_repo.dump_repo(where to dump your json)
+      StaticJSONRepo(RepoMeta).dump_static_repo_json()
     """
 
     def __init__(self, repo_meta):
@@ -22,77 +21,84 @@ class StaticJSONRepo:
 
         self._construct_repo_dict()
 
+    def _construct_repo_dict(self):
+
+        for key in self.repo_meta.subtypes.keys():
+            if not isinstance(key, RepoMeta.ClassIndex):
+                self._add_components_to_repo_dict(key)
+
+        # Adding dependencies of components
+        for repo_key in self.repository.keys():
+            if not isinstance(repo_key, RepoMeta.ClassIndex):
+                for item in self.repository[repo_key].organized:
+                    self._add_deps(item)
+
+                if repo_key.has_index:
+                    self._add_config_indexes(repo_key)
+
     @staticmethod
     def _prettify_name(name):
         return name.split(".")[-1]
 
-    def _construct_repo_dict(self):
-
+    def _add_components_to_repo_dict(self, subtype_key):
         # Adding component, their type (abstract, non-abstract), and their concrete implementations
-        for key in self.repo_meta.subtypes.keys():
-            if not isinstance(key, RepoMeta.ClassIndex):
+        component_name = self._prettify_name(subtype_key.cls_tpe)
+        component_value = self.repo_meta.subtypes[subtype_key]
 
-                component_name = self._prettify_name(key.cls_tpe)
-                value = self.repo_meta.subtypes[key]
+        if component_value:
+            # If the value isn't an empty set ==> the value is an abstract component and the key is one of its concrete implementations
+            abs_component_name = self._prettify_name(
+                list(component_value)[0].cls_tpe)
+            self.repo_dict[abs_component_name]["abstract"] = True
 
-                if value:
-                    # If the value isn't an empty set ==> the value is an abstract component and the key is one of its concrete implementations
-                    abstract_component_name = self._prettify_name(
-                        list(value)[0].cls_tpe)
-                    self.repo_dict[abstract_component_name]["abstract"] = True
+            self.repo_dict[abs_component_name]["concreteImplementations"] = \
+                self.repo_dict[abs_component_name]["concreteImplementations"] + \
+                [component_name] if "concreteImplementations" in self.repo_dict[abs_component_name] else [component_name]
 
-                    self.repo_dict[abstract_component_name]["concreteImplementations"] = \
-                    self.repo_dict[abstract_component_name]["concreteImplementations"] + \
-                    [component_name] if "concreteImplementations" in self.repo_dict[abstract_component_name] else [
-                        component_name]
+            self.concrete_to_abstract_mapper[component_name] = abs_component_name
 
-                    self.concrete_to_abstract_mapper[component_name] = abstract_component_name
+        else:
+            # If the value IS an empty set ==> the key represents a (potentially!) none-abstract component
+            # If they this key appears later as a value of any given key ==> they key turns out to be in deed an abstract component
+            # and will be updated to abstract:True
+            self.repo_dict[component_name] = {"abstract": False}
 
+    def _add_deps(self, item):
+        # Path is a tuple of 2 elements; 1st element is a list of the dependencies for the component in the 2nd element
+        path = item.path
+        deps = path[0]
+        component_name = self._prettify_name(path[-1].name.cls_tpe)
+        if component_name in self.concrete_to_abstract_mapper.keys():
+            component_name = self.concrete_to_abstract_mapper[component_name]
+
+        for d in deps:
+            dependency = self._prettify_name(d.name.cls_tpe)
+
+            if dependency != component_name:
+                if "inputQueue" in self.repo_dict[component_name]:
+                    if dependency not in self.repo_dict[component_name]["inputQueue"]:
+                        self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name][
+                                                                           "inputQueue"] + [dependency]
                 else:
-                    # If the value IS an empty set ==> the key represents a (potentially!) none-abstract component
-                    # If they this key appears later as a value of any given key ==> they key turns out to be in deed an abstract component
-                    # and will be updated to abstract:True
-                    self.repo_dict[component_name] = {"abstract": False}
+                    self.repo_dict[component_name]["inputQueue"] = [dependency]
 
-        # Adding dependencies of components
-        for k in self.repository.keys():
-            if not isinstance(k, RepoMeta.ClassIndex):
-                for item in self.repository[k].organized:
-                    # Path is a tuple of 2 elements; 1st element is a list of the dependencies for the component in the 2nd element
-                    path = item.path
-                    deps = path[0]
-                    component_name = self._prettify_name(path[-1].name.cls_tpe)
-                    if component_name in self.concrete_to_abstract_mapper.keys():
-                        component_name = self.concrete_to_abstract_mapper[component_name]
+    def _add_config_indexes(self, repo_key):
+        item = list(self.repository[repo_key].organized)
+        component_name = self._prettify_name(repo_key.name)
+        self.repo_dict[component_name]["configIndexes"] = {}
 
-                    for d in deps:
-                        dependency = self._prettify_name(d.name.cls_tpe)
+        for c in item:
+            path = c.path[0]
+            index = path[0].name.at_index
+            for i in path[1:]:
+                indexed_task_name = self._prettify_name(i.name.cls_tpe)
 
-                        if dependency != component_name:
-
-                            if "inputQueue" in self.repo_dict[component_name]:
-                                if dependency not in self.repo_dict[component_name]["inputQueue"]:
-                                    self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name][
-                                                                                       "inputQueue"] + [dependency]
-                            else:
-                                self.repo_dict[component_name]["inputQueue"] = [dependency]
-
-                if k.has_index:
-                    item = list(self.repository[k].organized)
-                    component_name = self._prettify_name(k.name)
-                    self.repo_dict[component_name]["configIndexes"] = {}
-
-                    for c in item:
-                        path = c.path[0]
-                        index = path[0].name.at_index
-                        for i in path[1:]:
-                            indexed_task_name = self._prettify_name(i.name.cls_tpe)
-                            if index in self.repo_dict[component_name]["configIndexes"]:
-                                self.repo_dict[component_name]["configIndexes"][index] = \
-                                self.repo_dict[component_name]["configIndexes"][index] + \
-                                [indexed_task_name]
-                            else:
-                                self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
+                if index in self.repo_dict[component_name]["configIndexes"]:
+                    self.repo_dict[component_name]["configIndexes"][index] = \
+                        self.repo_dict[component_name]["configIndexes"][index] + \
+                        [indexed_task_name]
+                else:
+                    self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
 
     def dump_static_repo_json(self):
         outfile_name = load_json(CONFIG)['static_repo']
