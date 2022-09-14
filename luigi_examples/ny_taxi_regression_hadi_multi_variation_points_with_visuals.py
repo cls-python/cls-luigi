@@ -729,7 +729,7 @@ if __name__ == '__main__':
     target = EvaluateAndVisualize.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
-    StaticJSONRepo(RepoMeta).dump_static_repo("../repo_visualizer")
+    StaticJSONRepo(RepoMeta).dump_static_repo_json()
 
     print("Build Repository...")
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
@@ -747,7 +747,7 @@ if __name__ == '__main__':
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     if results:
-        DynamicJSONRepo(results).dump_dynamic_pipeline_dict("../repo_visualizer")
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")

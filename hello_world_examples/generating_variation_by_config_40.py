@@ -61,7 +61,7 @@ class FinalTask(luigi.WrapperTask, LuigiCombinator):
 if __name__ == '__main__':
     target = FinalTask.return_type()
     repository = RepoMeta.repository
-    StaticJSONRepo(RepoMeta).dump_static_repo("../repo_visualizer")
+    StaticJSONRepo(RepoMeta).dump_static_repo_json()
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         max_results = actual
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     if results:
-        DynamicJSONRepo(results).dump_dynamic_pipeline_dict("../repo_visualizer")
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         luigi.build(results, local_scheduler=False)  # für luigid: local_scheduler = True weglassen!
     else:
         print("No results!")
