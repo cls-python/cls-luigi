@@ -225,7 +225,7 @@ if __name__ == '__main__':
     validator = UniqueTaskPipelineValidator([FitTransformScaler])
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using :)
+    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using in this case :)
 
     if results:
         print("Number of results", max_results)
