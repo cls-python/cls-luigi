@@ -13,10 +13,8 @@ class DynamicJSONRepo:
     """
 
     def __init__(self, cls_results):
-        self.path = None
         self.cls_results = cls_results
         self.dynamic_pipeline_dict = {}
-
         self._construct_dynamic_pipeline_dict()
 
     @staticmethod
