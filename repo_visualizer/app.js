@@ -215,7 +215,7 @@ async function dynamicGraph() {
       }
     }
     await update();
-    await sleep(1000);
+    await sleep(1500);
   }
 }
 
