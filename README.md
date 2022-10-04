@@ -168,7 +168,7 @@ class SubstituteNameByJanTask(SubstituteNameTask):
             text = text.replace('World', "Jan")
             outfile.write(text)
 ````
-As target we use the abstract task ``target = SubstituteNameTask.return_type()``.
+As target, we use the abstract task ``target = SubstituteNameTask.return_type()``.
 
 As a result three tasks are scheduled: SubstituteNameByAnneTask, SubstituteNameByJanTask and
 WriteFileTask.
@@ -279,7 +279,7 @@ For that we can use the output names of variation points as unique identifiers.
 
 Here are the steps for that:
 1. Make sure that each variation point has a unique output name in the `output` method (that's a
-prerequesite of luigi anyway).
+prerequisite of luigi anyway).
 2. In the Task, where the variation point is "required", implement the such a method in order to
     uniquely identify the task:
     
@@ -318,7 +318,7 @@ implementation of a given variation point.
 
 For that you can validate the inhabitation results before we must validate the inhabitation results before passing them to luigi.
 
- 
+
 
 ### Abstract example
 The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage_60.py)
@@ -374,4 +374,65 @@ validator = UniqueTaskPipelineValidator([FitTransformScaler])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
+### CLS-Luigi Visualizer
 
+The code for this example is to be found [here](hello_world_examples/cls_luigi_visualizer_80.py)
+Let's consider the same ML-pipeline from above for this example.
+
+In order to visualize your pipelines, make sure to follow these steps in advance:
+
+
+1. Initialize `StaticJSONRepo` with RepoMeta as follows: 
+    ```python
+    from repo_visualizer.static_json_repo import StaticJSONRepo
+   
+    target = EvaluateRegressionModel.return_type()
+    repository = RepoMeta.repository
+    StaticJSONRepo(RepoMeta).dump_static_repo_json()
+   # dump_static_repo_json() saves the generated json file
+    ```
+
+2. Initialize `DynamicJSONRepo` with the evaluated/validated inhabitation results:
+(make sure that local_scheduler is set to False)
+    ```python
+    from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+ 
+    validator = UniqueTaskPipelineValidator([TrainRegressionModel, FitTransformScaler])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+
+    if results:
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
+        print("Number of results", max_results)
+        print("Number of results after filtering", len(results))
+        print("Run Pipelines")
+        luigi.build(results, local_scheduler=False, detailed_summary=True)
+    else:
+        print("No results!")
+    ```
+3. Execute the following command in your terminal to start the Luigi Daemon, and the visualizer Server:
+     ```
+    python repo_visualizer/visaulizer.py
+   ```
+   
+4. Run your pipeline-script now and navigate to `http://localhost:8000/repo_visualizer/` in your browser.
+
+
+<br/>
+
+The Static Repository DAG is a compressed representation of all pipelines, and displays a summary of all the pipelines and their component types in RepoMeta as follows:  
+- None-Abstract components which are not concrete implementations of any abstract or indexed component are labeled in white.
+- Abstract components are labeled in red. Their concreate implementations are listed underneath the corresponding abstract component. 
+- Components that contain config indices are labeled in green. Their config indices as well as the indexed components are listed underneath them (similar to Abstract components).
+<br/>
+
+<img src="hello_world_examples/static_repo.png" alt="Alt text">
+<br/>
+<br/>
+<br/>
+
+
+
+The Dynamic Repository DAG combines all running Luigi-pipelines into one, such that mutual components are only shown once. The status of the components is updated in real-time.
+<br/>
+
+<img src="hello_world_examples/dynamic_repo.png" alt="Alt text">
