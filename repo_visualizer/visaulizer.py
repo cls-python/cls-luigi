@@ -61,11 +61,6 @@ def update_tasks_status():
 
             dump_json(dynamic_repo_name, loaded)
 
-            # with open(full_path, 'w+') as updated:
-            #     json.dump(loaded, updated, indent=6)
-            #
-            # dump_json()
-
             status_set = set(
                 map(lambda key: loaded[key]["status"], list(loaded.keys)))
             if len(status_set) == 1:
