@@ -2,14 +2,14 @@
 
 ## Requirements for Your Development Environment 
 
-To use cls-python, a python version >= 3.10 must be used. The implementation uses "structural pattern matching" [[further information](https://peps.python.org/pep-0634/)].
+To use cls-python, a python version >= 3.10 must be used. The implementation uses ["structural pattern matching"](https://peps.python.org/pep-0634/).
 Verify you meet the requirements befor trying to run any given example in this repository.
 
 # cls-luigi
 
 ## Requirements for Your Development Environment
 
-In order to be able to run cls-luigi you have to meet the requirements given for the usage of cls-python. Furthermore, some additional packages have to be installed (e.g. luigi itself) to be able to run the given examples in this repostory. For that we encourage the use of pip [[further information](https://pip.pypa.io/en/stable/index.html)].
+In order to be able to run cls-luigi you have to meet the requirements given for the usage of cls-python. Furthermore, some additional packages have to be installed (e.g. luigi itself) to be able to run the given examples in this repostory. For that we encourage the use of [pip](https://pip.pypa.io/en/stable/index.html).
 
 We provide a [requirements.txt](requirements.txt) file that contains all the needed packages. To install them all in one take just use the following pip command: 
 ````bash
