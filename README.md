@@ -19,8 +19,10 @@ pip install -r requirements.txt
 
 ## What You need to know before You can start Your journey with cls-luigi
 
+cls-luigi combines the pipelining tool [luigi](https://luigi.readthedocs.io/en/stable/index.html) with the [(CL)S Framework](https://d-nb.info/1200209680/34). CLS is a Type-Theoretic Framework for Software Component Synthesis. In this case CLS is used to generate luigi pipelines out of luigi compentents. In our case a "component" is mostly a luigi Task Class implementation. 
+
 cls-luigi generates all feasible luigi pipelines for a given target based on a 
-repository of luigi-tasks. 
+repository of luigi-tasks using cls-python.
 
 A luigi tasks that not only inherit from ``luigi.Task`` but also 
 from our LuigiCombinator ``inhabitation_task.LuigiCombinator`` are automatically considered as
