@@ -17,7 +17,7 @@ We provide a [requirements.txt](requirements.txt) file that contains all the nee
 pip install -r requirements.txt 
 ````
 
-## What you need to know before You can start Your journey with cls-luigi
+## What You need to know before You can start Your journey with cls-luigi
 
 cls-luigi generates all feasible luigi pipelines for a given target based on a 
 repository of luigi-tasks. 
