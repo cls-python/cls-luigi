@@ -1,8 +1,23 @@
 # cls-python
 
+## Requirements for Your Development Environment 
 
+To use cls-python, a python version >= 3.10 must be used. The implementation uses "structural pattern matching" [[further information](https://peps.python.org/pep-0634/)].
+Verify you meet the requirements befor trying to run any given example in this repository.
 
 # cls-luigi
+
+## Requirements for Your Development Environment
+
+In order to be able to run cls-luigi you have to meet the requirements given for the usage of cls-python. Furthermore, some additional packages have to be installed (e.g. luigi itself) to be able to run the given examples in this repostory. For that we encourage the use of pip [[further information](https://pip.pypa.io/en/stable/index.html)].
+
+We provide a [requirements.txt](requirements.txt) file that contains all the needed packages. To install them all in one take just use the following pip command: 
+````bash
+# make sure that you are in the right path
+pip install -r requirements.txt 
+````
+
+## What you need to know before You can start Your journey with cls-luigi
 
 cls-luigi generates all feasible luigi pipelines for a given target based on a 
 repository of luigi-tasks. 
@@ -21,7 +36,7 @@ provide you with a running example in the folder hello_world_examples.
 * [Add variation points](#avp)
 * [Variation points as a dependency](#vpa)
 
-## Run a pipeline consisting of one task<a name="rpc"/>
+### Run a pipeline consisting of one task<a name="rpc"/>
 
 The script for this example is to be found [here](hello_world_examples/hello_world_10.py)
 
@@ -73,7 +88,7 @@ As the number of resulting variants can be infinite, we only store ``max_tasks_w
 number of inhabitants in the results lists.
 All inhabitants (luigi pipelines) are scheduled.
 
-## Define dependencies on other tasks<a name="dfo"/>
+### Define dependencies on other tasks<a name="dfo"/>
 
 The script for this example is to be found [here](hello_world_examples/defining_dependencies_20.py)
 
@@ -114,11 +129,11 @@ if __name__ == "__main__":
 ```
 Then a pipeline with the two tasks is scheduled.
 
-## Add variation points<a name="avp"/>
+### Add variation points<a name="avp"/>
 
 To determine different pipelines, we have to add variation points.
 
-### Using inheritance
+#### Using inheritance
 The script for this example is to be found [here](hello_world_examples/generating_variation_by_inheritance_30.py)
 
 
@@ -184,7 +199,7 @@ Scheduled 3 tasks of which:
 This progress looks :) because there were no failed tasks or missing dependencies
 ````
 
-### Using different configurations
+#### Using different configurations
 
 The code of this example is to be found [here](hello_world_examples/generating_variation_by_config_40.py)
 
@@ -264,7 +279,7 @@ There are 5 scheduled tasks in total:
 
 
 
-## Variation points as a dependency<a name="vpa"/>
+### Variation points as a dependency<a name="vpa"/>
 
 A ready example is to be found [here](hello_world_examples/variation_point_as_dependency_50.py)
 
@@ -307,7 +322,7 @@ prerequisite of luigi anyway).
 Note that You have to implement such a method in all subsequent tasks from here on, 
 in order to avoid files being overwritten by subsequent (later scheduled) pipelines.
 
-## Variation points usages in multiple tasks<a name="vpu"/>
+### Variation points usages in multiple tasks<a name="vpu"/>
 
 In case a variation point is required by more than one task,
 its concrete implementation may simultaneously get triggered more than once within the same pipeline.
@@ -318,7 +333,7 @@ For that you can validate the inhabitation results before we must validate the i
 
 
 
-### Abstract example
+#### Abstract example
 The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage_60.py)
 
 Consider this dummy pipeline where the variation point `Task1 Abstract` is a dependency for Task2 and
@@ -342,7 +357,7 @@ results = [t() for t in inhabitation_result.evaluated[0:max_results] if validato
 ```
 Now you may pass the results onto luigi as usual. 
 
-### ML-Pipeline example
+#### ML-Pipeline example
 The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage_70.py)
 
 Let's consider an example where we predict the blood sugar level of some patients.
@@ -372,7 +387,7 @@ validator = UniqueTaskPipelineValidator([FitTransformScaler])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
-### CLS-Luigi Visualizer
+#### CLS-Luigi Visualizer
 
 The code for this example is to be found [here](hello_world_examples/cls_luigi_visualizer_80.py)
 Let's consider the same ML-pipeline from above for this example.
