@@ -202,7 +202,7 @@ class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
         return self.write_file_task()
 
     def output(self):
-        return luigi.LocalTarget('../pure_hello_anne.txt')
+        return luigi.LocalTarget('pure_hello_anne.txt')
 
     def run(self):
         print("============= NameSubstitute: run")
@@ -216,14 +216,13 @@ class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
 
 class SubstituteNameByJanTask(luigi.Task, LuigiCombinator):
     abstract = False
-
     write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def requires(self):
         return self.write_file_task()
 
     def output(self):
-        return luigi.LocalTarget('../pure_hello_jan.txt')
+        return luigi.LocalTarget('pure_hello_jan.txt')
 
     def run(self):
         print("============= NameSubstitute: run")
@@ -236,7 +235,7 @@ class SubstituteNameByJanTask(luigi.Task, LuigiCombinator):
 ```
 
 Then, in the `FinalTask` We pass both tasks as a single ClsParameter represented by a dictionary,
-where the keys are our configuration index (1,2), and the items are the returned type of each task.
+where the keys are our configuration index (1,"2"), and the items are the returned type of each task.
 
 Note that defining a domain for our configurations indices is optional.
 However, by defining a domain, we are specifying which variant is going to be implemented,
@@ -245,12 +244,12 @@ such that variants with configuration indices not in the domain will not be exec
 ````python
 class FinalTask(luigi.WrapperTask, LuigiCombinator):
     substitute_name = ClsParameter(tpe={1: SubstituteNameByJanTask.return_type(),
-                                        2: SubstituteNameByAnneTask.return_type()})
-    config_domain = {1, 2}
+                                        "2": SubstituteNameByAnneTask.return_type()})
+    config_domain = {1, "2"}
     def requires(self):
         return self.substitute_name()
 ````
-Side Note: The `config_domain` could hold integers as well as strings simultaneously. 
+Side Note: As you can see, the `config_domain` can handle integers as well as strings simultaneously. 
 
 Finally, we set `FinalTask` as our target as follows ``target = FinalTask.return_type()``.
 
