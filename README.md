@@ -130,14 +130,14 @@ implementations.
 ````python
 class SubstituteNameTask(luigi.Task, inhabitation_task.LuigiCombinator):
     abstract = True
-    
+    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
+
     def requires(self):
         return self.write_file_task()
 
 
 class SubstituteNameByAnneTask(SubstituteNameTask):
     abstract = False
-    write_file_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def output(self):
         return luigi.LocalTarget('pure_hello_anne.txt')
@@ -154,7 +154,6 @@ class SubstituteNameByAnneTask(SubstituteNameTask):
 
 class SubstituteNameByJanTask(SubstituteNameTask):
     abstract = False
-    read_data_task = inhabitation_task.ClsParameter(tpe=WriteFileTask.return_type())
 
     def output(self):
         return luigi.LocalTarget('pure_hello_jan.txt')
