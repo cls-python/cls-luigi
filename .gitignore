@@ -484,3 +484,8 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/vim,venv,linux,macos,emacs,python,windows,intellij,visualstudiocode,intellij+all
 
 *.pkl
+
+
+# JSON pipelines
+ repo_visualizer\static_pipeline.json
+  repo_visualizer\dynamic_pipeline.json
