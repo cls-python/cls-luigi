@@ -42,7 +42,7 @@ body {
 
 
 
-.static.repo {
+.static.pipeline {
   width: 98%;
   height: 900px;
   display: block;
@@ -64,14 +64,14 @@ svg {
   margin-top: -185px;
 }
 
-.static.repo .node rect {
+.static.pipeline .node rect {
   stroke-width: 1.5px;
   stroke: #bbb;
   fill: #666;
   display: inline;
   }
 
-.static.repo .status {
+.static.pipeline .status {
   height: 8px;
   width: 100%;
   display: block;
@@ -80,15 +80,15 @@ svg {
   border-top-right-radius: 5px; 
 }
 
-.static.repo .abstractComponent .status {
+.static.pipeline .abstractComponent .status {
   background-color: #e67d6f;
 }
 
-.static.repo .notAbstractComponent .status {
+.static.pipeline .notAbstractComponent .status {
   background-color: white;
 }
 
-.static.repo .indexedComponent .status {
+.static.pipeline .indexedComponent .status {
   background-color: rgb(100, 234, 109);
 }
 
@@ -104,7 +104,7 @@ svg {
   background-color: rgb(100, 234, 109);
 }
 
-.static.repo .name {
+.static.pipeline .name {
   display: inline;
   float: left;
   width: 100%;
@@ -117,7 +117,7 @@ svg {
 }
 
 
-.static.repo .queue {
+.static.pipeline .queue {
   display: block;
   float: left;
   width: 300px;
@@ -127,18 +127,18 @@ svg {
   margin-bottom: 4px;
 }
 
-.static.repo .node g div {
+.static.pipeline .node g div {
   width: 550px;
   height: max-content;
   color: #fff;
 }
 
-.static.repo .edgeLabel text {
+.static.pipeline .edgeLabel text {
   width: 50px;
   fill: #fff;
 }
 
-.static.repo .edgePath path {
+.static.pipeline .edgePath path {
   stroke: #999;
   stroke-width: 1.5px;
   fill: #999;
@@ -276,7 +276,7 @@ h2  {
 }
 
 
-.dynamic.repo {
+.dynamic.pipeline {
   width: 98%;
   height: 2100px;
   display: block;
@@ -289,13 +289,13 @@ h2  {
   /*margin-top: -10%;*/
 }
 
-.dynamic.repo .node rect {
+.dynamic.pipeline .node rect {
   stroke-width: 1.5px;
   stroke: #bbb;
   fill: #666;
   }
 
-.dynamic.repo .status {
+.dynamic.pipeline .status {
   height: 100%;
   width: 3%;
   display: block;
@@ -306,7 +306,7 @@ h2  {
 }
 
 
-.dynamic.repo .name {
+.dynamic.pipeline .name {
   display: inline;
   float: left;
   width: 100%;
@@ -318,7 +318,7 @@ h2  {
 
 }
 
-.dynamic.repo .queue {
+.dynamic.pipeline .queue {
   display: block;
   float: left;
   width: 300px;
@@ -328,41 +328,41 @@ h2  {
   margin-bottom: 4px;
 }
 
-.dynamic.repo .node g div {
+.dynamic.pipeline .node g div {
   width: max-content;
   height: 80px;
   color: #fff;
 }
 
-.dynamic.repo .edgeLabel text {
+.dynamic.pipeline .edgeLabel text {
   width: 50px;
   fill: #fff;
 }
 
-.dynamic.repo .edgePath path {
+.dynamic.pipeline .edgePath path {
   stroke: #999;
   stroke-width: 1.5px;
   fill: #999;
 }
 
 
-.dynamic.repo .FAILED .status {
+.dynamic.pipeline .FAILED .status {
   background-color: #f77;
 }
 
-.dynamic.repo .RUNNING.warn .status {
+.dynamic.pipeline .RUNNING.warn .status {
   background-color: #80a0ec;
 }
 
-.dynamic.repo .PENDING .status {
+.dynamic.pipeline .PENDING .status {
   background-color: #EEBB00;
 }
 
-.dynamic.repo .DONE .status {
+.dynamic.pipeline .DONE .status {
   background-color: #7f7;
 }
 
-.dynamic.repo .NOTASSIGNED .status {
+.dynamic.pipeline .NOTASSIGNED .status {
   background-color: rgb(231, 179, 231);
 }
 

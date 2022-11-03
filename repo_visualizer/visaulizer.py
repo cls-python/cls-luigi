@@ -1,9 +1,7 @@
 import os
-from os.path import join
 from threading import Thread
 from time import sleep
 import requests
-import json
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
 from json_io import load_json, dump_json
@@ -44,33 +42,39 @@ def start_luigi_daemon():
 
 
 def update_tasks_status():
-    dynamic_repo_name = load_json(CONFIG)['dynamic_repo']
+    dynamic_repo_name = load_json(CONFIG)['dynamic_pipeline']
 
     keep_updating = True
     while keep_updating:
         try:
             loaded = load_json(dynamic_repo_name)
             luigi_task_updates = requests.get("http://localhost:8082/api/task_list").json()["response"]
+            tasks_status = set()
 
             for k in loaded.keys():
-                if loaded[k]['luigiName'] in luigi_task_updates:
-                    loaded[k]["status"] = luigi_task_updates[loaded[k]["luigiName"]]["status"]
-                    loaded[k]["timeRunning"] = luigi_task_updates[loaded[k]["luigiName"]]["time_running"]
-                    loaded[k]["startTime"] = luigi_task_updates[loaded[k]["luigiName"]]["start_time"]
-                    loaded[k]["lastUpdated"] = luigi_task_updates[loaded[k]["luigiName"]]["last_updated"]
+                for j in loaded[k].keys():
+                    if loaded[k][j]['luigiName'] in luigi_task_updates:
+                        loaded[k][j]["status"] = luigi_task_updates[loaded[k][j]["luigiName"]]["status"]
+                        loaded[k][j]["timeRunning"] = luigi_task_updates[loaded[k][j]["luigiName"]]["time_running"]
+                        loaded[k][j]["startTime"] = luigi_task_updates[loaded[k][j]["luigiName"]]["start_time"]
+                        loaded[k][j]["lastUpdated"] = luigi_task_updates[loaded[k][j]["luigiName"]]["last_updated"]
+                        tasks_status.add(luigi_task_updates[loaded[k][j]["luigiName"]]["status"])
+
+
 
             dump_json(dynamic_repo_name, loaded)
+            sleep(1) # wait a sec till system stabilizes
 
-            status_set = set(
-                map(lambda key: loaded[key]["status"], list(loaded.keys)))
-            if len(status_set) == 1:
-                if next(iter(status_set)) == "DONE":  # All the tasks are DONE
-                    keep_updating = False
+            if (len(tasks_status) == 1) and ("DONE" in tasks_status):
+                keep_updating = False
+                print('All tasks completed \nStoping updating task status')
+
         except:
-            sleep(4)
+            print("No Data Available yet\n ")
+            sleep(5)
             pass
         finally:
-            sleep(2)
+            sleep(5)
             pass
 
 

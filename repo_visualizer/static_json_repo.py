@@ -101,5 +101,5 @@ class StaticJSONRepo:
                     self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
 
     def dump_static_repo_json(self):
-        outfile_name = load_json(CONFIG)['static_repo']
+        outfile_name = load_json(CONFIG)['static_pipeline']
         dump_json(outfile_name, self.repo_dict)

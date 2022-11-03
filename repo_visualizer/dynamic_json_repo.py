@@ -1,5 +1,7 @@
 from luigi.task import flatten
 from repo_visualizer.json_io import load_json, dump_json
+import time
+
 
 CONFIG = "config.json"
 
@@ -14,7 +16,8 @@ class DynamicJSONRepo:
 
     def __init__(self, cls_results):
         self.cls_results = cls_results
-        self.dynamic_pipeline_dict = {}
+        self.dynamic_compressed_pipeline_dict = {}
+        self.dynamic_detailed_pipeline_dict = {}
         self._construct_dynamic_pipeline_dict()
 
     @staticmethod
@@ -22,27 +25,42 @@ class DynamicJSONRepo:
         listed_task_id = task.task_id.split("_")
         return listed_task_id[0] + "_" + listed_task_id[-1]  # @ [-1] is the hash of the task
 
+
+
     def _construct_dynamic_pipeline_dict(self):
-        def populate_dynamic_pipelines_dict(task):
+        def _get_deps_tree(task, base_dict=None):
+            if base_dict is None:
+                base_dict = {}
             name = self._prettify_task_name(task)
 
-            if name not in self.dynamic_pipeline_dict:
-                self.dynamic_pipeline_dict[name] = {
-                    "inputQueue": [],
-                    "status": "NOTASSIGNED",
-                    "luigiName": task.task_id,
-                    # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
-                }
+            task_dict = {"inputQueue": [],
+                         "status": "NOTASSIGNED",
+                         "luigiName": task.task_id,
+                         "createdAt": time.time(),
+                         "timeRunning": None,
+                         "startTime": None,
+                         "lastUpdated": None
+                         # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
+                         }
+
+            if name not in base_dict:
+                base_dict[name] = task_dict
             children = flatten(task.requires())
             for child in children:
-                if self._prettify_task_name(child) not in self.dynamic_pipeline_dict[name]["inputQueue"]:
-                    self.dynamic_pipeline_dict[name]["inputQueue"] = self.dynamic_pipeline_dict[name]["inputQueue"] + [
-                        self._prettify_task_name(child)]
-                populate_dynamic_pipelines_dict(child)
+                child_name = self._prettify_task_name(child)
+                if child_name not in base_dict[name]["inputQueue"]:
+                    base_dict[name]["inputQueue"] = base_dict[name]["inputQueue"] + [child_name]
+                _get_deps_tree(child, base_dict)
 
-        for r in self.cls_results:
-            populate_dynamic_pipelines_dict(r)
+            return base_dict
+
+
+        for ix, r in enumerate(self.cls_results):
+            pipeline = _get_deps_tree(r)
+            self.dynamic_detailed_pipeline_dict[ix] = {}
+            self.dynamic_detailed_pipeline_dict[ix].update(pipeline)
+
 
     def dump_dynamic_pipeline_json(self):
-        outfile_name = load_json(CONFIG)['dynamic_repo']
-        dump_json(outfile_name, self.dynamic_pipeline_dict)
+        config = load_json(CONFIG)
+        dump_json(config['dynamic_pipeline'], self.dynamic_detailed_pipeline_dict)

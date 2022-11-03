@@ -1,5 +1,5 @@
 {
-  "dynamic_repo": "dynamic_repo.json",
-  "static_repo": "static_repo.json"
+  "dynamic_pipeline": "dynamic_pipeline.json",
+  "static_pipeline": "static_pipeline.json"
 
 }

@@ -6,11 +6,20 @@ async function fetchJSON(path){
   return fetched.json();
 }
 
-async function addNodesAndEdges(jsonRepo, graph, static=true) {
-  await jsonRepo;
+async function combineRawPipelinesToOne(r){
+  await r;
+  let newObj = {};
+  for (let k in r){
+    newObj = Object.assign({}, newObj, r[k]);
+  }
+  return newObj;
+}
 
-  for (let component in jsonRepo) {
-    let componentDetails = jsonRepo[component];
+async function addNodesAndEdges(JSONPipelines, graph, static=true) {
+  await JSONPipelines;
+
+  for (let component in JSONPipelines) {
+    let componentDetails = JSONPipelines[component];
     let html = "<div>";
     let className;
 
@@ -74,9 +83,9 @@ async function addNodesAndEdges(jsonRepo, graph, static=true) {
   }
 }
 
-async function draw(repo, g, svg, zoom, inner, render, static=true){
+async function draw(JSONPipelines, g, svg, zoom, inner, render, static=true){
 
-  await addNodesAndEdges(repo, g,  static);
+  await addNodesAndEdges(JSONPipelines, g,  static);
 
   inner.call(render, g);
 
@@ -96,10 +105,10 @@ async function draw(repo, g, svg, zoom, inner, render, static=true){
 async function staticGraph() {
 
   let path = await fetchJSON(config);
-  path = path['static_repo']
+  path = path['static_pipeline']
 
   // Set up zoom support
-  let svg = d3.select("svg.static-repo"),
+  let svg = d3.select("svg.static-pipeline"),
   inner = svg.append("g"),
   zoom = d3.zoom().on("zoom", function() {
     inner.attr("transform", d3.event.transform);
@@ -116,7 +125,7 @@ async function staticGraph() {
     rankdir: "LR"
   }),
 
-  repo = await fetchJSON(path);
+  JSONPipeline = await fetchJSON(path);
 
   async function getTotalNumberOfPipelines(r){
     await r;
@@ -139,19 +148,18 @@ async function staticGraph() {
     .classed("total-pipelines", true)
     .append("div")
     .classed("title", true)
-    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(repo));
+    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(JSONPipeline));
 
-  await draw(repo, g, svg, zoom, inner, render);
+  await draw(JSONPipeline, g, svg, zoom, inner, render);
 }
-
 
 async function dynamicGraph() {
 
    let path = await fetchJSON(config);
-   path = path['dynamic_repo']
+   path = path['dynamic_pipeline']
 
 
-  let svg = d3.select("svg.dynamic-repo"),
+  let svg = d3.select("svg.dynamic-pipeline"),
   inner = svg.append("g"),
   zoom = d3.zoom().on("zoom", function() {
     inner.attr("transform", d3.event.transform);
@@ -168,7 +176,9 @@ async function dynamicGraph() {
     rankdir: "LR"
   });
 
-  let repo = await fetchJSON(path);
+  let rawPipelinesJSON = await fetchJSON(path);
+  let combinedPipeline = await combineRawPipelinesToOne(rawPipelinesJSON);
+
 
   async function getTotalNumberOfTasks(r){
     await r;
@@ -180,32 +190,35 @@ async function dynamicGraph() {
     .classed("total-tasks", true)
     .append("div")
     .classed("title", true)
-    .text("Total Number \nof Tasks: " + await getTotalNumberOfTasks(repo));
+    .text("Total Number \nof Tasks: " + await getTotalNumberOfTasks(combinedPipeline));
 
 
 
-  await draw(repo, g, svg, zoom, inner, render, false);
+  await draw(combinedPipeline, g, svg, zoom, inner, render, false);
 
   // status updating commands
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  const n_tasks = Object.keys(repo).length;
+  const n_tasks = Object.keys(combinedPipeline).length;
   let n_done = 0;
 
   while (n_tasks >= n_done){
-    let repo  =await fetchJSON(path);
-    for (const k in repo){
-      if (repo[k]["status"] === "DONE"){
+    let rawPipelines  =await fetchJSON(path);
+    let combinedPipeline = await combineRawPipelinesToOne(rawPipelines);
+
+
+    for (const k in combinedPipeline){
+      if (combinedPipeline[k]["status"] === "DONE"){
         n_done +=1;
       } else {
         n_done =0;
       }
     }
     async function update(){
-      for (let task in repo) {
+      for (let task in combinedPipeline) {
         let element = d3.select("#" + task);
-        let node_status = repo[task]["status"]
+        let node_status = combinedPipeline[task]["status"]
         if (node_status == "RUNNING"){
           node_status += " warn";
         }
