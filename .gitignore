@@ -486,6 +486,9 @@ $RECYCLE.BIN/
 *.pkl
 
 
-# JSON pipelines
- repo_visualizer\static_pipeline.json
-  repo_visualizer\dynamic_pipeline.json
+# JSON pipelines for Windows & Linux
+ repo_visualizer/static_pipeline.json
+ repo_visualizer/dynamic_pipeline.json
+
+repo_visualizer\static_pipeline.json
+repo_visualizer\dynamic_pipeline.json
