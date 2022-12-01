@@ -208,12 +208,10 @@ async function dynamicGraph() {
     return Object.keys(r).length;
   }
 
-  d3.select("total-tasks")
-    .append("div")
-    .classed("total-tasks", true)
+  d3.select("#dynamic_p")
     .append("div")
     .classed("title", true)
-    .text("Total Number \nof Tasks: " + await getTotalNumberOfTasks(combinedPipeline));
+    .text("Unique Tasks: " + await getTotalNumberOfTasks(combinedPipeline));
 
 
 
@@ -222,21 +220,45 @@ async function dynamicGraph() {
   const n_tasks = Object.keys(combinedPipeline).length;
   let n_done = 0;
 
-  while (n_tasks >= n_done){
+  while (n_tasks !== n_done){
     let rawPipelines  =await fetchJSON(path);
     let combinedPipeline = await combineRawPipelinesToOne(rawPipelines);
 
 
-    for (const k in combinedPipeline){
-      if (combinedPipeline[k]["status"] === "DONE"){
-        n_done +=1;
-      } else {
-        n_done =0;
+    for (const k in combinedPipeline) {
+      if (combinedPipeline[k]["status"] === "DONE") {
+        n_done += 1;
       }
     }
     await updateTaskStatus(combinedPipeline, ".dynamic-pipeline");
     await sleep(1500);
-  }
+
+      if (n_tasks !== n_done){
+        n_done = 0;
+      }
+      else if (n_tasks === n_done){
+        let startTimes = [];
+        let lastupdatedTimes = [];
+
+
+        for (const k in combinedPipeline){
+          startTimes.push(combinedPipeline[k]["timeRunning"]);
+          lastupdatedTimes.push(combinedPipeline[k]["lastUpdated"]);
+        }
+
+        let start = Math.min.apply(null, startTimes)
+        let end = Math.max.apply(null, lastupdatedTimes)
+        const total = ((end - start)  / 60).toFixed(2)
+        d3.select("#dynamic_p")
+          .append("div")
+          .classed("title", true)
+          .style("text-align", "left")
+          .style("padding-top", "20px")
+          .text("Executed in: " + total + " min");
+
+
+      }
+    }
 }
 
 async function removeOldGraphAndDrawNew(selectedPipeline, svg){
@@ -297,31 +319,75 @@ async function singlePipelines(){
           await r;
           return Object.keys(r).length;
         }
-        let old_n_tasks = d3.select("#single_p_n_tasks").select("div.legend-title");
+        let old_n_tasks = d3.select("#single_p_n_tasks").selectAll("div.legend-title");
         if (old_n_tasks.empty() === false){
           old_n_tasks.remove();
         }
+
+
         d3.select("#single_p_n_tasks")
             .append("div")
             .classed("legend-title", true)
-            .text(await getTotalNumberOfTasks(selectedPipeline));
+            .style("text-align", "left")
+            .text("N Tasks: " + await getTotalNumberOfTasks(selectedPipeline));
 
 
         const n_tasks = Object.keys(selectedPipeline).length;
         let n_done = 0;
-        while (n_tasks >= n_done){
+        while (n_tasks !== n_done){
           let rawPipelinesJSON = await fetchJSON(path);
           let pipeline = rawPipelinesJSON[selectedIndex];
+          let parsedIntSelectedIndex = parseInt(selectedIndex);
 
           for (const k in pipeline){
             if (pipeline[k]["status"] === "DONE"){
               n_done +=1;
-            } else {
-              n_done =0;
             }
           }
           await updateTaskStatus(pipeline, ".single-pipeline");
           await sleep(1500);
+
+          if (n_tasks !== n_done){
+            n_done = 0;
+          }
+          else if (n_tasks === n_done){
+            let startTimes = [];
+            let lastupdatedTimes = [];
+
+            let start;
+            let end;
+
+
+            if (parsedIntSelectedIndex  === 0){
+              for (const k in pipeline){
+                startTimes.push(pipeline[k]["timeRunning"]);
+                lastupdatedTimes.push(pipeline[k]["lastUpdated"]);
+              }
+              start = Math.min.apply(null , startTimes);
+              end = Math.max.apply(null, lastupdatedTimes);
+            }
+            else if  (parsedIntSelectedIndex !== 0){
+              let previousIndex = (parsedIntSelectedIndex - 1).toString();
+              for (const k in rawPipelinesJSON[previousIndex]){
+                startTimes.push(rawPipelinesJSON[previousIndex][k]["lastUpdated"]);
+              }
+              for (const k in pipeline){
+                lastupdatedTimes.push(pipeline[k]["lastUpdated"]);
+              }
+              start = Math.max.apply(null , startTimes);
+              end = Math.max.apply(null, lastupdatedTimes);
+            }
+
+            const total = ((end - start)  / 60).toFixed(2)
+
+
+            d3.select("#single_p_n_tasks")
+              .append("div")
+              .classed("legend-title", true)
+              .style("text-align", "left")
+              .style("padding-top", "20px")
+              .text("Executed in: " + total + " min");
+          }
         }
       })
 }
