@@ -83,7 +83,7 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
   }
 }
 
-async function draw(JSONPipelines, g, svg, zoom, inner, render, static=true){
+async function draw(JSONPipelines, g, svg, zoom, inner, render, static=true, controlYPosition=25){
 
   await addNodesAndEdges(JSONPipelines, g,  static);
 
@@ -96,11 +96,26 @@ async function draw(JSONPipelines, g, svg, zoom, inner, render, static=true){
   let height =  parseInt(svg.style("height").replace(/px/, ""));
   let zoomScale =  Math.min(width / graphWidth, height / graphHeight);
   let translateX =  (width / 2) - ((graphWidth * zoomScale) / 2) + 25;
-  let translateY =  (height / 2) - ((graphHeight * zoomScale) / 2) + 10;
+  let translateY =  (height / 2) - ((graphHeight * zoomScale) /2) + controlYPosition ;
   svg.call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(zoomScale));
 
 }
 
+async function initRenderAndGraph(graphNodeSep=300, graphRankSep=70, rankDir="LR"){
+  let render = new dagreD3.render();
+
+  // Left-to-right layout
+  let g = new dagreD3.graphlib.Graph()
+  .setGraph({
+    nodesep: graphNodeSep,
+    ranksep: graphRankSep,
+    rankdir: rankDir
+  });
+
+  return [render, g]
+
+
+}
 
 async function staticGraph() {
 
@@ -115,15 +130,9 @@ async function staticGraph() {
   });
   svg.call(zoom);
 
-  let render = new dagreD3.render();
-
-  // Left-to-right layout
-  let g = new dagreD3.graphlib.Graph()
-  .setGraph({
-    nodesep: 100,
-    ranksep: 70,
-    rankdir: "LR"
-  }),
+  let renderAndGraph = await initRenderAndGraph()
+  const render = renderAndGraph[0],
+        g      = renderAndGraph[1];
 
   JSONPipeline = await fetchJSON(path);
 
@@ -150,8 +159,27 @@ async function staticGraph() {
     .classed("title", true)
     .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(JSONPipeline));
 
-  await draw(JSONPipeline, g, svg, zoom, inner, render);
+
+  await draw(JSONPipeline, g, svg, zoom, inner, render, true, -25);
 }
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function updateTaskStatus(pipeline, div){
+  await pipeline
+  for (let task in pipeline) {
+    let element = d3.select(div).select("#" + task);
+    let node_status = pipeline[task]["status"];
+    if (node_status == "RUNNING"){
+      node_status += " warn";
+    }
+    if (element.attr("class") !== "node " + node_status) {
+      element.attr("class", "node " + node_status)
+    }
+  }
+}
+
 
 async function dynamicGraph() {
 
@@ -166,15 +194,10 @@ async function dynamicGraph() {
   });
   svg.call(zoom);
 
-  let render = new dagreD3.render();
+  let renderAndGraph = await initRenderAndGraph(graphNodeSep=100)
+  const render = renderAndGraph[0],
+        g      = renderAndGraph[1];
 
-  // Left-to-right layout
-  let g = new dagreD3.graphlib.Graph()
-  .setGraph({
-    nodesep: 100,
-    ranksep: 70,
-    rankdir: "LR"
-  });
 
   let rawPipelinesJSON = await fetchJSON(path);
   let combinedPipeline = await combineRawPipelinesToOne(rawPipelinesJSON);
@@ -194,12 +217,8 @@ async function dynamicGraph() {
 
 
 
-  await draw(combinedPipeline, g, svg, zoom, inner, render, false);
+  await draw(combinedPipeline, g, svg, zoom, inner, render, false, -200);
 
-  // status updating commands
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
   const n_tasks = Object.keys(combinedPipeline).length;
   let n_done = 0;
 
@@ -215,22 +234,98 @@ async function dynamicGraph() {
         n_done =0;
       }
     }
-    async function update(){
-      for (let task in combinedPipeline) {
-        let element = d3.select("#" + task);
-        let node_status = combinedPipeline[task]["status"]
-        if (node_status == "RUNNING"){
-          node_status += " warn";
-        }
-        if (element.attr("class") !== "node " + node_status) {
-          element.attr("class", "node " + node_status)
-        }
-      }
-    }
-    await update();
+    await updateTaskStatus(combinedPipeline, ".dynamic-pipeline");
     await sleep(1500);
   }
 }
 
+async function removeOldGraphAndDrawNew(selectedPipeline, svg){
+  let oldGraph = svg.selectAll("g");
+  if (oldGraph.empty() === false){
+    svg.selectAll("g").remove();
+  }
+  let renderAndGraph = await initRenderAndGraph(graphNodeSep=300)
+  const render = renderAndGraph[0],
+        g      = renderAndGraph[1];
+
+  let inner = svg.append("g"),
+    zoom = d3.zoom().on("zoom", function() {
+    inner.attr("transform", d3.event.transform);
+  });
+  svg.call(zoom);
+
+  await draw(selectedPipeline, g, svg, zoom, inner, render, false, -350);
+}
+
+async function singlePipelines(){
+
+  let path = await fetchJSON(config);
+  path = path['dynamic_pipeline']
+  let rawPipelinesJSON = await fetchJSON(path);
+  let indecies = Object.keys(rawPipelinesJSON);
+  indecies.unshift("Pipeline Index"); // default hidden val in dropdown
+
+
+  let svg = d3.select("svg.single-pipeline");
+  svg.style("margin-top", "-320px");
+
+  // add the options to the button
+  d3.select("#selectButton")
+    .selectAll('myOptions')
+      .data(indecies)
+    .enter()
+      .append('option')
+      .text(" ")
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d; })
+      .each(function (d) {
+        if (d === "Pipeline Index") {d3.select(this).property("disabled", true)}
+  })
+
+
+  d3.select('#selectButton')
+      .on("change", async function(d) {
+
+        var selectedIndex = d3.select(this).property("value");
+
+        let rawPipelinesJSON = await fetchJSON(path);
+        let selectedPipeline = rawPipelinesJSON[selectedIndex];
+
+        removeOldGraphAndDrawNew(selectedPipeline, svg);
+
+        async function getTotalNumberOfTasks(r){
+          await r;
+          return Object.keys(r).length;
+        }
+        let old_n_tasks = d3.select("#single_p_n_tasks").select("div.legend-title");
+        if (old_n_tasks.empty() === false){
+          old_n_tasks.remove();
+        }
+        d3.select("#single_p_n_tasks")
+            .append("div")
+            .classed("legend-title", true)
+            .text(await getTotalNumberOfTasks(selectedPipeline));
+
+
+        const n_tasks = Object.keys(selectedPipeline).length;
+        let n_done = 0;
+        while (n_tasks >= n_done){
+          let rawPipelinesJSON = await fetchJSON(path);
+          let pipeline = rawPipelinesJSON[selectedIndex];
+
+          for (const k in pipeline){
+            if (pipeline[k]["status"] === "DONE"){
+              n_done +=1;
+            } else {
+              n_done =0;
+            }
+          }
+          await updateTaskStatus(pipeline, ".single-pipeline");
+          await sleep(1500);
+        }
+      })
+}
+
 document.addEventListener("DOMContentLoaded", staticGraph());
 document.addEventListener("DOMContentLoaded", dynamicGraph());
+document.addEventListener("DOMContentLoaded", singlePipelines());
