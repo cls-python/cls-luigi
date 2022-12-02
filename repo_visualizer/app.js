@@ -276,7 +276,7 @@ async function removeOldGraphAndDrawNew(selectedPipeline, svg){
   });
   svg.call(zoom);
 
-  await draw(selectedPipeline, g, svg, zoom, inner, render, false, -350);
+  await draw(selectedPipeline, g, svg, zoom, inner, render, false, -220);
 }
 
 async function singlePipelines(){
@@ -289,7 +289,7 @@ async function singlePipelines(){
 
 
   let svg = d3.select("svg.single-pipeline");
-  svg.style("margin-top", "-320px");
+  svg.style("margin-top", "-420px");
 
   // add the options to the button
   d3.select("#selectButton")
