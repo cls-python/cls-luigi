@@ -54,14 +54,13 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
 
     else if (static === false) {
       className = componentDetails["status"];
-      if (className === "RUNNING"){
-        className += " warn";
-      }
+      // if (className === "RUNNING"){
+      //   className += " warn";
+      // }
       html += "<span class=status></span>";
       html += "<span class=name>"+component+"</span>";
       html += "<span class=queue>"+""+"</span>";
     }
-
     html += "</div>";
 
     graph.setNode(component, {
@@ -167,16 +166,46 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 async function updateTaskStatus(pipeline, div){
-  await pipeline
+  await pipeline;
   for (let task in pipeline) {
     let element = d3.select(div).select("#" + task);
     let node_status = pipeline[task]["status"];
-    if (node_status == "RUNNING"){
-      node_status += " warn";
+
+
+
+
+    // if (pipeline[task]["status"] === "RUNNING"){
+    //   node_status += " warn"
+    // }
+    if (element.attr("class").includes(" warn2")){
+      node_status += " warn2"
     }
-    if (element.attr("class") !== "node " + node_status) {
+    if (element.attr("class") !== "node " + node_status){
       element.attr("class", "node " + node_status)
     }
+  }
+}
+
+async function highlightNodes(nodes){
+  await nodes;
+  d3.select(".dynamic-pipeline")
+      .select(".nodes")
+      .selectAll("g")
+      .attr("class", function (d){
+        let cls = d3.select("#" + d).attr("class");
+        if (cls.includes(" warn2")){
+          cls = cls.slice(0, -5)
+        }
+        return cls
+      })
+
+  for (let n in nodes){
+    d3.select(".dynamic-pipeline")
+        .select("#" + n)
+        .attr("class", this + " warn2")
+
+
+
   }
 }
 
@@ -231,7 +260,7 @@ async function dynamicGraph() {
       }
     }
     await updateTaskStatus(combinedPipeline, ".dynamic-pipeline");
-    await sleep(1500);
+    await sleep(2000);
 
       if (n_tasks !== n_done){
         n_done = 0;
@@ -302,14 +331,14 @@ async function singlePipelines(){
 
 
   d3.select('#selectButton')
-      .on("change", async function(d) {
+      .on("change", async function() {
 
-        var selectedIndex = d3.select(this).property("value");
+        let selectedIndex = d3.select(this).property("value");
 
         let rawPipelinesJSON = await fetchJSON(path);
         let selectedPipeline = rawPipelinesJSON[selectedIndex];
-
         removeOldGraphAndDrawNew(selectedPipeline, svg);
+
 
         async function getTotalNumberOfTasks(r){
           await r;
@@ -327,21 +356,20 @@ async function singlePipelines(){
             .style("text-align", "left")
             .text("N Tasks: " + await getTotalNumberOfTasks(selectedPipeline));
 
-
+        highlightNodes(selectedPipeline);
         const n_tasks = Object.keys(selectedPipeline).length;
         let n_done = 0;
         while (n_tasks !== n_done){
           let rawPipelinesJSON = await fetchJSON(path);
           let pipeline = rawPipelinesJSON[selectedIndex];
-          let parsedIntSelectedIndex = parseInt(selectedIndex);
 
-          for (const k in pipeline){
+          for (let k in pipeline){
             if (pipeline[k]["status"] === "DONE"){
               n_done +=1;
             }
           }
           await updateTaskStatus(pipeline, ".single-pipeline");
-          await sleep(1500);
+          await sleep(2000);
 
           if (n_tasks !== n_done){
             n_done = 0;
@@ -353,7 +381,7 @@ async function singlePipelines(){
               TotalProcessingTime = TotalProcessingTime + pipeline[k]["processingTime"];
             }
 
-            const total = (TotalProcessingTime/ 60).toFixed(2);
+            let total = (TotalProcessingTime/ 60).toFixed(2);
 
             d3.select("#single_p_n_tasks")
               .append("div")

@@ -27,15 +27,29 @@ body {
 }
 
 .warn {
-  -webkit-animation-duration: 5s;
-  animation-duration: 5s;
+  -webkit-animation-duration: 1s;
+  animation-duration: 0.5s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
-  -webkit-animation-iteration-count: 1;
-  animation-iteration-count: 1;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
 }
 
 .warn {
+  -webkit-animation-name: flash;
+  animation-name: flash;
+}
+
+.warn2 {
+  -webkit-animation-duration: 1s;
+  animation-duration: 3s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+}
+
+.warn2 {
   -webkit-animation-name: flash;
   animation-name: flash;
 }
@@ -354,6 +368,10 @@ h2  {
   background-color: #80a0ec;
 }
 
+.dynamic.pipeline .RUNNING .status {
+  background-color: #80a0ec;
+}
+
 .dynamic.pipeline .PENDING .status {
   background-color: #EEBB00;
 }
@@ -460,9 +478,12 @@ h2  {
   background-color: #f77;
 }
 
-.single.pipeline .RUNNING.warn .status {
+.single.pipeline .RUNNING  .status {
   background-color: #80a0ec;
 }
+/*.single.pipeline .RUNNING.warn .status {*/
+/*  background-color: #80a0ec;*/
+/*}*/
 
 .single.pipeline .PENDING .status {
   background-color: #EEBB00;
