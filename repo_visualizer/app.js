@@ -237,18 +237,14 @@ async function dynamicGraph() {
         n_done = 0;
       }
       else if (n_tasks === n_done){
-        let startTimes = [];
-        let lastupdatedTimes = [];
 
+        let TotalProcessingTime = 0;
 
         for (const k in combinedPipeline){
-          startTimes.push(combinedPipeline[k]["timeRunning"]);
-          lastupdatedTimes.push(combinedPipeline[k]["lastUpdated"]);
+          TotalProcessingTime = TotalProcessingTime + combinedPipeline[k]["processingTime"];
         }
+        const total = (TotalProcessingTime/ 60).toFixed(2);
 
-        let start = Math.min.apply(null, startTimes)
-        let end = Math.max.apply(null, lastupdatedTimes)
-        const total = ((end - start)  / 60).toFixed(2)
         d3.select("#dynamic_p")
           .append("div")
           .classed("title", true)
@@ -351,35 +347,13 @@ async function singlePipelines(){
             n_done = 0;
           }
           else if (n_tasks === n_done){
-            let startTimes = [];
-            let lastupdatedTimes = [];
+            let TotalProcessingTime = 0;
 
-            let start;
-            let end;
-
-
-            if (parsedIntSelectedIndex  === 0){
-              for (const k in pipeline){
-                startTimes.push(pipeline[k]["timeRunning"]);
-                lastupdatedTimes.push(pipeline[k]["lastUpdated"]);
-              }
-              start = Math.min.apply(null , startTimes);
-              end = Math.max.apply(null, lastupdatedTimes);
-            }
-            else if  (parsedIntSelectedIndex !== 0){
-              let previousIndex = (parsedIntSelectedIndex - 1).toString();
-              for (const k in rawPipelinesJSON[previousIndex]){
-                startTimes.push(rawPipelinesJSON[previousIndex][k]["lastUpdated"]);
-              }
-              for (const k in pipeline){
-                lastupdatedTimes.push(pipeline[k]["lastUpdated"]);
-              }
-              start = Math.max.apply(null , startTimes);
-              end = Math.max.apply(null, lastupdatedTimes);
+            for (const k in pipeline){
+              TotalProcessingTime = TotalProcessingTime + pipeline[k]["processingTime"];
             }
 
-            const total = ((end - start)  / 60).toFixed(2)
-
+            const total = (TotalProcessingTime/ 60).toFixed(2);
 
             d3.select("#single_p_n_tasks")
               .append("div")

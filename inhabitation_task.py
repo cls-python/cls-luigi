@@ -3,6 +3,7 @@ import datetime
 import functools
 import importlib
 import json
+import os
 from collections import deque
 
 from typing import ClassVar, Any, TypeVar, Generic, Union
@@ -12,6 +13,44 @@ from cls_python import *
 import luigi
 from luigi.task_register import Register
 from multiprocessing import Process
+
+from repo_visualizer.json_io import load_json, dump_json
+
+CONFIG = "config.json"
+
+
+class TaskProcessingTime(object):
+
+    '''
+    A mixin that when added to a luigi task, will save
+    the tasks execution time to the dynamic_pipeline.json
+    '''
+    @luigi.Task.event_handler(luigi.Event.PROCESSING_TIME)
+    def save_execution_time_to_dynamic_pipeline_json(self, processing_time):
+        def _prettify_task_name(task):
+            listed_task_id = task.split("_")
+            return listed_task_id[0] + "_" + listed_task_id[-1]
+
+        task_pretty_name = _prettify_task_name(self.task_id)
+
+        try:
+            dynamic_pipeline_path = load_json(CONFIG)["dynamic_pipeline"]
+            dynamic_pipeline_json = load_json(dynamic_pipeline_path)
+
+            for pipeline_ix in dynamic_pipeline_json.keys():
+                for task in dynamic_pipeline_json[pipeline_ix].keys():
+                    if task == task_pretty_name:
+                        dynamic_pipeline_json[pipeline_ix][task]["processingTime"] = processing_time
+                        break # we know that in each pipeline the tasks are unique, so once we find the task we are looking for we break the inner loop
+            dump_json(dynamic_pipeline_path, dynamic_pipeline_json)
+
+        except FileNotFoundError:
+            print('There is either a problem with the path to "dynamic_pipeline"\n or you are running with local_scheduler = True')
+            return FileNotFoundError
+
+
+
+
 
 
 @dataclass
@@ -29,7 +68,7 @@ class TaskState(object):
 states: dict[str, TaskState] = dict()
 
 
-class InhabitationTask(luigi.Task):
+class InhabitationTask(luigi.Task, TaskProcessingTime):
     accepts_messages = True
 
     def requires(self):

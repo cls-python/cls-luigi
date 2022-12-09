@@ -39,7 +39,8 @@ class DynamicJSONRepo:
                          "createdAt": time.time(),
                          "timeRunning": None,
                          "startTime": None,
-                         "lastUpdated": None
+                         "lastUpdated": None,
+                         "processingTime":None
                          # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
                          }
 
