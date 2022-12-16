@@ -1,0 +1,10 @@
+customer_id,ext_id,company_name,contact_first_name,contact_last_name,city,street,house_number,postal_code,country,opening,closing,service_time,visits,obligatory,input_value,week_day_regularity,sales_person_id
+1,1,Aldi Süd,david,john,Bonn,Erich-Hoffmann-Straße,12,53121,DE,32400,61200,900,1,0,1.0,strict,100
+2,2,Aldi Süd,rogers,'paul',Düsseldorf,Kölner Landstraße,209,40591,DE,32400,61200,900,1,0,1.0,strict,100
+3,3,Aldi Süd,david,john,Bergisch Gladbach,Kürtener Straße,1,51465,DE,32400,61200,900,1,0,1.0,strict,100
+4,4,Aldi Süd,rogers,chrishaydon,Wuppertal,Westring,320,42329,DE,32400,61200,900,1,0,1.0,strict,100
+5,5,Aldi Süd,wright,hans,Leverkusen,Lützenkirchener Straße,111a,51381,DE,32400,61200,900,1,0,1.0,strict,100
+6,6,Aldi Süd,morgan,wright,Haan,Düsseldorfer Straße,49,42781,DE,32400,61200,900,1,0,1.0,strict,100
+7,7,Aldi Süd,maria,morgan,Pulheim,Erfurter Straße,1,50259,DE,32400,61200,900,1,0,1.0,strict,100
+8,8,Aldi Süd,maria,sanders,Bonn,Am Burgweiher,73,53123,DE,32400,61200,900,1,0,1.0,strict,100
+9,9,Aldi Süd,bell,david,Köln,Osterather Straße,26,50739,DE,32400,61200,900,1,0,1.0,strict,100

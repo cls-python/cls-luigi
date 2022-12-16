@@ -1,0 +1,51 @@
+customer_id,ext_id,company_name,contact_first_name,contact_last_name,city,street,house_number,postal_code,country,opening,closing,service_time,visits,obligatory,input_value,week_day_regularity,sales_person_id
+1,1,Aldi Süd,david,john,Bonn,Erich-Hoffmann-Straße,12,53121,DE,32400,61200,900,1,0,1.0,strict,100
+2,2,Aldi Süd,rogers,'paul',Düsseldorf,Kölner Landstraße,209,40591,DE,32400,61200,900,1,0,1.0,strict,100
+3,3,Aldi Süd,david,john,Bergisch Gladbach,Kürtener Straße,1,51465,DE,32400,61200,900,1,0,1.0,strict,100
+4,4,Aldi Süd,maria,sanders,Sankt Augustin,Alte Heerstraße,64,53757,DE,32400,61200,900,1,0,1.0,strict,100
+5,5,Aldi Süd,morris,miller,Köln,Sülzburgstraße,44-46,50937,DE,32400,61200,900,1,0,1.0,strict,100
+6,6,Aldi Süd,daniel,michael,Solingen,Löhdorfer Straße,25-27,42699,DE,32400,61200,900,1,0,1.0,strict,100
+7,7,Aldi Süd,sanders,paul,Köln,Richmodstraße,31,50667,DE,32400,61200,900,1,0,1.0,strict,100
+8,8,Aldi Süd,mark,mike,Langenfeld,Hauptstraße,32,40764,DE,32400,61200,900,1,0,1.0,strict,100
+9,9,Aldi Süd,morgan,maria,Bonn,Gartenstraße,102,53225,DE,32400,61200,900,1,0,1.0,strict,100
+10,10,Aldi Süd,paul,miller,Dormagen,Kölner Straße,98,41539,DE,32400,61200,900,1,0,1.0,strict,100
+11,11,Aldi Süd,david,miller,Nörvenich,Am Kreuzberg,13,52388,DE,32400,61200,900,1,0,1.0,strict,100
+12,12,Aldi Süd,chrishaydon,bell,Bonn,Hans-Böckler-Straße,3,53225,DE,32400,61200,900,1,0,1.0,strict,100
+13,13,Aldi Süd,michael,brown,Köln,Kalker Hauptstraße,145,51103,DE,32400,61200,900,1,0,1.0,strict,100
+14,14,Aldi Süd,morgan,james,Düsseldorf,Kölner Landstraße,437-441,40589,DE,32400,61200,900,1,0,1.0,strict,100
+15,15,Aldi Süd,rogers,chrishaydon,Wuppertal,Westring,320,42329,DE,32400,61200,900,1,0,1.0,strict,100
+16,16,Aldi Süd,wright,hans,Leverkusen,Lützenkirchener Straße,111a,51381,DE,32400,61200,900,1,0,1.0,strict,100
+17,17,Aldi Süd,morgan,wright,Haan,Düsseldorfer Straße,49,42781,DE,32400,61200,900,1,0,1.0,strict,100
+18,18,Aldi Süd,ross,blub,Frechen,Frechener Straße,20,50226,DE,32400,61200,900,1,0,1.0,strict,100
+19,19,Aldi Süd,maria,morgan,Pulheim,Erfurter Straße,1,50259,DE,32400,61200,900,1,0,1.0,strict,100
+20,20,Aldi Süd,bell,ring,Bonn,Kölnstraße,102,53111,DE,32400,61200,900,1,0,1.0,strict,100
+21,21,Aldi Süd,miller,michael,Düsseldorf,Ickerswarder Straße,172,40589,DE,32400,61200,900,1,0,1.0,strict,100
+22,22,Aldi Süd,ros,rogers,Köln,Hauptstraße,106,50996,DE,32400,61200,900,1,0,1.0,strict,100
+23,23,Aldi Süd,mike,meier,Köln,Bergisch Gladbacher Straße,634,51067,DE,32400,61200,900,1,0,1.0,strict,100
+24,24,Aldi Süd,daniel,male,Düsseldorf,Harffstraße,24,40591,DE,32400,61200,900,1,0,1.0,strict,100
+25,25,Aldi Süd,wright,rans,Düsseldorf,Vennhauser Allee,248,40627,DE,32400,61200,900,1,0,1.0,strict,100
+26,26,Aldi Süd,wright,smith,Düsseldorf,Kündgensweg,2,40231,DE,32400,61200,900,1,0,1.0,strict,100
+27,27,Aldi Süd,david,morgan,Bonn,Hermannstraße,2,53225,DE,32400,61200,900,1,0,1.0,strict,100
+28,28,Aldi Süd,smith,bell,Düsseldorf,Reisholzer Bahnstraße,29,40599,DE,32400,61200,900,1,0,1.0,strict,100
+29,29,Aldi Süd,wright,wub,Düsseldorf,Paulsmühlenstraße,20,40597,DE,32400,61200,900,1,0,1.0,strict,100
+30,30,Aldi Süd,james,nub,Düsseldorf,Carlo-Schmid-Straße,2,40595,DE,32400,61200,900,1,0,1.0,strict,100
+31,31,Aldi Süd,sanders,ret,Hennef (Sieg),Lindenstraße,4,53773,DE,32400,61200,900,1,0,1.0,strict,100
+32,32,Aldi Süd,rivera,dumb,Bonn,Poststraße,23,53111,DE,32400,61200,900,1,0,1.0,strict,100
+33,33,Aldi Süd,paul,michael,Bergheim,Kölner Straße,16,50126,DE,32400,61200,900,1,0,1.0,strict,100
+34,34,Aldi Süd,ross,mark,Bonn,Vorgebirgsbahnweg,1,53121,DE,32400,61200,900,1,0,1.0,strict,100
+35,35,Aldi Süd,smith,Female,Köln,Ackerstraße,92-94,51065,DE,32400,61200,900,1,0,1.0,strict,100
+36,36,Aldi Süd,cooper,brown,Siegburg,Industriestraße,39a,53721,DE,32400,61200,900,1,0,1.0,strict,100
+37,37,Aldi Süd,daniel,schlon,Sankt Augustin,Einsteinstraße,14,53757,DE,32400,61200,900,1,0,1.0,strict,100
+38,38,Aldi Süd,miller,Rans,Alfter,Im Klostergarten,50,53347,DE,32400,61200,900,1,0,1.0,strict,100
+39,39,Aldi Süd,maria,Manse,Bonn,Brühler Straße,10,53119,DE,32400,61200,900,1,0,1.0,strict,100
+40,40,Aldi Süd,rivera,Klo,Leverkusen,Syltstraße,12,51377,DE,32400,61200,900,1,0,1.0,strict,100
+41,41,Aldi Süd,maria,sanders,Bonn,Am Burgweiher,73,53123,DE,32400,61200,900,1,0,1.0,strict,100
+42,42,Aldi Süd,bell,david,Köln,Osterather Straße,26,50739,DE,32400,61200,900,1,0,1.0,strict,100
+43,43,Aldi Süd,cooper,Poopm,Niederkassel,Gottlieb-Daimler-Straße,10,53859,DE,32400,61200,900,1,0,1.0,strict,100
+44,44,Aldi Süd,david,Lonba,Bornheim,Am Hellenkreuz,5,53332,DE,32400,61200,900,1,0,1.0,strict,100
+45,45,Aldi Süd,cooper,Radui,Bonn,Agnetendorfer Straße,6,53119,DE,32400,61200,900,1,0,1.0,strict,100
+46,46,Aldi Süd,brooks,david,Köln,Grüner Weg,2,50825,DE,32400,61200,900,1,0,1.0,strict,100
+47,47,Aldi Süd,maria,Body,Köln,Brühler Landstraße,401,50997,DE,32400,61200,900,1,0,1.0,strict,100
+48,48,Aldi Süd,john,mark,Bonn,Maarstraße,3,53227,DE,32400,61200,900,1,0,1.0,strict,100
+49,49,Aldi Süd,rivera,jenny09,Bonn,Auf dem Kirchbüchel,10,53127,DE,32400,61200,900,1,0,1.0,strict,100
+50,50,Aldi Süd,chrishaydon,sanders,Köln,Roggendorfstraße,76,51061,DE,32400,61200,900,1,0,1.0,strict,100

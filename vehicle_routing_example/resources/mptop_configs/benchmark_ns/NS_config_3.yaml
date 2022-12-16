@@ -1,0 +1,54 @@
+acceptAdapt_lambda: 663
+acceptAdapt_t: 1
+acceptanceCriterion: adapt
+alnsBranchingStrategies:
+- strategy: SB_BESTRATIO1
+- strategy: SB_BESTRATIO2
+- strategy: SB_GREEDY
+- strategy: SB_MAXUTILITY
+- strategy: SB_SIZEMIN
+alnsMaxConvergence: 4000
+alnsMaxIter: 4000
+alnsNeighbourhoodRestriction:
+- strategy: NO_RESTRICTION
+alnsReact: 0.8
+alnsScoreAccept: 13
+alnsScoreBest: 33
+alnsScoreCurrent: 9
+alnsSegmentSize: 0.1625
+alnsSelectionStrategies:
+- strategy: DELTA_UTILITY
+- strategy: REGION_SELECT
+- strategy: RELATED
+- strategy: SKEL_TOUR
+- strategy: WORST
+alnsSolutionTimeSec: -1
+copyStop: false
+datatype: MPOP-Single-Week-Yaml
+externalDimaPath: C:/project_repos/mptop/resources
+lnsMaxNh: 0.6
+lnsMaxNhLimit: 100
+lnsMinNh: 0.1
+lnsMinNhLimit: 10
+lnsNumberAlt: 1
+lnsSearchEngine: RDFS
+lnsTimeStopMilliSec: 100
+mctsBonusReward: 0.0
+mctsNbSpaces: 500
+mctsRollout: ROLLOUT_DEFAULT
+mctsTreewalk: TREE_UCB
+mcts_c: 1.41
+mcts_e: 0.4
+mcts_k: 30
+secondObjective: ''
+sequenceBrancherRandomization: 0.09375
+startingSolutionBrancher:
+- strategy: SB_BESTRATIO1
+- strategy: SB_REGRET2
+- strategy: SB_REGRET3
+startingSolutionNumberAlt: 4
+startingSolutionSearchEngine: RDFS
+startingSolutionsMultiStart: 2
+startingSolutiontimeSec: 2000
+threads: 1
+tourOpening: 0
