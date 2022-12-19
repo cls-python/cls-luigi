@@ -25,7 +25,7 @@ GeocoordinatesDict = NewType('GeocoordinatesDict', Dict[str, Dict[str, float]])
 
 
 class globalConfig(luigi.Config):
-    instance_name = luigi.Parameter(default="aldi_50_1")
+    instance_name = luigi.Parameter(default="aldi_9_1")
     load_revenue = luigi.BoolParameter(default=True)
     load_gold = luigi.BoolParameter(default=True)
     global_resources_path = luigi.Parameter(default="resources/data")
@@ -35,29 +35,42 @@ class globalConfig(luigi.Config):
         super().__init__(*args, **kwargs)
         self.resource_path = pjoin(str(self.global_resources_path), str(self.instance_name))
         self.result_path = pjoin(str(self.global_result_path), str(self.instance_name))
+        self.result_dir_for_input_data = pjoin(str(self.result_path), "input_data/")
         self.scoring_result_path = pjoin(str(self.result_path), "scoring")
         self.routing_result_path = pjoin(str(self.result_path), "routing")
         self.solver_result_path = pjoin(str(self.result_path), "solver")
+
+class CreateDirsTask(CLSTask, globalConfig):
+    abstract = False
+
+    def output(self):
+        return luigi.LocalTarget(pjoin(self.result_path, ".dirs_created"))
+
+    def run(self):
+        makedirs(dirname(self.result_dir_for_input_data),exist_ok=True)
         makedirs(dirname(str(self.scoring_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.routing_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
+        with open(self.output().path, 'w') as file:
+            pass
+        
 
-class AbstractGatherAndIntegratePhase(CLSTask):
+class AbstractGatherAndIntegratePhase(CLSTask, globalConfig):
     abstract = True
     input_data = ClsParameter(tpe=LoadDataWrapper.return_type())
 
     def requires(self):
-        return self.input_data(self.instance_name, self.load_revenue, self.load_gold, self.resource_path, self.result_path)
+        return {"create_dir" : CreateDirsTask(), "gather_and_integrate" : self.input_data(self.instance_name, self.load_revenue, self.load_gold, self.resource_path, self.result_dir_for_input_data)}
 
     def output(self):
-        return self.input()
+        return self.input()["gather_and_integrate"]
 
     def run(self):
         print("Gather and Integrate Phase ::::::::::::::::::::::::")
         print(self.input())
         print(":::::::::::::::::::::::::::::::::::::::::::::::")
 
-class AbstractRoutingPhase(CLSTask):
+class AbstractRoutingPhase(CLSTask, globalConfig):
     abstract = True
     input_data = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
 
@@ -71,9 +84,9 @@ class AbstractRoutingPhase(CLSTask):
 
 
     def output(self):
-        return {"lat_lon_result" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "lat_lon_result.csv")),
-                "dima_result" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "dima_result.dima")),
-                "csv_dima_result" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "dima_result.csv"))
+        return {"lat_lon_result" : luigi.LocalTarget(pjoin(self.routing_result_path, self._get_variant_label() + "-" + "lat_lon_result.csv")),
+                "dima_result" : luigi.LocalTarget(pjoin(self.routing_result_path, self._get_variant_label() + "-" + "dima_result.dima")),
+                "csv_dima_result" : luigi.LocalTarget(pjoin(self.routing_result_path, self._get_variant_label() + "-" + "dima_result.csv"))
                 }
 
     def run(self):
@@ -220,7 +233,7 @@ class AbstractRoutingPhase(CLSTask):
         """
         return self.routing_results    
 
-class AbstractScoringPhase(CLSTask):
+class AbstractScoringPhase(CLSTask, globalConfig):
     abstract = True
     input_data = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
 
@@ -232,7 +245,7 @@ class AbstractScoringPhase(CLSTask):
         return self.input_data()
 
     def output(self):
-        return {"scoring_result" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "scoring_result.csv"))}
+        return {"scoring_result" : luigi.LocalTarget(pjoin(self.scoring_result_path, self._get_variant_label() + "-" + "scoring_result.csv"))}
 
     def run(self):
         self._scoring_method()
@@ -302,7 +315,7 @@ class AbstractScoringPhase(CLSTask):
 class GatherAndIntegratePhase(AbstractGatherAndIntegratePhase, globalConfig):
     abstract = False
 
-class OsrmRoutingPhase(AbstractRoutingPhase, globalConfig):
+class OsrmRoutingPhase(AbstractRoutingPhase):
     abstract = False
 
     def _routing_method(self) -> None:
@@ -481,7 +494,7 @@ class OsrmRoutingPhase(AbstractRoutingPhase, globalConfig):
 
         return "http://localhost:5000/" + "table/v1/driving/" + osrm_query + "?annotations=distance,duration"
         
-class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase, globalConfig):
+class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase):
     """
     Implementation of a RoutingPhase that uses the DistanceMatrixAi Webservice. Make sure to set the 
     environment variable DISTANCEMATRIXAIAPI as a environment variable and provide your personal API Key.
@@ -650,7 +663,7 @@ class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase, globalConfig):
                     to_id = int(to_list_id_latlon[i][0])
                     self._add_dima_result(int(from_id), to_id, distance, duration)
 
-class SabcScoringPhase(AbstractScoringPhase, globalConfig):
+class SabcScoringPhase(AbstractScoringPhase):
     abstract = False
 
     def _scoring_method(self) -> None:
@@ -717,7 +730,7 @@ class SabcScoringPhase(AbstractScoringPhase, globalConfig):
         df = pd.read_csv(path_to_file)
         return df
 
-class WabcScoringPhase(AbstractScoringPhase, globalConfig):
+class WabcScoringPhase(AbstractScoringPhase):
     abstract = False
 
     def _scoring_method(self) -> None:
@@ -783,7 +796,7 @@ class WabcScoringPhase(AbstractScoringPhase, globalConfig):
         df = pd.read_csv(path_to_file)
         return df
 
-class NsScoringPhase(AbstractScoringPhase, globalConfig):
+class NsScoringPhase(AbstractScoringPhase):
     abstract = False
 
     def _scoring_method(self) -> None:
@@ -801,7 +814,7 @@ class NsScoringPhase(AbstractScoringPhase, globalConfig):
             line_count += 1
         customers.close()
 
-class RandomScoringPhase(AbstractScoringPhase, globalConfig):
+class RandomScoringPhase(AbstractScoringPhase):
     abstract = False
 
     def _scoring_method(self) -> None:
@@ -838,11 +851,11 @@ class RandomScoringPhase(AbstractScoringPhase, globalConfig):
 
 class test(CLSTask, globalConfig):
     abstract = False
-    routing = ClsParameter(tpe=AbstractRoutingPhase.return_type())
+    #routing = ClsParameter(tpe=AbstractRoutingPhase.return_type())
     scoring = ClsParameter(tpe=AbstractScoringPhase.return_type())
 
     def requires(self):
-        return {"scoring_result" : self.scoring(), "routing_result": self.routing()}
+        return {"scoring_result" : self.scoring()}
 
     def run(self):
         for item in self.input().values():

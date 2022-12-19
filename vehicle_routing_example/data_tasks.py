@@ -18,13 +18,12 @@ class LoadDataWrapper(CLSTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.result_dir_for_input_data = pjoin(str(self.result_path), "input_data/")
 
     def output(self):
-        return {"customers" : luigi.LocalTarget(pjoin(self.result_dir_for_input_data,  self._get_variant_label() + "-" + "customers.csv")), "sales_person" : luigi.LocalTarget(pjoin(self.result_dir_for_input_data,  self._get_variant_label() + "-" + "sales_person.csv")), "customers_revenue" : luigi.LocalTarget(pjoin(self.result_dir_for_input_data,  self._get_variant_label() + "-" +"customers_revenue.csv")), "goldmember" : luigi.LocalTarget(pjoin(self.result_dir_for_input_data, self._get_variant_label() + "-" + "goldmember.csv")) }
+        return {"customers" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "customers.csv")), "sales_person" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "sales_person.csv")), "customers_revenue" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" +"customers_revenue.csv")), "goldmember" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "goldmember.csv")) }
 
     def run(self):
-        makedirs(dirname(self.result_dir_for_input_data),exist_ok=True)
+        makedirs(dirname(self.result_path),exist_ok=True)
         with open(self.output()["customers"].path, "w") as customers_result:
             with open(pjoin(self.resource_path, "customers.csv"), "r") as target:
                 customers_result.write(target.read())
@@ -33,12 +32,16 @@ class LoadDataWrapper(CLSTask):
             with open(pjoin(self.resource_path, "sales_person.csv"), "r") as target:
                 customers_result.write(target.read())
         
-        if self.load_revenue:
             with open(self.output()["customers_revenue"].path, "w") as customers_result:
                 with open(pjoin(self.resource_path, "customers_revenue.csv"), "r") as target:
-                    customers_result.write(target.read())
+                    if self.load_revenue:
+                        customers_result.write(target.read())
+                    else:
+                        pass
 
-        if self.load_gold:    
             with open(self.output()["goldmember"].path, "w") as customers_result:
                 with open(pjoin(self.resource_path, "goldmember.csv"), "r") as target:
-                    customers_result.write(target.read())
+                    if self.load_gold:    
+                        customers_result.write(target.read())
+                    else:
+                        pass
