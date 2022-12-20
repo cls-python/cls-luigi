@@ -1,13 +1,15 @@
 import sys
 import luigi
+from configs import *
 from multimethod import multimethod
+from mptop_instance_helper import *
 sys.path.append('../')
 from cls_tasks import *
 from os.path import join as pjoin
 from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 from cls_python import FiniteCombinatoryLogic, Subtypes
 from inhabitation_task import ClsParameter, RepoMeta
-from data_tasks import LoadDataWrapper
+from data_task import LoadDataWrapper
 from typing import Tuple, Dict, List, NewType, IO
 import csv
 import json
@@ -17,9 +19,9 @@ import random
 from os import environ
 import numpy as np
 import pandas as pd
-from os.path import dirname
+from os.path import dirname, basename
 from os import makedirs
-
+from os import system
 
 GeocoordinatesDict = NewType('GeocoordinatesDict', Dict[str, Dict[str, float]])
 
@@ -30,6 +32,8 @@ class globalConfig(luigi.Config):
     load_gold = luigi.BoolParameter(default=True)
     global_resources_path = luigi.Parameter(default="resources/data")
     global_result_path = luigi.Parameter(default="results")
+    global_config_path = luigi.Parameter(default="resources/mptop_configs")
+    seed = 1
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +43,8 @@ class globalConfig(luigi.Config):
         self.scoring_result_path = pjoin(str(self.result_path), "scoring")
         self.routing_result_path = pjoin(str(self.result_path), "routing")
         self.solver_result_path = pjoin(str(self.result_path), "solver")
+        self.solver_tmp_result_path = pjoin(str(self.solver_result_path), "tmp")
+        self.config_result_path = pjoin(str(self.result_path), "config")
 
 class CreateDirsTask(CLSTask, globalConfig):
     abstract = False
@@ -51,6 +57,7 @@ class CreateDirsTask(CLSTask, globalConfig):
         makedirs(dirname(str(self.scoring_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.routing_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
+        makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
         
@@ -66,13 +73,11 @@ class AbstractGatherAndIntegratePhase(CLSTask, globalConfig):
         return self.input()["gather_and_integrate"]
 
     def run(self):
-        print("Gather and Integrate Phase ::::::::::::::::::::::::")
-        print(self.input())
-        print(":::::::::::::::::::::::::::::::::::::::::::::::")
+        pass
 
 class AbstractRoutingPhase(CLSTask, globalConfig):
     abstract = True
-    input_data = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
+    gather_and_integrate_phase = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,7 +85,7 @@ class AbstractRoutingPhase(CLSTask, globalConfig):
         self.routing_results: Dict[Tuple[int, int], Tuple[int, int]] = {}
 
     def requires(self):
-        return self.input_data()
+        return self.gather_and_integrate_phase()
 
 
     def output(self):
@@ -235,21 +240,23 @@ class AbstractRoutingPhase(CLSTask, globalConfig):
 
 class AbstractScoringPhase(CLSTask, globalConfig):
     abstract = True
-    input_data = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
+    gather_and_integrate_phase = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.scoring_results: Dict[int, Tuple[float, int]] = {}
 
     def requires(self):
-        return self.input_data()
+        return self.gather_and_integrate_phase()
 
     def output(self):
-        return {"scoring_result" : luigi.LocalTarget(pjoin(self.scoring_result_path, self._get_variant_label() + "-" + "scoring_result.csv"))}
+        return {"scoring_result" : luigi.LocalTarget(pjoin(self.scoring_result_path, self._get_variant_label() + "-" + "scoring_result.csv")),
+                "scoring_method" : luigi.LocalTarget(pjoin(self.scoring_result_path, "." + self._get_variant_label() + "-scoring_method"))}
 
     def run(self):
         self._scoring_method()
         self._create_result_csv()
+        self._create_which_config_file()
 
     def _scoring_method(self):
         """
@@ -311,6 +318,11 @@ class AbstractScoringPhase(CLSTask, globalConfig):
         :return: None
         """
         self.scoring_results[id] = (value, abc_category)
+
+    def _create_which_config_file(self):
+        with open(self.output()["scoring_method"].path, "w") as file:
+            file.write(self._get_scoring_method_string())
+
 
 class GatherAndIntegratePhase(AbstractGatherAndIntegratePhase, globalConfig):
     abstract = False
@@ -666,6 +678,9 @@ class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase):
 class SabcScoringPhase(AbstractScoringPhase):
     abstract = False
 
+    def _get_scoring_method_string(self):
+        return "sabc"
+
     def _scoring_method(self) -> None:
         """
         This is the strict ABC Scoring Method. The Way it calculates its scouring's can be found in
@@ -733,6 +748,9 @@ class SabcScoringPhase(AbstractScoringPhase):
 class WabcScoringPhase(AbstractScoringPhase):
     abstract = False
 
+    def _get_scoring_method_string(self):
+        return "wabc"
+
     def _scoring_method(self) -> None:
         """
         This is the weighted ABC Scoring Method. The Way it calculates its scouring's can be found in
@@ -799,6 +817,9 @@ class WabcScoringPhase(AbstractScoringPhase):
 class NsScoringPhase(AbstractScoringPhase):
     abstract = False
 
+    def _get_scoring_method_string(self):
+        return "ns"
+
     def _scoring_method(self) -> None:
         """
         This is the NS Scoring Method.
@@ -816,6 +837,9 @@ class NsScoringPhase(AbstractScoringPhase):
 
 class RandomScoringPhase(AbstractScoringPhase):
     abstract = False
+
+    def _get_scoring_method_string(self):
+        return ""
 
     def _scoring_method(self) -> None:
         """
@@ -849,22 +873,330 @@ class RandomScoringPhase(AbstractScoringPhase):
         gold.close()
         print(self._get_scoring_results())
 
-class test(CLSTask, globalConfig):
-    abstract = False
-    #routing = ClsParameter(tpe=AbstractRoutingPhase.return_type())
-    scoring = ClsParameter(tpe=AbstractScoringPhase.return_type())
+# class  MptopConfigLoader(CLSTask, globalConfig):
+#     abstract = False
+#     scoring_data = ClsParameter(tpe=AbstractScoringPhase.return_type())
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.config_domain = set()
+
+#     def requires(self):
+#         return self.scoring_data()
+
+#     def output(self):
+#         return {"mptop_config" : luigi.LocalTarget(pjoin(self.config_result_path,  self._get_variant_label() + "-" + "mptop_config.yaml"))}
+
+#     def run(self):
+#         with open(self.input()["scoring_method"].path, "r") as scoring_data:
+#             scoring_type = scoring_data.readline()
+#             self.config_domain.add(scoring_type)
+#             other_target = yield ConfigLoaderHelper(ClsParameter(tpe=AbstractNsBenchmark.return_type()),self.global_config_path, self.config_result_path)
+
+#             # dynamic dependencies resolve into targets
+#             f = other_target.open('r')
+#             print("####################################")
+#             print(f.readlines())
+#             # read data from scoring and yield/return a ConfigLoader that uses variation via config, where the config_domain is set via __init__ to only load fitting configs 
+
+class AbstractMptopConfig(CLSTask, globalConfig):
+    abstract: bool = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def requires(self):
-        return {"scoring_result" : self.scoring()}
+        return CreateDirsTask()
+
+    def output(self):
+        return luigi.LocalTarget(pjoin(self.config_result_path, self._get_variant_label() + "-" + "mptop_config.yaml"))
 
     def run(self):
-        for item in self.input().values():
-            print("*************")
-            print(item)
-            print("\n")
+        with open(self.config_path, "r") as source_file, open(self.output().path, "w") as file:
+            for line in source_file:
+                file.write(line)
+
+class NSConfig1(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_ns/NS_config_1.yaml")
+
+
+class NSConfig2(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_ns/NS_config_2.yaml")
+
+class NSConfig3(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_ns/NS_config_3.yaml")
+
+class SABCConfig1(AbstractMptopConfig):
+    abstract: bool = False
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_sabc/sABC_config_1.yaml")
+
+class SABCConfig2(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_sabc/sABC_config_2.yaml")
+
+class SABCConfig3(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_sabc/sABC_config_3.yaml")
+
+class WABCConfig1(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_wabc/wABC_config_1.yaml")
+
+class WABCConfig2(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_wabc/wABC_config_2.yaml")
+
+class WABCConfig3(AbstractMptopConfig):
+    abstract: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = pjoin(self.global_config_path, "benchmark_wabc/wABC_config_3.yaml")
+
+
+# geht so nicht, Erweiterung des Outputs in unterklassen. 
+# class AbstractSolverPhase(CLSTask, globalConfig):
+#     abstract = True
+#     gather_and_integrate_phase = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
+#     scoring_phase = ClsParameter(tpe=AbstractScoringPhase.return_type())
+#     routing_phase = ClsParameter(tpe=AbstractRoutingPhase.return_type())
+#     config = ClsParameter(tpe=AbstractMptopConfig.return_type())
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+        
+#     def requires(self):
+#         return {"gather_and_integrate_phase": self.gather_and_integrate_phase(),"scoring_phase" : self.scoring_phase(), "routing_phase" : self.routing_phase(), "config" : self.config()}
+
+#     def output(self):
+#         return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
+
+#     def run(self):
+#         instance_file: IO = self._create_solver_instance()
+#         solver_result: IO = self._run_solver(instance_file)
+#         self._create_result_file(solver_result)
+#         instance_file.close()
+#         solver_result.close()
+
+#     def _create_result_file(self, solver_result : IO):
+#         """
+#         Takes the result file of the _run_solver() method and creates the luigi.LocalTarget. 
+#         """
+#         with open(self.output()["solver_result"].path, "w") as result_file:
+#             for line in solver_result:
+#                 result_file.write(line)
+
+
+# class MptopSolver(AbstractSolverPhase):
+#     abstract = False
+#     seed = luigi.IntParameter(default=0)
+
+#     def output(self):
+#         super_dict = super().output()
+#         super_dict["mptop_log"] =  luigi.LocalTarget(pjoin(self.solver_result_path, self._get_variant_label() + "-" + "mptop_log.txt"))
+#         return super_dict
+
+
+class AbstractSolverPhase(CLSTask, globalConfig):
+    abstract = True
+    gather_and_integrate_phase = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
+    scoring_phase = ClsParameter(tpe=AbstractScoringPhase.return_type())
+    routing_phase = ClsParameter(tpe=AbstractRoutingPhase.return_type())
+    config = ClsParameter(tpe=AbstractMptopConfig.return_type())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    def requires(self):
+        return {"gather_and_integrate_phase": self.gather_and_integrate_phase(),"scoring_phase" : self.scoring_phase(), "routing_phase" : self.routing_phase(), "config" : self.config()}
+
+    # def output(self):
+    #     return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
+
+    def run(self):
+        instance_file: IO = self._create_solver_instance()
+        solver_result: IO = self._run_solver(instance_file)
+        self._create_result_file(solver_result)
+        instance_file.close()
+        solver_result.close()
+
+    def _create_result_file(self, solver_result : IO):
+        """
+        Takes the result file of the _run_solver() method and creates the luigi.LocalTarget. 
+        """
+        with open(self.output()["solver_result"].path, "w") as result_file:
+            for line in solver_result:
+                result_file.write(line)
+
+
+class MptopSolver(AbstractSolverPhase):
+    abstract = False
+    seed = luigi.IntParameter(default=0)
+
+    def output(self):
+        return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt")),
+                "mptop_log" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "mptop_log.txt"))}
+        
+    def _create_solver_instance(self):
+        customers_dict = self._get_customers_result_dict()
+        sales_person_dict = self._get_sales_person_result_dict()
+        return self._create_mptop_instance(customers_dict, sales_person_dict)
+
+    def _get_customers_result_dict(self):
+        result = {}
+        with open(self.input()["scoring_phase"]["scoring_result"].path, "r") as scoring_results, \
+                open(self.input()["routing_phase"]["lat_lon_result"].path, "r") as latlon_results, \
+                open(self.input()["gather_and_integrate_phase"]["customers"].path, "r") as customers:
+
+            csv_reader_scoring_results = csv.DictReader(scoring_results)
+
+            for scoring_line in csv_reader_scoring_results:
+                sid = scoring_line["customer_id"].strip()
+                latlon_results.seek(0)
+                csv_reader_latlon_result = csv.DictReader(latlon_results)
+                for latlon_line in csv_reader_latlon_result:
+                    customers.seek(0)
+                    csv_reader_customers = csv.DictReader(customers)
+                    lid = latlon_line["id"].strip()
+                    if sid == lid:
+                        for customer_line in csv_reader_customers:
+                            cid = customer_line["customer_id"].strip()
+                            if cid == sid == lid:
+                                result[cid] = Customer(latlon_line["lat"].strip(), latlon_line["lon"].strip(),
+                                                    scoring_line["value"].strip(),
+                                                    customer_line["input_value"].strip(),
+                                                    customer_line["service_time"].strip(),
+                                                    customer_line["visits"].strip(),
+                                                    customer_line["obligatory"].strip(),
+                                                    customer_line["opening"].strip(),
+                                                    customer_line["closing"].strip(),
+                                                    customer_line["week_day_regularity"].strip(),
+                                                    scoring_line["abc"].strip())
+                                break
+                            else:
+                                pass
+                        break
+                    else:
+                        pass
+        return result
+
+    def _get_sales_person_result_dict(self):
+        result = {}
+        with open(self.input()["routing_phase"]["lat_lon_result"].path, "r")as latlon_results, \
+                open(self.input()["gather_and_integrate_phase"]["sales_person"].path, "r") as sales_person:
+
+            csv_reader_latlon_result = csv.DictReader(latlon_results)
+
+            for latlon_line in csv_reader_latlon_result:
+                lid = latlon_line["id"].strip()
+                sales_person.seek(0)
+                csv_reader_sales_person = csv.DictReader(sales_person)
+
+                for sales_person_line in csv_reader_sales_person:
+                    sid = sales_person_line["sales_person_id"].strip()
+                    if lid == sid:
+                        result[sid] = Sales_Person(latlon_line["lat"].strip(), latlon_line["lon"].strip(),
+                                                sales_person_line["earliest"].strip(),
+                                                sales_person_line["latest"].strip(),
+                                                sales_person_line["time_limit"].strip(),
+                                                sales_person_line["days_per_week"].strip(),
+                                                sales_person_line["nb_weeks"].strip())
+                        break
+                    else:
+                        pass
+
+        return result
+    
+    def _create_mptop_instance(self, customers_dict, sales_person_dict):
+        dima_result_name = basename(self.input()["routing_phase"]["dima_result"].path)
+        customers = ""
+        for i, (customer_id, customer) in enumerate(customers_dict.items()):
+            if i < len(customers_dict.items()) and not i == 0:
+                comma = ",\n"
+            else:
+                comma = ""
+            customers = customers + comma + customer_node.substitute(customer_id=str(customer_id),
+                                                                    customer_lon=str(customer.lon),
+                                                                    customer_lat=str(customer.lat),
+                                                                    customer_scoring_value=str(customer.scoring_value),
+                                                                    customer_input_value=str(customer.input_value),
+                                                                    customer_service_time=str(customer.service_time),
+                                                                    customer_visits=str(customer.visits),
+                                                                    customer_obligatory=str('true'
+                                                                                            if customer.obligatory == 1
+                                                                                            else 'false'),
+                                                                    customer_opening=str(customer.opening),
+                                                                    customer_closing=str(customer.closing),
+                                                                    customer_week_day_regularity=str(
+                                                                        customer.week_day_regularity),
+                                                                    customer_category_abc=str(customer.category_abc))
+
+        result = ""
+        for (sales_person_id, sales_person) in sales_person_dict.items():
+            result = body.substitute(nb_weeks=str(sales_person.nb_weeks),
+                                    dima_result_name=str(dima_result_name),
+                                    days_per_week=str(sales_person.days_per_week),
+                                    sales_person_id=str(sales_person_id),
+                                    sales_person_lon=str(sales_person.lon),
+                                    sales_person_lat=str(sales_person.lat),
+                                    sales_person_earliest=str(sales_person.earliest),
+                                    sales_person_latest=str(sales_person.latest),
+                                    sales_person_time_limit=str(sales_person.time_limit),
+                                    customer_nodes=str(customers))
+
+        instance_file =  open(pjoin(str(self.solver_tmp_result_path), self._get_variant_label() + "-" + "mptop_instance.json"), "w")
+        instance_file.write(result)
+        return instance_file
+
+
+    def _run_solver(self, instance_file):
+        system("/mptop/MPTOPApp/MPTOPApp" + " " + self.input()["config"].path + " " + instance_file.name + " " + self.input()["routing_phase"]["dima_result"].path  + " " + self.output()["solver_result"].path + " " + self.output()["mptop_log"].path + " " + self.seed)
+        
+        solver_result =  open(self.output()["solver_result"], "r")
+        return solver_result
+
+
+class FinalMptopTask(CLSTask, globalConfig):
+    abstract = False
+    mptop_pipeline = ClsParameter(tpe=MptopSolver.return_type())
+
+    def requires(self):
+        return {"mptop_pipeline": self.mptop_pipeline()}
+
+    def run(self):
+        print("*************")
+        print("DONE")
 
 if __name__ == '__main__':
-    target = test.return_type()
+    target = MptopSolver.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
@@ -874,6 +1206,7 @@ if __name__ == '__main__':
     if not actual is None or actual == 0:
         max_results = actual
     #validator = UniqueTaskPipelineValidator([])
+    #results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     if results:
         print("Number of results", max_results)

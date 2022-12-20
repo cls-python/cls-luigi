@@ -11,18 +11,22 @@ class CLSBaseTask():
     def _get_variant_label(self):
         if isinstance(self.input(), luigi.LocalTarget):
             label = self.input().path
-            return (Path(label).stem) + self.__class__.__name__
+            return (Path(label).stem) + "-" + self.__class__.__name__
 
         elif isinstance(self.input(), dict):
+            print("###################")
+            print(self.input())
+            print("++++++++++++++++++")
             var_label_name = []
             for item in self.input().values():
                 var_label_name.append(Path(item.path).stem)
-            return ("-".join(var_label_name)) + self.__class__.__name__
+            print("get_variant_done !!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return ("-".join(var_label_name)) + "-" + self.__class__.__name__
 
         elif isinstance(self.input(), Iterable):
             var_label_name = list(map(
                 lambda outputs: Path(outputs.path).stem, self.input()))
-            return ("-".join(var_label_name)) + self.__class__.__name__
+            return ("-".join(var_label_name)) + "-" + self.__class__.__name__
 
 class CLSTask(luigi.Task, LuigiCombinator, CLSBaseTask):
     pass

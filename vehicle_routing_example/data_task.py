@@ -5,9 +5,6 @@ import luigi
 from cls_tasks import *
 
 
-# self.resource_path = "resources/data"
-# self.result_path = "results"
-
 class LoadDataWrapper(CLSTask):
     abstract: bool = False
     instance_name = luigi.Parameter()
