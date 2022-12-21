@@ -6,7 +6,6 @@ from cls_tasks import *
 from configs import *
 
 
-
 class AbstractNsBenchmark(CLSTask):
     abstract: bool = False
     config_resource_path = luigi.Parameter(default="")
@@ -40,41 +39,40 @@ class ConfigLoaderHelper(CLSTask):
         pass
 
 
-# Sowas geht nicht
-#
+#Error
 # class  MptopConfigLoader(CLSTask, globalConfig):
 #     abstract = False
 #     scoring_data = ClsParameter(tpe=AbstractScoringPhase.return_type())
-#
+
 #     def __init__(self, *args, **kwargs):
 #         super().__init__(*args, **kwargs)
 #         self.config_domain = set()
-#
+
 #     def requires(self):
 #         return self.scoring_data()
-#
+
 #     def output(self):
 #         return {"mptop_config" : luigi.LocalTarget(pjoin(self.config_result_path,  self._get_variant_label() + "-" + "mptop_config.yaml"))}
-#
+
 #     def run(self):
 #         with open(self.input()["scoring_method"].path, "r") as scoring_data:
 #             scoring_type = scoring_data.readline()
 #             self.config_domain.add(scoring_type)
-#             other_target = yield ConfigLoaderHelper(self.global_config_path, self.config_result_path, self.config_domain)
-#
+#             other_target = yield ConfigLoaderHelper(self.global_config_path, self.config_result_path, self.config_domain, ClsParameter(tpe=AbstractMptopConfig.return_type()))
+
 #             # dynamic dependencies resolve into targets
 #             f = other_target.open('r')
 #             print("####################################")
 #             print(f.readlines())
-#
-#
+
+
 # class ConfigLoaderHelper(CLSTask):
 #     abstract: bool = False
 #     config_resource_path = luigi.Parameter(default="")
 #     result_path = luigi.Parameter(default="")
 #     given_config_domain = luigi.Parameter(default=set())
    
-#     load_task = ClsParameter(default="", tpe={"ns" : AbstractNsBenchmark.return_type()})
+#     load_task = ClsParameter(tpe={"ns" : AbstractMptopConfig.return_type()})
 #     config_domain = set(load_task.tpe.keys())
 
 #     def requires(self):
@@ -85,4 +83,3 @@ class ConfigLoaderHelper(CLSTask):
 
 #     def run(self):
 #         pass
-

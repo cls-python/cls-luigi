@@ -22,6 +22,7 @@ import pandas as pd
 from os.path import dirname, basename
 from os import makedirs
 from os import system
+from configs import *
 
 GeocoordinatesDict = NewType('GeocoordinatesDict', Dict[str, Dict[str, float]])
 
@@ -57,6 +58,7 @@ class CreateDirsTask(CLSTask, globalConfig):
         makedirs(dirname(str(self.scoring_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.routing_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
+        makedirs(dirname(str(self.solver_tmp_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
@@ -1038,8 +1040,8 @@ class AbstractSolverPhase(CLSTask, globalConfig):
     def requires(self):
         return {"gather_and_integrate_phase": self.gather_and_integrate_phase(),"scoring_phase" : self.scoring_phase(), "routing_phase" : self.routing_phase(), "config" : self.config()}
 
-    # def output(self):
-    #     return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
+    def output(self):
+        return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
 
     def run(self):
         instance_file: IO = self._create_solver_instance()
@@ -1059,11 +1061,16 @@ class AbstractSolverPhase(CLSTask, globalConfig):
 
 class MptopSolver(AbstractSolverPhase):
     abstract = False
-    seed = luigi.IntParameter(default=0)
+    seed = luigi.IntParameter(default=1)
+
+    # def output(self):
+    #     return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt")),
+    #             "mptop_log" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "mptop_log.txt"))}
 
     def output(self):
-        return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt")),
-                "mptop_log" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "mptop_log.txt"))}
+        parent_output = super().output()
+        parent_output["mptop_log"] = luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "mptop_log.txt"))
+        return parent_output
         
     def _create_solver_instance(self):
         customers_dict = self._get_customers_result_dict()
@@ -1178,9 +1185,9 @@ class MptopSolver(AbstractSolverPhase):
 
 
     def _run_solver(self, instance_file):
-        system("/mptop/MPTOPApp/MPTOPApp" + " " + self.input()["config"].path + " " + instance_file.name + " " + self.input()["routing_phase"]["dima_result"].path  + " " + self.output()["solver_result"].path + " " + self.output()["mptop_log"].path + " " + self.seed)
+        system("/mptop/MPTOPApp/MPTOPApp" + " " + self.input()["config"].path + " " + instance_file.name + " " + self.input()["routing_phase"]["dima_result"].path  + " " + self.output()["solver_result"].path + " " + self.output()["mptop_log"].path + " " + str(self.seed))
         
-        solver_result =  open(self.output()["solver_result"], "r")
+        solver_result =  open(self.output()["solver_result"].path, "r")
         return solver_result
 
 
@@ -1195,8 +1202,10 @@ class FinalMptopTask(CLSTask, globalConfig):
         print("*************")
         print("DONE")
 
+
+
 if __name__ == '__main__':
-    target = MptopSolver.return_type()
+    target = MptopConfigLoader.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
@@ -1212,6 +1221,6 @@ if __name__ == '__main__':
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True)
+        luigi.build(results, local_scheduler=False, detailed_summary=True)
     else:
         print("No results!")
