@@ -5,6 +5,8 @@ from pathlib import Path
 from os.path import join as pjoin
 sys.path.append('../')
 from inhabitation_task import ClsParameter, LuigiCombinator
+import flatdict
+import hashlib
 
 class CLSBaseTask():
 
@@ -14,14 +16,14 @@ class CLSBaseTask():
             return (Path(label).stem) + "-" + self.__class__.__name__
 
         elif isinstance(self.input(), dict):
-            print("###################")
-            print(self.input())
-            print("++++++++++++++++++")
+
+            d = flatdict.FlatDict(self.input(), delimiter='.')
+            flat_dict = dict(d)
+
             var_label_name = []
-            for item in self.input().values():
+            for item in flat_dict.values():
                 var_label_name.append(Path(item.path).stem)
-            print("get_variant_done !!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            return ("-".join(var_label_name)) + "-" + self.__class__.__name__
+            return str(int(hashlib.sha1((("-".join(var_label_name)) + "-" + self.__class__.__name__).encode("utf-8")).hexdigest(), 16) % (10 ** 8))
 
         elif isinstance(self.input(), Iterable):
             var_label_name = list(map(
