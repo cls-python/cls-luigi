@@ -9,7 +9,7 @@ Sales_Person = namedtuple('Sales_Person',
 
 body = Template("""{
   "nbWeeks": ${nb_weeks},
-  "dimaPath": "${dima_result_name}.dima",
+  "dimaPath": "${dima_result_name}",
   "daysPerWeek": ${days_per_week},
   "initialAssignment": "none",
   "vehicles": [
