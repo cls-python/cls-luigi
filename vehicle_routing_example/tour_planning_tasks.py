@@ -46,6 +46,7 @@ class globalConfig(luigi.Config):
         self.solver_result_path = pjoin(str(self.result_path), "solver")
         self.solver_instances_result_path = pjoin(str(self.solver_result_path), "instances")
         self.config_result_path = pjoin(str(self.result_path), "config")
+        self.hash_map_result_path = pjoin(str(self.result_path) , "hash_map")
 
 class CreateDirsTask(CLSTask, globalConfig):
     abstract = False
@@ -60,6 +61,7 @@ class CreateDirsTask(CLSTask, globalConfig):
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_instances_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
+        makedirs(dirname(str(self.hash_map_result_path)), exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
         
@@ -1198,22 +1200,32 @@ class MptopSolver(AbstractSolverPhase):
         return solver_result_file_path
 
 
-class FinalMptopTask(CLSWrapperTask, globalConfig):
+
+class CreateHashMapResult(CLSTask, globalConfig):
     abstract = False
-    mptop_pipeline = ClsParameter(tpe=MptopSolver.return_type())
+    mptop = ClsParameter(tpe=MptopSolver.return_type())
+
 
     def requires(self):
-        return {"mptop_pipeline": self.mptop_pipeline()}
+        return self.mptop()
 
-class TestTasl(CLSTask):
-    abstract = False
+    def output(self):
+        return {"hash_map_result" : luigi.LocalTarget(pjoin(str(self.hash_map_result_path), "hash_map_result.txt"))}
 
     def run(self):
-        system("/mptop/MPTOPApp/MPTOPApp /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/config/.dirs_created-WABCConfig2-mptop_config.yaml /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/instances/11391287-MptopSolver-mptop_instance.json /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/routing /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/11391287-MptopSolver-solver_result.txt /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/11391287-MptopSolver-mptop_log.txt 1")
-        print("DONE")
+        self._create_hash_map_file()
+
+    def _create_hash_map_file(self):
+        with open(self.output()["hash_map_result"].path, "w") as hash_map_file:
+            for key,value in self.hash_map.items():
+                hash_map_file.write(str(key) + ": \n")
+                hash_map_file.write("################################### \n")
+                hash_map_file.write(str(value) + "\n")
+                hash_map_file.write("=================================== \n")
+
 
 if __name__ == '__main__':
-    target = FinalMptopTask.return_type()
+    target = CreateHashMapResult.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)

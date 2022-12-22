@@ -9,6 +9,8 @@ import hashlib
 
 class CLSBaseTask():
 
+    hash_map = {}
+
     def _get_variant_label(self):
         if isinstance(self.input(), luigi.LocalTarget):
             label = self.input().path
@@ -27,7 +29,9 @@ class CLSBaseTask():
             if len(variant_label  + "-" + self.__class__.__name__) <= 256:
                 return variant_label + "-" + self.__class__.__name__ if len(variant_label) > 0 else self.__class__.__name__
             else:
-                return str(int(hashlib.sha1((variant_label).encode("utf-8")).hexdigest(), 16) % (10 ** 8)) + "-" + self.__class__.__name__ if len(variant_label) > 0 else self.__class__.__name__
+                label_hash = str(int(hashlib.sha1((variant_label).encode("utf-8")).hexdigest(), 16) % (10 ** 8))
+                self.hash_map[label_hash] = var_label_name
+                return label_hash + "-" + self.__class__.__name__ if len(label_hash) > 0 else self.__class__.__name__
 
         elif isinstance(self.input(), Iterable):
             var_label_name = list(map(
