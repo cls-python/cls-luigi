@@ -2,9 +2,8 @@ import sys
 import luigi
 from collections.abc import Iterable
 from pathlib import Path
-from os.path import join as pjoin
 sys.path.append('../')
-from inhabitation_task import ClsParameter, LuigiCombinator
+from inhabitation_task import LuigiCombinator
 import flatdict
 import hashlib
 
@@ -13,7 +12,8 @@ class CLSBaseTask():
     def _get_variant_label(self):
         if isinstance(self.input(), luigi.LocalTarget):
             label = self.input().path
-            return (Path(label).stem) + "-" + self.__class__.__name__
+
+            return (Path(label).stem) + "-" + self.__class__.__name__ if len(Path(label).stem) > 0 else self.__class__.__name__
 
         elif isinstance(self.input(), dict):
 
@@ -23,12 +23,16 @@ class CLSBaseTask():
             var_label_name = []
             for item in flat_dict.values():
                 var_label_name.append(Path(item.path).stem)
-            return str(int(hashlib.sha1((("-".join(var_label_name)) + "-" + self.__class__.__name__).encode("utf-8")).hexdigest(), 16) % (10 ** 8))
+            variant_label = ("-".join(var_label_name))
+            if len(variant_label  + "-" + self.__class__.__name__) <= 256:
+                return variant_label + "-" + self.__class__.__name__ if len(variant_label) > 0 else self.__class__.__name__
+            else:
+                return str(int(hashlib.sha1((variant_label).encode("utf-8")).hexdigest(), 16) % (10 ** 8)) + "-" + self.__class__.__name__ if len(variant_label) > 0 else self.__class__.__name__
 
         elif isinstance(self.input(), Iterable):
             var_label_name = list(map(
                 lambda outputs: Path(outputs.path).stem, self.input()))
-            return ("-".join(var_label_name)) + "-" + self.__class__.__name__
+            return ("-".join(var_label_name)) + "-" + self.__class__.__name__  if len(("-".join(var_label_name))) > 0 else self.__class__.__name__
 
 class CLSTask(luigi.Task, LuigiCombinator, CLSBaseTask):
     pass

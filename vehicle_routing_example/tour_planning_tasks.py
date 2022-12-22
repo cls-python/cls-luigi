@@ -19,7 +19,7 @@ import random
 from os import environ
 import numpy as np
 import pandas as pd
-from os.path import dirname, basename
+from os.path import dirname, basename, abspath
 from os import makedirs
 from os import system
 from configs import *
@@ -44,7 +44,7 @@ class globalConfig(luigi.Config):
         self.scoring_result_path = pjoin(str(self.result_path), "scoring")
         self.routing_result_path = pjoin(str(self.result_path), "routing")
         self.solver_result_path = pjoin(str(self.result_path), "solver")
-        self.solver_tmp_result_path = pjoin(str(self.solver_result_path), "tmp")
+        self.solver_instances_result_path = pjoin(str(self.solver_result_path), "instances")
         self.config_result_path = pjoin(str(self.result_path), "config")
 
 class CreateDirsTask(CLSTask, globalConfig):
@@ -58,7 +58,7 @@ class CreateDirsTask(CLSTask, globalConfig):
         makedirs(dirname(str(self.scoring_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.routing_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
-        makedirs(dirname(str(self.solver_tmp_result_path)+"/"),exist_ok=True)
+        makedirs(dirname(str(self.solver_instances_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
@@ -1044,19 +1044,22 @@ class AbstractSolverPhase(CLSTask, globalConfig):
         return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
 
     def run(self):
-        instance_file: IO = self._create_solver_instance()
-        solver_result: IO = self._run_solver(instance_file)
-        self._create_result_file(solver_result)
-        instance_file.close()
-        solver_result.close()
+        instance_file_path : str = self._create_solver_instance()
+        solver_result_file_path: str = self._run_solver(instance_file_path)
+        self._create_result_file(solver_result_file_path)
 
-    def _create_result_file(self, solver_result : IO):
+
+    def _create_result_file(self, solver_result_file_path : str):
         """
         Takes the result file of the _run_solver() method and creates the luigi.LocalTarget. 
         """
+        final_result_content = ""
+        with open(solver_result_file_path, "r") as source_file:
+            for line in source_file:
+                final_result_content += line
+           
         with open(self.output()["solver_result"].path, "w") as result_file:
-            for line in solver_result:
-                result_file.write(line)
+            result_file.write(final_result_content)
 
 
 class MptopSolver(AbstractSolverPhase):
@@ -1179,33 +1182,38 @@ class MptopSolver(AbstractSolverPhase):
                                     sales_person_time_limit=str(sales_person.time_limit),
                                     customer_nodes=str(customers))
 
-        instance_file =  open(pjoin(str(self.solver_tmp_result_path), self._get_variant_label() + "-" + "mptop_instance.json"), "w")
+        instance_file =  open(pjoin(str(self.solver_instances_result_path), self._get_variant_label() + "-" + "mptop_instance.json"), "w")
         instance_file.write(result)
-        return instance_file
+        instance_file_path = instance_file.name
+        instance_file.close()
+        return instance_file_path
 
 
-    def _run_solver(self, instance_file):
-        system("/mptop/MPTOPApp/MPTOPApp" + " " + self.input()["config"].path + " " + instance_file.name + " " + self.input()["routing_phase"]["dima_result"].path  + " " + self.output()["solver_result"].path + " " + self.output()["mptop_log"].path + " " + str(self.seed))
-        
-        solver_result =  open(self.output()["solver_result"].path, "r")
-        return solver_result
+    def _run_solver(self, instance_file_path):
+
+        system("/mptop/MPTOPApp/MPTOPApp" + " " + abspath(self.input()["config"].path) + " " + abspath(instance_file_path) + " " + abspath(dirname(self.input()["routing_phase"]["dima_result"].path)) + " " + abspath(self.output()["solver_result"].path) + " " + abspath(self.output()["mptop_log"].path) + " " + str(self.seed))
+        solver_result_file =  open(self.output()["solver_result"].path, "r")
+        solver_result_file_path = solver_result_file.name
+        solver_result_file.close()
+        return solver_result_file_path
 
 
-class FinalMptopTask(CLSTask, globalConfig):
+class FinalMptopTask(CLSWrapperTask, globalConfig):
     abstract = False
     mptop_pipeline = ClsParameter(tpe=MptopSolver.return_type())
 
     def requires(self):
         return {"mptop_pipeline": self.mptop_pipeline()}
 
+class TestTasl(CLSTask):
+    abstract = False
+
     def run(self):
-        print("*************")
+        system("/mptop/MPTOPApp/MPTOPApp /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/config/.dirs_created-WABCConfig2-mptop_config.yaml /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/instances/11391287-MptopSolver-mptop_instance.json /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/routing /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/11391287-MptopSolver-solver_result.txt /home/smdlscho/cls-python/vehicle_routing_example/results/aldi_9_1/solver/11391287-MptopSolver-mptop_log.txt 1")
         print("DONE")
 
-
-
 if __name__ == '__main__':
-    target = MptopConfigLoader.return_type()
+    target = FinalMptopTask.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)

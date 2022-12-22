@@ -1,9 +1,9 @@
-from os.path import join as pjoin
-from os.path import dirname
-from os import makedirs
 import luigi
 from cls_tasks import *
 from configs import *
+import sys
+sys.path.append('../')
+from inhabitation_task import ClsParameter
 
 
 class AbstractNsBenchmark(CLSTask):

@@ -20,7 +20,6 @@ class LoadDataWrapper(CLSTask):
         return {"customers" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "customers.csv")), "sales_person" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "sales_person.csv")), "customers_revenue" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" +"customers_revenue.csv")), "goldmember" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "goldmember.csv")) }
 
     def run(self):
-        makedirs(dirname(self.result_path),exist_ok=True)
         with open(self.output()["customers"].path, "w") as customers_result:
             with open(pjoin(self.resource_path, "customers.csv"), "r") as target:
                 customers_result.write(target.read())
