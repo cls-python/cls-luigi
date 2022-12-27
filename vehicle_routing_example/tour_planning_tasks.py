@@ -47,6 +47,7 @@ class globalConfig(luigi.Config):
         self.solver_instances_result_path = pjoin(str(self.solver_result_path), "instances")
         self.config_result_path = pjoin(str(self.result_path), "config")
         self.hash_map_result_path = pjoin(str(self.result_path) , "hash_map")
+        self.best_result_path = pjoin(str(self.result_path), "best_result")
 
 class CreateDirsTask(CLSTask, globalConfig):
     abstract = False
@@ -61,7 +62,8 @@ class CreateDirsTask(CLSTask, globalConfig):
         makedirs(dirname(str(self.solver_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.solver_instances_result_path)+"/"),exist_ok=True)
         makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
-        makedirs(dirname(str(self.hash_map_result_path)), exist_ok=True)
+        makedirs(dirname(str(self.hash_map_result_path) + "/"), exist_ok=True)
+        makedirs(dirname(str(self.best_result_path)) + "/", exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
         
@@ -1222,9 +1224,30 @@ class CreateHashMapResult(CLSTask, globalConfig):
                 hash_map_file.write("################################### \n")
                 hash_map_file.write(str(value) + "\n")
                 hash_map_file.write("=================================== \n")
+    
+    # @classmethod
+    # def next_count(cls):
+    #     cls.count += 1
+    #     return cls.count
 
 
-if __name__ == '__main__':
+# class GetBestResult(globalConfig):
+#     # abstract = False
+#     count = luigi.IntParameter(batch_method=max)
+
+#     def output(self):
+#         return {"best_result" : luigi.LocalTarget(pjoin(str(self.best_result_path), "best_result.txt"))}
+
+#     def run(self):
+#          with open(self.output()["best_result"].path, "a") as best_result_file:
+#             best_result_file.write(str(self.count) + " /n ")
+
+#     @property
+#     def resources(self):
+#         return {"source" : 1}
+
+
+def run_main():
     target = CreateHashMapResult.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
@@ -1234,9 +1257,8 @@ if __name__ == '__main__':
     max_results = max_tasks_when_infinite
     if not actual is None or actual == 0:
         max_results = actual
-    #validator = UniqueTaskPipelineValidator([])
-    #results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
-    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+    validator = UniqueTaskPipelineValidator([AbstractGatherAndIntegratePhase, AbstractMptopConfig, AbstractScoringPhase, AbstractRoutingPhase, AbstractSolverPhase])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
     if results:
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
@@ -1244,3 +1266,6 @@ if __name__ == '__main__':
         luigi.build(results, local_scheduler=False, detailed_summary=True)
     else:
         print("No results!")
+
+if __name__ == '__main__':
+    run_main()

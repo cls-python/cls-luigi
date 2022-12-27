@@ -23,7 +23,10 @@ class UniqueTaskPipelineValidator(object):
     def dfs(self, start):
         traversal = [start]
         dependencies = start.requires()
-        if isinstance(dependencies, Iterable):
+        if isinstance(dependencies, dict):
+            for dependency in start.requires().values():
+                traversal.extend(self.dfs(dependency))
+        elif isinstance(dependencies, Iterable):
             for dependency in start.requires():
                 traversal.extend(self.dfs(dependency))
         else:
