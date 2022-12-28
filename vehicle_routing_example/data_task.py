@@ -1,6 +1,4 @@
 from os.path import join as pjoin
-from os.path import dirname
-from os import makedirs
 import luigi
 from cls_tasks import *
 
@@ -17,17 +15,17 @@ class LoadDataWrapper(CLSTask):
         super().__init__(*args, **kwargs)
 
     def output(self):
-        return {"customers" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "customers.csv")), "sales_person" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "sales_person.csv")), "customers_revenue" : luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" +"customers_revenue.csv")), "goldmember" : luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "goldmember.csv")) }
+        return {"customers": luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "customers.csv")), "sales_person": luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "sales_person.csv")), "customers_revenue": luigi.LocalTarget(pjoin(self.result_path,  self._get_variant_label() + "-" + "customers_revenue.csv")), "goldmember": luigi.LocalTarget(pjoin(self.result_path, self._get_variant_label() + "-" + "goldmember.csv"))}
 
     def run(self):
         with open(self.output()["customers"].path, "w") as customers_result:
             with open(pjoin(self.resource_path, "customers.csv"), "r") as target:
                 customers_result.write(target.read())
-        
+
         with open(self.output()["sales_person"].path, "w") as customers_result:
             with open(pjoin(self.resource_path, "sales_person.csv"), "r") as target:
                 customers_result.write(target.read())
-        
+
             with open(self.output()["customers_revenue"].path, "w") as customers_result:
                 with open(pjoin(self.resource_path, "customers_revenue.csv"), "r") as target:
                     if self.load_revenue:
@@ -37,7 +35,7 @@ class LoadDataWrapper(CLSTask):
 
             with open(self.output()["goldmember"].path, "w") as customers_result:
                 with open(pjoin(self.resource_path, "goldmember.csv"), "r") as target:
-                    if self.load_gold:    
+                    if self.load_gold:
                         customers_result.write(target.read())
                     else:
                         pass

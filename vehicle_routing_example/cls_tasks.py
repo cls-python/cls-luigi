@@ -1,11 +1,12 @@
 import hashlib
 import flatdict
-from inhabitation_task import LuigiCombinator
 import sys
 import luigi
 from collections.abc import Iterable
 from pathlib import Path
 sys.path.append('../')
+from inhabitation_task import LuigiCombinator
+
 
 
 class CLSBaseTask():

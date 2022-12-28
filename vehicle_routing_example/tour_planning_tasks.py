@@ -21,6 +21,7 @@ import luigi
 from configs import *
 from multimethod import multimethod
 from mptop_instance_helper import *
+import pickle
 
 sys.path.append('../')
 
@@ -1291,12 +1292,13 @@ class CreateHashMapResult(CLSTask, globalConfig):
         return self.mptop()
 
     def output(self):
-        return {"hash_map_result": luigi.LocalTarget(pjoin(str(self.hash_map_result_path), "hash_map_result.txt")), "solver_result" : self.input()["solver_result"]}
+        return {"hash_map_result": luigi.LocalTarget(pjoin(str(self.hash_map_result_path), "hash_map_result.txt")), "solver_result": self.input()["solver_result"], "hash_map_result_pickle": luigi.LocalTarget(pjoin(str(self.hash_map_result_path), "hash_map_result.pkl"))}
 
     def run(self):
-        self._create_hash_map_file()
+        self._create_hash_map_txt_file()
+        self._create_hash_map_pkl_file()
 
-    def _create_hash_map_file(self):
+    def _create_hash_map_txt_file(self):
         with open(self.output()["hash_map_result"].path, "w") as hash_map_file:
             for key, value in self.hash_map.items():
                 hash_map_file.write(str(key) + ": \n")
@@ -1304,43 +1306,49 @@ class CreateHashMapResult(CLSTask, globalConfig):
                 hash_map_file.write(str(value) + "\n")
                 hash_map_file.write("=================================== \n")
 
+    def _create_hash_map_pkl_file(self):
+        with open(self.output()["hash_map_result_pickle"].path, "wb") as hash_map_pkl_file:
+            pickle.dump(CLSBaseTask.hash_map, hash_map_pkl_file)
+
+
 class FindBestResult(CLSTask, globalConfig):
     abstract = False
     after = ClsParameter(tpe=CreateHashMapResult.return_type())
     best_result = ("NONE", 0)
-    
+
     def requires(self):
         return self.after()
-    
+
     def output(self):
-        return {"best_result" : luigi.LocalTarget(pjoin(str(self.best_result_path), "best_result.txt"))}
-    
+        return {"best_result": luigi.LocalTarget(pjoin(str(self.best_result_path), "best_result.txt"))}
+
     def run(self):
         print(str(self.get_best_result()))
         with open(self.input()["solver_result"].path, "r") as solver_result_file:
             objVal = 0
             for line in solver_result_file:
                 if line.startswith("\"ObjVal\""):
-                    objVal = int(line.split(":")[1].replace(",",""))
-            
-            if objVal< int(self.get_best_result()[1]):
-                self.set_best_result((self._get_variant_label(), objVal))
+                    objVal = int(line.split(":")[1].replace(",", ""))
+
+            if objVal < int(self.get_best_result()[1]):
+                with open(self.input()["hash_map_result_pickle"].path, "rb") as pkl_file:
+                    new_dict = pickle.load(pkl_file, encoding='bytes')
+                    variant_label = self._get_variant_label()
+                    for key in new_dict.keys():                
+                        if key in variant_label:
+                            variant_label = variant_label.replace(key, str(new_dict[key]))
+                            break
+                self.set_best_result((variant_label, objVal))
                 with open(self.output()["best_result"].path, "w") as best_result_file:
                     best_result_file.write(str(self.get_best_result()))
-                
-                    
 
-                        
-                
     @classmethod
     def get_best_result(cls):
         return cls.best_result
-    
+
     @classmethod
     def set_best_result(cls, new_best):
         cls.best_result = new_best
-                
-
 
     # @classmethod
     # def next_count(cls):
