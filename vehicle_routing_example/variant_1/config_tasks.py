@@ -3,6 +3,7 @@ from cls_tasks import *
 from configs import *
 import sys
 sys.path.append('../')
+sys.path.append('../../')
 from inhabitation_task import ClsParameter
 
 

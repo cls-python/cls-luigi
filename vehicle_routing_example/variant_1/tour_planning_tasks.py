@@ -11,9 +11,6 @@ import json
 import csv
 from typing import Tuple, Dict, List, NewType, IO
 from data_task import LoadDataWrapper
-from inhabitation_task import ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 from os.path import join as pjoin
 from cls_tasks import *
 import sys
@@ -24,6 +21,11 @@ from mptop_instance_helper import *
 import pickle
 
 sys.path.append('../')
+sys.path.append('../../')
+from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from inhabitation_task import ClsParameter, RepoMeta
+from cls_python import FiniteCombinatoryLogic, Subtypes
+
 
 GeocoordinatesDict = NewType('GeocoordinatesDict', Dict[str, Dict[str, float]])
 
@@ -32,9 +34,9 @@ class globalConfig(luigi.Config):
     instance_name = luigi.Parameter(default="aldi_9_1")
     load_revenue = luigi.BoolParameter(default=True)
     load_gold = luigi.BoolParameter(default=True)
-    global_resources_path = luigi.Parameter(default="resources/data")
+    global_resources_path = luigi.Parameter(default="../resources/data")
     global_result_path = luigi.Parameter(default="results")
-    global_config_path = luigi.Parameter(default="resources/mptop_configs")
+    global_config_path = luigi.Parameter(default="../resources/mptop_configs")
     seed = 1
 
     def __init__(self, *args, **kwargs):
@@ -63,13 +65,13 @@ class CreateDirsTask(CLSTask, globalConfig):
 
     def run(self):
         makedirs(dirname(self.result_dir_for_input_data), exist_ok=True)
-        makedirs(dirname(str(self.scoring_result_path)+"/"), exist_ok=True)
-        makedirs(dirname(str(self.routing_result_path)+"/"), exist_ok=True)
-        makedirs(dirname(str(self.solver_result_path)+"/"), exist_ok=True)
-        makedirs(dirname(str(self.solver_instances_result_path)+"/"), exist_ok=True)
-        makedirs(dirname(str(self.config_result_path)+"/"), exist_ok=True)
+        makedirs(dirname(str(self.scoring_result_path) + "/"), exist_ok=True)
+        makedirs(dirname(str(self.routing_result_path) + "/"), exist_ok=True)
+        makedirs(dirname(str(self.solver_result_path) + "/"), exist_ok=True)
+        makedirs(dirname(str(self.solver_instances_result_path) + "/"), exist_ok=True)
+        makedirs(dirname(str(self.config_result_path) + "/"), exist_ok=True)
         makedirs(dirname(str(self.hash_map_result_path) + "/"), exist_ok=True)
-        makedirs(dirname(str(self.best_result_path)) + "/", exist_ok=True)
+        makedirs(dirname(str(self.best_result_path) + "/"), exist_ok=True)
         with open(self.output().path, 'w') as file:
             pass
 
