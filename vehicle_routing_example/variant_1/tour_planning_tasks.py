@@ -15,7 +15,6 @@ from os.path import join as pjoin
 from cls_tasks import *
 import sys
 import luigi
-from configs import *
 from multimethod import multimethod
 from mptop_instance_helper import *
 import pickle
@@ -25,6 +24,9 @@ sys.path.append('../../')
 from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 from inhabitation_task import ClsParameter, RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
+from repo_visualizer.static_json_repo import StaticJSONRepo
+from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+
 
 
 GeocoordinatesDict = NewType('GeocoordinatesDict', Dict[str, Dict[str, float]])
@@ -772,7 +774,6 @@ class SabcScoringPhase(AbstractScoringPhase):
                 value = p_a
                 abc = 2
             self._add_result(int(item.customer_id), value, abc)
-        print("=$=$=$=$=$$==$=$=$=$$$$$$$$$$$$$$$$$$$$$$$=$==$=$=$=$=$")
         print(self._get_scoring_results())
 
     def _get_csv_as_pandas_dataframe(self, path_to_file: str) -> pd.DataFrame():
@@ -919,32 +920,6 @@ class RandomScoringPhase(AbstractScoringPhase):
         gold.close()
         print(self._get_scoring_results())
 
-# class  MptopConfigLoader(CLSTask, globalConfig):
-#     abstract = False
-#     scoring_data = ClsParameter(tpe=AbstractScoringPhase.return_type())
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.config_domain = set()
-
-#     def requires(self):
-#         return self.scoring_data()
-
-#     def output(self):
-#         return {"mptop_config" : luigi.LocalTarget(pjoin(self.config_result_path,  self._get_variant_label() + "-" + "mptop_config.yaml"))}
-
-#     def run(self):
-#         with open(self.input()["scoring_method"].path, "r") as scoring_data:
-#             scoring_type = scoring_data.readline()
-#             self.config_domain.add(scoring_type)
-#             other_target = yield ConfigLoaderHelper(ClsParameter(tpe=AbstractNsBenchmark.return_type()),self.global_config_path, self.config_result_path)
-
-#             # dynamic dependencies resolve into targets
-#             f = other_target.open('r')
-#             print("####################################")
-#             print(f.readlines())
-#             # read data from scoring and yield/return a ConfigLoader that uses variation via config, where the config_domain is set via __init__ to only load fitting configs
-
 
 class AbstractMptopConfig(CLSTask, globalConfig):
     abstract: bool = True
@@ -1044,50 +1019,6 @@ class WABCConfig3(AbstractMptopConfig):
         self.config_path = pjoin(
             self.global_config_path, "benchmark_wabc/wABC_config_3.yaml")
 
-
-# geht so nicht, Erweiterung des Outputs in unterklassen.
-# class AbstractSolverPhase(CLSTask, globalConfig):
-#     abstract = True
-#     gather_and_integrate_phase = ClsParameter(tpe=AbstractGatherAndIntegratePhase.return_type())
-#     scoring_phase = ClsParameter(tpe=AbstractScoringPhase.return_type())
-#     routing_phase = ClsParameter(tpe=AbstractRoutingPhase.return_type())
-#     config = ClsParameter(tpe=AbstractMptopConfig.return_type())
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#     def requires(self):
-#         return {"gather_and_integrate_phase": self.gather_and_integrate_phase(),"scoring_phase" : self.scoring_phase(), "routing_phase" : self.routing_phase(), "config" : self.config()}
-
-#     def output(self):
-#         return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt"))}
-
-#     def run(self):
-#         instance_file: IO = self._create_solver_instance()
-#         solver_result: IO = self._run_solver(instance_file)
-#         self._create_result_file(solver_result)
-#         instance_file.close()
-#         solver_result.close()
-
-#     def _create_result_file(self, solver_result : IO):
-#         """
-#         Takes the result file of the _run_solver() method and creates the luigi.LocalTarget.
-#         """
-#         with open(self.output()["solver_result"].path, "w") as result_file:
-#             for line in solver_result:
-#                 result_file.write(line)
-
-
-# class MptopSolver(AbstractSolverPhase):
-#     abstract = False
-#     seed = luigi.IntParameter(default=0)
-
-#     def output(self):
-#         super_dict = super().output()
-#         super_dict["mptop_log"] =  luigi.LocalTarget(pjoin(self.solver_result_path, self._get_variant_label() + "-" + "mptop_log.txt"))
-#         return super_dict
-
-
 class AbstractSolverPhase(CLSTask, globalConfig):
     abstract = True
     gather_and_integrate_phase = ClsParameter(
@@ -1126,10 +1057,6 @@ class AbstractSolverPhase(CLSTask, globalConfig):
 class MptopSolver(AbstractSolverPhase):
     abstract = False
     seed = luigi.IntParameter(default=1)
-
-    # def output(self):
-    #     return {"solver_result" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "solver_result.txt")),
-    #             "mptop_log" : luigi.LocalTarget(pjoin(str(self.solver_result_path), self._get_variant_label() + "-" + "mptop_log.txt"))}
 
     def output(self):
         parent_output = super().output()
@@ -1352,31 +1279,13 @@ class FindBestResult(CLSTask, globalConfig):
     def set_best_result(cls, new_best):
         cls.best_result = new_best
 
-    # @classmethod
-    # def next_count(cls):
-    #     cls.count += 1
-    #     return cls.count
-
-
-# class GetBestResult(globalConfig):
-#     # abstract = False
-#     count = luigi.IntParameter(batch_method=max)
-
-#     def output(self):
-#         return {"best_result" : luigi.LocalTarget(pjoin(str(self.best_result_path), "best_result.txt"))}
-
-#     def run(self):
-#          with open(self.output()["best_result"].path, "a") as best_result_file:
-#             best_result_file.write(str(self.count) + " /n ")
-
-#     @property
-#     def resources(self):
-#         return {"source" : 1}
-
 
 def run_main():
     target = FindBestResult.return_type()
     repository = RepoMeta.repository
+    
+    # StaticJSONRepo(RepoMeta).dump_static_repo_json()
+    
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10
@@ -1389,6 +1298,7 @@ def run_main():
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
                if validator.validate(t())]
     if results:
+        # DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
