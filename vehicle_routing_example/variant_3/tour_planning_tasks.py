@@ -1312,7 +1312,7 @@ def run_main():
     #     print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
     #     print("#################")
         
-    print(str(RepoMeta.get_list_of_all_upstream_abstract_nodes(AbstractNSConfigPack)))
+    print(str(RepoMeta.get_list_of_all_upstream_abstract_classes(AbstractNSConfigPack)))
     
     # fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     # inhabitation_result = fcl.inhabit(target)

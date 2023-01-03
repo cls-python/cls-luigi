@@ -170,6 +170,39 @@ class RepoMeta(Register):
     repository: dict[Any, Type] = {}
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
+    @classmethod
+    def get_list_of_all_upstream_abstract_classes(cls, target):
+        """
+        This method can be used to get all abstract classes that are reachable from a given target class.
+        It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
+        a class as key for the dict and gets an empty set back. 
+
+        Args:
+            target type: The class for which you want to know the abstract upper classes
+
+        Returns:
+            list[type]: a list of the classes found till it hit the top. The list is sorted according to first seen classes.
+                        So the head of the list is the first seen abstract class.
+        """
+        list_of_abstract_parents = [] # sorted in the sense of first item in the list is first encountered abstract node. 
+        if target.abstract == True:
+            list_of_abstract_parents.append(target)
+        
+        next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
+        if not next_target:
+            return list_of_abstract_parents
+        
+        else:
+            for item in next_target:
+                list_of_abstract_parents.extend(cls.get_list_of_all_upstream_abstract_classes(item.tpe))
+                return list_of_abstract_parents
+
+        
+    
+    @classmethod
+    def get_filtered_repository(cls, targets):
+        pass
+
     @staticmethod
     def cls_tpe(cls) -> str:
         return f'{cls.__module__}.{cls.__qualname__}'
@@ -417,9 +450,11 @@ class LuigiCombinator(Generic[ConfigIndex], metaclass=RepoMeta):
     config_domain: set[ConfigIndex] | None = None
     abstract: bool = False
 
+
     @classmethod
     def return_type(cls, idx: ConfigIndex = None) -> Type:
         if idx is None:
             return Constructor(RepoMeta.TaskCtor(cls))
         else:
             return Constructor(RepoMeta.TaskCtor(cls), Constructor(RepoMeta.ClassIndex(cls, idx)))
+    
