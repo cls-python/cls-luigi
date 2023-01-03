@@ -10,7 +10,7 @@ class MyWrapperTask(luigi.WrapperTask):
 
     def run(self):
         # do something with the outputs of the yielded tasks
-        with .open() as f1:
+        with self.input()[0].open() as f1:
             data1 = f1.read()
         with self.input()[1].open() as f2:
             data2 = f2.read()
