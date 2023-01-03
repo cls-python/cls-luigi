@@ -171,17 +171,39 @@ class RepoMeta(Register):
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
     @classmethod
-    def get_list_of_all_upstream_abstract_classes(cls, target):
+    def get_list_of_all_upstream_classes(cls, target):
         """
-        This method can be used to get all abstract classes that are reachable from a given target class.
-        It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
-        a class as key for the dict and gets an empty set back. 
+        This method returns a list of all upstream classes till it its the empty set.
+        Uses information of the subtypes dict to get full chain. The resulting list will 
+        include the target class itself as head. 
 
         Args:
             target type: The class for which you want to know the abstract upper classes
 
         Returns:
-            list[type]: a list of the classes found till it hit the top. The list is sorted according to first seen classes.
+            list[type]: a list of the  classes found till it hit the top. The list is sorted according to first seen classes.
+        """
+        list_of_all_upstream_classes = []
+        list_of_all_upstream_classes.append(target)
+        next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
+        for item in next_target:
+                list_of_all_upstream_classes.extend(cls.get_list_of_all_upstream_abstract_classes(item.tpe))
+                return list_of_all_upstream_classes
+        
+
+    @classmethod
+    def get_list_of_all_upstream_abstract_classes(cls, target):
+        """
+        This method can be used to get all abstract classes that are reachable from a given target class.
+        It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
+        a class as key for the dict and gets an empty set back. It is possible that the target class is 
+        included in the resulting list as head, if it is abstract itself. 
+
+        Args:
+            target type: The class for which you want to know the abstract upper classes
+
+        Returns:
+            list[type]: a list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
                         So the head of the list is the first seen abstract class.
         """
         list_of_abstract_parents = [] # sorted in the sense of first item in the list is first encountered abstract node. 
