@@ -186,9 +186,14 @@ class RepoMeta(Register):
         list_of_all_upstream_classes = []
         list_of_all_upstream_classes.append(target)
         next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
-        for item in next_target:
-                list_of_all_upstream_classes.extend(cls.get_list_of_all_upstream_abstract_classes(item.tpe))
-                return list_of_all_upstream_classes
+        if not next_target:
+            return list_of_all_upstream_classes
+        
+        else:
+            for item in next_target:
+                    list_of_all_upstream_classes.extend(cls.get_list_of_all_upstream_classes(item.tpe))
+                    return list_of_all_upstream_classes
+        
         
 
     @classmethod
