@@ -44,9 +44,11 @@ class TaskProcessingTime(object):
                         break # we know that in each pipeline the tasks are unique, so once we find the task we are looking for we break the inner loop
             dump_json(dynamic_pipeline_path, dynamic_pipeline_json)
 
-        except FileNotFoundError:
-            print('There is either a problem with the path to "dynamic_pipeline"\n or you are running with local_scheduler = True')
+        except FileNotFoundError as e:
+            msg = 'There is either a problem with the path to "dynamic_pipeline" or you are running with local_scheduler = True'
+            print(msg)
             return FileNotFoundError
+            # Daniel: maybe remove msg for less cluttered logs and remove return of exception since no one is handling it.  
 
 
 

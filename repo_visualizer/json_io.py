@@ -9,7 +9,7 @@ def load_json(name):
             return json.load(j)
     except FileNotFoundError:
         print('File: "{}" not found'.format(full_path))
-        return FileNotFoundError
+        raise FileNotFoundError
 
 
 def dump_json(name, obj):
