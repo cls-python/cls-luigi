@@ -289,6 +289,15 @@ class RepoMeta(Register):
         return (target, cls.__get_set_of_all_downstream_classes([target]))
     
     @classmethod
+    def _get_all_downstream_abstract_classes(cls, target):
+        result_set = set()
+        all_downstream_classes = cls._get_all_downstream_classes(target)[1]
+        for item in all_downstream_classes:
+            if item.abstract:
+                result_set.add(item)
+        return (target, result_set)
+    
+    @classmethod
     def __get_set_of_all_downstream_classes(cls, targets_as_list, current_set = set()):
         """
         Get the set of all downstream classes for a given set of targets.
