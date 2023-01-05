@@ -149,13 +149,14 @@ class TestRepositoryFilterMethods(unittest.TestCase):
         
         
     def test_get_all_upstream_classes_ConcreteClass1(self):
-        self.assertTupleEqual(RepoMeta.get_all_upstream_classes(ConcreteClass1), (ConcreteClass1, [SomeAbstractAbstractClass, SomeAbstractClass, CLSTask]))
+        self.assertTupleEqual(RepoMeta._get_all_upstream_classes(ConcreteClass1), (ConcreteClass1, [SomeAbstractAbstractClass, SomeAbstractClass, CLSTask]))
         
     def test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain(self):
-        self.assertSetEqual(RepoMeta.get_set_of_all_downstream_classes(ConcreteClassInAbstractChain), {AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7})
+        print("test: ", str(RepoMeta._get_all_downstream_classes(ConcreteClassInAbstractChain)))
+        self.assertTupleEqual(RepoMeta._get_all_downstream_classes(ConcreteClassInAbstractChain), (ConcreteClassInAbstractChain, {AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7}))
     
     def test_get_set_of_all_downstream_classes_SomeAbstractClass(self):
-        self.assertSetEqual(RepoMeta.get_set_of_all_downstream_classes(SomeAbstractClass), {SomeAbstractAbstractClass, SomeOtherAbstractAbstractClass, ConcreteClass1, ConcreteClass2, ConcreteClass3, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7})
+        self.assertTupleEqual(RepoMeta._get_all_downstream_classes(SomeAbstractClass), (SomeAbstractClass, {SomeAbstractAbstractClass, SomeOtherAbstractAbstractClass, ConcreteClass1, ConcreteClass2, ConcreteClass3, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7, ConcreteClass4}))
 
     
 def show_repository_and_subtypes_dict():

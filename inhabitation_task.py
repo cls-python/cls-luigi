@@ -173,13 +173,13 @@ class RepoMeta(Register):
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
     @classmethod
-    def get_all_upstream_classes(cls, target):
+    def _get_all_upstream_classes(cls, target):
         """
         This method returns a tuple. The first item is the given target, while the second item is
         a list of all upstream classes.
 
         Args:
-            target type: The class for which you want to know the abstract upper classes.
+            target (type): The class for which you want to know the abstract upper classes.
 
         Returns:
             tuple[type, list[type]]: a tuple containing the target class and all upstream classes.
@@ -202,7 +202,7 @@ class RepoMeta(Register):
         include the target class itself as head. 
 
         Args:
-            target type: The class for which you want to know the abstract upper classes.
+            target (type): The class for which you want to know the abstract upper classes.
 
         Returns:
             list[type]: a list of the  classes found till it hit the top. The list is sorted according to first seen classes.
@@ -219,13 +219,13 @@ class RepoMeta(Register):
                     return list_of_all_upstream_classes
 
     @classmethod
-    def get_all_upstream_abstract_classes(cls, target):
+    def _get_all_upstream_abstract_classes(cls, target):
         """
         This method returns a tuple which contains the target as the first element 
         and a list of all found abstract classes as the second element. 
 
         Args:
-            target type: The class for which you want to know the abstract upper classes.
+            target (type): The class for which you want to know the abstract upper classes.
 
         Returns:
             tuple[type, list[type]]: a tuple containing the target class and all upstream abstract classes.
@@ -246,7 +246,7 @@ class RepoMeta(Register):
         included in the resulting list as head, if it is abstract itself. 
 
         Args:
-            target type: The class for which you want to know the abstract upper classes
+            target (type): The class for which you want to know the abstract upper classes
 
         Returns:
             list[type]: a list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
@@ -264,6 +264,94 @@ class RepoMeta(Register):
             for item in next_target:
                 list_of_abstract_parents.extend(cls._get_list_of_all_upstream_abstract_classes(item.tpe))
                 return list_of_abstract_parents
+    
+    @classmethod
+    def _get_all_downstream_classes(cls, target):
+        """
+        Get the set of all downstream classes for a given target class.
+
+        This method uses the `__get_set_of_all_downstream_classes` method to find all downstream
+        classes for the given `target` class, and returns a tuple containing the `target` class and
+        the set of downstream classes.
+
+        Parameters
+        ----------
+        cls: type
+            The class that this method is being called on.
+        target: type
+            The target class to find downstream classes for.
+
+        Returns
+        -------
+        Tuple[type, Set[type]]
+            A tuple containing the `target` class and the set of downstream classes for the given `target`.
+        """
+        return (target, cls.__get_set_of_all_downstream_classes([target]))
+    
+    @classmethod
+    def __get_set_of_all_downstream_classes(cls, targets_as_list, current_set = set()):
+        """
+        Get the set of all downstream classes for a given set of targets.
+
+        This method uses a recursive approach to build up a set of downstream classes, starting
+        with the `targets_as_list` and iteratively adding any downstream classes that are found.
+        The `current_set` parameter is used to keep track of the set of downstream classes that
+        have already been found, and is updated and returned after each recursive call.
+
+        Parameters
+        ----------
+        cls: type
+            The class that this method is being called on.
+        targets_as_list: List[type]
+            A list of target classes to find downstream classes for.
+        current_set: Set[type]
+            A set of classes that have already been found as downstream classes. This set is updated
+            and returned after each recursive call.
+
+        Returns
+        -------
+        Set[type]
+            The set of all downstream classes for the given `targets_as_list`.
+        """
+        
+        
+        def helper_to_get_all_downstream_classes(target):
+            """
+            Get the set of downstream classes for a given target class.
+
+            This method looks through the `subtypes` attribute of the class that this method is called
+            on, and returns a set of classes that are downstream of the given `target` class.
+
+            Parameters
+            ----------
+            target: type
+                The target class to find downstream classes for.
+
+            Returns
+            -------
+            Set[type]
+                The set of downstream classes for the given `target` class.
+            """
+            list_of_downstream_classes = []
+            for key, value in cls.subtypes.items():
+                if not value:
+                    continue
+                else:
+                    for task_ctor in value:
+                        if target == task_ctor.tpe:
+
+                            list_of_downstream_classes.append(key.tpe)
+            return set(list_of_downstream_classes)
+        
+        set_of_downstream_classes = set()
+        if len(targets_as_list) == 0:
+            return current_set
+        else:
+            for target in targets_as_list:
+                set_of_downstream_classes = set_of_downstream_classes.union(helper_to_get_all_downstream_classes(target))
+            current_set = current_set.union(set_of_downstream_classes)
+            return cls.__get_set_of_all_downstream_classes(list(set_of_downstream_classes), current_set)
+        
     
     @classmethod
     def get_filtered_repository(cls, targets):
