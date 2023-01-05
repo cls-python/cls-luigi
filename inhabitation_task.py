@@ -173,14 +173,36 @@ class RepoMeta(Register):
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
     @classmethod
-    def get_list_of_all_upstream_classes(cls, target):
+    def get_all_upstream_classes(cls, target):
+        """
+        This method returns a tuple. The first item is the given target, while the second item is
+        a list of all upstream classes.
+
+        Args:
+            target type: The class for which you want to know the abstract upper classes.
+
+        Returns:
+            tuple[type, list[type]]: a tuple containing the target class and all upstream classes.
+        """
+        next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
+        list_of_all_upstream_classes = []
+        if next_target:
+            for item in next_target:
+                list_of_all_upstream_classes.extend(cls._get_list_of_all_upstream_classes(item.tpe))
+        return (target, list_of_all_upstream_classes)
+     
+        
+        return (target, cls._get_list_of_all_upstream_classes(next_target))
+    
+    @classmethod
+    def _get_list_of_all_upstream_classes(cls, target):
         """
         This method returns a list of all upstream classes till it its the empty set.
         Uses information of the subtypes dict to get full chain. The resulting list will 
         include the target class itself as head. 
 
         Args:
-            target type: The class for which you want to know the abstract upper classes
+            target type: The class for which you want to know the abstract upper classes.
 
         Returns:
             list[type]: a list of the  classes found till it hit the top. The list is sorted according to first seen classes.
@@ -193,13 +215,30 @@ class RepoMeta(Register):
         
         else:
             for item in next_target:
-                    list_of_all_upstream_classes.extend(cls.get_list_of_all_upstream_classes(item.tpe))
+                    list_of_all_upstream_classes.extend(cls._get_list_of_all_upstream_classes(item.tpe))
                     return list_of_all_upstream_classes
-        
-        
 
     @classmethod
-    def get_list_of_all_upstream_abstract_classes(cls, target):
+    def get_all_upstream_abstract_classes(cls, target):
+        """
+        This method returns a tuple which contains the target as the first element 
+        and a list of all found abstract classes as the second element. 
+
+        Args:
+            target type: The class for which you want to know the abstract upper classes.
+
+        Returns:
+            tuple[type, list[type]]: a tuple containing the target class and all upstream abstract classes.
+        """
+        next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
+        list_of_all_upstream_classes = []
+        if next_target:
+            for item in next_target:
+                list_of_all_upstream_classes.extend(cls._get_list_of_all_upstream_classes(item.tpe))
+        return (target, list_of_all_upstream_classes)
+
+    @classmethod
+    def _get_list_of_all_upstream_abstract_classes(cls, target):
         """
         This method can be used to get all abstract classes that are reachable from a given target class.
         It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
@@ -223,10 +262,8 @@ class RepoMeta(Register):
         
         else:
             for item in next_target:
-                list_of_abstract_parents.extend(cls.get_list_of_all_upstream_abstract_classes(item.tpe))
+                list_of_abstract_parents.extend(cls._get_list_of_all_upstream_abstract_classes(item.tpe))
                 return list_of_abstract_parents
-
-        
     
     @classmethod
     def get_filtered_repository(cls, targets):

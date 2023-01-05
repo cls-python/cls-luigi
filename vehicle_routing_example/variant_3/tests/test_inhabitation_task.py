@@ -124,32 +124,41 @@ class TestRepositoryFilterMethods(unittest.TestCase):
     
     @classmethod
     def tearDownClass(cls):
-         show_subtypes_dict()
+         show_repository_and_subtypes_dict()
     
     def test_get_list_of_all_upstream_classes_ConcreteClass3(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_classes(ConcreteClass3),  [ConcreteClass3, SomeAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_classes(ConcreteClass3),  [ConcreteClass3, SomeAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
     def test_get_list_of_all_upstream_classes_ConcreteClass4(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_classes(ConcreteClass4),  [ConcreteClass4, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_classes(ConcreteClass4),  [ConcreteClass4, SomeAbstractClass, CLSTask])
     
     def test_get_list_of_all_upstream_classes_ConcreteClass5(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_classes(ConcreteClass5),  [ConcreteClass5, AbstractFromConcreteClassInChain, ConcreteClassInAbstractChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_classes(ConcreteClass5),  [ConcreteClass5, AbstractFromConcreteClassInChain, ConcreteClassInAbstractChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
     def test_get_list_of_all_upstream_abstract_classes_ConcreteClass3(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_abstract_classes(ConcreteClass3), [SomeAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_abstract_classes(ConcreteClass3), [SomeAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
     def test_get_list_of_all_upstream_abstract_classes_ConcreteClass5(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_abstract_classes(ConcreteClass5), [AbstractFromConcreteClassInChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_abstract_classes(ConcreteClass5), [AbstractFromConcreteClassInChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
     def test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_abstract_classes(AbstractFromConcreteClassInChain), [AbstractFromConcreteClassInChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_abstract_classes(AbstractFromConcreteClassInChain), [AbstractFromConcreteClassInChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
     def test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain(self):
-        self.assertListEqual(RepoMeta.get_list_of_all_upstream_abstract_classes(ConcreteClassInAbstractChain), [SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
+        self.assertListEqual(RepoMeta._get_list_of_all_upstream_abstract_classes(ConcreteClassInAbstractChain), [SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask])
         
+        
+    def test_get_all_upstream_classes_ConcreteClass1(self):
+        self.assertTupleEqual(RepoMeta.get_all_upstream_classes(ConcreteClass1), (ConcreteClass1, [SomeAbstractAbstractClass, SomeAbstractClass, CLSTask]))
+        
+    def test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain(self):
+        self.assertSetEqual(RepoMeta.get_set_of_all_downstream_classes(ConcreteClassInAbstractChain), {AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7})
+    
+    def test_get_set_of_all_downstream_classes_SomeAbstractClass(self):
+        self.assertSetEqual(RepoMeta.get_set_of_all_downstream_classes(SomeAbstractClass), {SomeAbstractAbstractClass, SomeOtherAbstractAbstractClass, ConcreteClass1, ConcreteClass2, ConcreteClass3, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7})
 
     
-def show_subtypes_dict():
+def show_repository_and_subtypes_dict():
     
     print("Repo: ")
     repository = RepoMeta.repository
