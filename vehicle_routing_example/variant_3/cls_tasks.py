@@ -44,12 +44,12 @@ class CLSBaseTask():
 
 
 class CLSTask(luigi.Task, LuigiCombinator, CLSBaseTask):
-    pass
+    abstract = True
 
 
 class CLSWrapperTask(luigi.WrapperTask, LuigiCombinator, CLSBaseTask):
-    pass
+    abstract = True
 
 
 class CLSExternalTask(luigi.ExternalTask, LuigiCombinator, CLSBaseTask):
-    pass
+    abstract = True
