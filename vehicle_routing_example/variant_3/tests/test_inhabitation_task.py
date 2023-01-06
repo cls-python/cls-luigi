@@ -162,6 +162,12 @@ class TestRepositoryFilterMethods(unittest.TestCase):
     def test_get_all_downstream_abstract_classes_UnrelatedAbstractClass(self):
         self.assertTupleEqual(RepoMeta._get_all_downstream_abstract_classes(UnrelatedAbstractClass), (UnrelatedAbstractClass, set()))
 
+    def test_get_class_chain_SomeAbstractClass(self):
+        self.assertTupleEqual(RepoMeta._get_class_chain(SomeAbstractClass), (SomeAbstractClass, [CLSTask], {SomeAbstractAbstractClass, ConcreteClass1, ConcreteClass2, ConcreteClass3, SomeOtherAbstractAbstractClass, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7, ConcreteClass4}))
+        
+    def test_get_abstract_class_chain_SomeAbstractClass(self):
+        self.assertTupleEqual(RepoMeta._get_abstract_class_chain(SomeAbstractClass), (SomeAbstractClass, [CLSTask], {SomeAbstractAbstractClass, SomeOtherAbstractAbstractClass, AbstractFromConcreteClassInChain}))
+
     
 def show_repository_and_subtypes_dict():
     

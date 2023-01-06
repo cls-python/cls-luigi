@@ -360,7 +360,52 @@ class RepoMeta(Register):
                 set_of_downstream_classes = set_of_downstream_classes.union(helper_to_get_all_downstream_classes(target))
             current_set = current_set.union(set_of_downstream_classes)
             return cls.__get_set_of_all_downstream_classes(list(set_of_downstream_classes), current_set)
-        
+
+    @classmethod
+    def _get_class_chain(cls, target):
+        """
+        Get a tuple containing the target class and its upstream and downstream classes.
+
+        This method uses the `_get_all_upstream_classes` and `_get_all_downstream_classes` methods to
+        find the upstream and downstream classes for the given `target` class, and returns a tuple
+        containing the `target` class, the set of upstream classes, and the set of downstream classes.
+
+        Parameters
+        ----------
+        cls: type
+            The class that this method is being called on.
+        target: type
+            The target class to find upstream and downstream classes for.
+
+        Returns
+        -------
+        Tuple[type, Set[type], Set[type]]
+            A tuple containing the `target` class, the set of upstream classes, and the set of downstream classes.
+        """
+        return (target, cls._get_all_upstream_classes(target)[1], cls._get_all_downstream_classes(target)[1])
+            
+    @classmethod
+    def _get_abstract_class_chain(cls, target):
+        """
+        Get a tuple containing the target class and its upstream and downstream abstract classes.
+
+        This method uses the `_get_all_upstream_abstract_classes` and `_get_all_downstream_abstract_classes` methods
+        to find the upstream and downstream abstract classes for the given `target` class, and returns a tuple
+        containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.
+
+        Parameters
+        ----------
+        cls: type
+            The class that this method is being called on.
+        target: type
+            The target class to find upstream and downstream abstract classes for.
+
+        Returns
+        -------
+        Tuple[type, Set[type], Set[type]]
+            A tuple containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.
+        """
+        return (target, cls._get_all_upstream_abstract_classes(target)[1], cls._get_all_downstream_abstract_classes(target)[1])
     
     @classmethod
     def get_filtered_repository(cls, targets):
