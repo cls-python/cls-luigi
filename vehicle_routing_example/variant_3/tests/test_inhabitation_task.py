@@ -110,7 +110,9 @@ class EndNode(CLSTask):
     def run(self):
         with open(self.output().path, 'w') as file:
             pass
-    
+
+class EndEndNode(luigi.Task, LuigiCombinator):
+    pass
 
 class WrapperTask(CLSWrapperTask):
     abstract = False
@@ -165,9 +167,89 @@ class TestRepositoryFilterMethods(unittest.TestCase):
     def test_get_class_chain_SomeAbstractClass(self):
         self.assertTupleEqual(RepoMeta._get_class_chain(SomeAbstractClass), (SomeAbstractClass, [CLSTask], {SomeAbstractAbstractClass, ConcreteClass1, ConcreteClass2, ConcreteClass3, SomeOtherAbstractAbstractClass, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain, ConcreteClass5, ConcreteClass6, ConcreteClass7, ConcreteClass4}))
         
+    def test_get_class_chain_ConcreteClass5(self):
+        self.assertTupleEqual(RepoMeta._get_abstract_class_chain(ConcreteClass5), (ConcreteClass5, [AbstractFromConcreteClassInChain, ConcreteClassInAbstractChain, SomeOtherAbstractAbstractClass, SomeAbstractClass, CLSTask], set()))
+        
     def test_get_abstract_class_chain_SomeAbstractClass(self):
         self.assertTupleEqual(RepoMeta._get_abstract_class_chain(SomeAbstractClass), (SomeAbstractClass, [CLSTask], {SomeAbstractAbstractClass, SomeOtherAbstractAbstractClass, AbstractFromConcreteClassInChain}))
-
+    
+    def test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6(self):
+        self.assertListEqual(RepoMeta._get_maximal_shared_upper_classes([ConcreteClass5, ConcreteClass6]), [CLSTask, SomeAbstractClass, SomeOtherAbstractAbstractClass, ConcreteClassInAbstractChain, AbstractFromConcreteClassInChain])
+        
+    def test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7(self):
+        self.assertListEqual(RepoMeta._get_maximal_shared_upper_classes([ConcreteClass2, ConcreteClass7]), [CLSTask, SomeAbstractClass])
+      
+    def test_delete_related_combinators_1(self):
+        repository = RepoMeta.repository
+        to_remove = []
+        reference = repository.copy()
+        for item in repository:
+            if not isinstance(item, RepoMeta.ClassIndex):
+                    
+                if issubclass(item.cls, (UnrelatedConcreteClass2, ConcreteClass4,ConcreteClass1, ConcreteClass2, ConcreteClass3)):
+                    to_remove.append(item)
+                
+        for item in to_remove:
+            reference.pop(item)
+            
+        self.assertDictEqual(reference, RepoMeta._delete_related_combinators([UnrelatedConcreteClass2, ConcreteClass4,ConcreteClass1, ConcreteClass2, ConcreteClass3]))
+    
+    def test_delete_related_combinators_2(self):
+        repository = RepoMeta.repository
+        to_remove = []
+        reference = repository.copy()
+        for item in repository:
+            if not isinstance(item, RepoMeta.ClassIndex):
+                    
+                if issubclass(item.cls, (ConcreteClass1, UnrelatedConcreteClass1)):
+                    to_remove.append(item)
+                
+        for item in to_remove:
+            reference.pop(item)
+            
+        self.assertDictEqual(reference, RepoMeta._delete_related_combinators([ConcreteClass1, UnrelatedConcreteClass1]))
+        
+        
+    def test_filter_repository_SomeAbstractAbstractClass(self):
+        
+        repository = RepoMeta.repository
+        new_repo = RepoMeta._delete_related_combinators([ConcreteClass4, ConcreteClassInAbstractChain, ConcreteClass5, ConcreteClass6, ConcreteClass7])
+            
+        self.assertDictEqual(RepoMeta.filter_repository([SomeAbstractAbstractClass]), new_repo)
+        
+    def test_filter_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1(self):
+        
+        repository = RepoMeta.repository
+        to_remove = []
+        new_repo = repository.copy()
+        for item in repository:
+            if not isinstance(item, RepoMeta.ClassIndex):
+                    
+                if issubclass(item.cls, (UnrelatedConcreteClass2, ConcreteClass4,ConcreteClass1, ConcreteClass2, ConcreteClass3)):
+                    to_remove.append(item)
+                
+        for item in to_remove:
+            new_repo.pop(item)
+        
+        self.assertDictEqual(RepoMeta.filter_repository([SomeOtherAbstractAbstractClass, UnrelatedConcreteClass1]), new_repo)     
+        
+    
+    def test_filter_repository_with_deep_filter(self):
+        repository = RepoMeta.repository
+        to_remove = []
+        new_repo = repository.copy()
+        for item in repository:
+            if not isinstance(item, RepoMeta.ClassIndex):
+                    
+                if issubclass(item.cls, (ConcreteClass1, UnrelatedConcreteClass1)):
+                    to_remove.append(item)
+                
+        for item in to_remove:
+            new_repo.pop(item)
+            
+        self.assertDictEqual(RepoMeta.filter_repository([(SomeAbstractAbstractClass, [SomeAbstractAbstractClass, ConcreteClassInAbstractChain, ConcreteClass4]), (SomeAbstractAbstractClass, [ConcreteClass2, ConcreteClass3]), UnrelatedConcreteClass2]), new_repo)
+          
+            
     
 def show_repository_and_subtypes_dict():
     
@@ -177,6 +259,7 @@ def show_repository_and_subtypes_dict():
         print("#################")
         print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
         print("#################")
+        print("Repo_item_path: ", str(repository[item].path))
         
     print("SubTypes:")
     subtypes = RepoMeta.subtypes

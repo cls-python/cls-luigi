@@ -6,7 +6,7 @@ import json
 import os
 from collections import deque
 
-from typing import ClassVar, Any, TypeVar, Generic, Union
+from typing import ClassVar, Any, TypeVar, Generic, Union, List, Dict, Tuple, Set
 from typing import Type as PyType
 from cls_python import *
 
@@ -173,16 +173,16 @@ class RepoMeta(Register):
     subtypes: dict['RepoMeta.TaskCtor', set['RepoMeta.TaskCtor']] = {}
 
     @classmethod
-    def _get_all_upstream_classes(cls, target):
+    def _get_all_upstream_classes(cls, target: PyType):
         """
         This method returns a tuple. The first item is the given target, while the second item is
         a list of all upstream classes.
 
         Args:
-            target (type): The class for which you want to know the abstract upper classes.
+            target (PyType): The class for which you want to know the abstract upper classes.
 
         Returns:
-            tuple[type, list[type]]: a tuple containing the target class and all upstream classes.
+            Tuple[PyType, List[PyType]]: a tuple containing the target class and all upstream classes.
         """
         next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
         list_of_all_upstream_classes = []
@@ -190,22 +190,19 @@ class RepoMeta(Register):
             for item in next_target:
                 list_of_all_upstream_classes.extend(cls._get_list_of_all_upstream_classes(item.tpe))
         return (target, list_of_all_upstream_classes)
-     
-        
-        return (target, cls._get_list_of_all_upstream_classes(next_target))
     
     @classmethod
-    def _get_list_of_all_upstream_classes(cls, target):
+    def _get_list_of_all_upstream_classes(cls, target: PyType):
         """
         This method returns a list of all upstream classes till it its the empty set.
         Uses information of the subtypes dict to get full chain. The resulting list will 
         include the target class itself as head. 
 
         Args:
-            target (type): The class for which you want to know the abstract upper classes.
+            target (PyType): The class for which you want to know the abstract upper classes.
 
         Returns:
-            list[type]: a list of the  classes found till it hit the top. The list is sorted according to first seen classes.
+            List[PyType]: a list of the  classes found till it hit the top. The list is sorted according to first seen classes.
         """
         list_of_all_upstream_classes = []
         list_of_all_upstream_classes.append(target)
@@ -219,16 +216,16 @@ class RepoMeta(Register):
                     return list_of_all_upstream_classes
 
     @classmethod
-    def _get_all_upstream_abstract_classes(cls, target):
+    def _get_all_upstream_abstract_classes(cls, target: PyType):
         """
         This method returns a tuple which contains the target as the first element 
         and a list of all found abstract classes as the second element. 
 
         Args:
-            target (type): The class for which you want to know the abstract upper classes.
+            target (PyType): The class for which you want to know the abstract upper classes.
 
         Returns:
-            tuple[type, list[type]]: a tuple containing the target class and all upstream abstract classes.
+            Tuple[PyType, List[PyType]]: a tuple containing the target class and all upstream abstract classes.
         """
         next_target = cls.subtypes.get(RepoMeta.TaskCtor(target))
         list_of_all_upstream_classes = []
@@ -238,7 +235,7 @@ class RepoMeta(Register):
         return (target, list_of_all_upstream_classes)
 
     @classmethod
-    def _get_list_of_all_upstream_abstract_classes(cls, target):
+    def _get_list_of_all_upstream_abstract_classes(cls, target: PyType):
         """
         This method can be used to get all abstract classes that are reachable from a given target class.
         It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
@@ -246,10 +243,10 @@ class RepoMeta(Register):
         included in the resulting list as head, if it is abstract itself. 
 
         Args:
-            target (type): The class for which you want to know the abstract upper classes
+            target (PyType): The class for which you want to know the abstract upper classes
 
         Returns:
-            list[type]: a list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
+            List[PyType]: a list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
                         So the head of the list is the first seen abstract class.
         """
         list_of_abstract_parents = [] # sorted in the sense of first item in the list is first encountered abstract node. 
@@ -266,7 +263,7 @@ class RepoMeta(Register):
                 return list_of_abstract_parents
     
     @classmethod
-    def _get_all_downstream_classes(cls, target):
+    def _get_all_downstream_classes(cls, target: PyType):
         """
         Get the set of all downstream classes for a given target class.
 
@@ -276,20 +273,20 @@ class RepoMeta(Register):
 
         Parameters
         ----------
-        cls: type
+        cls: PyType
             The class that this method is being called on.
-        target: type
+        target: PyType
             The target class to find downstream classes for.
 
         Returns
         -------
-        Tuple[type, Set[type]]
+        Tuple[PyType, Set[PyType]]
             A tuple containing the `target` class and the set of downstream classes for the given `target`.
         """
         return (target, cls.__get_set_of_all_downstream_classes([target]))
     
     @classmethod
-    def _get_all_downstream_abstract_classes(cls, target):
+    def _get_all_downstream_abstract_classes(cls, target: PyType):
         result_set = set()
         all_downstream_classes = cls._get_all_downstream_classes(target)[1]
         for item in all_downstream_classes:
@@ -298,33 +295,33 @@ class RepoMeta(Register):
         return (target, result_set)
     
     @classmethod
-    def __get_set_of_all_downstream_classes(cls, targets_as_list, current_set = set()):
+    def __get_set_of_all_downstream_classes(cls, targets: List[PyType], current_set: Set[PyType] = set()):
         """
         Get the set of all downstream classes for a given set of targets.
 
         This method uses a recursive approach to build up a set of downstream classes, starting
-        with the `targets_as_list` and iteratively adding any downstream classes that are found.
+        with the `targets` and iteratively adding any downstream classes that are found.
         The `current_set` parameter is used to keep track of the set of downstream classes that
         have already been found, and is updated and returned after each recursive call.
 
         Parameters
         ----------
-        cls: type
+        cls: PyType
             The class that this method is being called on.
-        targets_as_list: List[type]
+        targets: List[PyType]
             A list of target classes to find downstream classes for.
-        current_set: Set[type]
+        current_set: Set[PyType]
             A set of classes that have already been found as downstream classes. This set is updated
             and returned after each recursive call.
 
         Returns
         -------
-        Set[type]
-            The set of all downstream classes for the given `targets_as_list`.
+        Set[PyType]
+            The set of all downstream classes for the given `targets`.
         """
         
         
-        def helper_to_get_all_downstream_classes(target):
+        def helper_to_get_all_downstream_classes(target: PyType):
             """
             Get the set of downstream classes for a given target class.
 
@@ -333,12 +330,12 @@ class RepoMeta(Register):
 
             Parameters
             ----------
-            target: type
+            target: PyType
                 The target class to find downstream classes for.
 
             Returns
             -------
-            Set[type]
+            Set[PyType]
                 The set of downstream classes for the given `target` class.
             """
             list_of_downstream_classes = []
@@ -353,16 +350,16 @@ class RepoMeta(Register):
             return set(list_of_downstream_classes)
         
         set_of_downstream_classes = set()
-        if len(targets_as_list) == 0:
+        if len(targets) == 0:
             return current_set
         else:
-            for target in targets_as_list:
+            for target in targets:
                 set_of_downstream_classes = set_of_downstream_classes.union(helper_to_get_all_downstream_classes(target))
             current_set = current_set.union(set_of_downstream_classes)
             return cls.__get_set_of_all_downstream_classes(list(set_of_downstream_classes), current_set)
 
     @classmethod
-    def _get_class_chain(cls, target):
+    def _get_class_chain(cls, target: PyType):
         """
         Get a tuple containing the target class and its upstream and downstream classes.
 
@@ -372,20 +369,20 @@ class RepoMeta(Register):
 
         Parameters
         ----------
-        cls: type
+        cls: PyType
             The class that this method is being called on.
-        target: type
+        target: PyType
             The target class to find upstream and downstream classes for.
 
         Returns
         -------
-        Tuple[type, Set[type], Set[type]]
+        Tuple[PyType, Set[PyType], Set[PyType]]
             A tuple containing the `target` class, the set of upstream classes, and the set of downstream classes.
         """
         return (target, cls._get_all_upstream_classes(target)[1], cls._get_all_downstream_classes(target)[1])
             
     @classmethod
-    def _get_abstract_class_chain(cls, target):
+    def _get_abstract_class_chain(cls, target: PyType):
         """
         Get a tuple containing the target class and its upstream and downstream abstract classes.
 
@@ -395,21 +392,118 @@ class RepoMeta(Register):
 
         Parameters
         ----------
-        cls: type
+        cls: PyType
             The class that this method is being called on.
-        target: type
+        target: PyType
             The target class to find upstream and downstream abstract classes for.
 
         Returns
         -------
-        Tuple[type, Set[type], Set[type]]
+        Tuple[PyType, Set[PyType], Set[PyType]]
             A tuple containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.
         """
         return (target, cls._get_all_upstream_abstract_classes(target)[1], cls._get_all_downstream_abstract_classes(target)[1])
+
+    @classmethod
+    def _get_maximal_shared_upper_classes(cls, targets: List[PyType]):
+        """
+        Returns the maximal shared upper classes of the given targets.
+        
+        Args:
+            targets (list): List of classes or tuples of classes to find maximal shared upper classes for.
+        
+        Returns:
+            list: List of maximal shared upper classes.
+        """
+        lists = []
+        for target in targets:
+            if isinstance(target, tuple):
+                lists.append(cls._get_list_of_all_upstream_classes(target[0])[::-1])
+            else:
+                lists.append(cls._get_list_of_all_upstream_classes(target)[::-1])
+                
+        prefix = [x[0] for x in zip(*lists) if all(x[0] == y for y in x[1:])]
+        return prefix
     
     @classmethod
-    def get_filtered_repository(cls, targets):
-        pass
+    def _delete_related_combinators(cls, targets: List[PyType], repository: Dict[Any, Type] = repository):
+        """Deletes combinators related to the given targets from the repository.
+
+        Args:
+            targets (List): List of classes to delete related combinators for.
+            repository (Dict, optional): Dictionary representing the repository, with combinators as keys 
+                and values as class indices. Defaults to the global `repository` variable.
+        
+        Returns:
+            Dict: Copy of the repository with the related combinators removed.
+        """
+        to_remove = []
+        result_repository = repository.copy()
+        for combinator in repository:
+            if not isinstance(combinator, RepoMeta.ClassIndex):
+                    
+                if issubclass(combinator.cls, tuple(targets)):
+                    to_remove.append(combinator)
+                
+        for combinator in to_remove:
+            result_repository.pop(combinator)
+        return result_repository
+        
+
+    @classmethod
+    def filter_repository(cls, targets: List[PyType], repository: Dict[Any, Type] = repository):
+        """
+        
+        first check for general upper class task. if there are more (chain), set it to that. 
+            if so set general_upper_class from "None" to that general upper class or set of classes. 
+        if there is one this is your break condition when you search for upstream abstract classes.
+            - if you see that general upper class
+        else your break if your see the empty set() next. 
+        
+        also on every downstream search, check if combinator to delete and the initial target element
+        share general upstream classes. if you come from such a class to search for delete,
+            -> do not add to tmp_combinators_to_delete()
+        
+        reach top, 
+        
+        for every target in targets, calculated "tmp_combinators_to_delete : set" and "combinators_to_keep : set"
+        
+        then calculate "combinators_to_delete = tmp_combinators_to_delete - combinators_to_keep
+        
+        use "combinators_to_delete" to remove combinators from "RepoMeta.repository" 
+        
+        return a copy of the result. 
+        
+        
+        #case1 : the target is a abstract class
+            - nothing to delete downstream, so add all combinators downstream to "combinators_to_keep"
+            - move upstream and search first abstract class on the way
+                - if there are concreteClasses on the way, add corresponding 
+                  combinator to "combinators_to_keep"
+                - going from the first found abstract class, add every combinator downstream 
+                  to tmp_combinators_to_delete, except combinators already added to "combinators_to_keep"
+        
+        #case2 : the target is a concrete class
+            - add the corresponding combinator of the concrete class itself to "combinators_to_keep"
+            - Check if there are downstream classes, if so, add corresponding combinator 
+              to "tmp_combinators_to_delete".
+            - go up to the next abstract class, if there is a concrete class on the way, add the 
+              corresponding combinator to "combinators_to_keep"
+                - for the abstract class, search downstream and add corresponding combinators to
+                  "tmp_combinators_to_delete" if 
+            
+        
+        """
+        #check if there are general upper classes that every target is sharing
+        shared_upper_classes = cls._get_maximal_shared_upper_classes(targets)
+        print(shared_upper_classes)
+
+        for target in targets:
+            pass
+
+        return {}
+                
+            
 
     @staticmethod
     def cls_tpe(cls) -> str:
