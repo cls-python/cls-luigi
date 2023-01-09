@@ -179,6 +179,12 @@ class TestRepositoryFilterMethods(unittest.TestCase):
     def test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7(self):
         self.assertListEqual(RepoMeta._get_maximal_shared_upper_classes([ConcreteClass2, ConcreteClass7]), [CLSTask, SomeAbstractClass])
       
+    def test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain(self):
+        self.assertTupleEqual(RepoMeta._get_all_downstream_concrete_classes(ConcreteClassInAbstractChain), (ConcreteClassInAbstractChain, {ConcreteClass5, ConcreteClass6, ConcreteClass7}))
+        
+    def test_get_all_downstream_concrete_classes_SomeAbstractClass(self):
+        self.assertTupleEqual(RepoMeta._get_all_downstream_concrete_classes(SomeAbstractClass), (SomeAbstractClass, {ConcreteClass1, ConcreteClass2, ConcreteClass3, ConcreteClass4 ,ConcreteClass5, ConcreteClass6, ConcreteClass7, ConcreteClassInAbstractChain}))
+      
     def test_delete_related_combinators_1(self):
         repository = RepoMeta.repository
         to_remove = []
@@ -210,15 +216,12 @@ class TestRepositoryFilterMethods(unittest.TestCase):
         self.assertDictEqual(reference, RepoMeta._delete_related_combinators([ConcreteClass1, UnrelatedConcreteClass1]))
         
         
-    def test_filter_repository_SomeAbstractAbstractClass(self):
-        
-        repository = RepoMeta.repository
+    def test_filtered_repository_SomeAbstractAbstractClass(self):
         new_repo = RepoMeta._delete_related_combinators([ConcreteClass4, ConcreteClassInAbstractChain, ConcreteClass5, ConcreteClass6, ConcreteClass7])
             
-        self.assertDictEqual(RepoMeta.filter_repository([SomeAbstractAbstractClass]), new_repo)
+        self.assertDictEqual(RepoMeta.filtered_repository([SomeAbstractAbstractClass]), new_repo)
         
-    def test_filter_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1(self):
-        
+    def test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1(self):
         repository = RepoMeta.repository
         to_remove = []
         new_repo = repository.copy()
@@ -231,23 +234,23 @@ class TestRepositoryFilterMethods(unittest.TestCase):
         for item in to_remove:
             new_repo.pop(item)
         
-        self.assertDictEqual(RepoMeta.filter_repository([SomeOtherAbstractAbstractClass, UnrelatedConcreteClass1]), new_repo)     
+        self.assertDictEqual(RepoMeta.filtered_repository([SomeOtherAbstractAbstractClass, UnrelatedConcreteClass1]), new_repo)     
         
     
-    def test_filter_repository_with_deep_filter(self):
+    def test_filtered_repository_with_deep_filter(self):
         repository = RepoMeta.repository
         to_remove = []
         new_repo = repository.copy()
         for item in repository:
             if not isinstance(item, RepoMeta.ClassIndex):
                     
-                if issubclass(item.cls, (ConcreteClass1, UnrelatedConcreteClass1)):
+                if issubclass(item.cls, (ConcreteClass1, UnrelatedConcreteClass1, ConcreteClass5, ConcreteClass6, ConcreteClass7)):
                     to_remove.append(item)
                 
         for item in to_remove:
             new_repo.pop(item)
             
-        self.assertDictEqual(RepoMeta.filter_repository([(SomeAbstractAbstractClass, [SomeAbstractAbstractClass, ConcreteClassInAbstractChain, ConcreteClass4]), (SomeAbstractAbstractClass, [ConcreteClass2, ConcreteClass3]), UnrelatedConcreteClass2]), new_repo)
+        self.assertDictEqual(RepoMeta.filtered_repository([(SomeAbstractClass, [SomeAbstractAbstractClass, ConcreteClassInAbstractChain, ConcreteClass4]), (SomeAbstractAbstractClass, [ConcreteClass2, ConcreteClass3]), UnrelatedConcreteClass2]), new_repo)
           
             
     
@@ -259,7 +262,6 @@ def show_repository_and_subtypes_dict():
         print("#################")
         print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
         print("#################")
-        print("Repo_item_path: ", str(repository[item].path))
         
     print("SubTypes:")
     subtypes = RepoMeta.subtypes
