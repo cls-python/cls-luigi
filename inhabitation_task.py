@@ -536,7 +536,52 @@ class RepoMeta(Register):
                    
         return result_repository
                 
+    @classmethod
+    def get_list_of_variated_abstract_tasks(cls, repository= repository, subtypes= subtypes):
+        """
+        Get a list of variated abstract tasks.
+
+        This method returns a list of abstract tasks that have been really been variated and thus 
+        should most likely be unique in any pipeline.
+
+        Parameters:
+        - cls (Type): The class object for which the method is called.
+        - repository (Dict[Type, Any]): A dictionary containing the combinators in the repository.
+        - subtypes (Dict[Type, List[Type]]): A dictionary containing the subtypes of each class object.
+
+        Returns:
+        - List[Type]: A list of class objects representing the variated abstract tasks.
+        """
+        abstract_tasks = set()
+        subtypes_set = set()
+        repo_set = set()
+        
+        for item in subtypes.keys():
+            to_comp = None
+            if isinstance(item, RepoMeta.WrappedTask):
+                to_comp = item.cls
+            else:
+                to_comp = item.tpe
+            subtypes_set.add(to_comp)
             
+        for item in repository.keys():
+            to_comp = None
+            if isinstance(item, RepoMeta.WrappedTask):
+                to_comp = item.cls
+            else:
+                to_comp = item.tpe
+            repo_set.add(to_comp)
+            
+            
+        abstract_tasks = subtypes_set - repo_set
+        
+        variated_abstract_tasks = set()
+        for item in abstract_tasks:
+            for repo in [str(x) for x in repository.values()]:
+                if str(RepoMeta.cls_tpe(item)) in repo:
+                    variated_abstract_tasks.add(item)            
+    
+        return list(variated_abstract_tasks)
 
     @staticmethod
     def cls_tpe(cls) -> str:

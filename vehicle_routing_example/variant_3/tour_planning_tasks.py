@@ -1280,7 +1280,14 @@ def run_main():
     for item in repository:
         print("#################")
         print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
+        print(repository[item])
         print("#################")
+        
+    for item in RepoMeta.subtypes:
+        print("++++++++++++++++++++")
+        print("key: ", str(item), " :-> ", "value: ", str(RepoMeta.subtypes[item]))
+        print("++++++++++++++++++++")
+    
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10
@@ -1288,8 +1295,7 @@ def run_main():
     max_results = max_tasks_when_infinite
     if not actual is None or actual == 0:
         max_results = actual
-    validator = UniqueTaskPipelineValidator(
-        [AbstractGatherAndIntegratePhase, AbstractMptopConfig, AbstractScoringPhase, AbstractRoutingPhase, AbstractSolverPhase])
+    validator = UniqueTaskPipelineValidator(RepoMeta.get_list_of_variated_abstract_tasks())
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
                if validator.validate(t())]
     if results:
