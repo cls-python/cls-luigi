@@ -945,6 +945,14 @@ class AbstractNSConfigPack(AbstractMptopConfig):
 class NonAbstractNSConfigPack(AbstractNSConfigPack):
     abstract = False
 
+class NonNonAbstractNSConfigPack(NonAbstractNSConfigPack):
+    abstract = True
+    
+class AbstractNonNonAbstractNSConfigPack(NonNonAbstractNSConfigPack):
+    abstract = True
+    
+class Test1111(AbstractNonNonAbstractNSConfigPack):
+    abstract = False
 
 
 class NSConfig1(AbstractMptopConfig):
@@ -1264,74 +1272,33 @@ class FinalTask_old(luigi.WrapperTask, LuigiCombinator):
     def requires(self):
         return self.substitute_name()
 
-def get_list_of_all_upstream_abstract_parents(target, repo, subtypes):
-    pass
-
-
 def run_main():
+   
     target = CreateHashMapResult.return_type()
-    repository = RepoMeta.repository
-    to_remove = []
-    new_repo = repository.copy()
+    repository = RepoMeta.filtered_repository([DistanceMatrixAiRoutingPhase, NsScoringPhase, SabcScoringPhase, (AbstractMptopConfig,[NSConfig1, NSConfig2, NSConfig3])])
+    
     for item in repository:
         print("#################")
         print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
         print("#################")
-        if not isinstance(item, RepoMeta.ClassIndex):
-                
-            if issubclass(item.cls, (SABCConfig1, SABCConfig2, SABCConfig3, WABCConfig1,WABCConfig2, WABCConfig3)):
-                to_remove.append(item)
-            if issubclass(item.cls, OsrmRoutingPhase):
-                to_remove.append(item)
-            if issubclass(item.cls, SabcScoringPhase):
-                to_remove.append(item)
-            if issubclass(item.cls, WabcScoringPhase):
-                to_remove.append(item)
-            if issubclass(item.cls, RandomScoringPhase):
-                to_remove.append(item)
-        else:
-            # print("$$$$$$$$$$$$$$$$$$$$")
-            # print(str(item.tpe), " and ", str(item.cls_tpe))
-            # print("$$$$$$$$$$$$$$$$$$$$")
-            pass
-            
-    for item in to_remove:
-        new_repo.pop(item) 
-    repository = new_repo
-    print(" ")
-    print("SubTypes:")
-    subtypes = RepoMeta.subtypes
-    for item in subtypes:
-        print("*****************")
-        print("key: ", str(item), " :-> ", "value: ", str(subtypes[item]))
-        print("*****************")
-    
-    # print(" ")
-    # for item in repository:
-    #     print("#################")
-    #     print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
-    #     print("#################")
-        
-    print(str(RepoMeta.get_list_of_all_upstream_abstract_classes(AbstractNSConfigPack)))
-    
-    # fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
-    # inhabitation_result = fcl.inhabit(target)
-    # max_tasks_when_infinite = 10
-    # actual = inhabitation_result.size()
-    # max_results = max_tasks_when_infinite
-    # if not actual is None or actual == 0:
-    #     max_results = actual
-    # validator = UniqueTaskPipelineValidator(
-    #     [AbstractGatherAndIntegratePhase, AbstractMptopConfig, AbstractScoringPhase, AbstractRoutingPhase, AbstractSolverPhase])
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results]
-    #            if validator.validate(t())]
-    # if results:
-    #     print("Number of results", max_results)
-    #     print("Number of results after filtering", len(results))
-    #     print("Run Pipelines")
-    #     no_schedule_error = luigi.build(results, local_scheduler=False, detailed_summary=True)
-    # else:
-    #     print("No results!")
+    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
+    inhabitation_result = fcl.inhabit(target)
+    max_tasks_when_infinite = 10
+    actual = inhabitation_result.size()
+    max_results = max_tasks_when_infinite
+    if not actual is None or actual == 0:
+        max_results = actual
+    validator = UniqueTaskPipelineValidator(
+        [AbstractGatherAndIntegratePhase, AbstractMptopConfig, AbstractScoringPhase, AbstractRoutingPhase, AbstractSolverPhase])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results]
+               if validator.validate(t())]
+    if results:
+        print("Number of results", max_results)
+        print("Number of results after filtering", len(results))
+        print("Run Pipelines")
+        #no_schedule_error = luigi.build(results, local_scheduler=False, detailed_summary=True)
+    else:
+        print("No results!")
 
 
 if __name__ == '__main__':

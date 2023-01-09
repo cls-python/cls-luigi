@@ -295,6 +295,16 @@ class RepoMeta(Register):
         return (target, result_set)
     
     @classmethod
+    def _get_all_downstream_concrete_classes(cls, target: PyType):
+        result_set = set()
+        all_downstream_classes = cls._get_all_downstream_classes(target)[1]
+        for item in all_downstream_classes:
+            if not item.abstract:
+                result_set.add(item)
+        return (target, result_set)
+        
+    
+    @classmethod
     def __get_set_of_all_downstream_classes(cls, targets: List[PyType], current_set: Set[PyType] = set()):
         """
         Get the set of all downstream classes for a given set of targets.
@@ -415,6 +425,8 @@ class RepoMeta(Register):
         Returns:
             list: List of maximal shared upper classes.
         """
+        if len(targets) <= 1:
+            return []
         lists = []
         for target in targets:
             if isinstance(target, tuple):
@@ -451,57 +463,78 @@ class RepoMeta(Register):
         
 
     @classmethod
-    def filter_repository(cls, targets: List[PyType], repository: Dict[Any, Type] = repository):
+    def filtered_repository(cls, targets: List[PyType], repository: Dict[Any, Type] = repository):
         """
-        
-        first check for general upper class task. if there are more (chain), set it to that. 
-            if so set general_upper_class from "None" to that general upper class or set of classes. 
-        if there is one this is your break condition when you search for upstream abstract classes.
-            - if you see that general upper class
-        else your break if your see the empty set() next. 
-        
-        also on every downstream search, check if combinator to delete and the initial target element
-        share general upstream classes. if you come from such a class to search for delete,
-            -> do not add to tmp_combinators_to_delete()
-        
-        reach top, 
-        
-        for every target in targets, calculated "tmp_combinators_to_delete : set" and "combinators_to_keep : set"
-        
-        then calculate "combinators_to_delete = tmp_combinators_to_delete - combinators_to_keep
-        
-        use "combinators_to_delete" to remove combinators from "RepoMeta.repository" 
-        
-        return a copy of the result. 
-        
-        
-        #case1 : the target is a abstract class
-            - nothing to delete downstream, so add all combinators downstream to "combinators_to_keep"
-            - move upstream and search first abstract class on the way
-                - if there are concreteClasses on the way, add corresponding 
-                  combinator to "combinators_to_keep"
-                - going from the first found abstract class, add every combinator downstream 
-                  to tmp_combinators_to_delete, except combinators already added to "combinators_to_keep"
-        
-        #case2 : the target is a concrete class
-            - add the corresponding combinator of the concrete class itself to "combinators_to_keep"
-            - Check if there are downstream classes, if so, add corresponding combinator 
-              to "tmp_combinators_to_delete".
-            - go up to the next abstract class, if there is a concrete class on the way, add the 
-              corresponding combinator to "combinators_to_keep"
-                - for the abstract class, search downstream and add corresponding combinators to
-                  "tmp_combinators_to_delete" if 
-            
-        
+        Filters the repository to include only combinators related to the specified targets.
+
+        This method filters the repository to include only combinators that are related to the specified targets.
+        The targets can be either abstract classes or concrete classes.
+
+        Parameters:
+        - cls (Type): The class object for which the method is called.
+        - targets (List[Type]): A list of class objects for which related combinators should be included.
+        - repository (Dict[Type, Any]): A dictionary containing the combinators in the repository.
+
+        Returns:
+        - Dict[Type, Any]: A copy of the repository with only the related combinators included.
         """
+  
+        #setup datastructures to hold information on what to delete and want to keep
+        global_combinators_to_delete = set()
+        global_combinators_to_keep = set()
+
         #check if there are general upper classes that every target is sharing
         shared_upper_classes = cls._get_maximal_shared_upper_classes(targets)
-        print(shared_upper_classes)
+        print("shared_upper_classes: ", str(shared_upper_classes))
 
         for target in targets:
-            pass
-
-        return {}
+            selected_classes = []
+            combinators_to_delete = set()
+            combinators_to_keep = set()  
+            
+            if isinstance(target, tuple):
+                # if tuple split tuple into the current target and the selected classes for it
+                for class_object in target[1]:
+                    if not class_object.abstract:
+                        selected_classes.append(class_object)
+                    else:
+                        for item in cls._get_all_downstream_concrete_classes(class_object):
+                            selected_classes.append(item)
+                target = target[0]
+                
+            if target.abstract:
+                if selected_classes:
+                    # if there are selected classes for the target, only add them to keep and
+                    # all the remaining one to delete.
+                    combinators_to_keep.update([x for x in cls._get_all_downstream_concrete_classes(target)[1] if x in selected_classes])
+                    combinators_to_delete.update([x for x in cls._get_all_downstream_concrete_classes(target)[1] if x not in selected_classes])
+                else:
+                    # if no selected classes present, just add all concrete classes downstream to keep. 
+                    combinators_to_keep.update([x for x in cls._get_all_downstream_concrete_classes(target)[1]])
+                
+            else:
+                # if target is concrete, just add it to keep.
+                combinators_to_keep.add(target)
+                
+            # go up to the next abstract class, if there is a concrete class on the way,
+            # add the corresponding combinator to keep
+            # From the new abstract class, search downstream and add corresponding combinators to delete
+            for class_object in cls._get_all_upstream_classes(target)[1]:
+                if class_object in shared_upper_classes:
+                    break
+                if not class_object.abstract:
+                    combinators_to_keep.add(class_object)
+                else:
+                    combinators_to_delete.update(cls._get_all_downstream_concrete_classes(class_object)[1])    
+                    break
+            global_combinators_to_keep.update(combinators_to_keep)
+            global_combinators_to_delete.update(combinators_to_delete - combinators_to_keep)
+                
+        final_combinators_to_delete = global_combinators_to_delete - global_combinators_to_keep
+        result_repository = cls._delete_related_combinators(targets= final_combinators_to_delete, repository= repository)
+        
+                   
+        return result_repository
                 
             
 
