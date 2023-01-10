@@ -485,7 +485,6 @@ class RepoMeta(Register):
 
         #check if there are general upper classes that every target is sharing
         shared_upper_classes = cls._get_maximal_shared_upper_classes(targets)
-        print("shared_upper_classes: ", str(shared_upper_classes))
 
         for target in targets:
             selected_classes = []
