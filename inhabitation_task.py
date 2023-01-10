@@ -15,6 +15,7 @@ from luigi.task_register import Register
 from multiprocessing import Process
 
 from repo_visualizer.json_io import load_json, dump_json
+from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 CONFIG = "config.json"
 
@@ -640,6 +641,18 @@ class RepoMeta(Register):
                     variated_abstract_tasks.add(item)            
     
         return list(variated_abstract_tasks)
+
+    @staticmethod
+    def get_unique_abstract_task_validator() -> UniqueTaskPipelineValidator:
+        """
+        Returns an instance of the `UniqueTaskPipelineValidator` class with the list of variated abstract tasks as its argument.
+        
+        Returns
+        -------
+        UniqueTaskPipelineValidator
+            instance of the `UniqueTaskPipelineValidator` class.
+        """
+        return UniqueTaskPipelineValidator(RepoMeta.get_list_of_variated_abstract_tasks())
 
     @staticmethod
     def cls_tpe(cls) -> str:
