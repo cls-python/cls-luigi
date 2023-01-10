@@ -251,6 +251,10 @@ class TestRepositoryFilterMethods(unittest.TestCase):
             new_repo.pop(item)
             
         self.assertDictEqual(RepoMeta.filtered_repository([(SomeAbstractClass, [SomeAbstractAbstractClass, ConcreteClassInAbstractChain, ConcreteClass4]), (SomeAbstractAbstractClass, [ConcreteClass2, ConcreteClass3]), UnrelatedConcreteClass2]), new_repo)
+        
+    def test_run_cls_luigi(self):
+        result = run_cls_luigi()
+        self.assertTrue(result, "luigi returned a scheduling error")
           
             
     
@@ -274,6 +278,8 @@ def run_cls_luigi():
     target = EndNode.return_type()
     repository = RepoMeta.repository
 
+    StaticJSONRepo(RepoMeta).dump_static_repo_json()
+
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10
@@ -286,14 +292,18 @@ def run_cls_luigi():
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
                if validator.validate(t())]
     if results:
+        
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
+        
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         no_schedule_error = luigi.build(results, local_scheduler=True, detailed_summary=True)
+        return no_schedule_error
     else:
         print("No results!") 
+        return False
     
     
 if __name__=="__main__":
     unittest.main()
-    #run_cls_luigi()
