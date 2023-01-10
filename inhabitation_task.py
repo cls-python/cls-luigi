@@ -515,7 +515,7 @@ class RepoMeta(Register):
         
 
     @staticmethod
-    def filtered_repository(targets: List[PyType], repository: Dict[Any, Type] = repository) -> Dict[Type, Any]:
+    def filtered_repository(targets: List[PyType] = [], repository: Dict[Any, Type] = repository) -> Dict[Type, Any]:
         """
         Filters the repository to include only combinators related to the specified targets.
 
