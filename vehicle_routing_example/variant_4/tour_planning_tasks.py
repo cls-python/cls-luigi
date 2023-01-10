@@ -928,9 +928,6 @@ class AbstractMptopConfig(CLSTask, globalConfig):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def requires(self):
-        return CreateDirsTask()
-
     def output(self):
         return luigi.LocalTarget(pjoin(self.config_result_path, self._get_variant_label() + "-" + "mptop_config.yaml"))
 
@@ -939,23 +936,27 @@ class AbstractMptopConfig(CLSTask, globalConfig):
             for line in source_file:
                 file.write(line)
 
-class AbstractNSConfigPack(AbstractMptopConfig):
-    abstract: bool = True
-
-class NonAbstractNSConfigPack(AbstractNSConfigPack):
-    abstract = False
-
-class NonNonAbstractNSConfigPack(NonAbstractNSConfigPack):
+class AbstractNSConfig(AbstractMptopConfig):
     abstract = True
+    ns_scoring = ClsParameter(tpe=NsScoringPhase.return_type())
     
-class AbstractNonNonAbstractNSConfigPack(NonNonAbstractNSConfigPack):
+    def requires(self):
+        return self.ns_scoring()
+
+class AbstractSABCConfig(AbstractMptopConfig):
     abstract = True
+    sabc_scoring = ClsParameter(tpe=SabcScoringPhase.return_type())
     
-class Test1111(AbstractNonNonAbstractNSConfigPack):
-    abstract = False
-
-
-class NSConfig1(AbstractMptopConfig):
+    def requires(self):
+        return self.sabc_scoring()    
+    
+class AbstractWABCConfig(AbstractMptopConfig):
+    abstract = True
+    wabc_scoring = ClsParameter(tpe=WabcScoringPhase.return_type())
+    
+    def requires(self):
+        return self.wabc_scoring()
+class NSConfig1(AbstractNSConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -964,7 +965,7 @@ class NSConfig1(AbstractMptopConfig):
             self.global_config_path, "benchmark_ns/NS_config_1.yaml")
 
 
-class NSConfig2(AbstractMptopConfig):
+class NSConfig2(AbstractNSConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -973,7 +974,7 @@ class NSConfig2(AbstractMptopConfig):
             self.global_config_path, "benchmark_ns/NS_config_2.yaml")
 
 
-class NSConfig3(AbstractMptopConfig):
+class NSConfig3(AbstractNSConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -982,7 +983,7 @@ class NSConfig3(AbstractMptopConfig):
             self.global_config_path, "benchmark_ns/NS_config_3.yaml")
 
 
-class SABCConfig1(AbstractMptopConfig):
+class SABCConfig1(AbstractSABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -991,7 +992,7 @@ class SABCConfig1(AbstractMptopConfig):
             self.global_config_path, "benchmark_sabc/sABC_config_1.yaml")
 
 
-class SABCConfig2(AbstractMptopConfig):
+class SABCConfig2(AbstractSABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -1000,7 +1001,7 @@ class SABCConfig2(AbstractMptopConfig):
             self.global_config_path, "benchmark_sabc/sABC_config_2.yaml")
 
 
-class SABCConfig3(AbstractMptopConfig):
+class SABCConfig3(AbstractSABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -1009,7 +1010,7 @@ class SABCConfig3(AbstractMptopConfig):
             self.global_config_path, "benchmark_sabc/sABC_config_3.yaml")
 
 
-class WABCConfig1(AbstractMptopConfig):
+class WABCConfig1(AbstractWABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -1018,7 +1019,7 @@ class WABCConfig1(AbstractMptopConfig):
             self.global_config_path, "benchmark_wabc/wABC_config_1.yaml")
 
 
-class WABCConfig2(AbstractMptopConfig):
+class WABCConfig2(AbstractWABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -1027,7 +1028,7 @@ class WABCConfig2(AbstractMptopConfig):
             self.global_config_path, "benchmark_wabc/wABC_config_2.yaml")
 
 
-class WABCConfig3(AbstractMptopConfig):
+class WABCConfig3(AbstractWABCConfig):
     abstract: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -1275,7 +1276,7 @@ class FinalTask_old(luigi.WrapperTask, LuigiCombinator):
 def run_main():
    
     target = CreateHashMapResult.return_type()
-    repository = RepoMeta.filtered_repository([DistanceMatrixAiRoutingPhase, NsScoringPhase, SabcScoringPhase, (AbstractMptopConfig,[NSConfig1, NSConfig2, NSConfig3])])
+    repository = RepoMeta.filtered_repository([])
     
     for item in repository:
         print("#################")
@@ -1295,7 +1296,7 @@ def run_main():
     max_results = max_tasks_when_infinite
     if not actual is None or actual == 0:
         max_results = actual
-    validator = UniqueTaskPipelineValidator(RepoMeta.get_list_of_variated_abstract_tasks())
+    validator = RepoMeta.get_unique_abstract_task_validator()
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
                if validator.validate(t())]
     if results:
