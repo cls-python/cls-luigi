@@ -487,8 +487,18 @@ $RECYCLE.BIN/
 
 
 # JSON pipelines for Windows & Linux
- repo_visualizer/static_pipeline.json
- repo_visualizer/dynamic_pipeline.json
+repo_visualizer/static_pipeline.json
+repo_visualizer/dynamic_pipeline.json
 
 repo_visualizer\static_pipeline.json
 repo_visualizer\dynamic_pipeline.json
+
+# Ignore for vehicle routing example
+vehicle_routing_example/variant_1/results/
+vehicle_routing_example/variant_2/results/
+vehicle_routing_example/variant_3/results/
+vehicle_routing_example/variant_3/tests/results/
+vehicle_routing_example/variant_4/results/
+
+# vscode stuff
+.vscode/
