@@ -4,6 +4,10 @@ Here i was trying to implement an example vehicle routing pipeline that was crea
 The aim was to get as close as possible to the original modeling of the pipeline to test out the abilities
 of CLS Luigi and get used to it.
 
+This is an overview over what i intended to implement:
+
+![newCLSParameter](pipeline_to_implement.svg)
+
 ## How to run
 
 You need to set an Environment Variable "DISTANCEMATRIXAIAPI" with a valid API_Key since i used this Service
