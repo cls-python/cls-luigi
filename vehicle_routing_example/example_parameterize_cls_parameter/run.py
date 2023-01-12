@@ -90,6 +90,11 @@ class UnrelatedAbstractClass(CLSTask):
         print("#######")
         print("parameter_name: ", str(self.name))
         print("#######")
+        
+        print("#######")
+        print("some_class: ", str(self.some_class))
+        print("#######")
+        
         with open(self.output().path, 'w') as file:
             pass
     
