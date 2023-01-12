@@ -18,3 +18,4 @@ thus not running them in the first place.
 
 - with a approach like the one in this variant, it is hard to have AbstractConfigPackages that include other AbstractConfigPackages, because the requirement is defined in the AbstractClass.
 - maybe there is an easy solution for that, but i have not yet come up with anything.
+  - We would need a possibility to ask for multiple types in ClsParameter so that CLSLuigi uses every task that fits (subtype relation).
