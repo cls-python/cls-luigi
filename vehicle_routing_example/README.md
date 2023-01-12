@@ -4,9 +4,13 @@ Here i was trying to implement an example vehicle routing pipeline that was crea
 The aim was to get as close as possible to the original modeling of the pipeline to test out the abilities
 of CLS Luigi and get used to it.
 
+This is an overview of the pipeline i implemented during my master thesis:
+
+![thesis_:_pipeline](profitable_tour_pipeline_mthesis.svg)
+
 This is an overview over what i intended to implement:
 
-![newCLSParameter](pipeline_to_implement.svg)
+![pipeline_to_implement](pipeline_to_implement.svg)
 
 ## How to run
 
@@ -80,7 +84,7 @@ Change directory into the variant folders and run "python tour_planning_tasks.py
 
 ## Biggest problems while working on this
 
-1. It is hard to understand how to use luigi.config. The documentation on that is very slim and not that verbose. So the way i used luigi.config during my implementation efforts is most likely wrong. What i gathered during my research, can be found in the files "stuff/luigi_config_example.py" and "stuff/luigi_configuration_example.py". I think those variants shown there are the way to go.
+1. It is hard to understand how to use luigi.config. The documentation on that is very slim and not that verbose. So the way i used luigi.config during my implementation efforts is most likely wrong. What i gathered during my research, can be found in the files "stuff/luigi_config_example.py" and "stuff/luigi_configuration_example.py". I think those variants shown there are the way to go, although the way i have used it now can also be found in the luigi documentation (see [here](https://luigi.readthedocs.io/en/stable/api/luigi.util.html?highlight=%40requires#using-inherits-and-requires-to-ease-parameter-pain)).
 2. Since the usage of config and configuration was unclear, i had problems setting up the modeling of my pipeline. I was planning on using the Luigi.Parameter Defaults (ClsParameter is also a Luigi.Parameter) to set up my basic structure of the Pipeline, meaning if i do not use any parametrization or config/configuration i would get all variants that are possible ("everything with everything"). And then would like to be able to parameterize the Pipeline Model to fit my needs.
    1. The main problem steams from the fact that i was unable to parametrizes ClsParameter or Tasks that have a ClsParameter in it. The moment i tried to parametrizes it (with or without the ClsParameter) i got errors according to giving too few parameters (When not trying to parametrizes the ClsParameter) or to many (in case i tried to set it). To this day i am not sure if it is really not possible or i am just doing "wrong" python.
-3. I find the way we do Aggregation Tasks, e. g. finding "the best result" of all pipelines that were scheduled or creating a scoring board (EvaluateAndVisualize Task in Example "ny_taxi_paper.py) troubling since it relays on the fact that the tasks do not run concurrently (which they can given the number of works involved). Right now they are all just reading/writing a single property, in this case the file on the filesystem, without a method of locking/releasing. Could lead to overwrite or inconsistent data. This is one of the reasons for me to think about the new Wrapper Tasks, if that could even be implemented. 
+3. I find the way we do Aggregation Tasks, e. g. finding "the best result" of all pipelines that were scheduled or creating a scoring board (EvaluateAndVisualize Task in Example "ny_taxi_paper.py) troubling since it relays on the fact that the tasks do not run concurrently (which they can given the number of works involved). Right now they are all just reading/writing a single property, in this case the file on the filesystem, without a method of locking/releasing. Could lead to overwrite or inconsistent data. This is one of the reasons for me to think about the new Wrapper Tasks, if that could even be implemented.
