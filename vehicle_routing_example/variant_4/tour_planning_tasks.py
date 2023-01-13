@@ -1327,7 +1327,41 @@ class FinalTask_old(luigi.WrapperTask, LuigiCombinator):
 def run_main():
    
     target = CreateHashMapResult.return_type()
-    repository = RepoMeta.filtered_repository([RandomScoringPhase])
+    repository = RepoMeta.filtered_repository(
+        [
+        (AbstractScoringPhase,[SabcScoringPhase, NsScoringPhase]),
+        DistanceMatrixAiRoutingPhase,
+        MptopSolver
+        ]
+                                              )
+    
+    # repository = RepoMeta.filtered_repository(
+    #     [
+    #     NsScoringPhase,
+    #     NSConfig1,
+    #     NSConfig2,
+    #     DistanceMatrixAiRoutingPhase,
+    #     MptopSolver
+    #     ]
+    #                                           )
+    
+        
+    # repository = RepoMeta.filtered_repository(
+    #     [
+    #     NsScoringPhase,
+    #     (AbstractNSConfig, [NSConfig1, NSConfig2]),
+    #     DistanceMatrixAiRoutingPhase,
+    #     MptopSolver
+    #     ]
+    #                                           )
+    
+    #bug to fix 
+    # repository = RepoMeta.filtered_repository(
+    #     [
+    #         SabcScoringPhase,
+    #         NsScoringPhase
+    #     ]
+    #                                           )
     
     for item in repository:
         print("#################")
@@ -1347,7 +1381,7 @@ def run_main():
     max_results = max_tasks_when_infinite
     if not actual is None or actual == 0:
         max_results = actual
-    #validator = RepoMeta.get_unique_abstract_task_validator()
+    validator = RepoMeta.get_unique_abstract_task_validator()
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
                if True] #validator.validate(t())
     if results:

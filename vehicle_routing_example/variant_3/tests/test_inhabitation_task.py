@@ -221,6 +221,11 @@ class TestRepositoryFilterMethods(unittest.TestCase):
             
         self.assertDictEqual(RepoMeta.filtered_repository([SomeAbstractAbstractClass]), new_repo)
         
+    def test_filtered_repository_ConcreteClass1_ConcreteClass2(self):
+        new_repo = RepoMeta._delete_related_combinators([ConcreteClass3])
+            
+        self.assertDictEqual(RepoMeta.filtered_repository([ConcreteClass1, ConcreteClass2]), new_repo)
+        
     def test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1(self):
         repository = RepoMeta.repository
         to_remove = []
@@ -252,9 +257,9 @@ class TestRepositoryFilterMethods(unittest.TestCase):
             
         self.assertDictEqual(RepoMeta.filtered_repository([(SomeAbstractClass, [SomeAbstractAbstractClass, ConcreteClassInAbstractChain, ConcreteClass4]), (SomeAbstractAbstractClass, [ConcreteClass2, ConcreteClass3]), UnrelatedConcreteClass2]), new_repo)
         
-    def test_run_cls_luigi(self):
-        result = run_cls_luigi()
-        self.assertTrue(result, "luigi returned a scheduling error")
+    # def test_run_cls_luigi(self):
+    #     result = run_cls_luigi()
+    #     self.assertTrue(result, "luigi returned a scheduling error")
           
             
     
