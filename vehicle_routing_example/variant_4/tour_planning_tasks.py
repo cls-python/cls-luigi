@@ -18,12 +18,14 @@ import luigi
 from multimethod import multimethod
 from mptop_instance_helper import *
 import pickle
+import types
+from typing import Union
 
 sys.path.append('../')
 sys.path.append('../../')
 from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 from inhabitation_task import ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
+from cls_python import FiniteCombinatoryLogic, Subtypes, Intersection, Product
 from repo_visualizer.static_json_repo import StaticJSONRepo
 from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
 
@@ -939,23 +941,63 @@ class AbstractMptopConfig(CLSTask, globalConfig):
 class AbstractNSConfig(AbstractMptopConfig):
     abstract = True
     ns_scoring = ClsParameter(tpe=NsScoringPhase.return_type())
-    
+
     def requires(self):
         return self.ns_scoring()
-
+    
 class AbstractSABCConfig(AbstractMptopConfig):
     abstract = True
     sabc_scoring = ClsParameter(tpe=SabcScoringPhase.return_type())
-    
+
     def requires(self):
-        return self.sabc_scoring()    
+        return self.sabc_scoring()
     
 class AbstractWABCConfig(AbstractMptopConfig):
     abstract = True
     wabc_scoring = ClsParameter(tpe=WabcScoringPhase.return_type())
-    
+
     def requires(self):
         return self.wabc_scoring()
+
+
+
+# class AbstractNSConfig(AbstractMptopConfig):
+#     abstract = True
+#     ns_scoring = ClsParameter(tpe={1: NsScoringPhase.return_type(), 2: RandomScoringPhase.return_type()})
+    
+#     config_index = {1,2}
+#     def requires(self):
+#         return self.ns_scoring()
+    
+
+# class AbstractSABCConfig(AbstractMptopConfig):
+#     abstract = True
+#     sabc_scoring = ClsParameter(tpe={1: SabcScoringPhase.return_type(), 2: RandomScoringPhase.return_type()})
+    
+#     config_index = {1,2}
+#     def requires(self):
+#         return self.sabc_scoring()
+    
+# class AbstractWABCConfig(AbstractMptopConfig):
+#     abstract = True
+#     wabc_scoring = ClsParameter(tpe={1: WabcScoringPhase.return_type(), 2: RandomScoringPhase.return_type()})
+    
+#     config_index = {1,2}
+#     def requires(self):
+#         return self.wabc_scoring()
+
+# class AbstractRandomConfig(AbstractMptopConfig):
+#     abstract = True
+#     random_scoring = ClsParameter(tpe= RandomScoringPhase.return_type())
+    
+#     def requires(self):
+#         return self.random_scoring()
+    
+#     def new_requires(self):
+#         return RandomScoringPhase()
+    
+    
+    
 class NSConfig1(AbstractNSConfig):
     abstract: bool = False
 
@@ -1037,6 +1079,15 @@ class WABCConfig3(AbstractWABCConfig):
             self.global_config_path, "benchmark_wabc/wABC_config_3.yaml")
 
 
+# class AllConfigWrapper(AbstractRandomConfig):
+#     abstract = False
+#     config = ClsParameter(tpe={1: NSConfig1.return_type(), 2: NSConfig2.return_type()})
+    
+#     def requires(self):
+#         config_task = self.config()
+#         print(dir(config_task))
+#         setattr(config_task, "requires", self.new_requires)
+#         return config_task
 
 class AbstractSolverPhase(CLSTask, globalConfig):
     abstract = True
@@ -1276,7 +1327,7 @@ class FinalTask_old(luigi.WrapperTask, LuigiCombinator):
 def run_main():
    
     target = CreateHashMapResult.return_type()
-    repository = RepoMeta.filtered_repository([])
+    repository = RepoMeta.filtered_repository([RandomScoringPhase])
     
     for item in repository:
         print("#################")
@@ -1296,9 +1347,9 @@ def run_main():
     max_results = max_tasks_when_infinite
     if not actual is None or actual == 0:
         max_results = actual
-    validator = RepoMeta.get_unique_abstract_task_validator()
+    #validator = RepoMeta.get_unique_abstract_task_validator()
     results = [t() for t in inhabitation_result.evaluated[0:max_results]
-               if validator.validate(t())]
+               if True] #validator.validate(t())
     if results:
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))

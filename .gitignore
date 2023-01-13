@@ -499,6 +499,7 @@ vehicle_routing_example/variant_2/results/
 vehicle_routing_example/variant_3/results/
 vehicle_routing_example/variant_3/tests/results/
 vehicle_routing_example/variant_4/results/
+vehicle_routing_example/example_parameterize_cls_parameter/results/
 
 # vscode stuff
 .vscode/
