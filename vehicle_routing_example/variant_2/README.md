@@ -7,6 +7,11 @@ the same file with multiple concurrent tasks, we implemented a LuigiTask that
 runs CLSLuigi (and all resulting Pipelines from that run) and uses to result to
 then extract the pipeline with the best ObjVal result.
 
+## Implemented pipeline structure:
+
+![variant_2](variant_2.svg)
+
+
 ## potential downsides
 
 - you have to know the structure of the results and does be able to get the files by knowing the corresponding paths.

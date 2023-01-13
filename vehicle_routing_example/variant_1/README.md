@@ -8,6 +8,10 @@ CLS made and use that knowledge to decide which config to load.
 
 So in this variant all config files were simply varied without connection to the scoring method.
 
+## Implemented pipeline structure:
+
+![variant_1](variant_1.svg)
+
 ## Problems while implementing:
 
 - unable to parametrize Tasks that contain luigi Parameter and ClsParameters.

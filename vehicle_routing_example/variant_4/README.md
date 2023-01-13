@@ -14,6 +14,11 @@ where scoring method does not fit the requirements from the selected config.
 To prevent the execution of these pipelines, a unique abstract task filter is used to filter them out,
 thus not running them in the first place.
 
+## Implemented pipeline structure:
+
+![variant_4](variant_4.svg)
+
+
 ## Problems
 
 - with a approach like the one in this variant, it is hard to have AbstractConfigPackages that include other AbstractConfigPackages, because the requirement is defined in the AbstractClass.
