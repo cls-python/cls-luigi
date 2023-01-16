@@ -5,9 +5,6 @@
 To use cls-python, a python version >= 3.10 must be used. The implementation uses ["structural pattern matching"](https://peps.python.org/pep-0634/).
 Verify you meet the requirements before trying to run any given example in this repository.
 
-There is a known [issue](https://github.com/spotify/luigi/issues/3202) when using Python 3.11 and using multiple workers. There is already a patch merged into main, but it seems like it is not yet in the release you get via pip.
-For now it makes sense to just use python 3.10.
-
 # cls-luigi
 
 ## Requirements for Your Development Environment
@@ -19,6 +16,12 @@ We provide a [requirements.txt](requirements.txt) file that contains all the nee
 # make sure that you are in the right path
 pip install -r requirements.txt 
 ````
+
+### Known issues
+
+1. There is a known [issue](https://github.com/spotify/luigi/issues/3202) when using Python 3.11 and using multiple workers. There is already a patch merged into main, but it seems like it is not yet in the release you get via pip.
+For now it makes sense to just use python 3.10.
+2. Luigi on Windows got some [problems](https://luigi.readthedocs.io/en/stable/running_luigi.html?highlight=windows#luigi-on-windows) due to the fact how windows is handling (or better not handling) forking of the python interpreter. 
 
 ## What You need to know before You can start Your journey with cls-luigi
 
