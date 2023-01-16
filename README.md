@@ -3,7 +3,10 @@
 ## Requirements for Your Development Environment 
 
 To use cls-python, a python version >= 3.10 must be used. The implementation uses ["structural pattern matching"](https://peps.python.org/pep-0634/).
-Verify you meet the requirements befor trying to run any given example in this repository.
+Verify you meet the requirements before trying to run any given example in this repository.
+
+There is a known [issue](https://github.com/spotify/luigi/issues/3202) when using Python 3.11 and using multiple workers. There is already a patch merged into main, but it seems like it is not yet in the release you get via pip.
+For now it makes sense to just use python 3.10.
 
 # cls-luigi
 
