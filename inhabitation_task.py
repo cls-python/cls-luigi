@@ -457,7 +457,7 @@ class RepoMeta(Register):
         return (target, RepoMeta._get_all_upstream_abstract_classes(target)[1], RepoMeta._get_all_downstream_abstract_classes(target)[1])
 
     @staticmethod
-    def _get_maximal_shared_upper_classes(targets: List[PyType]) -> List[PyType]:
+    def _get_maximal_shared_upper_classes(targets: List[PyType]) -> Tuple[List[PyType], bool]:
         """
         Finds the maximal shared upper classes of the given targets.
 
@@ -468,20 +468,25 @@ class RepoMeta(Register):
 
         Returns
         -------
-        List[PyType]
-            List of maximal shared upper classes.
+        Tuple[List[PyType], bool]
+            A tuple containing the list of maximal shared upper classes and a boolean
+            that indicates whether or not all upper classes are equal.
         """
+        all_equal = False
         if len(targets) <= 1:
-            return []
+            return ([], True)
         lists = []
         for target in targets:
             if isinstance(target, tuple):
-                lists.append(RepoMeta._get_list_of_all_upstream_classes(target[0])[::-1])
+                lists.append(RepoMeta._get_list_of_all_upstream_classes(target[0])[:0:-1])
             else:
-                lists.append(RepoMeta._get_list_of_all_upstream_classes(target)[::-1])
+                lists.append(RepoMeta._get_list_of_all_upstream_classes(target)[:0:-1])
+        
+        if all(x == lists[0] for x in lists):
+            all_equal = True     
                 
         prefix = [x[0] for x in zip(*lists) if all(x[0] == y for y in x[1:])]
-        return prefix
+        return (prefix, all_equal)
     
     @staticmethod
     def _delete_related_combinators(targets: List[PyType], repository: Dict[Any, Type] = repository) -> Dict[Any, Type]:
@@ -540,8 +545,15 @@ class RepoMeta(Register):
         global_combinators_to_keep = set()
 
         #check if there are general upper classes that every target is sharing
-        shared_upper_classes = RepoMeta._get_maximal_shared_upper_classes(targets)
-
+        shared_upper_classes, all_equal = RepoMeta._get_maximal_shared_upper_classes(targets)
+        
+        # check if all targets share all upper classes, in that case we remove
+        # the last class in the chain, since we want to remove combinators that
+        # lay on the same level.
+        if all_equal:
+            if len(shared_upper_classes) > 1: 
+                shared_upper_classes.pop(-1)
+        
         for target in targets:
             selected_classes = []
             combinators_to_delete = set()
@@ -570,7 +582,7 @@ class RepoMeta(Register):
             else:
                 # if target is concrete, just add it to keep.
                 combinators_to_keep.add(target)
-                
+
             # go up to the next abstract class, if there is a concrete class on the way,
             # add the corresponding combinator to keep
             # From the new abstract class, search downstream and add corresponding combinators to delete
