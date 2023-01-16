@@ -1,5 +1,6 @@
 from task_implementation import EndNode
 import luigi
+import luigi.configuration
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -8,6 +9,11 @@ from inhabitation_task import RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
 
 def run_cls_luigi():
+    # Create a configuration object
+    config = luigi.configuration.get_config()
+    # Set the log level
+    config.set("logging", "level", "DEBUG")
+    
     target = EndNode.return_type()
     repository = RepoMeta.repository
 
@@ -25,7 +31,7 @@ def run_cls_luigi():
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        no_schedule_error = luigi.build(results, local_scheduler=True, detailed_summary=True)
+        no_schedule_error = luigi.build(results, local_scheduler=False, workers=3, detailed_summary=True)
         return no_schedule_error
     else:
         print("No results!") 
