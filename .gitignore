@@ -504,5 +504,8 @@ vehicle_routing_example/example_parameterize_cls_parameter/results/
 # Ignore for import_test
 import_test/results/
 
+# Ignore for hash_name_example
+hash_name_example/results/
+
 # vscode stuff
 .vscode/

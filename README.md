@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 1. There is a known [issue](https://github.com/spotify/luigi/issues/3202) when using Python 3.11 and using multiple workers. There is already a patch merged into main, but it seems like it is not yet in the release you get via pip.
 For now it makes sense to just use python 3.10.
-2. Luigi on Windows got some [problems](https://luigi.readthedocs.io/en/stable/running_luigi.html?highlight=windows#luigi-on-windows) due to the fact how windows is handling (or better not handling) forking of the python interpreter. 
+2. Luigi on Windows got some [problems](https://luigi.readthedocs.io/en/stable/running_luigi.html?highlight=windows#luigi-on-windows) due to the fact how windows is handling (or better not handling) forking of the python interpreter.
 
 ## What You need to know before You can start Your journey with cls-luigi
 
