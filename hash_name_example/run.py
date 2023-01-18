@@ -15,7 +15,7 @@ class StartNode(CLSTask):
     abstract = False
     
     def output(self):
-        return [luigi.LocalTarget(pjoin(RESULT_PATH,  self._get_variant_filename(".dirs_created"))), luigi.LocalTarget(pjoin(RESULT_PATH,  self._get_variant_filename(".dirs_created_2")))]
+        return [luigi.LocalTarget(pjoin(RESULT_PATH,  self._get_variant_filename(".dirs_created.txt"))), luigi.LocalTarget(pjoin(RESULT_PATH,  self._get_variant_filename(".dirs_created_2")))]
 
     def run(self):
         makedirs(dirname(RESULT_PATH), exist_ok=True)
