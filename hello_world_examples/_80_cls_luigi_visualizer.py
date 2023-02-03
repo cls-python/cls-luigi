@@ -6,7 +6,7 @@ from cls_python import FiniteCombinatoryLogic, Subtypes
 
 from unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
-from ML_example_variation_point_multi_usage_70 import EvaluateRegressionModel, FitTransformScaler, TrainRegressionModel
+from _70_ML_example_variation_point_multi_usage import EvaluateRegressionModel, FitTransformScaler, TrainRegressionModel
 
 if __name__ == '__main__':
 

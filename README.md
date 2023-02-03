@@ -46,7 +46,7 @@ provide you with a running example in the folder hello_world_examples.
 
 ### Run a pipeline consisting of one task<a name="rpc"/>
 
-The script for this example is to be found [here](hello_world_examples/hello_world_10.py)
+The script for this example is to be found [here](hello_world_examples/_10_hello_world.py)
 
 The following task simply writes "Hello World" to a file ``pure_hello_world.txt``:
 ````python
@@ -98,7 +98,7 @@ All inhabitants (luigi pipelines) are scheduled.
 
 ### Define dependencies on other tasks<a name="dfo"/>
 
-The script for this example is to be found [here](hello_world_examples/defining_dependencies_20.py)
+The script for this example is to be found [here](hello_world_examples/_20_defining_dependencies.py)
 
 The following task depends on the WriteFileTask.
 It reads the file written in the WriteFileTask and substitutes "world" by "welt" and writes
@@ -142,7 +142,7 @@ Then a pipeline with the two tasks is scheduled.
 To determine different pipelines, we have to add variation points.
 
 #### Using inheritance
-The script for this example is to be found [here](hello_world_examples/generating_variation_by_inheritance_30.py)
+The script for this example is to be found [here](hello_world_examples/_30_generating_variation_by_inheritance.py)
 
 
 Let's assume as an example that there exist two different variants for substituting the "world" 
@@ -209,7 +209,7 @@ This progress looks :) because there were no failed tasks or missing dependencie
 
 #### Using different configurations
 
-The code of this example is to be found [here](hello_world_examples/generating_variation_by_config_40.py)
+The code of this example is to be found [here](hello_world_examples/_40_generating_variation_by_config.py)
 
 Another way to produce variation points is to use different configuration.
 Let's consider the same above example for substituting the "world" 
@@ -289,7 +289,7 @@ There are 5 scheduled tasks in total:
 
 ### Variation points as a dependency<a name="vpa"/>
 
-A ready example is to be found [here](hello_world_examples/variation_point_as_dependency_50.py)
+A ready example is to be found [here](hello_world_examples/_50_variation_point_as_dependency.py)
 
 
 When variation points are used as dependency in a following task, they must be uniquely identifiable by luigi,
@@ -342,7 +342,7 @@ For that you can validate the inhabitation results before we must validate the i
 
 
 #### Abstract example
-The code for this example is to be found [here](hello_world_examples/variation_point_multi_usage_60.py)
+The code for this example is to be found [here](hello_world_examples/_60_variation_point_multi_usage.py)
 
 Consider this dummy pipeline where the variation point `Task1 Abstract` is a dependency for Task2 and
 Task3. CLS-Luigi produces in this case 4 pipelines, 2 of which contain different implementations of the same 
@@ -351,7 +351,7 @@ variation point.
 If you wish to filter out those 2 pipelines, such that you will have the remaining pipelines in the image below, 
 you must use the 'UniqueTaskPipelineValidator'. 
 
-<img src="hello_world_examples/variation_point_multi_usage_60.jpg" alt="Alt text">
+<img src="hello_world_examples/_60_variation_point_multi_usage.jpg" alt="Alt text">
 
 
 For that we must instantiate the `UniqueTaskPipelineValidator` with a list all abstract tasks
@@ -366,7 +366,7 @@ results = [t() for t in inhabitation_result.evaluated[0:max_results] if validato
 Now you may pass the results onto luigi as usual. 
 
 #### ML-Pipeline example
-The code for this example is to be found [here](hello_world_examples/ML_example_variation_point_multi_usage_70.py)
+The code for this example is to be found [here](hello_world_examples/_70_ML_example_variation_point_multi_usage.py)
 
 Let's consider an example where we predict the blood sugar level of some patients.
 In this example we first start by loading the dataset from Scikit-Learn, then we split it into 
@@ -381,7 +381,7 @@ Lastly we evaluate each regression model by predicting the testing target and ca
 
 In this specific case we should have the following 4 pipelines: 
 
-<img src="hello_world_examples/ML_example_variation_point_multi_usage_70.jpg" alt="Alt text">
+<img src="hello_world_examples/_70_ML_example_variation_point_multi_usage.jpg" alt="Alt text">
 
 
 
@@ -390,14 +390,87 @@ We can see that `RobustScaler` & `MinMaxScaler` is required by both the
 
 So the pipeline validation in this case looks like this:
 
+
 ```python
 validator = UniqueTaskPipelineValidator([FitTransformScaler])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
+#### Using Dictionaries instead of lists in *requires* and *output* methods
+Code for this example is to be found [here](hello_world_examples/_71_ML_example_with_dicts.py)
+
+Till now, we only showed how to handle multiple dependencies and outputs using lists. However, lists can be akward to handle,
+especially once you deal with nested lists. Indexes are just not very easily readable.
+
+In the [last example](hello_world_examples/_70_ML_example_variation_point_multi_usage.py) used lists in the following way:
+
+```python
+    def output(self):
+        return [
+            luigi.LocalTarget("x_train.pkl"),
+            luigi.LocalTarget("x_test.pkl"),
+            luigi.LocalTarget("y_train.pkl"),
+            luigi.LocalTarget("y_test.pkl")
+        ]
+
+    def run(self):
+       ...
+       ...
+       ...
+        X_train.to_pickle(self.output()[0].path)
+        X_test.to_pickle(self.output()[1].path)
+        y_train.to_pickle(self.output()[2].path)
+        y_test.to_pickle(self.output()[3].path)
+```
+Note how we defined our outputs in *output* method, had feed in the index number of corresponding LocalTarget in the *run* method. We can do better!
+
+##### solution
+We can use dictionaries instead of lists, and reference the corresponding LocalTargets using keys:
+
+if your haven't looked at the 
+code for this example, you can also find it [here](hello_world_examples/_71_ML_example_with_dicts.py)
+
+
+```python
+class TrainTestSplit(luigi.Task, LuigiCombinator):
+    abstract = False
+    diabetes = inhabitation_task.ClsParameter(tpe=LoadDiabetesData.return_type())
+
+    def output(self):
+        return {
+            "x_train": luigi.LocalTarget("x_train.pkl"),
+            "x_test": luigi.LocalTarget("x_test.pkl"),
+            "y_train": luigi.LocalTarget("y_train.pkl"),
+            "y_test": luigi.LocalTarget("y_test.pkl"),
+        }
+    
+    def run(self):
+        data = pd.read_pickle(self.input()["diabetes_data"].path)
+        X = data.drop(["target"], axis="columns")
+        y = data[["target"]]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+        X_train.to_pickle(self.output()["x_train"].path)
+        X_test.to_pickle(self.output()["x_test"].path)
+        y_train.to_pickle(self.output()["y_train"].path)
+        y_test.to_pickle(self.output()["y_test"].path)
+```
+This is way easier to read! By using dictionaries we don't need to memorize the indexes of elements or even car about
+their order. We can just use the keys without having to go back searching for the write index.
+
+Note: You can use this way in your *requires* method as well. and instead of referencing as follows: 
+ ```python
+self.input()[some index]
+```
+
+your can just do the following:
+```python
+self.input()["Your Cool Key"]
+```
+
 #### CLS-Luigi Visualizer
 
-The code for this example is to be found [here](hello_world_examples/cls_luigi_visualizer_80.py)
+The code for this example is to be found [here](hello_world_examples/_80_cls_luigi_visualizer.py)
 Let's consider the same ML-pipeline from above for this example.
 
 In order to visualize your pipelines, make sure to follow these steps in advance:
@@ -432,28 +505,32 @@ In order to visualize your pipelines, make sure to follow these steps in advance
     ```
 3. Execute the following command in your terminal to start the Luigi Daemon, and the visualizer Server:
      ```
-    python repo_visualizer/visaulizer.py
+    python repo_visualizer/visualizer.py
    ```
    
 4. Run your pipeline-script now and navigate to `http://localhost:8000/repo_visualizer/` in your browser.
 
-
 <br/>
 
-The Static Repository DAG is a compressed representation of all pipelines, and displays a summary of all the pipelines and their component types in RepoMeta as follows:  
+The Repository Overview is a compressed representation of all pipelines, and displays a summary of all the pipelines and their component types in RepoMeta as follows:  
 - None-Abstract components which are not concrete implementations of any abstract or indexed component are labeled in white.
 - Abstract components are labeled in red. Their concreate implementations are listed underneath the corresponding abstract component. 
 - Components that contain config indices are labeled in green. Their config indices as well as the indexed components are listed underneath them (similar to Abstract components).
 <br/>
 
-<img src="hello_world_examples/static_repo.png" alt="Alt text">
+<img src="hello_world_examples/repo_overview.png" alt="Alt text">
 <br/>
 <br/>
 <br/>
 
 
 
-The Dynamic Repository DAG combines all running Luigi-pipelines into one, such that mutual components are only shown once. The status of the components is updated in real-time.
+The  Combined Pipelines Overview combines all running Luigi-pipelines into one, such that mutual components are only shown once. The status of the components is updated in real-time.
 <br/>
 
-<img src="hello_world_examples/dynamic_repo.png" alt="Alt text">
+<img src="hello_world_examples/combined_repo_overview.png" alt="Alt text">
+
+
+Finally, you can select and see single pipelines in the last section
+
+<img src="hello_world_examples/single_pipeline_overview.png" alt="Alt text">

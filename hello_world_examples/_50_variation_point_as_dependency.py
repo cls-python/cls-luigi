@@ -2,7 +2,7 @@ import luigi
 import inhabitation_task
 from inhabitation_task import RepoMeta
 from cls_python import FiniteCombinatoryLogic, Subtypes
-from hello_world_10 import WriteFileTask
+from _10_hello_world import WriteFileTask
 from pathlib import Path
 from collections.abc import Iterable
 

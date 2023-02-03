@@ -3,7 +3,7 @@ import inhabitation_task
 from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, deep_str
 
 from cls_python import FiniteCombinatoryLogic, Subtypes
-from hello_world_10 import WriteFileTask
+from _10_hello_world import WriteFileTask
 
 
 class SubstituteNameByAnneTask(luigi.Task, LuigiCombinator):
