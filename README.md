@@ -458,13 +458,29 @@ their order. We can just use the keys without having to go back searching for th
 
 Note: You can use this way in your *requires* method as well. and instead of referencing as follows: 
  ```python
-self.input()[some index]
+def requires(self):
+   return [self.my_dependency()]
+
+def run(self):
+   ...
+   # use the dependency output
+    self.input()[0]
 ```
 
-your can just do the following:
+your can just do the following instead:
 ```python
-self.input()["Your Cool Key"]
+def requires(self):
+   return {"some_dependency": self.my_dependency()}
+
+def run(self):
+   ...
+   # use the dependency output
+    self.input()["some_dependency"]
 ```
+
+This obviously makes more sense with multiple dependencies.
+Lastly: if both your *output* method and your 'requires* method return don't forget that you have to reference 2 keys now. Still better as indexes :) 
+
 
 #### CLS-Luigi Visualizer
 

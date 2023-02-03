@@ -11,7 +11,7 @@ for file in filtered_files:
 
 hello_world_path = "../hello_world_examples"
 for file in os.listdir(hello_world_path):
-    if not file.endswith(".py") and not file.endswith(".jpg"):
+    if not file.endswith(".py") and not file.endswith(".jpg") and not file.endswith(".png"):
         if not os.path.isdir(os.path.join(hello_world_path, file)):
             os.remove(os.path.join(hello_world_path, file))
 
