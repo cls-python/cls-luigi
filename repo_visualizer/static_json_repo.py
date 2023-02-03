@@ -1,5 +1,8 @@
+import cls_python.types
 from inhabitation_task import RepoMeta
 from repo_visualizer.json_io import load_json, dump_json
+
+from cls_python.types import Constructor
 
 CONFIG = "config.json"
 
@@ -16,90 +19,80 @@ class StaticJSONRepo:
     def __init__(self, repo_meta):
         self.repo_meta = repo_meta
         self.repository = repo_meta.repository
-        self.concrete_to_abstract_mapper = {}  # used for mapping the concrete implementations to their abstract components
-        self.repo_dict = {}
+        self.concrete_to_abst_mapper = {}
 
-        self._construct_repo_dict()
-
-    def _construct_repo_dict(self):
-
-        for key in self.repo_meta.subtypes.keys():
-            if not isinstance(key, RepoMeta.ClassIndex):
-                self._add_components_to_repo_dict(key)
-
-        # Adding dependencies of components
-        for repo_key in self.repository.keys():
-            if not isinstance(repo_key, RepoMeta.ClassIndex):
-                for item in self.repository[repo_key].organized:
-                    self._add_deps(item)
-
-                if repo_key.has_index:
-                    self._add_config_indexes(repo_key)
+        self.output_dict = {}
+        self.add_tasks_and_concreate_implementations()
+        self.add_dependencies_and_indexed_tasks()
 
     @staticmethod
     def _prettify_name(name):
         return name.split(".")[-1]
 
-    def _add_components_to_repo_dict(self, subtype_key):
-        # Adding component, their type (abstract, non-abstract), and their concrete implementations
-        component_name = self._prettify_name(subtype_key.cls_tpe)
-        component_value = self.repo_meta.subtypes[subtype_key]
+    def add_tasks_and_concreate_implementations(self):
+        for k, v in self.repo_meta.subtypes.items():
+            if (k.tpe.abstract is not None) and (k.tpe.abstract is True):
+                pretty_task_name = self._prettify_name(k.cls_tpe)
+                self.output_dict[pretty_task_name] = {"abstract": True}
 
-        if component_value:
-            # If the value isn't an empty set ==> the value is an abstract component and the key is one of its concrete implementations
-            abs_component_name = self._prettify_name(
-                list(component_value)[0].cls_tpe)
-            self.repo_dict[abs_component_name]["abstract"] = True
+        for k, v in self.repo_meta.subtypes.items():
+            if (k.tpe.abstract is not None) and (k.tpe.abstract is False):
+                pretty_task_name = self._prettify_name(k.cls_tpe)
 
-            self.repo_dict[abs_component_name]["concreteImplementations"] = \
-                self.repo_dict[abs_component_name]["concreteImplementations"] + \
-                [component_name] if "concreteImplementations" in self.repo_dict[abs_component_name] else [component_name]
+                if v:
+                    if list(v)[0].tpe.abstract is None or (not v):
+                        self.output_dict[pretty_task_name] = {"abstract": False}
 
-            self.concrete_to_abstract_mapper[component_name] = abs_component_name
+                    elif list(v)[0].tpe.abstract is True:
+                        pretty_abst_task = self._prettify_name(list(v)[0].cls_tpe)
+                        if "concreteImplementations" not in self.output_dict[pretty_abst_task]:
+                            self.output_dict[pretty_abst_task]["concreteImplementations"] = []
 
-        else:
-            # If the value IS an empty set ==> the key represents a (potentially!) none-abstract component
-            # If they this key appears later as a value of any given key ==> they key turns out to be in deed an abstract component
-            # and will be updated to abstract:True
-            self.repo_dict[component_name] = {"abstract": False}
-
-    def _add_deps(self, item):
-        # Path is a tuple of 2 elements; 1st element is a list of the dependencies for the component in the 2nd element
-        path = item.path
-        deps = path[0]
-        component_name = self._prettify_name(path[-1].name.cls_tpe)
-        if component_name in self.concrete_to_abstract_mapper.keys():
-            component_name = self.concrete_to_abstract_mapper[component_name]
-
-        for d in deps:
-            dependency = self._prettify_name(d.name.cls_tpe)
-
-            if dependency != component_name:
-                if "inputQueue" in self.repo_dict[component_name]:
-                    if dependency not in self.repo_dict[component_name]["inputQueue"]:
-                        self.repo_dict[component_name]["inputQueue"] = self.repo_dict[component_name][
-                                                                           "inputQueue"] + [dependency]
+                        self.output_dict[pretty_abst_task]["concreteImplementations"] += [pretty_task_name]
+                        self.concrete_to_abst_mapper[pretty_task_name] = pretty_abst_task
                 else:
-                    self.repo_dict[component_name]["inputQueue"] = [dependency]
+                    self.output_dict[pretty_task_name] = {"abstract": False}
 
-    def _add_config_indexes(self, repo_key):
-        item = list(self.repository[repo_key].organized)
-        component_name = self._prettify_name(repo_key.name)
-        self.repo_dict[component_name]["configIndexes"] = {}
+    def add_dependencies_and_indexed_tasks(self):
+        for k, v in self.repository.items():
+            if not isinstance(k, RepoMeta.ClassIndex):
+                if k.cls.abstract is not None:
+                    if isinstance(v, cls_python.types.Intersection):
+                        pretty_task = self._prettify_name(k.name)
+                        intersection = v
+                        inter_org = list(intersection.organized)
+                        for ix, i in enumerate(inter_org):
+                            path = i.path
+                            index = path[0][0].name.at_index
+                            indexed_t_name = path[0][1].name.cls_tpe
+                            pretty_indexed_t_name = self._prettify_name(indexed_t_name)
+                            if "configIndexes" not in self.output_dict[pretty_task]:
+                                self.output_dict[pretty_task]["configIndexes"] = {}
+                            self.output_dict[pretty_task]["configIndexes"][index] = [pretty_indexed_t_name]
 
-        for c in item:
-            path = c.path[0]
-            index = path[0].name.at_index
-            for i in path[1:]:
-                indexed_task_name = self._prettify_name(i.name.cls_tpe)
+                            if pretty_indexed_t_name in self.concrete_to_abst_mapper:
+                                pretty_indexed_t_name = self.concrete_to_abst_mapper[pretty_indexed_t_name]
 
-                if index in self.repo_dict[component_name]["configIndexes"]:
-                    self.repo_dict[component_name]["configIndexes"][index] = \
-                        self.repo_dict[component_name]["configIndexes"][index] + \
-                        [indexed_task_name]
-                else:
-                    self.repo_dict[component_name]["configIndexes"][index] = [indexed_task_name]
+                            if "inputQueue" not in self.output_dict[pretty_task]:
+                                self.output_dict[pretty_task]["inputQueue"] = []
+
+                            self.output_dict[pretty_task]["inputQueue"] += [pretty_indexed_t_name]
+
+                    if not isinstance(v, Constructor):
+                        pretty_task = self._prettify_name(k.name)
+
+                        predecessors = v.path
+                        if predecessors:
+                            for p in predecessors[0]:
+                                pretty_p = self._prettify_name(p.name.cls_tpe)
+                                if pretty_p in self.concrete_to_abst_mapper:
+                                    pretty_p = self.concrete_to_abst_mapper[pretty_p]
+                                if pretty_task in self.concrete_to_abst_mapper:
+                                    pretty_task = self.concrete_to_abst_mapper[pretty_task]
+                                if "inputQueue" not in self.output_dict[pretty_task]:
+                                    self.output_dict[pretty_task]["inputQueue"] = []
+                                self.output_dict[pretty_task]["inputQueue"] += [pretty_p]
 
     def dump_static_repo_json(self):
         outfile_name = load_json(CONFIG)['static_pipeline']
-        dump_json(outfile_name, self.repo_dict)
+        dump_json(outfile_name, self.output_dict)
