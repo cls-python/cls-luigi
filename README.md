@@ -444,11 +444,10 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
         }
     
     def run(self):
-        data = pd.read_pickle(self.input()["diabetes_data"].path)
-        X = data.drop(["target"], axis="columns")
-        y = data[["target"]]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-
+       ...
+       ...
+       ...
+    
         X_train.to_pickle(self.output()["x_train"].path)
         X_test.to_pickle(self.output()["x_test"].path)
         y_train.to_pickle(self.output()["y_train"].path)
