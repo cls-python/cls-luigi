@@ -135,28 +135,44 @@ async function staticGraph() {
 
   JSONPipeline = await fetchJSON(path);
 
-  async function getTotalNumberOfPipelines(r){
-    await r;
 
-    let n = 1;
-
-    for (let component in r){
-      if (r[component]["abstract"]){
-        n = n * r[component]["concreteImplementations"].length;
-      }
-      else if (r[component]["configIndexes"]){
-        n = n * Object.keys(r[component]["configIndexes"]).length
-      }
-    }
-    return n;
-  }
-
-  d3.select("total-pipelines")
-    .append("div")
-    .classed("total-pipelines", true)
-    .append("div")
-    .classed("title", true)
-    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(JSONPipeline));
+// TODO: make a counter for pipelines
+//  async function getTotalNumberOfPipelines(r){
+//    await r;
+//
+//    let n = 1;
+//    k = 1;
+//    let concrets = [];
+//
+//    for (let component in r){
+//      if (r[component]["abstract"]){
+//        n = n * r[component]["concreteImplementations"].length;
+//        for (let c in r[component]["concreteImplementations"]){
+//          concrets.push(r[component]["concreteImplementations"][c]);
+//        }
+//      }
+//      else if (r[component]["configIndexes"]){
+//
+//        for (let c in r[component]["configIndexes"]){
+//          for (let cc in r[component]["configIndexes"][c]){
+//            if (concrets.includes(r[component]["configIndexes"][c][cc]) === false){
+//              k +=1;
+//            }
+//          }
+//        }
+//
+//        n = n * k;
+//      }
+//    }
+//    return n;
+//  }
+//
+//  d3.select("total-pipelines")
+//    .append("div")
+//    .classed("total-pipelines", true)
+//    .append("div")
+//    .classed("title", true)
+//    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(JSONPipeline));
 
 
   await draw(JSONPipeline, g, svg, zoom, inner, render, true, -25);
