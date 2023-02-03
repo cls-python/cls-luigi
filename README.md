@@ -422,9 +422,8 @@ In the [last example](hello_world_examples/_70_ML_example_variation_point_multi_
         y_train.to_pickle(self.output()[2].path)
         y_test.to_pickle(self.output()[3].path)
 ```
-Note how we defined our outputs in *output* method, had feed in the index number of corresponding LocalTarget in the *run* method. We can do better!
-
-##### solution
+Note how we defined our outputs in *output* method, and had to feed in the index number of corresponding LocalTarget in the *run* method. We can do better than that!
+#### solution
 We can use dictionaries instead of lists, and reference the corresponding LocalTargets using keys:
 
 if your haven't looked at the 
