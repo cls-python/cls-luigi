@@ -136,45 +136,6 @@ async function staticGraph() {
   JSONPipeline = await fetchJSON(path);
 
 
-// TODO: make a counter for pipelines
-//  async function getTotalNumberOfPipelines(r){
-//    await r;
-//
-//    let n = 1;
-//    k = 1;
-//    let concrets = [];
-//
-//    for (let component in r){
-//      if (r[component]["abstract"]){
-//        n = n * r[component]["concreteImplementations"].length;
-//        for (let c in r[component]["concreteImplementations"]){
-//          concrets.push(r[component]["concreteImplementations"][c]);
-//        }
-//      }
-//      else if (r[component]["configIndexes"]){
-//
-//        for (let c in r[component]["configIndexes"]){
-//          for (let cc in r[component]["configIndexes"][c]){
-//            if (concrets.includes(r[component]["configIndexes"][c][cc]) === false){
-//              k +=1;
-//            }
-//          }
-//        }
-//
-//        n = n * k;
-//      }
-//    }
-//    return n;
-//  }
-//
-//  d3.select("total-pipelines")
-//    .append("div")
-//    .classed("total-pipelines", true)
-//    .append("div")
-//    .classed("title", true)
-//    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(JSONPipeline));
-
-
   await draw(JSONPipeline, g, svg, zoom, inner, render, true, -25);
 }
 
@@ -186,10 +147,7 @@ async function updateTaskStatus(pipeline, div){
   for (let task in pipeline) {
     let element = d3.select(div).select("#" + task);
     let node_status = pipeline[task]["status"];
-
-
-
-
+    
     // if (pipeline[task]["status"] === "RUNNING"){
     //   node_status += " warn"
     // }
@@ -219,18 +177,19 @@ async function highlightNodes(nodes){
     d3.select(".dynamic-pipeline")
         .select("#" + n)
         .attr("class", this + " warn2")
-
-
-
   }
 }
-
 
 async function dynamicGraph() {
 
    let path = await fetchJSON(config);
    path = path['dynamic_pipeline']
 
+
+  async function getTotalNumberOfPipelines(r){
+    await r;
+    return Object.keys(r).length;
+  }
 
   let svg = d3.select("svg.dynamic-pipeline"),
   inner = svg.append("g"),
@@ -246,6 +205,15 @@ async function dynamicGraph() {
 
   let rawPipelinesJSON = await fetchJSON(path);
   let combinedPipeline = await combineRawPipelinesToOne(rawPipelinesJSON);
+
+
+    // adding total number of pipelines to repository overview
+    d3.select("total-pipelines")
+    .append("div")
+    .classed("total-pipelines", true)
+    .append("div")
+    .classed("title", true)
+    .text("Total Number of Pipelines: " + await getTotalNumberOfPipelines(rawPipelinesJSON));
 
 
   async function getTotalNumberOfTasks(r){
