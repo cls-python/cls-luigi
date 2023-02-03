@@ -396,14 +396,13 @@ validator = UniqueTaskPipelineValidator([FitTransformScaler])
 results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 ```
 
-#### Using Dictionaries instead of lists in *requires* and *output* methods
+#### Using dictionaries instead of lists in *requires* and *output* methods
 Code for this example is to be found [here](hello_world_examples/_71_ML_example_with_dicts.py)
 
 Till now, we only showed how to handle multiple dependencies and outputs using lists. However, lists can be akward to handle,
 especially once you deal with nested lists. Indexes are just not very easily readable.
 
-In the [last example](hello_world_examples/_70_ML_example_variation_point_multi_usage.py) used lists in the following way:
-
+In the [last example](hello_world_examples/_70_ML_example_variation_point_multi_usage.py) we returned the output of data splitting in a list as follows:
 ```python
     def output(self):
         return [
@@ -479,7 +478,29 @@ def run(self):
 ```
 
 This obviously makes more sense with multiple dependencies.
-Lastly: if both your *output* method and your 'requires* method return don't forget that you have to reference 2 keys now. Still better as indexes :) 
+
+Lastly: if you return dictionaries in both your *output* method and your 'requires* method , don't forget that you have to reference 2 keys now. Still better as indexes :) 
+
+```python
+
+class SomeTaskA(luigi.Task, inhabitation_task.LuigiCombinator):
+   def output(self):
+      return {"output": Luigi.LocalTarget("output.suffix")}
+   
+   
+class SomeTaskA(luigi.Task, inhabitation_task.LuigiCombinator):
+   dependency = ClsParameter(tpe= SomeTaskA.return_type())
+   
+   def requires(self):
+      return {"output_from_SomeTaskA": self.dependency()}
+   
+   def run(self):
+      ...
+    # do something with your input (dependency)
+        self.input()["output_from_SomeTaskA"]["output"].path
+
+
+```
 
 
 #### CLS-Luigi Visualizer
