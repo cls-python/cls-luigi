@@ -4,7 +4,7 @@ from time import sleep
 import requests
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-from .json_io import load_json, dump_json
+from json_io import load_json, dump_json
 
 PORT = 8000
 CONFIG = "config.json"

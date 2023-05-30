@@ -4,6 +4,7 @@ from .json_io import load_json, dump_json
 
 from cls.types import Constructor
 
+
 CONFIG = "config.json"
 
 
@@ -57,7 +58,7 @@ class StaticJSONRepo:
         for k, v in self.repository.items():
             if not isinstance(k, RepoMeta.ClassIndex):
                 if k.cls.abstract is not None:
-                    if isinstance(v, cls_python.types.Intersection):
+                    if isinstance(v, cls.types.Intersection):
                         pretty_task = self._prettify_name(k.name)
                         intersection = v
                         inter_org = list(intersection.organized)
