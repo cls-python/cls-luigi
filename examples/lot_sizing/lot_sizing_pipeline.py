@@ -9,7 +9,7 @@ import pandas as pd
 import json
 
 from lot_optimizers.groff_heuristic import GroffHeuristic
-from lot_optimizers.wagner_within import WagnerWithin
+from lot_optimizers.wagner_whitin import WagnerWhitin
 from lot_optimizers.silver_meal_heuristic import SilverMeal
 from lot_optimizers.least_unit_cost_method import LeastUnitCostMethod
 from lot_optimizers.part_period_heuristic import PartPeriod
@@ -131,7 +131,7 @@ class OptimizeLotsByGroff(OptimizeLots):
         return orders
 
 
-class OptimizeLotsByWagnerWithin(OptimizeLots):
+class OptimizeLotsByWagnerWhitin(OptimizeLots):
     abstract = False
 
     def output(self):
@@ -139,7 +139,7 @@ class OptimizeLotsByWagnerWithin(OptimizeLots):
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByWagnerWithin: run")
-        optimizer = WagnerWithin()
+        optimizer = WagnerWhitin()
         orders = optimizer.run(cost, demand)
         return orders
 

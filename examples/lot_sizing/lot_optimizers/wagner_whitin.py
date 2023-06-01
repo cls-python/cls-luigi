@@ -4,7 +4,7 @@
 
 import numpy as np
 
-class WagnerWithin():
+class WagnerWhitin():
     def __init__(self):
         pass
 
@@ -120,6 +120,6 @@ if __name__ == "__main__":
     #          4000, 3400, 0, 0, 0, 4500, 400, 4500, 3400, 5400, 3000, 600, 0, 4500, 0, 0, 555, 4540, 500, 800,
     #          4555, 3000, 4555, 455, 3444, 4333, 2344, 4454, 4555, 3444]
 
-    ww = WagnerWithin()
+    ww = WagnerWhitin()
     output = ww.run(dict_in, demand)
     print(output)
