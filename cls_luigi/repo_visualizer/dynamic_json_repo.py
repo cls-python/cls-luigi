@@ -1,10 +1,10 @@
 from luigi.task import flatten
 from .json_io import load_json, dump_json
 import time
-
-
+import os
 CONFIG = "config.json"
 
+VIS = os.path.dirname(os.path.abspath(__file__))
 
 class DynamicJSONRepo:
     """
@@ -19,6 +19,13 @@ class DynamicJSONRepo:
         self.dynamic_compressed_pipeline_dict = {}
         self.dynamic_detailed_pipeline_dict = {}
         self._construct_dynamic_pipeline_dict()
+
+        self.config = load_json(CONFIG)
+        if os.path.exists(os.path.join(VIS, self.config['dynamic_pipeline'])):
+            os.remove(os.path.join(VIS, self.config['dynamic_pipeline']))
+
+
+
 
     @staticmethod
     def _prettify_task_name(task):
@@ -63,5 +70,7 @@ class DynamicJSONRepo:
 
 
     def dump_dynamic_pipeline_json(self):
-        config = load_json(CONFIG)
-        dump_json(config['dynamic_pipeline'], self.dynamic_detailed_pipeline_dict)
+
+        dump_json(self.config['dynamic_pipeline'], self.dynamic_detailed_pipeline_dict)
+
+

@@ -61,9 +61,9 @@ def update_tasks_status():
                         tasks_status.add(luigi_task_updates[loaded[k][j]["luigiName"]]["status"])
 
 
-
             dump_json(dynamic_repo_name, loaded)
-            sleep(1) # wait a sec till system stabilizes
+            print("saved")
+            sleep(0.5) # wait a sec till system stabilizes
 
             if (len(tasks_status) == 1) and ("DONE" in tasks_status):
                 keep_updating = False
@@ -72,10 +72,6 @@ def update_tasks_status():
         except:
             print("No Data Available yet\n ")
             sleep(5)
-            pass
-        finally:
-            sleep(5)
-            pass
 
 
 if __name__ == '__main__':

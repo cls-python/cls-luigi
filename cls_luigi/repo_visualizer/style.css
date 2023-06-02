@@ -91,11 +91,15 @@ svg {
   display: block;
   float: left;
   border-top-left-radius: 5px;
-  border-top-right-radius: 5px; 
+  border-top-right-radius: 5px;
 }
 
 .static.pipeline .abstractComponent .status {
   background-color: #e67d6f;
+}
+
+.static.pipeline .baseComponent .status {
+  background-color: #EEBB00;
 }
 
 .static.pipeline .notAbstractComponent .status {
@@ -158,6 +162,7 @@ svg {
   fill: #999;
 }
 
+
 h1  {
   margin: -10px;
   margin-block-end: 10px;
@@ -190,7 +195,7 @@ h2  {
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 300;
   padding: 1%;
-  
+
 
 }
 

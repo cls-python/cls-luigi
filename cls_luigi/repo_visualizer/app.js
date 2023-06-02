@@ -29,26 +29,45 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       html += "<span class=name>" + component + "</span>";
       html += "<span class=queue>" + "" + "</span>";
 
-      if (componentDetails.concreteImplementations) {
+      if (componentDetails["abstract"] === true){
         className = "abstractComponent";
-        componentDetails.concreteImplementations.map(function(item){
-          html += "<span class=queue>" + "  " + item + "</span>";
-        })
-        html += "<span class=queue>" + "" + "</span>";
-      }
-      else if (componentDetails.configIndexes){
-        className = "indexedComponent";
-        let indexes = Object.keys(componentDetails.configIndexes);
+        if (componentDetails.concreteImplementations){
+            componentDetails.concreteImplementations.map(function(item){
+                html += "<span class=queue>" + "  " + item + "</span>";
+            })
+        }
 
-        indexes.map(function(i) {
-          componentDetails.configIndexes[i].map(function(j) {
-            html += "<span class=queue>" + i + " : " + j + "</span>";
+      if (componentDetails.configIndexes){
+          html += "<span class=queue>" + " " + "</span>";
+          html += "<span class=queue>" + "Variation by Config Index" + "</span>";
+          // className = "indexedComponent";
+          let indexes = Object.keys(componentDetails.configIndexes);
+
+          indexes.map(function(i) {
+              componentDetails.configIndexes[i].map(function(j) {
+                  html += "<span class=queue>" + i + " : " + j + "</span>";})
           })
-        })
-        html += "<span class=queue>" + "" + "</span>";
+          html += "<span class=queue>" + "" + "</span>";
       }
-      else {
-        className = "notAbstractComponent";
+      html += "<span class=queue>" + "" + "</span>";
+      }
+
+      else if (componentDetails["abstract"] === false){
+          if (componentDetails.configIndexes){
+              html += "<span class=queue>" + " " + "</span>";
+              html += "<span class=queue>" + "Variation by Config Index" + "</span>";
+              // className = "indexedComponent";
+              let indexes = Object.keys(componentDetails.configIndexes);
+
+             indexes.map(function(i) {
+             componentDetails.configIndexes[i].map(function(j) {
+                 html += "<span class=queue>" + i + " : " + j + "</span>";})
+             })
+              html += "<span class=queue>" + "" + "</span>";
+          }
+          else {
+              className = "notAbstractComponent";
+          }
       }
     }
 
@@ -62,6 +81,7 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       html += "<span class=queue>"+""+"</span>";
     }
     html += "</div>";
+
 
     graph.setNode(component, {
       labelType: "html",
@@ -78,6 +98,15 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       componentDetails.inputQueue.map(function(d) {
         graph.setEdge(d, component, {});
       })
+    }
+    if (componentDetails.baseOf) {
+      componentDetails.baseOf.map(function(d) {
+        graph.setEdge(d, component, {
+              style: "stroke: #EEBB00; stroke-width: 5px; fill: none",
+              arrowheadStyle: "fill: #EEBB00",
+        });
+      })
+
     }
   }
 }
@@ -147,7 +176,7 @@ async function updateTaskStatus(pipeline, div){
   for (let task in pipeline) {
     let element = d3.select(div).select("#" + task);
     let node_status = pipeline[task]["status"];
-    
+
     // if (pipeline[task]["status"] === "RUNNING"){
     //   node_status += " warn"
     // }
