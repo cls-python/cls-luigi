@@ -1,11 +1,18 @@
 include AUTHORS.rst
 include CONTRIBUTING.rst
-include HISTORY.rst
+include CODE_OF_CONDUCT.rst
+include CHANGELOG.rst
 include LICENSE
 include README.rst
+recursive-include LICENSES *
 
-recursive-include tests *
+include cls_luigi/*
+include cls_luigi/repo_visualizer/*.js
+include cls_luigi/repo_visualizer/*.json
+include cls_luigi/repo_visualizer/*.html
+include cls_luigi/repo_visualizer/*.css
+include cls_luigi/repo_visualizer/js_lib/*.js
+
+
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
-
-recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif

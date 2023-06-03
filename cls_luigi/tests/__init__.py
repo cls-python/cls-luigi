@@ -16,15 +16,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-"""Top-level package for cls-luigi."""
-
-__version__ = "0.1.0"
-
-
-import os
-
-CURRENT_WORKING_DIRECTORY = os.getcwd()
-INVISIBLE_PATH = os.path.join(CURRENT_WORKING_DIRECTORY, '.cls_luigi')
-HASH_PATH = os.path.join(INVISIBLE_PATH, 'hash_files')
-RESULTS_PATH = os.path.join(CURRENT_WORKING_DIRECTORY, 'results')

@@ -1,4 +1,22 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 #
 # cls documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
@@ -19,6 +37,7 @@
 #
 import os
 import sys
+import shutil
 
 sys.path.insert(0, os.path.abspath(".."))
 import cls_luigi
@@ -36,6 +55,37 @@ extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", 'sphinx.ext.intersphi
 autoapi_type = 'python'
 autoapi_dirs = ['../cls_luigi']
 
+# Copy examples to docs
+DOCS_EXAMPLES = '../docs/examples'
+if os.path.exists(DOCS_EXAMPLES):
+    shutil.rmtree(DOCS_EXAMPLES)
+if not os.path.exists(DOCS_EXAMPLES):
+    os.makedirs(DOCS_EXAMPLES)
+shutil.copytree('../examples', DOCS_EXAMPLES, dirs_exist_ok=True)
+
+if os.path.exists('examples.rst'):
+    os.remove('examples.rst')
+
+with open("examples.rst", 'w+') as f:
+    f.write('Examples\n')
+    f.write('========\n\n')
+
+    f.write('You can find all the examples along with their source code here_.\n\n')
+
+    f.write('.. toctree::\n')
+    f.write('   :maxdepth: 2\n\n')
+
+    for root, dirs, files in os.walk("examples"):
+        for file in files:
+            if file.endswith('.rst'):
+                readme_path = os.path.join(root, file)
+                dir_name = os.path.basename(os.path.dirname(readme_path))
+                if dir_name == "getting_started":
+                    break
+                rel_path = os.path.relpath(os.path.join(root, file), "examples")
+                f.write(f'   ../examples/{os.path.splitext(rel_path)[0]}\n')
+    f.write('.. _here: https://github.com/cls-python/cls-luigi/tree/main/examples\n')
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -50,8 +100,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "cls-luigi"
-copyright = "2022, Jan Bessai"
-author = "Jan Bessai"
+copyright = "2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek"
+author = "Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -98,6 +148,7 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
 
 html_logo = "images/cls-luigi-logo-transparent-scale.png"
 # html_theme_options = {

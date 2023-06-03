@@ -1,6 +1,3 @@
-Getting Started
-===============
+.. toctree::
 
-To use CLS-Luigi in a project::
-
-    import cls_luigi
+   examples/getting_started/README

@@ -8,7 +8,6 @@
    examples
    autoapi/index
    package
-   design_and_limitations
    contributing
    authors
    code_of_conduct
