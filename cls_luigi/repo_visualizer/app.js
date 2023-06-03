@@ -1,3 +1,21 @@
+// #
+// # Apache Software License 2.0
+// #
+// # Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+// #
+// # Licensed under the Apache License, Version 2.0 (the "License");
+// # you may not use this file except in compliance with the License.
+// # You may obtain a copy of the License at
+// #
+// # http://www.apache.org/licenses/LICENSE-2.0
+// #
+// # Unless required by applicable law or agreed to in writing, software
+// # distributed under the License is distributed on an "AS IS" BASIS,
+// # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// # See the License for the specific language governing permissions and
+// # limitations under the License.
+// #
+
 let config = 'config.json';
 
 async function fetchJSON(path){
@@ -29,45 +47,26 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       html += "<span class=name>" + component + "</span>";
       html += "<span class=queue>" + "" + "</span>";
 
-      if (componentDetails["abstract"] === true){
+      if (componentDetails.concreteImplementations) {
         className = "abstractComponent";
-        if (componentDetails.concreteImplementations){
-            componentDetails.concreteImplementations.map(function(item){
-                html += "<span class=queue>" + "  " + item + "</span>";
-            })
-        }
+        componentDetails.concreteImplementations.map(function(item){
+          html += "<span class=queue>" + "  " + item + "</span>";
+        })
+        html += "<span class=queue>" + "" + "</span>";
+      }
+      else if (componentDetails.configIndexes){
+        className = "indexedComponent";
+        let indexes = Object.keys(componentDetails.configIndexes);
 
-      if (componentDetails.configIndexes){
-          html += "<span class=queue>" + " " + "</span>";
-          html += "<span class=queue>" + "Variation by Config Index" + "</span>";
-          // className = "indexedComponent";
-          let indexes = Object.keys(componentDetails.configIndexes);
-
-          indexes.map(function(i) {
-              componentDetails.configIndexes[i].map(function(j) {
-                  html += "<span class=queue>" + i + " : " + j + "</span>";})
+        indexes.map(function(i) {
+          componentDetails.configIndexes[i].map(function(j) {
+            html += "<span class=queue>" + i + " : " + j + "</span>";
           })
-          html += "<span class=queue>" + "" + "</span>";
+        })
+        html += "<span class=queue>" + "" + "</span>";
       }
-      html += "<span class=queue>" + "" + "</span>";
-      }
-
-      else if (componentDetails["abstract"] === false){
-          if (componentDetails.configIndexes){
-              html += "<span class=queue>" + " " + "</span>";
-              html += "<span class=queue>" + "Variation by Config Index" + "</span>";
-              // className = "indexedComponent";
-              let indexes = Object.keys(componentDetails.configIndexes);
-
-             indexes.map(function(i) {
-             componentDetails.configIndexes[i].map(function(j) {
-                 html += "<span class=queue>" + i + " : " + j + "</span>";})
-             })
-              html += "<span class=queue>" + "" + "</span>";
-          }
-          else {
-              className = "notAbstractComponent";
-          }
+      else {
+        className = "notAbstractComponent";
       }
     }
 
@@ -81,7 +80,6 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       html += "<span class=queue>"+""+"</span>";
     }
     html += "</div>";
-
 
     graph.setNode(component, {
       labelType: "html",
@@ -98,15 +96,6 @@ async function addNodesAndEdges(JSONPipelines, graph, static=true) {
       componentDetails.inputQueue.map(function(d) {
         graph.setEdge(d, component, {});
       })
-    }
-    if (componentDetails.baseOf) {
-      componentDetails.baseOf.map(function(d) {
-        graph.setEdge(d, component, {
-              style: "stroke: #EEBB00; stroke-width: 5px; fill: none",
-              arrowheadStyle: "fill: #EEBB00",
-        });
-      })
-
     }
   }
 }
@@ -285,7 +274,7 @@ async function dynamicGraph() {
         for (const k in combinedPipeline){
           TotalProcessingTime = TotalProcessingTime + combinedPipeline[k]["processingTime"];
         }
-        const total = (TotalProcessingTime/ 60).toFixed(2);
+        let total = (TotalProcessingTime/ 60).toFixed(4);
 
         d3.select("#dynamic_p")
           .append("div")

@@ -1,10 +1,30 @@
+# -*- coding: utf-8 -*-
+#
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import os
 from threading import Thread
 from time import sleep
 import requests
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-from json_io import load_json, dump_json
+from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+VIS = os.path.dirname(os.path.abspath(__file__))
 
 PORT = 8000
 CONFIG = "config.json"
@@ -18,6 +38,7 @@ def main():
     print("Task-Status Updater is ready\n")
 
     try:
+        os.chdir(os.path.dirname(__file__))
         httpd = HTTPServer(('', PORT), SimpleHTTPRequestHandler)
         print("\nStarted visualization server\n\nNavigate to: ",
               link('http://localhost:{}/\n\n\n'.format(PORT)))
@@ -42,7 +63,7 @@ def start_luigi_daemon():
 
 
 def update_tasks_status():
-    dynamic_repo_name = load_json(CONFIG)['dynamic_pipeline']
+    dynamic_repo_name = os.path.join(VIS, 'dynamic_pipeline.json')
 
     keep_updating = True
     while keep_updating:
@@ -61,17 +82,21 @@ def update_tasks_status():
                         tasks_status.add(luigi_task_updates[loaded[k][j]["luigiName"]]["status"])
 
 
-            dump_json(dynamic_repo_name, loaded)
-            print("saved")
-            sleep(0.5) # wait a sec till system stabilizes
 
-            if (len(tasks_status) == 1) and ("DONE" in tasks_status):
-                keep_updating = False
-                print('All tasks completed \nStoping updating task status')
+            dump_json(dynamic_repo_name, loaded)
+            sleep(1) # wait a sec till system stabilizes
+
+            # if (len(tasks_status) == 1) and ("DONE" in tasks_status):
+            #     keep_updating = False
+            #     print('All tasks completed \nStoping updating task status')
 
         except:
             print("No Data Available yet\n ")
-            sleep(5)
+            sleep(3)
+            pass
+        finally:
+            sleep(3)
+            pass
 
 
 if __name__ == '__main__':

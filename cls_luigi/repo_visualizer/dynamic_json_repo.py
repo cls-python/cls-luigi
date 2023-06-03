@@ -1,10 +1,32 @@
+# -*- coding: utf-8 -*-
+#
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 from luigi.task import flatten
-from .json_io import load_json, dump_json
+from cls_luigi.repo_visualizer.json_io import load_json, dump_json
 import time
 import os
-CONFIG = "config.json"
 
 VIS = os.path.dirname(os.path.abspath(__file__))
+
+
+CONFIG = "config.json"
+
 
 class DynamicJSONRepo:
     """
@@ -20,11 +42,11 @@ class DynamicJSONRepo:
         self.dynamic_detailed_pipeline_dict = {}
         self._construct_dynamic_pipeline_dict()
 
-        self.config = load_json(CONFIG)
-        if os.path.exists(os.path.join(VIS, self.config['dynamic_pipeline'])):
-            os.remove(os.path.join(VIS, self.config['dynamic_pipeline']))
 
+        self.dynamic_pipeline_json = os.path.join(VIS, 'dynamic_pipeline.json')
 
+        if os.path.exists(self.dynamic_pipeline_json):
+            os.remove(self.dynamic_pipeline_json)
 
 
     @staticmethod
@@ -70,7 +92,5 @@ class DynamicJSONRepo:
 
 
     def dump_dynamic_pipeline_json(self):
-
-        dump_json(self.config['dynamic_pipeline'], self.dynamic_detailed_pipeline_dict)
-
-
+        outfile_name = self.dynamic_pipeline_json
+        dump_json(outfile_name, self.dynamic_detailed_pipeline_dict)
