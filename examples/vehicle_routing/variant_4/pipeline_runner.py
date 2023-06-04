@@ -3,14 +3,10 @@ from tour_planning_tasks import *
 import os
 from os.path import join as pjoin
 
-
-sys.path.append('../')
-sys.path.append('../../')
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
-from inhabitation_task import ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
-from repo_visualizer.static_json_repo import StaticJSONRepo
-from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
+from cls.fcl import FiniteCombinatoryLogic
+from cls.subtypes import Subtypes
 
 class RunCLSPipelines(globalConfig, luigi.Task):
 
@@ -20,7 +16,7 @@ class RunCLSPipelines(globalConfig, luigi.Task):
     def run(self):
         target = CreateHashMapResult.return_type()
         repository = RepoMeta.repository
-            
+
         fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
         inhabitation_result = fcl.inhabit(target)
         max_tasks_when_infinite = 10
@@ -46,7 +42,7 @@ class RunCLSPipelines(globalConfig, luigi.Task):
 
 class FilterBestResult(globalConfig, luigi.Task):
     best_result = ("NONE", 0)
-    
+
     def requires(self):
         return RunCLSPipelines()
 
@@ -54,7 +50,7 @@ class FilterBestResult(globalConfig, luigi.Task):
         return {"best_result": luigi.LocalTarget(pjoin(str(self.best_result_path), "best_result.txt"))}
 
     def run(self):
-        
+
         for filename in os.listdir(str(self.solver_result_path)):
             if filename.endswith("solver_result.txt"):
                 with open(os.path.join(str(self.solver_result_path), filename), "r") as solver_result:
@@ -66,8 +62,8 @@ class FilterBestResult(globalConfig, luigi.Task):
                         self.best_result = (filename, objVal)
         with open(self.output()["best_result"].path, "w") as result:
             result.write(str(self.best_result))
-        
-        
+
+
 
 
 if __name__ == '__main__':

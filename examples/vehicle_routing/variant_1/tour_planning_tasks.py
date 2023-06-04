@@ -19,13 +19,11 @@ from multimethod import multimethod
 from mptop_instance_helper import *
 import pickle
 
-sys.path.append('../')
-sys.path.append('../../')
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
-from inhabitation_task import ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
-from repo_visualizer.static_json_repo import StaticJSONRepo
-from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
+
+from cls.fcl import FiniteCombinatoryLogic
+from cls.subtypes import Subtypes
 
 
 
@@ -118,7 +116,7 @@ class AbstractRoutingPhase(CLSTask, globalConfig):
 
     def _routing_method(self):
         """
-        This method represents the routing method. 
+        This method represents the routing method.
         -----------------------------------------------------------------------
 
         There are no real restrictions or guidelines on how to implement your routing method. You only need to fill
@@ -537,7 +535,7 @@ class OsrmRoutingPhase(AbstractRoutingPhase):
 
 class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase):
     """
-    Implementation of a RoutingPhase that uses the DistanceMatrixAi Webservice. Make sure to set the 
+    Implementation of a RoutingPhase that uses the DistanceMatrixAi Webservice. Make sure to set the
     environment variable DISTANCEMATRIXAIAPI as a environment variable and provide your personal API Key.
     """
     abstract = False
@@ -1043,7 +1041,7 @@ class AbstractSolverPhase(CLSTask, globalConfig):
 
     def _create_result_file(self, solver_result_file_path: str):
         """
-        Takes the result file of the _run_solver() method and creates the luigi.LocalTarget. 
+        Takes the result file of the _run_solver() method and creates the luigi.LocalTarget.
         """
         final_result_content = ""
         with open(solver_result_file_path, "r") as source_file:
@@ -1263,7 +1261,7 @@ class FindBestResult(CLSTask, globalConfig):
                 with open(self.input()["hash_map_result_pickle"].path, "rb") as pkl_file:
                     new_dict = pickle.load(pkl_file, encoding='bytes')
                     variant_label = self._get_variant_label()
-                    for key in new_dict.keys():                
+                    for key in new_dict.keys():
                         if key in variant_label:
                             variant_label = variant_label.replace(key, str(new_dict[key]))
                             break
@@ -1283,9 +1281,9 @@ class FindBestResult(CLSTask, globalConfig):
 def run_main():
     target = FindBestResult.return_type()
     repository = RepoMeta.repository
-    
+
     # StaticJSONRepo(RepoMeta).dump_static_repo_json()
-    
+
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10

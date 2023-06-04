@@ -19,13 +19,10 @@ from multimethod import multimethod
 from mptop_instance_helper import *
 import pickle
 
-sys.path.append('../')
-sys.path.append('../../')
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
-from inhabitation_task import ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
-from repo_visualizer.static_json_repo import StaticJSONRepo
-from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
+from cls.fcl import FiniteCombinatoryLogic
+from cls.subtypes import Subtypes
 
 
 
@@ -118,7 +115,7 @@ class AbstractRoutingPhase(CLSTask, globalConfig):
 
     def _routing_method(self):
         """
-        This method represents the routing method. 
+        This method represents the routing method.
         -----------------------------------------------------------------------
 
         There are no real restrictions or guidelines on how to implement your routing method. You only need to fill
@@ -537,7 +534,7 @@ class OsrmRoutingPhase(AbstractRoutingPhase):
 
 class DistanceMatrixAiRoutingPhase(AbstractRoutingPhase):
     """
-    Implementation of a RoutingPhase that uses the DistanceMatrixAi Webservice. Make sure to set the 
+    Implementation of a RoutingPhase that uses the DistanceMatrixAi Webservice. Make sure to set the
     environment variable DISTANCEMATRIXAIAPI as a environment variable and provide your personal API Key.
     """
     abstract = False
@@ -947,10 +944,10 @@ class NonAbstractNSConfigPack(AbstractNSConfigPack):
 
 class NonNonAbstractNSConfigPack(NonAbstractNSConfigPack):
     abstract = True
-    
+
 class AbstractNonNonAbstractNSConfigPack(NonNonAbstractNSConfigPack):
     abstract = True
-    
+
 class Test1111(AbstractNonNonAbstractNSConfigPack):
     abstract = False
 
@@ -1061,7 +1058,7 @@ class AbstractSolverPhase(CLSTask, globalConfig):
 
     def _create_result_file(self, solver_result_file_path: str):
         """
-        Takes the result file of the _run_solver() method and creates the luigi.LocalTarget. 
+        Takes the result file of the _run_solver() method and creates the luigi.LocalTarget.
         """
         final_result_content = ""
         with open(solver_result_file_path, "r") as source_file:
@@ -1273,21 +1270,21 @@ class FinalTask_old(luigi.WrapperTask, LuigiCombinator):
         return self.substitute_name()
 
 def run_main():
-   
+
     target = CreateHashMapResult.return_type()
     repository = RepoMeta.filtered_repository([DistanceMatrixAiRoutingPhase, NsScoringPhase, SabcScoringPhase, (AbstractMptopConfig,[NSConfig1, NSConfig2, NSConfig3])])
-    
+
     for item in repository:
         print("#################")
         print("key: ", str(item), " :-> ", "value: ", str(repository[item]))
         print(repository[item])
         print("#################")
-        
+
     for item in RepoMeta.subtypes:
         print("++++++++++++++++++++")
         print("key: ", str(item), " :-> ", "value: ", str(RepoMeta.subtypes[item]))
         print("++++++++++++++++++++")
-    
+
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     max_tasks_when_infinite = 10

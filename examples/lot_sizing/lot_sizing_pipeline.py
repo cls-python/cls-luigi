@@ -1,4 +1,5 @@
 import luigi
+import os
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -7,6 +8,7 @@ from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 
 import pandas as pd
 import json
+from pathlib import Path
 
 from lot_optimizers.groff_heuristic import GroffHeuristic
 from lot_optimizers.wagner_whitin import WagnerWhitin
@@ -26,6 +28,7 @@ class GetCost(luigi.Task, LuigiCombinator):
             "fixedCost" : 400,  # Bestellkosten
             "varCost" : 1,  # Lagerhaltungssatz
         }
+        os.makedirs('data', exist_ok=True)
         with open(self.output().path, 'w') as f:
             json.dump(d, f, indent=4)
 
@@ -117,12 +120,17 @@ class OptimizeLots(luigi.Task, LuigiCombinator):
     def run_optimizer(self, cost, demand):
         return NotImplementedError()
 
+    def _get_variant_label(self):
+        if isinstance(self.input()[1], luigi.LocalTarget):
+            label = self.input()[1].path
+            return Path(label).stem
+
 
 class OptimizeLotsByGroff(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/optimize_lots_by_groff.txt')
+        return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_groff.txt')
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByGroff: run")
@@ -135,7 +143,7 @@ class OptimizeLotsByWagnerWhitin(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/optimize_lots_by_wagner_within.txt')
+        return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_wagner_within.txt')
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByWagnerWithin: run")
@@ -148,7 +156,7 @@ class OptimizeLotsBySilverMeal(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/optimize_lots_by_silver_meal.txt')
+        return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_silver_meal.txt')
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsBySilverMeal: run")
@@ -161,7 +169,7 @@ class OptimizeLotsByLeastUnitCost(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/optimize_lots_by_least_unit_cost.txt')
+        return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_least_unit_cost.txt')
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByLeastUnitCost: run")
@@ -174,7 +182,7 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/optimize_lots_by_part_period.txt')
+        return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_part_period.txt')
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByPartPeriod: run")
@@ -193,9 +201,6 @@ if __name__ == "__main__":
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     print(deep_str(inhabitation_result.rules))
-    print("TREE:============")
-    print(str())
-    print("TREE:============")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
@@ -209,6 +214,6 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True)
+        luigi.build(results, local_scheduler=False, detailed_summary=True)
     else:
         print("No results!")
