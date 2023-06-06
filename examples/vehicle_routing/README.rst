@@ -9,15 +9,15 @@ abilities of CLS Luigi and get used to it.
 This is an overview of the pipeline i implemented during my master
 thesis:
 
-.. figure:: images/profitable_tour_pipeline_mthesis.svg
-   :alt: thesis_:_pipeline
+.. image:: images/profitable_tour_pipeline_mthesis.svg
+    :class: fullscreen-image
 
-   thesis_:_pipeline
 
 This is an overview over what i intended to implement:
 
 .. figure:: images/pipeline_to_implement.svg
    :alt: pipeline_to_implement
+   :class: fullscreen-image
 
    pipeline_to_implement
 

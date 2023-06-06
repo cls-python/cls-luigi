@@ -1,10 +1,10 @@
 .. include:: ../README.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    installation
-   getting_started
+   examples/getting_started/README
    examples
    autoapi/index
    package
