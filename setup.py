@@ -46,7 +46,7 @@ setup(
     python_requires=">=3.10",
     project_urls={
         "Bug Tracker": "https://github.com/cls-python/cls-luigi/issues",
-        "Documentation": "TODO",
+        "Documentation": "https://cls-python.github.io/cls-luigi",
         "Source Code": "https://github.com/cls-python/cls-luigi",
     },
     classifiers=[
