@@ -1,0 +1,15 @@
+:py:mod:`cls_luigi.tests`
+=========================
+
+.. py:module:: cls_luigi.tests
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   test_inhabitation_task_repometa/index.rst
+
+

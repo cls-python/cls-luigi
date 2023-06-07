@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ML-Blood Sugar Level Example &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/js/fullscreen.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Vehicle Routing Example" href="../vehicle_routing/README.html" />
+    <link rel="prev" title="NY Taxi Example" href="../ny_taxi/README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ny_taxi/README.html">NY Taxi Example</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ML-Blood Sugar Level Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#static-visualization">Static Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-visualization">Dynamic Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../vehicle_routing/README.html">Vehicle Routing Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../lot_sizing/README.html">Lot Sizing Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples</a></li>
+      <li class="breadcrumb-item active">ML-Blood Sugar Level Example</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/cls-python/cls-luigi/blob/main/docs/examples/ml_blood_sugar_level/README.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ml-blood-sugar-level-example">
+<h1>ML-Blood Sugar Level Example<a class="headerlink" href="#ml-blood-sugar-level-example" title="Permalink to this heading"></a></h1>
+<p>You can find the source for the example <a class="reference external" href="https://github.com/cls-python/cls-luigi/tree/main/examples/ml_blood_sugar_level/">here</a>:</p>
+<p>Here we used CLS-Luigi to create a ML Pipeline to predict the blood sugar level of some patients.
+The Steps are very easy to understand. We start by loading the dataset from Scikit-Learn, then we split it into 2 subsets for training and testing.</p>
+<p>The first variation point is the scaling method. We introduce 2 concrete implementation, namely <code class="docutils literal notranslate"><span class="pre">RobustScaler</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">MinMaxScaler</span></code>.
+After scaling we have our second variation point which is the regression model. Here we have also 2 concrete implementation, namely <code class="docutils literal notranslate"><span class="pre">LinearRegression</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">LassoLars</span></code>.</p>
+<p>Lastly we evaluate each regression model by predicting the testing target and calculating the root mean squared error.</p>
+<p><code class="docutils literal notranslate"><span class="pre">variant_1.py</span></code> and <code class="docutils literal notranslate"><span class="pre">variant_2.py</span></code> both implement the same pipeline, but in <code class="docutils literal notranslate"><span class="pre">variant_2.py</span></code> we tested out to use dictionaries for
+the <code class="docutils literal notranslate"><span class="pre">required</span></code> and <code class="docutils literal notranslate"><span class="pre">output</span></code> methods of tasks to get overall a more understandable and easier-to-read source code. For more
+information on that, check out the <a class="reference internal" href="../getting_started/README.html"><span class="doc">getting started tutorial</span></a></p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
+<p>The example contains a <a class="reference external" href="https://github.com/cls-python/cls-luigi/tree/main/examples/ml_blood_sugar_level/requirements.txt">requirements.txt</a> file. To experiment with the example, you can set up your environment by executing the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># cd into the ml blood sugar level example folder</span>
+<span class="linenos">2</span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="static-visualization">
+<h2>Static Visualization<a class="headerlink" href="#static-visualization" title="Permalink to this heading"></a></h2>
+<img alt="../../_images/static1.png" class="fullscreen-image" src="../../_images/static1.png" />
+</section>
+<section id="dynamic-visualization">
+<h2>Dynamic Visualization<a class="headerlink" href="#dynamic-visualization" title="Permalink to this heading"></a></h2>
+<img alt="../../_images/dynamic1.png" class="fullscreen-image" src="../../_images/dynamic1.png" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../ny_taxi/README.html" class="btn btn-neutral float-left" title="NY Taxi Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../vehicle_routing/README.html" class="btn btn-neutral float-right" title="Vehicle Routing Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

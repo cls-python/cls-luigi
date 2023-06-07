@@ -1,0 +1,574 @@
+:py:mod:`cls_luigi.tests.test_inhabitation_task_repometa`
+=========================================================
+
+.. py:module:: cls_luigi.tests.test_inhabitation_task_repometa
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.tests.test_inhabitation_task_repometa.StartNode
+   cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4
+   cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3
+   cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain
+   cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6
+   cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7
+   cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass
+   cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1
+   cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2
+   cls_luigi.tests.test_inhabitation_task_repometa.EndNode
+   cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode
+   cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask
+   cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict
+
+
+
+.. py:class:: StartNode(*args, **kwargs)
+
+   Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+   .. py:method:: output()
+
+      The output that this Task produces.
+
+      The output of the Task determines if the Task needs to be run--the task
+      is considered finished iff the outputs all exist. Subclasses should
+      override this method to return a single :py:class:`Target` or a list of
+      :py:class:`Target` instances.
+
+      Implementation note
+        If running multiple workers, the output must be a resource that is accessible
+        by all workers, such as a DFS or database. Otherwise, workers might compute
+        the same output since they don't see the work done by other workers.
+
+      See :ref:`Task.output`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+
+.. py:class:: SomeAbstractClass(*args, **kwargs)
+
+   Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+   .. py:method:: output()
+
+      The output that this Task produces.
+
+      The output of the Task determines if the Task needs to be run--the task
+      is considered finished iff the outputs all exist. Subclasses should
+      override this method to return a single :py:class:`Target` or a list of
+      :py:class:`Target` instances.
+
+      Implementation note
+        If running multiple workers, the output must be a resource that is accessible
+        by all workers, such as a DFS or database. Otherwise, workers might compute
+        the same output since they don't see the work done by other workers.
+
+      See :ref:`Task.output`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+
+.. py:class:: ConcreteClass4(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: SomeAbstractAbstractClass(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+
+.. py:class:: ConcreteClass1(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: ConcreteClass2(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: ConcreteClass3(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: SomeOtherAbstractAbstractClass(*args, **kwargs)
+
+   Bases: :py:obj:`SomeAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+
+.. py:class:: ConcreteClassInAbstractChain(*args, **kwargs)
+
+   Bases: :py:obj:`SomeOtherAbstractAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: AbstractFromConcreteClassInChain(*args, **kwargs)
+
+   Bases: :py:obj:`ConcreteClassInAbstractChain`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+
+.. py:class:: ConcreteClass5(*args, **kwargs)
+
+   Bases: :py:obj:`AbstractFromConcreteClassInChain`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: ConcreteClass6(*args, **kwargs)
+
+   Bases: :py:obj:`AbstractFromConcreteClassInChain`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: ConcreteClass7(*args, **kwargs)
+
+   Bases: :py:obj:`AbstractFromConcreteClassInChain`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: UnrelatedAbstractClass(*args, **kwargs)
+
+   Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+   .. py:attribute:: some_class
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+   .. py:method:: output()
+
+      The output that this Task produces.
+
+      The output of the Task determines if the Task needs to be run--the task
+      is considered finished iff the outputs all exist. Subclasses should
+      override this method to return a single :py:class:`Target` or a list of
+      :py:class:`Target` instances.
+
+      Implementation note
+        If running multiple workers, the output must be a resource that is accessible
+        by all workers, such as a DFS or database. Otherwise, workers might compute
+        the same output since they don't see the work done by other workers.
+
+      See :ref:`Task.output`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+
+.. py:class:: UnrelatedConcreteClass1(*args, **kwargs)
+
+   Bases: :py:obj:`UnrelatedAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: UnrelatedConcreteClass2(*args, **kwargs)
+
+   Bases: :py:obj:`UnrelatedAbstractClass`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+
+.. py:class:: EndNode(*args, **kwargs)
+
+   Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+   .. py:attribute:: unreleated_class
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+   .. py:method:: output()
+
+      The output that this Task produces.
+
+      The output of the Task determines if the Task needs to be run--the task
+      is considered finished iff the outputs all exist. Subclasses should
+      override this method to return a single :py:class:`Target` or a list of
+      :py:class:`Target` instances.
+
+      Implementation note
+        If running multiple workers, the output must be a resource that is accessible
+        by all workers, such as a DFS or database. Otherwise, workers might compute
+        the same output since they don't see the work done by other workers.
+
+      See :ref:`Task.output`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+
+.. py:class:: EndEndNode(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.Task`, :py:obj:`cls_luigi.inhabitation_task.LuigiCombinator`
+
+   This is the base class of all Luigi Tasks, the base unit of work in Luigi.
+
+   A Luigi Task describes a unit or work.
+
+   The key methods of a Task, which must be implemented in a subclass are:
+
+   * :py:meth:`run` - the computation done by this task.
+   * :py:meth:`requires` - the list of Tasks that this Task depends on.
+   * :py:meth:`output` - the output :py:class:`Target` that this Task creates.
+
+   Each :py:class:`~luigi.Parameter` of the Task should be declared as members:
+
+   .. code:: python
+
+       class MyTask(luigi.Task):
+           count = luigi.IntParameter()
+           second_param = luigi.Parameter()
+
+   In addition to any declared properties and methods, there are a few
+   non-declared properties, which are created by the :py:class:`Register`
+   metaclass:
+
+
+
+.. py:class:: WrapperTask(*args, **kwargs)
+
+   Bases: :py:obj:`cls_luigi.cls_tasks.ClsWrapperTask`
+
+   Abstract class representing a CLS-Luigi wrapper task. It combines the functionality of `luigi.WrapperTask`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: False
+
+      
+
+   .. py:attribute:: config
+
+      
+
+   .. py:attribute:: config_domain
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+
+.. py:class:: TestRepositoryFilterMethods(methodName='runTest')
+
+   Bases: :py:obj:`unittest.TestCase`
+
+   A class whose instances are single test cases.
+
+   By default, the test code itself should be placed in a method named
+   'runTest'.
+
+   If the fixture may be used for many test cases, create as
+   many test methods as are needed. When instantiating such a TestCase
+   subclass, specify in the constructor arguments the name of the test method
+   that the instance is to execute.
+
+   Test authors should subclass TestCase for their own tests. Construction
+   and deconstruction of the test's environment ('fixture') can be
+   implemented by overriding the 'setUp' and 'tearDown' methods respectively.
+
+   If it is necessary to override the __init__ method, the base class
+   __init__ method must always be called. It is important that subclasses
+   should not change the signature of their __init__ method, since instances
+   of the classes are instantiated automatically by parts of the framework
+   in order to be run.
+
+   When subclassing TestCase, you can set these attributes:
+   * failureException: determines which exception will be raised when
+       the instance's assertion methods fail; test methods raising this
+       exception will be deemed to have 'failed' rather than 'errored'.
+   * longMessage: determines whether long messages (including repr of
+       objects used in assert methods) will be printed on failure in *addition*
+       to any explicit message passed.
+   * maxDiff: sets the maximum length of a diff in failure messages
+       by assert methods using difflib. It is looked up as an instance
+       attribute so can be configured by individual tests if required.
+
+   .. py:method:: tearDownClass()
+      :classmethod:
+
+      Hook method for deconstructing the class fixture after running all tests in the class.
+
+
+   .. py:method:: test_get_list_of_all_upstream_classes_ConcreteClass3()
+
+
+   .. py:method:: test_get_list_of_all_upstream_classes_ConcreteClass4()
+
+
+   .. py:method:: test_get_list_of_all_upstream_classes_ConcreteClass5()
+
+
+   .. py:method:: test_get_list_of_all_upstream_abstract_classes_ConcreteClass3()
+
+
+   .. py:method:: test_get_list_of_all_upstream_abstract_classes_ConcreteClass5()
+
+
+   .. py:method:: test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain()
+
+
+   .. py:method:: test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain()
+
+
+   .. py:method:: test_get_all_upstream_classes_ConcreteClass1()
+
+
+   .. py:method:: test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain()
+
+
+   .. py:method:: test_get_set_of_all_downstream_classes_SomeAbstractClass()
+
+
+   .. py:method:: test_get_all_downstream_abstract_classes_SomeAbstractClass()
+
+
+   .. py:method:: test_get_all_downstream_abstract_classes_UnrelatedAbstractClass()
+
+
+   .. py:method:: test_get_class_chain_SomeAbstractClass()
+
+
+   .. py:method:: test_get_class_chain_ConcreteClass5()
+
+
+   .. py:method:: test_get_abstract_class_chain_SomeAbstractClass()
+
+
+   .. py:method:: test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6()
+
+
+   .. py:method:: test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7()
+
+
+   .. py:method:: test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain()
+
+
+   .. py:method:: test_get_all_downstream_concrete_classes_SomeAbstractClass()
+
+
+   .. py:method:: test_delete_related_combinators_1()
+
+
+   .. py:method:: test_delete_related_combinators_2()
+
+
+   .. py:method:: test_filtered_repository_SomeAbstractAbstractClass()
+
+
+   .. py:method:: test_filtered_repository_ConcreteClass1_ConcreteClass2()
+
+
+   .. py:method:: test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1()
+
+
+   .. py:method:: test_filtered_repository_with_deep_filter()
+
+
+
+.. py:function:: show_repository_and_subtypes_dict()
+
+

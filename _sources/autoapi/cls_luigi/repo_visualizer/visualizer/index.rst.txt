@@ -1,0 +1,58 @@
+:py:mod:`cls_luigi.repo_visualizer.visualizer`
+==============================================
+
+.. py:module:: cls_luigi.repo_visualizer.visualizer
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.visualizer.main
+   cls_luigi.repo_visualizer.visualizer.link
+   cls_luigi.repo_visualizer.visualizer.start_luigi_daemon
+   cls_luigi.repo_visualizer.visualizer.update_tasks_status
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.visualizer.VIS
+   cls_luigi.repo_visualizer.visualizer.PORT
+   cls_luigi.repo_visualizer.visualizer.CONFIG
+
+
+.. py:data:: VIS
+
+   
+
+.. py:data:: PORT
+   :value: 8000
+
+   
+
+.. py:data:: CONFIG
+   :value: 'config.json'
+
+   
+
+.. py:function:: main()
+
+
+.. py:function:: link(uri, label=None)
+
+
+.. py:function:: start_luigi_daemon()
+
+
+.. py:function:: update_tasks_status()
+
+

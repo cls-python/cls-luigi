@@ -1,0 +1,55 @@
+:py:mod:`cls_luigi.repo_visualizer.dynamic_json_repo`
+=====================================================
+
+.. py:module:: cls_luigi.repo_visualizer.dynamic_json_repo
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.dynamic_json_repo.DynamicJSONRepo
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.dynamic_json_repo.VIS
+   cls_luigi.repo_visualizer.dynamic_json_repo.CONFIG
+
+
+.. py:data:: VIS
+
+   
+
+.. py:data:: CONFIG
+   :value: 'config.json'
+
+   
+
+.. py:class:: DynamicJSONRepo(cls_results)
+
+   Constructs a single json pipeline representation from all pipelines, that are produced from the FiniteCombinatoryLogic.
+   The pipeline doesn't include any abstract tasks.
+
+   The status of each task in the pipelines will be updated from within JavaScript-app via : http://localhost:8082/api/task_list .
+
+   .. py:method:: _prettify_task_name(task)
+      :staticmethod:
+
+
+   .. py:method:: _construct_dynamic_pipeline_dict()
+
+
+   .. py:method:: dump_dynamic_pipeline_json()
+
+
+

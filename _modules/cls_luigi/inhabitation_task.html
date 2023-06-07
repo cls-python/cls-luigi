@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/js/fullscreen.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../cls_luigi.html">cls_luigi</a></li>
+      <li class="breadcrumb-item active">cls_luigi.inhabitation_task</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cls_luigi.inhabitation_task</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Apache Software License 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span> <span class="k">as</span> <span class="n">PyType</span>
+<span class="kn">from</span> <span class="nn">cls.fcl</span> <span class="kn">import</span> <span class="n">FiniteCombinatoryLogic</span><span class="p">,</span> <span class="n">InhabitationResult</span>
+<span class="kn">from</span> <span class="nn">cls.types</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Constructor</span><span class="p">,</span> <span class="n">Arrow</span>
+<span class="kn">import</span> <span class="nn">cls.cls_json</span> <span class="k">as</span> <span class="nn">cls_json</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">import</span> <span class="nn">luigi</span>
+<span class="kn">from</span> <span class="nn">luigi.task_register</span> <span class="kn">import</span> <span class="n">Register</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
+
+<span class="kn">from</span> <span class="nn">cls_luigi.repo_visualizer.json_io</span> <span class="kn">import</span> <span class="n">load_json</span><span class="p">,</span> <span class="n">dump_json</span>
+<span class="kn">from</span> <span class="nn">cls_luigi.unique_task_pipeline_validator</span> <span class="kn">import</span> <span class="n">UniqueTaskPipelineValidator</span>
+
+<div class="viewcode-block" id="CONFIG"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CONFIG">[docs]</a><span class="n">CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config.json&quot;</span></div>
+
+
+<div class="viewcode-block" id="TaskProcessingTime"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskProcessingTime">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessingTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A mixin that when added to a luigi task, will save</span>
+<span class="sd">    the tasks execution time to the dynamic_pipeline.json</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nd">@luigi</span><span class="o">.</span><span class="n">Task</span><span class="o">.</span><span class="n">event_handler</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">PROCESSING_TIME</span><span class="p">)</span>
+<div class="viewcode-block" id="TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json">[docs]</a>    <span class="k">def</span> <span class="nf">save_execution_time_to_dynamic_pipeline_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_time</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_prettify_task_name</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+            <span class="n">listed_task_id</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">listed_task_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">listed_task_id</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">task_pretty_name</span> <span class="o">=</span> <span class="n">_prettify_task_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dynamic_pipeline_path</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">)[</span><span class="s2">&quot;dynamic_pipeline&quot;</span><span class="p">]</span>
+            <span class="n">dynamic_pipeline_json</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">dynamic_pipeline_path</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">pipeline_ix</span> <span class="ow">in</span> <span class="n">dynamic_pipeline_json</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">dynamic_pipeline_json</span><span class="p">[</span><span class="n">pipeline_ix</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">task</span> <span class="o">==</span> <span class="n">task_pretty_name</span><span class="p">:</span>
+                        <span class="n">dynamic_pipeline_json</span><span class="p">[</span><span class="n">pipeline_ix</span><span class="p">][</span><span class="n">task</span><span class="p">][</span><span class="s2">&quot;processingTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processing_time</span>
+                        <span class="k">break</span> <span class="c1"># we know that in each pipeline the tasks are unique, so once we find the task we are looking for we break the inner loop</span>
+            <span class="n">dump_json</span><span class="p">(</span><span class="n">dynamic_pipeline_path</span><span class="p">,</span> <span class="n">dynamic_pipeline_json</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;There is either a problem with the path to &quot;dynamic_pipeline&quot; or you are running with local_scheduler = True&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="ne">FileNotFoundError</span></div></div>
+            <span class="c1"># Daniel: maybe remove msg for less cluttered logs and remove return of exception since no one is handling it.</span>
+
+
+
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="TaskState"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState">[docs]</a><span class="k">class</span> <span class="nc">TaskState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskState.fcl"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.fcl">[docs]</a>    <span class="n">fcl</span><span class="p">:</span> <span class="n">FiniteCombinatoryLogic</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TaskState.target"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.target">[docs]</a>    <span class="n">target</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TaskState.result"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.result">[docs]</a>    <span class="n">result</span><span class="p">:</span> <span class="n">InhabitationResult</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TaskState.position"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.position">[docs]</a>    <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TaskState.stopped"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.stopped">[docs]</a>    <span class="n">stopped</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TaskState.processes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.processes">[docs]</a>    <span class="n">processes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Process</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span></div>
+<div class="viewcode-block" id="TaskState.worker_scheduler_factory"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskState.worker_scheduler_factory">[docs]</a>    <span class="n">worker_scheduler_factory</span><span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">_WorkerSchedulerFactory</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                              <span class="n">default_factory</span><span class="o">=</span><span class="n">luigi</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">_WorkerSchedulerFactory</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="states"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.states">[docs]</a><span class="n">states</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskState</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="InhabitationTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask">[docs]</a><span class="k">class</span> <span class="nc">InhabitationTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">,</span> <span class="n">TaskProcessingTime</span><span class="p">):</span>
+<div class="viewcode-block" id="InhabitationTask.accepts_messages"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.accepts_messages">[docs]</a>    <span class="n">accepts_messages</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="InhabitationTask.requires"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="InhabitationTask.run"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">states</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">fcl</span><span class="o">.</span><span class="n">inhabit</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_messages</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_messages</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">content</span>
+                <span class="k">if</span> <span class="n">content</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stopping: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">processes</span><span class="p">:</span>
+                        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">stopped</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="n">number</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">content</span> <span class="o">!=</span> <span class="s2">&quot;next&quot;</span><span class="p">:</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not understood: </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="n">state</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">number</span> <span class="k">if</span> <span class="n">number</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">state</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">infinite</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">position</span> <span class="o">&gt;=</span> <span class="n">state</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inhabitant not present: </span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="n">next_task</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">evaluated</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">position</span><span class="p">]()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="n">next_task</span><span class="p">,</span> <span class="n">factory</span><span class="p">):</span>
+                    <span class="n">luigi</span><span class="o">.</span><span class="n">build</span><span class="p">([</span><span class="n">next_task</span><span class="p">],</span> <span class="n">worker_scheduler_factory</span><span class="o">=</span><span class="n">factory</span><span class="p">)</span>
+
+                <span class="n">task_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">next_task</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">worker_scheduler_factory</span><span class="p">))</span>
+                <span class="n">task_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">state</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_process</span><span class="p">)</span></div>
+                <span class="c1"># p(next_task, state.worker_scheduler_factory)</span>
+
+<div class="viewcode-block" id="InhabitationTask.complete"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.complete">[docs]</a>    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">stopped</span></div></div>
+
+
+<div class="viewcode-block" id="InhabitationTest"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest">[docs]</a><span class="k">class</span> <span class="nc">InhabitationTest</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+<div class="viewcode-block" id="InhabitationTest.done"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.done">[docs]</a>    <span class="n">done</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">BoolParameter</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="InhabitationTest.id"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.id">[docs]</a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">IntParameter</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InhabitationTest.accepts_messages"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.accepts_messages">[docs]</a>    <span class="n">accepts_messages</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="InhabitationTest.requires"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="InhabitationTest.run"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_messages</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_messages</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="InhabitationTest.complete"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTest.complete">[docs]</a>    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span></div></div>
+
+
+<div class="viewcode-block" id="ConfigIndex"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ConfigIndex">[docs]</a><span class="n">ConfigIndex</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ConfigIndex&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ClsParameter"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ClsParameter">[docs]</a><span class="k">class</span> <span class="nc">ClsParameter</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">ConfigIndex</span><span class="p">]):</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">cached_property</span>
+<div class="viewcode-block" id="ClsParameter.decoder"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ClsParameter.decoder">[docs]</a>    <span class="k">def</span> <span class="nf">decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="p">()</span></div>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">cached_property</span>
+<div class="viewcode-block" id="ClsParameter.encoder"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ClsParameter.encoder">[docs]</a>    <span class="k">def</span> <span class="nf">encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpe</span><span class="p">:</span> <span class="n">Type</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ConfigIndex</span><span class="p">,</span> <span class="n">Type</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;positional&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClsParameter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tpe</span> <span class="o">=</span> <span class="n">tpe</span>
+
+<div class="viewcode-block" id="ClsParameter.parse"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ClsParameter.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialized</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClsParameter.serialize"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.ClsParameter.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RepoMeta"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta">[docs]</a><span class="k">class</span> <span class="nc">RepoMeta</span><span class="p">(</span><span class="n">Register</span><span class="p">):</span>
+<div class="viewcode-block" id="RepoMeta.repository"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.repository">[docs]</a>    <span class="n">repository</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
+<div class="viewcode-block" id="RepoMeta.subtypes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.subtypes">[docs]</a>    <span class="n">subtypes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s1">&#39;RepoMeta.TaskCtor&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="s1">&#39;RepoMeta.TaskCtor&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_all_upstream_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a tuple. The first item is the given target, while the second item is</span>
+<span class="sd">        a list of all upstream classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The class for which you want to know the abstract upper classes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, List[PyType]]</span>
+<span class="sd">            A tuple containing the target class and all upstream classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">next_target</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="n">list_of_all_upstream_classes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">next_target</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">next_target</span><span class="p">:</span>
+                <span class="n">list_of_all_upstream_classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">list_of_all_upstream_classes</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_list_of_all_upstream_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a list of all upstream classes till it its the empty set.</span>
+<span class="sd">        Uses information of the subtypes dict to get full chain. The resulting list will</span>
+<span class="sd">        include the target class itself as head.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The class for which you want to know the abstract upper classes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[PyType]</span>
+<span class="sd">            A list of the  classes found till it hit the top. The list is sorted according to first seen classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_of_all_upstream_classes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_of_all_upstream_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">next_target</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">next_target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">list_of_all_upstream_classes</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">next_target</span><span class="p">:</span>
+                    <span class="n">list_of_all_upstream_classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="n">list_of_all_upstream_classes</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_all_upstream_abstract_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_abstract_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a tuple which contains the target as the first element</span>
+<span class="sd">        and a list of all found abstract classes as the second element.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The class for which you want to know the abstract upper classes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Tuple[PyType, List[PyType]]: a tuple containing the target class and all upstream abstract classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">next_target</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="n">list_of_all_upstream_classes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">next_target</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">next_target</span><span class="p">:</span>
+                <span class="n">list_of_all_upstream_classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">list_of_all_upstream_classes</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_list_of_all_upstream_abstract_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_abstract_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method can be used to get all abstract classes that are reachable from a given target class.</span>
+<span class="sd">        It uses the information of the subtypes dict to find all abstract classes on the way, till it uses</span>
+<span class="sd">        a class as key for the dict and gets an empty set back. It is possible that the target class is</span>
+<span class="sd">        included in the resulting list as head, if it is abstract itself.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The class for which you want to know the abstract upper classes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[PyType]</span>
+<span class="sd">            A list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.</span>
+<span class="sd">            So the head of the list is the first seen abstract class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_of_abstract_parents</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># sorted in the sense of first item in the list is first encountered abstract node.</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">abstract</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">list_of_abstract_parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">next_target</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">next_target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">list_of_abstract_parents</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">next_target</span><span class="p">:</span>
+                <span class="n">list_of_abstract_parents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">list_of_abstract_parents</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_all_downstream_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the set of all downstream classes for a given target class.</span>
+
+<span class="sd">        This method uses the `__get_set_of_all_downstream_classes` method to find all downstream</span>
+<span class="sd">        classes for the given `target` class, and returns a tuple containing the `target` class and</span>
+<span class="sd">        the set of downstream classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The target class to find downstream classes for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, Set[PyType]]</span>
+<span class="sd">            A tuple containing the `target` class and the set of downstream classes for the given `target`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">__get_set_of_all_downstream_classes</span><span class="p">([</span><span class="n">target</span><span class="p">]))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_all_downstream_abstract_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_abstract_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_all_downstream_abstract_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all downstream abstract classes for a given class object.</span>
+
+<span class="sd">        This method returns a tuple of the target class object and a set of all class objects that are</span>
+<span class="sd">        downstream from the target and are abstract.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The target class object for which the downstream abstract classes are to be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, Set[PyType]]</span>
+<span class="sd">            A tuple containing the target class object as the first element and a set of all</span>
+<span class="sd">            class objects that are downstream from the target and are abstract.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">all_downstream_classes</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">all_downstream_classes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                <span class="n">result_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">result_set</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_all_downstream_concrete_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_concrete_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all downstream concrete classes for a given class object.</span>
+
+<span class="sd">        This method returns a tuple of the target class object and a set of all class objects that are</span>
+<span class="sd">        downstream from the target and are concrete.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The target class object for which the downstream concrete classes are to be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, Set[PyType]]</span>
+<span class="sd">            A tuple containing the target class object as the first element and a set of all</span>
+<span class="sd">            class objects that are downstream from the target and are concrete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">all_downstream_classes</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">all_downstream_classes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                <span class="n">result_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">result_set</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta.__get_set_of_all_downstream_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.__get_set_of_all_downstream_classes">[docs]</a>    <span class="k">def</span> <span class="nf">__get_set_of_all_downstream_classes</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">],</span> <span class="n">current_set</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the set of all downstream classes for a given set of targets.</span>
+
+<span class="sd">        This method uses a recursive approach to build up a set of downstream classes, starting</span>
+<span class="sd">        with the `targets` and iteratively adding any downstream classes that are found.</span>
+<span class="sd">        The `current_set` parameter is used to keep track of the set of downstream classes that</span>
+<span class="sd">        have already been found, and is updated and returned after each recursive call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targets: List[PyType]</span>
+<span class="sd">            A list of target classes to find downstream classes for.</span>
+<span class="sd">        current_set: Set[PyType]</span>
+<span class="sd">            A set of classes that have already been found as downstream classes. This set is updated</span>
+<span class="sd">            and returned after each recursive call.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Set[PyType]</span>
+<span class="sd">            The set of all downstream classes for the given `targets`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="k">def</span> <span class="nf">helper_to_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the set of downstream classes for a given target class.</span>
+
+<span class="sd">            This method looks through the `subtypes` attribute of the class that this method is called</span>
+<span class="sd">            on, and returns a set of classes that are downstream of the given `target` class.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            target: PyType</span>
+<span class="sd">                The target class to find downstream classes for.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            Set[PyType]</span>
+<span class="sd">                The set of downstream classes for the given `target` class.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">list_of_downstream_classes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">task_ctor</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="n">task_ctor</span><span class="o">.</span><span class="n">tpe</span><span class="p">:</span>
+
+                            <span class="n">list_of_downstream_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">tpe</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">list_of_downstream_classes</span><span class="p">)</span>
+
+        <span class="n">set_of_downstream_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">current_set</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">set_of_downstream_classes</span> <span class="o">=</span> <span class="n">set_of_downstream_classes</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">helper_to_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+            <span class="n">current_set</span> <span class="o">=</span> <span class="n">current_set</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">set_of_downstream_classes</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">__get_set_of_all_downstream_classes</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">set_of_downstream_classes</span><span class="p">),</span> <span class="n">current_set</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_class_chain"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_class_chain">[docs]</a>    <span class="k">def</span> <span class="nf">_get_class_chain</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span>  <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a tuple containing the target class and its upstream and downstream classes.</span>
+
+<span class="sd">        This method uses the `_get_all_upstream_classes` and `_get_all_downstream_classes` methods to</span>
+<span class="sd">        find the upstream and downstream classes for the given `target` class, and returns a tuple</span>
+<span class="sd">        containing the `target` class, the set of upstream classes, and the set of downstream classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The target class to find upstream and downstream classes for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, Set[PyType], Set[PyType]]</span>
+<span class="sd">            A tuple containing the `target` class, the set of upstream classes, and the set of downstream classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_abstract_class_chain"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_abstract_class_chain">[docs]</a>    <span class="k">def</span> <span class="nf">_get_abstract_class_chain</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">PyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PyType</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">PyType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a tuple containing the target class and its upstream and downstream abstract classes.</span>
+
+<span class="sd">        This method uses the `_get_all_upstream_abstract_classes` and `_get_all_downstream_abstract_classes` methods</span>
+<span class="sd">        to find the upstream and downstream abstract classes for the given `target` class, and returns a tuple</span>
+<span class="sd">        containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target: PyType</span>
+<span class="sd">            The target class to find upstream and downstream abstract classes for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[PyType, Set[PyType], Set[PyType]]</span>
+<span class="sd">            A tuple containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_abstract_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._get_maximal_shared_upper_classes"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._get_maximal_shared_upper_classes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_maximal_shared_upper_classes</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the maximal shared upper classes of the given targets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targets : List[PyType]</span>
+<span class="sd">            List of classes or tuples of classes to find maximal shared upper classes for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[List[PyType], bool]</span>
+<span class="sd">            A tuple containing the list of maximal shared upper classes and a boolean</span>
+<span class="sd">            that indicates whether or not all upper classes are equal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_equal</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">([],</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">lists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">lists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lists</span><span class="p">):</span>
+            <span class="n">all_equal</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">lists</span><span class="p">)</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">all_equal</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._delete_related_combinators"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._delete_related_combinators">[docs]</a>    <span class="k">def</span> <span class="nf">_delete_related_combinators</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">],</span> <span class="n">repository</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Type</span><span class="p">]</span> <span class="o">=</span> <span class="n">repository</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Type</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the related combinators from the given repository based on the given targets</span>
+<span class="sd">        and returns a copy of the new repository.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targets: List[PyType]</span>
+<span class="sd">            List of classes or tuples of classes that the related combinators will be removed from.</span>
+<span class="sd">        repository: Dict[Any, Type]</span>
+<span class="sd">            Dictionary containing the combinators that will be checked and removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict[Any, Type]</span>
+<span class="sd">            A copy of the original repository with the related combinators removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">result_repository</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">combinator</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">combinator</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">combinator</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">targets</span><span class="p">)):</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combinator</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">combinator</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="n">result_repository</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">combinator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_repository</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta.filtered_repository"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.filtered_repository">[docs]</a>    <span class="k">def</span> <span class="nf">filtered_repository</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">repository</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Type</span><span class="p">]</span> <span class="o">=</span> <span class="n">repository</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters the repository to include only combinators related to the specified targets.</span>
+
+<span class="sd">        This method filters the repository to include only combinators that are related to the specified targets.</span>
+<span class="sd">        The targets can be either abstract classes or concrete classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targets: List[Type]</span>
+<span class="sd">            A list of class objects for which related combinators should be included.</span>
+<span class="sd">        repository: Dict[Type, Any]</span>
+<span class="sd">            A dictionary containing the combinators in the repository.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict[Type, Any]</span>
+<span class="sd">            A copy of the repository with only the related combinators included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#setup datastructures to hold information on what to delete and want to keep</span>
+        <span class="n">global_combinators_to_delete</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">global_combinators_to_keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1">#check if there are general upper classes that every target is sharing</span>
+        <span class="n">shared_upper_classes</span><span class="p">,</span> <span class="n">all_equal</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_maximal_shared_upper_classes</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
+        <span class="c1"># check if all targets share all upper classes, in that case we remove</span>
+        <span class="c1"># the last class in the chain, since we want to remove combinators that</span>
+        <span class="c1"># lay on the same level.</span>
+        <span class="k">if</span> <span class="n">all_equal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_upper_classes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">shared_upper_classes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">selected_classes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">combinators_to_delete</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">combinators_to_keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="c1"># if tuple split tuple into the current target and the selected classes for it</span>
+                <span class="k">for</span> <span class="n">class_object</span> <span class="ow">in</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">class_object</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                        <span class="n">selected_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_object</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">class_object</span><span class="p">):</span>
+                            <span class="n">selected_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">selected_classes</span><span class="p">:</span>
+                    <span class="c1"># if there are selected classes for the target, only add them to keep and</span>
+                    <span class="c1"># all the remaining one to delete.</span>
+                    <span class="n">combinators_to_keep</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">selected_classes</span><span class="p">])</span>
+                    <span class="n">combinators_to_delete</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">selected_classes</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># if no selected classes present, just add all concrete classes downstream to keep.</span>
+                    <span class="n">combinators_to_keep</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if target is concrete, just add it to keep.</span>
+                <span class="n">combinators_to_keep</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+            <span class="c1"># go up to the next abstract class, if there is a concrete class on the way,</span>
+            <span class="c1"># add the corresponding combinator to keep</span>
+            <span class="c1"># From the new abstract class, search downstream and add corresponding combinators to delete</span>
+            <span class="k">for</span> <span class="n">class_object</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_upstream_classes</span><span class="p">(</span><span class="n">target</span><span class="p">)[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">class_object</span> <span class="ow">in</span> <span class="n">shared_upper_classes</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">class_object</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                    <span class="n">combinators_to_keep</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">class_object</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">combinators_to_delete</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">class_object</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">break</span>
+            <span class="n">global_combinators_to_keep</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">combinators_to_keep</span><span class="p">)</span>
+            <span class="n">global_combinators_to_delete</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">combinators_to_delete</span> <span class="o">-</span> <span class="n">combinators_to_keep</span><span class="p">)</span>
+
+        <span class="n">final_combinators_to_delete</span> <span class="o">=</span> <span class="n">global_combinators_to_delete</span> <span class="o">-</span> <span class="n">global_combinators_to_keep</span>
+        <span class="n">result_repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_delete_related_combinators</span><span class="p">(</span><span class="n">targets</span><span class="o">=</span> <span class="n">final_combinators_to_delete</span><span class="p">,</span> <span class="n">repository</span><span class="o">=</span> <span class="n">repository</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="n">result_repository</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta.get_list_of_variated_abstract_tasks"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.get_list_of_variated_abstract_tasks">[docs]</a>    <span class="k">def</span> <span class="nf">get_list_of_variated_abstract_tasks</span><span class="p">(</span><span class="n">repository</span><span class="o">=</span> <span class="n">repository</span><span class="p">,</span> <span class="n">subtypes</span><span class="o">=</span> <span class="n">subtypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of variated abstract tasks.</span>
+
+<span class="sd">        This method returns a list of abstract tasks that have been really been variated and thus</span>
+<span class="sd">        should most likely be unique in any pipeline.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        repository: Dict[Type, Any]</span>
+<span class="sd">            A dictionary containing the combinators in the repository.</span>
+<span class="sd">        subtypes: Dict[Type, List[Type]]</span>
+<span class="sd">            A dictionary containing the subtypes of each class object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Type]</span>
+<span class="sd">            A list of class objects representing the variated abstract tasks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">abstract_tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">subtypes_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">repo_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subtypes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">to_comp</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+                <span class="n">to_comp</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">cls</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_comp</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">tpe</span>
+            <span class="n">subtypes_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">to_comp</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">to_comp</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+                <span class="n">to_comp</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">cls</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_comp</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">tpe</span>
+            <span class="n">repo_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">to_comp</span><span class="p">)</span>
+
+
+        <span class="n">abstract_tasks</span> <span class="o">=</span> <span class="n">subtypes_set</span> <span class="o">-</span> <span class="n">repo_set</span>
+
+        <span class="n">variated_abstract_tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">abstract_tasks</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">repository</span><span class="o">.</span><span class="n">values</span><span class="p">()]:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="ow">in</span> <span class="n">repo</span><span class="p">:</span>
+                    <span class="n">variated_abstract_tasks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">variated_abstract_tasks</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta.get_unique_abstract_task_validator"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.get_unique_abstract_task_validator">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_abstract_task_validator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UniqueTaskPipelineValidator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an instance of the `UniqueTaskPipelineValidator` class with the list of variated abstract tasks as its argument.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        UniqueTaskPipelineValidator</span>
+<span class="sd">            instance of the `UniqueTaskPipelineValidator` class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UniqueTaskPipelineValidator</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">get_list_of_variated_abstract_tasks</span><span class="p">())</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta.cls_tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.cls_tpe">[docs]</a>    <span class="k">def</span> <span class="nf">cls_tpe</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+    <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="RepoMeta.TaskCtor"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.TaskCtor">[docs]</a>    <span class="k">class</span> <span class="nc">TaskCtor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RepoMeta.TaskCtor.tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.tpe">[docs]</a>        <span class="n">tpe</span><span class="p">:</span> <span class="n">PyType</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.TaskCtor.cls_tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.cls_tpe">[docs]</a>        <span class="n">cls_tpe</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RepoMeta.TaskCtor.__post_init__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__post_init__">[docs]</a>        <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cls_tpe&quot;</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RepoMeta.TaskCtor.__str__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__str__">[docs]</a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls_tpe</span></div></div>
+
+    <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="RepoMeta.ClassIndex"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex">[docs]</a>    <span class="k">class</span> <span class="nc">ClassIndex</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">ConfigIndex</span><span class="p">]):</span>
+<div class="viewcode-block" id="RepoMeta.ClassIndex.tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.tpe">[docs]</a>        <span class="n">tpe</span><span class="p">:</span> <span class="n">PyType</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.ClassIndex.at_index"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.at_index">[docs]</a>        <span class="n">at_index</span><span class="p">:</span> <span class="n">ConfigIndex</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.ClassIndex.cls_tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.cls_tpe">[docs]</a>        <span class="n">cls_tpe</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RepoMeta.ClassIndex.__post_init__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__post_init__">[docs]</a>        <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cls_tpe&quot;</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tpe</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RepoMeta.ClassIndex.__str__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__str__">[docs]</a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cls_tpe</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">at_index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span></div></div>
+
+    <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="RepoMeta.WrappedTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask">[docs]</a>    <span class="k">class</span> <span class="nc">WrappedTask</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RepoMeta.WrappedTask.cls"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls">[docs]</a>        <span class="bp">cls</span><span class="p">:</span> <span class="n">PyType</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.WrappedTask.has_index"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.has_index">[docs]</a>        <span class="n">has_index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.WrappedTask.cls_params"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls_params">[docs]</a>        <span class="n">cls_params</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClsParameter</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.WrappedTask.reverse_arguments"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.reverse_arguments">[docs]</a>        <span class="n">reverse_arguments</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RepoMeta.WrappedTask.name"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.name">[docs]</a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RepoMeta.WrappedTask.__post_init__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__post_init__">[docs]</a>        <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RepoMeta.WrappedTask.__call__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__call__">[docs]</a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;RepoMeta.WrappedTask&#39;</span><span class="p">,</span> <span class="s1">&#39;LuigiCombinator[Any]&#39;</span><span class="p">]:</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls_params</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls_params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">expected</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_arguments</span><span class="p">):</span>
+                <span class="n">cls_param_names</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls_params</span><span class="p">)</span>
+                <span class="n">all_params</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;config_index&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">cls_param_names</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span> <span class="k">else</span> <span class="n">cls_param_names</span>
+                <span class="n">arg_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_arguments</span><span class="p">)))</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">RepoMeta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">arg_dict</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">at_index</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_arguments</span> <span class="k">else</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls_params</span><span class="p">,</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_arguments</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RepoMeta.WrappedTask.__str__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__str__">[docs]</a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RepoMeta</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span>
+        <span class="c1"># Make sure to skip LuigiCombinator base class</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="vm">__module__</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span> <span class="o">==</span> <span class="s2">&quot;LuigiCombinator&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Update subtype information</span>
+        <span class="n">cls_tpe</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">[</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="bp">cls</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="p">{</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bases</span>
+             <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">LuigiCombinator</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">LuigiCombinator</span><span class="p">,</span> <span class="n">b</span><span class="p">)}</span>
+
+        <span class="c1"># Update repository</span>
+        <span class="n">cls_params</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ClsParameter</span><span class="p">)]</span>
+        <span class="n">index_set</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_index_set</span><span class="p">(</span><span class="n">cls_tpe</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">config_domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">index_set</span><span class="p">:</span>
+                <span class="n">index_set</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">config_domain</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">index_set</span><span class="o">.</span><span class="n">intersection_update</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">config_domain</span><span class="p">)</span>
+        <span class="n">combinator</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">index_set</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cls_params</span><span class="p">),</span> <span class="p">())</span>
+        <span class="n">tpe</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_combinator_tpe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">index_set</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+            <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span><span class="p">[</span><span class="n">combinator</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpe</span>
+
+        <span class="c1"># Insert index combinators</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">index_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+                <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span><span class="p">[</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Constructor</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">:</span>
+                <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">[</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">[</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="bp">cls</span><span class="p">)]:</span>
+                <span class="k">if</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">:</span>
+                    <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span><span class="p">[</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._combinator_tpe"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._combinator_tpe">[docs]</a>    <span class="k">def</span> <span class="nf">_combinator_tpe</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">PyType</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">index_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">cls_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClsParameter</span><span class="p">[</span><span class="n">Any</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">:</span>
+        <span class="n">reverse_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">cls_params</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">index_set</span><span class="p">:</span>
+            <span class="n">tpe</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">return_type</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reverse_params</span><span class="p">:</span>
+                <span class="n">tpe</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="n">tpe</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tpe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">at_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">:</span>
+                <span class="n">tpe</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">return_type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reverse_params</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="n">Type</span><span class="p">):</span>
+                        <span class="n">tpe</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="n">tpe</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">tpe</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">tpe</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">Constructor</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)),</span> <span class="n">tpe</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">Type</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">at_index</span><span class="p">,</span> <span class="n">index_set</span><span class="p">)))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RepoMeta._index_set"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.RepoMeta._index_set">[docs]</a>    <span class="k">def</span> <span class="nf">_index_set</span><span class="p">(</span><span class="n">cls_tpe</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClsParameter</span><span class="p">[</span><span class="n">Any</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">index_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">cls_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">index_set</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">index_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">index_set</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in parameter </span><span class="si">{</span><span class="n">cls_tpe</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: cannot have empty index set&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">index_set</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">index_set</span><span class="o">.</span><span class="n">intersection_update</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">index_set</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in parameter </span><span class="si">{</span><span class="n">cls_tpe</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no index shared with all prior parameters&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index_set</span></div></div>
+
+
+<div class="viewcode-block" id="CLSLugiEncoder"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder">[docs]</a><span class="k">class</span> <span class="nc">CLSLugiEncoder</span><span class="p">(</span><span class="n">cls_json</span><span class="o">.</span><span class="n">CLSEncoder</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CLSLugiEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLugiEncoder._serialize_config_index"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_config_index">[docs]</a>    <span class="k">def</span> <span class="nf">_serialize_config_index</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">),</span>
+                <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">idx</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;task_class&quot;</span><span class="p">:</span> <span class="n">idx</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">idx</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">config_index</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">at_index</span><span class="p">)}</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLugiEncoder._serialize_combinator"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_combinator">[docs]</a>    <span class="k">def</span> <span class="nf">_serialize_combinator</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+        <span class="n">serialized_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">reverse_arguments</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">has_index</span> <span class="ow">and</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">serialized_args</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;config_index&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">config_index</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">())})</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">cls_params</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">serialized_args</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_combinator</span><span class="p">(</span><span class="n">arg</span><span class="p">)})</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">),</span>
+                <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;task_class&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="n">serialized_args</span><span class="p">}</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLugiEncoder._serialize_task_ctor"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_task_ctor">[docs]</a>    <span class="k">def</span> <span class="nf">_serialize_task_ctor</span><span class="p">(</span><span class="n">ctor</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">),</span>
+                <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">ctor</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;task_class&quot;</span><span class="p">:</span> <span class="n">ctor</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="CLSLugiEncoder.combinator_hook"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder.combinator_hook">[docs]</a>    <span class="k">def</span> <span class="nf">combinator_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_combinator</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_config_index</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cls_json</span><span class="o">.</span><span class="n">CLSEncoder</span><span class="o">.</span><span class="n">combinator_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CLSLugiEncoder.constructor_hook"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder.constructor_hook">[docs]</a>    <span class="k">def</span> <span class="nf">constructor_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_task_ctor</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_config_index</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cls_json</span><span class="o">.</span><span class="n">CLSEncoder</span><span class="o">.</span><span class="n">constructor_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CLSLugiEncoder.default"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLugiEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CLSLugiEncoder</span><span class="o">.</span><span class="n">_serialize_combinator</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CLSLugiEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CLSLuigiDecoder"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder">[docs]</a><span class="k">class</span> <span class="nc">CLSLuigiDecoder</span><span class="p">(</span><span class="n">cls_json</span><span class="o">.</span><span class="n">CLSDecoder</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CLSLuigiDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLuigiDecoder._deserialize_config_index"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_config_index">[docs]</a>    <span class="k">def</span> <span class="nf">_deserialize_config_index</span><span class="p">(</span><span class="n">dct</span><span class="p">):</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">])</span>
+        <span class="n">task_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="n">task_class</span><span class="p">,</span> <span class="n">task_class</span><span class="o">.</span><span class="n">config_index</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLuigiDecoder._deserialize_combinator"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_combinator">[docs]</a>    <span class="k">def</span> <span class="nf">_deserialize_combinator</span><span class="p">(</span><span class="n">dct</span><span class="p">):</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">])</span>
+        <span class="n">task_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">])</span>
+        <span class="n">wrapped_task</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">task_class</span><span class="p">):</span>
+                <span class="n">wrapped_task</span> <span class="o">=</span> <span class="n">c</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wrapped_task</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find WrappedTask for: </span><span class="si">{</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">serialized_args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;arguments&quot;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">serialized_args</span> <span class="ow">and</span> <span class="n">wrapped_task</span><span class="o">.</span><span class="n">has_index</span><span class="p">:</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="n">serialized_args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">wrapped_task</span> <span class="o">=</span> <span class="n">wrapped_task</span><span class="p">(</span><span class="n">wrapped_task</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">config_index</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">serialized_args</span><span class="p">:</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_combinator</span><span class="p">(</span><span class="n">serialized_args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">wrapped_task</span> <span class="o">=</span> <span class="n">wrapped_task</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapped_task</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CLSLuigiDecoder._deserialize_task_ctor"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_task_ctor">[docs]</a>    <span class="k">def</span> <span class="nf">_deserialize_task_ctor</span><span class="p">(</span><span class="n">dct</span><span class="p">):</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">])</span>
+        <span class="n">task_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="n">task_class</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CLSLuigiDecoder.combinator_hook"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder.combinator_hook">[docs]</a>    <span class="k">def</span> <span class="nf">combinator_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;__type__&quot;</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+            <span class="n">tpe</span> <span class="o">=</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;__type__&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tpe</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_config_index</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">tpe</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_combinator</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls_json</span><span class="o">.</span><span class="n">CLSDecoder</span><span class="o">.</span><span class="n">combinator_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CLSLuigiDecoder.constructor_hook"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder.constructor_hook">[docs]</a>    <span class="k">def</span> <span class="nf">constructor_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;__type__&quot;</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+            <span class="n">tpe</span> <span class="o">=</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;__type__&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tpe</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_config_index</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">tpe</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_task_ctor</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls_json</span><span class="o">.</span><span class="n">CLSDecoder</span><span class="o">.</span><span class="n">combinator_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CLSLuigiDecoder.__call__"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CLSLuigiDecoder.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;__type__&quot;</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+            <span class="n">tpe</span> <span class="o">=</span> <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;__type__&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tpe</span> <span class="o">==</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">WrappedTask</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_combinator</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CLSLuigiDecoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LuigiCombinator"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator">[docs]</a><span class="k">class</span> <span class="nc">LuigiCombinator</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">ConfigIndex</span><span class="p">],</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">RepoMeta</span><span class="p">):</span>
+<div class="viewcode-block" id="LuigiCombinator.config_index"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator.config_index">[docs]</a>    <span class="n">config_index</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">OptionalParameter</span><span class="p">(</span><span class="n">positional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="LuigiCombinator.config_domain"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator.config_domain">[docs]</a>    <span class="n">config_domain</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">ConfigIndex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="LuigiCombinator.abstract"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator.abstract">[docs]</a>    <span class="n">abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LuigiCombinator.return_type"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator.return_type">[docs]</a>    <span class="k">def</span> <span class="nf">return_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">ConfigIndex</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Constructor</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Constructor</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">TaskCtor</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span> <span class="n">Constructor</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">)))</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

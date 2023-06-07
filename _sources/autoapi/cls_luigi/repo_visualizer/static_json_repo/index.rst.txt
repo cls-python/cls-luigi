@@ -1,0 +1,59 @@
+:py:mod:`cls_luigi.repo_visualizer.static_json_repo`
+====================================================
+
+.. py:module:: cls_luigi.repo_visualizer.static_json_repo
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.repo_visualizer.static_json_repo.VIS
+   cls_luigi.repo_visualizer.static_json_repo.CONFIG
+
+
+.. py:data:: VIS
+
+   
+
+.. py:data:: CONFIG
+   :value: 'config.json'
+
+   
+
+.. py:class:: StaticJSONRepo(repo_meta)
+
+   Creates a json representation of all components in repository, their types,
+   their concrete implementations or config indexes, and their dependencies.
+
+   usage:
+     StaticJSONRepo(RepoMeta).dump_static_repo_json()
+
+   .. py:method:: _prettify_name(name)
+      :staticmethod:
+
+
+   .. py:method:: add_tasks_and_concreate_implementations()
+
+
+   .. py:method:: add_dependencies_and_indexed_tasks()
+
+
+   .. py:method:: dump_static_repo_json()
+
+
+

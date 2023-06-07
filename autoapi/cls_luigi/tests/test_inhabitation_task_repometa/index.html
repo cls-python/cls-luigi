@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.tests.test_inhabitation_task_repometa &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/js/fullscreen.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="cls_luigi.cls_tasks" href="../../cls_tasks/index.html" />
+    <link rel="prev" title="cls_luigi.tests" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../repo_visualizer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.repo_visualizer</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.tests</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi</span></code></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.tests</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/cls-python/cls-luigi/blob/main/docs/autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cls_luigi.tests.test_inhabitation_task_repometa">
+<span id="cls-luigi-tests-test-inhabitation-task-repometa"></span><h1><a class="reference internal" href="#module-cls_luigi.tests.test_inhabitation_task_repometa" title="cls_luigi.tests.test_inhabitation_task_repometa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa</span></code></a><a class="headerlink" href="#module-cls_luigi.tests.test_inhabitation_task_repometa" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.StartNode" title="cls_luigi.tests.test_inhabitation_task_repometa.StartNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StartNode</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractClass</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass4</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractAbstractClass</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass1</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass2</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass3</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeOtherAbstractAbstractClass</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClassInAbstractChain</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain" title="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractFromConcreteClassInChain</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass5</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass6</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClass7</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrelatedAbstractClass</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1" title="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrelatedConcreteClass1</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2" title="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrelatedConcreteClass2</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode" title="cls_luigi.tests.test_inhabitation_task_repometa.EndNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EndNode</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode" title="cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EndEndNode</span></code></a></p></td>
+<td><p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask" title="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WrapperTask</span></code></a></p></td>
+<td><p>Abstract class representing a CLS-Luigi wrapper task. It combines the functionality of <cite>luigi.WrapperTask</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods" title="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRepositoryFilterMethods</span></code></a></p></td>
+<td><p>A class whose instances are single test cases.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict" title="cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_repository_and_subtypes_dict</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.StartNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">StartNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#StartNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.StartNode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask" title="cls_luigi.cls_tasks.ClsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks.ClsTask</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.StartNode.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#StartNode.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.StartNode.output">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#StartNode.output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.output" title="Permalink to this definition"></a></dt>
+<dd><p>The output that this Task produces.</p>
+<p>The output of the Task determines if the Task needs to be run–the task
+is considered finished iff the outputs all exist. Subclasses should
+override this method to return a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> or a list of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> instances.</p>
+<dl class="simple">
+<dt>Implementation note</dt><dd><p>If running multiple workers, the output must be a resource that is accessible
+by all workers, such as a DFS or database. Otherwise, workers might compute
+the same output since they don’t see the work done by other workers.</p>
+</dd>
+</dl>
+<p>See <span class="xref std std-ref">Task.output</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.StartNode.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#StartNode.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">SomeAbstractClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask" title="cls_luigi.cls_tasks.ClsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks.ClsTask</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractClass.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractClass.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.output">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractClass.output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.output" title="Permalink to this definition"></a></dt>
+<dd><p>The output that this Task produces.</p>
+<p>The output of the Task determines if the Task needs to be run–the task
+is considered finished iff the outputs all exist. Subclasses should
+override this method to return a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> or a list of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> instances.</p>
+<dl class="simple">
+<dt>Implementation note</dt><dd><p>If running multiple workers, the output must be a resource that is accessible
+by all workers, such as a DFS or database. Otherwise, workers might compute
+the same output since they don’t see the work done by other workers.</p>
+</dd>
+</dl>
+<p>See <span class="xref std std-ref">Task.output</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractClass.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass4.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">SomeAbstractAbstractClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeAbstractAbstractClass.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass1.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass2.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass3.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">SomeOtherAbstractAbstractClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeOtherAbstractAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#SomeOtherAbstractAbstractClass.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClassInAbstractChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClassInAbstractChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SomeOtherAbstractAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClassInAbstractChain.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">AbstractFromConcreteClassInChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#AbstractFromConcreteClassInChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain" title="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcreteClassInAbstractChain</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#AbstractFromConcreteClassInChain.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain" title="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractFromConcreteClassInChain</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass5.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain" title="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractFromConcreteClassInChain</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass6.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">ConcreteClass7</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass7"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain" title="cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractFromConcreteClassInChain</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#ConcreteClass7.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">UnrelatedAbstractClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask" title="cls_luigi.cls_tasks.ClsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks.ClsTask</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.some_class">
+<span class="sig-name descname"><span class="pre">some_class</span></span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass.some_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.some_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.output">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass.output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.output" title="Permalink to this definition"></a></dt>
+<dd><p>The output that this Task produces.</p>
+<p>The output of the Task determines if the Task needs to be run–the task
+is considered finished iff the outputs all exist. Subclasses should
+override this method to return a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> or a list of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> instances.</p>
+<dl class="simple">
+<dt>Implementation note</dt><dd><p>If running multiple workers, the output must be a resource that is accessible
+by all workers, such as a DFS or database. Otherwise, workers might compute
+the same output since they don’t see the work done by other workers.</p>
+</dd>
+</dl>
+<p>See <span class="xref std std-ref">Task.output</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedAbstractClass.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">UnrelatedConcreteClass1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedConcreteClass1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrelatedAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedConcreteClass1.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">UnrelatedConcreteClass2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedConcreteClass2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass" title="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrelatedAbstractClass</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#UnrelatedConcreteClass2.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">EndNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask" title="cls_luigi.cls_tasks.ClsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks.ClsTask</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi task. It combines the functionality of <cite>luigi.Task</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode.unreleated_class">
+<span class="sig-name descname"><span class="pre">unreleated_class</span></span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode.unreleated_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.unreleated_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode.output">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode.output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.output" title="Permalink to this definition"></a></dt>
+<dd><p>The output that this Task produces.</p>
+<p>The output of the Task determines if the Task needs to be run–the task
+is considered finished iff the outputs all exist. Subclasses should
+override this method to return a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> or a list of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> instances.</p>
+<dl class="simple">
+<dt>Implementation note</dt><dd><p>If running multiple workers, the output must be a resource that is accessible
+by all workers, such as a DFS or database. Otherwise, workers might compute
+the same output since they don’t see the work done by other workers.</p>
+</dd>
+</dl>
+<p>See <span class="xref std std-ref">Task.output</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndNode.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndNode.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">EndEndNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#EndEndNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Task</span></code>, <a class="reference internal" href="../../inhabitation_task/index.html#cls_luigi.inhabitation_task.LuigiCombinator" title="cls_luigi.inhabitation_task.LuigiCombinator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.inhabitation_task.LuigiCombinator</span></code></a></p>
+<p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p>
+<p>A Luigi Task describes a unit or work.</p>
+<p>The key methods of a Task, which must be implemented in a subclass are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code> - the computation done by this task.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">requires()</span></code> - the list of Tasks that this Task depends on.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code> - the output <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> that this Task creates.</p></li>
+</ul>
+<p>Each <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code> of the Task should be declared as members:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">IntParameter</span><span class="p">()</span>
+    <span class="n">second_param</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In addition to any declared properties and methods, there are a few
+non-declared properties, which are created by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Register</span></code>
+metaclass:</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">WrapperTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#WrapperTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../cls_tasks/index.html#cls_luigi.cls_tasks.ClsWrapperTask" title="cls_luigi.cls_tasks.ClsWrapperTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks.ClsWrapperTask</span></code></a></p>
+<p>Abstract class representing a CLS-Luigi wrapper task. It combines the functionality of <cite>luigi.WrapperTask</cite>, <cite>LuigiCombinator</cite>, and <cite>ClsBaseTask</cite>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#WrapperTask.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#WrapperTask.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config_domain">
+<span class="sig-name descname"><span class="pre">config_domain</span></span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#WrapperTask.config_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config_domain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#WrapperTask.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">TestRepositoryFilterMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">unittest.TestCase</span></code></p>
+<p>A class whose instances are single test cases.</p>
+<p>By default, the test code itself should be placed in a method named
+‘runTest’.</p>
+<p>If the fixture may be used for many test cases, create as
+many test methods as are needed. When instantiating such a TestCase
+subclass, specify in the constructor arguments the name of the test method
+that the instance is to execute.</p>
+<p>Test authors should subclass TestCase for their own tests. Construction
+and deconstruction of the test’s environment (‘fixture’) can be
+implemented by overriding the ‘setUp’ and ‘tearDown’ methods respectively.</p>
+<p>If it is necessary to override the __init__ method, the base class
+__init__ method must always be called. It is important that subclasses
+should not change the signature of their __init__ method, since instances
+of the classes are instantiated automatically by parts of the framework
+in order to be run.</p>
+<p>When subclassing TestCase, you can set these attributes:
+* failureException: determines which exception will be raised when</p>
+<blockquote>
+<div><p>the instance’s assertion methods fail; test methods raising this
+exception will be deemed to have ‘failed’ rather than ‘errored’.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>longMessage: determines whether long messages (including repr of</dt><dd><p>objects used in assert methods) will be printed on failure in <em>addition</em>
+to any explicit message passed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>maxDiff: sets the maximum length of a diff in failure messages</dt><dd><p>by assert methods using difflib. It is looked up as an instance
+attribute so can be configured by individual tests if required.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.tearDownClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass3">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_classes_ConcreteClass3</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass4">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_classes_ConcreteClass4</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass4" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass5">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_classes_ConcreteClass5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass3">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_abstract_classes_ConcreteClass3</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass5">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_abstract_classes_ConcreteClass5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain">
+<span class="sig-name descname"><span class="pre">test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_upstream_classes_ConcreteClass1">
+<span class="sig-name descname"><span class="pre">test_get_all_upstream_classes_ConcreteClass1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_all_upstream_classes_ConcreteClass1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_upstream_classes_ConcreteClass1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain">
+<span class="sig-name descname"><span class="pre">test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_SomeAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_set_of_all_downstream_classes_SomeAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_SomeAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_all_downstream_abstract_classes_SomeAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_UnrelatedAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_all_downstream_abstract_classes_UnrelatedAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_UnrelatedAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_UnrelatedAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_SomeAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_class_chain_SomeAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_class_chain_SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_ConcreteClass5">
+<span class="sig-name descname"><span class="pre">test_get_class_chain_ConcreteClass5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_class_chain_ConcreteClass5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_ConcreteClass5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_abstract_class_chain_SomeAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_abstract_class_chain_SomeAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_abstract_class_chain_SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_abstract_class_chain_SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6">
+<span class="sig-name descname"><span class="pre">test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7">
+<span class="sig-name descname"><span class="pre">test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain">
+<span class="sig-name descname"><span class="pre">test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_SomeAbstractClass">
+<span class="sig-name descname"><span class="pre">test_get_all_downstream_concrete_classes_SomeAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_SomeAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_SomeAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_1">
+<span class="sig-name descname"><span class="pre">test_delete_related_combinators_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_delete_related_combinators_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_2">
+<span class="sig-name descname"><span class="pre">test_delete_related_combinators_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_delete_related_combinators_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeAbstractAbstractClass">
+<span class="sig-name descname"><span class="pre">test_filtered_repository_SomeAbstractAbstractClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_filtered_repository_SomeAbstractAbstractClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeAbstractAbstractClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_ConcreteClass1_ConcreteClass2">
+<span class="sig-name descname"><span class="pre">test_filtered_repository_ConcreteClass1_ConcreteClass2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_filtered_repository_ConcreteClass1_ConcreteClass2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_ConcreteClass1_ConcreteClass2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1">
+<span class="sig-name descname"><span class="pre">test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_with_deep_filter">
+<span class="sig-name descname"><span class="pre">test_filtered_repository_with_deep_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#TestRepositoryFilterMethods.test_filtered_repository_with_deep_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_with_deep_filter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict">
+<span class="sig-prename descclassname"><span class="pre">cls_luigi.tests.test_inhabitation_task_repometa.</span></span><span class="sig-name descname"><span class="pre">show_repository_and_subtypes_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/cls_luigi/tests/test_inhabitation_task_repometa.html#show_repository_and_subtypes_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="cls_luigi.tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../cls_tasks/index.html" class="btn btn-neutral float-right" title="cls_luigi.cls_tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

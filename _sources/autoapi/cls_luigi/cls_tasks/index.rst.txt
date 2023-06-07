@@ -1,0 +1,106 @@
+:py:mod:`cls_luigi.cls_tasks`
+=============================
+
+.. py:module:: cls_luigi.cls_tasks
+
+.. autoapi-nested-parse::
+
+   This file contains the CLSBaseTask implementation, which is used to extend the actual implementation of
+   luigi.Task, luigi.WrapperTask and luigi.ExternalTask with helper methods to make the usage of our
+   framework a bit easier.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.cls_tasks.ClsBaseTask
+   cls_luigi.cls_tasks.ClsTask
+   cls_luigi.cls_tasks.ClsWrapperTask
+   cls_luigi.cls_tasks.ClsExternalTask
+
+
+
+
+.. py:class:: ClsBaseTask
+
+   This class is used to implement some helper methods that all tasks in a CLS-Luigi pipeline should have.
+
+   The key methods are:
+
+   * :py:meth:`get_variant_filename` - This method creates a unique filename for (intermediate) results, which remains unique across the executed pipelines. For this purpose a hash value is created and persisted to disk, which can be looked up afterwards to trace the executed tasks back to this file.
+
+   .. py:attribute:: initialized
+      :value: False
+
+      
+
+   .. py:method:: __get_flatten_data(data: luigi.target.FileSystemTarget | tuple | dict) -> list
+
+      Helper method to flatten different possible input data types into a flattened list.
+
+      :param data: the data structure that should be flattened to a list.
+      :type data: luigi.target.FileSystemTarget | tuple | dict
+      :return: a flattened list of the data provided.
+      :rtype: list
+
+
+   .. py:method:: get_variant_filename(name='') -> str
+
+      Returns a variant filename based on the provided name.
+      Also does hashing of the name, since is has to be unique over every pipeline.
+
+      :param name: optional name for the variant, defaults to ""
+      :type name: str, optional
+      :return: the variant filename.
+      :rtype: str
+
+
+   .. py:method:: __helper_variant_label(input_file)
+
+
+   .. py:method:: create_result_file(file_name)
+
+
+
+.. py:class:: ClsTask(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.Task`, :py:obj:`cls_luigi.inhabitation_task.LuigiCombinator`, :py:obj:`ClsBaseTask`
+
+   Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+
+.. py:class:: ClsWrapperTask(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.WrapperTask`, :py:obj:`cls_luigi.inhabitation_task.LuigiCombinator`, :py:obj:`ClsBaseTask`
+
+   Abstract class representing a CLS-Luigi wrapper task. It combines the functionality of `luigi.WrapperTask`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+
+.. py:class:: ClsExternalTask(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.ExternalTask`, :py:obj:`cls_luigi.inhabitation_task.LuigiCombinator`, :py:obj:`ClsBaseTask`
+
+   Abstract class representing a CLS-Luigi external task. It combines the functionality of `luigi.ExternalTask`, `LuigiCombinator`, and `ClsBaseTask`.
+
+   .. py:attribute:: abstract
+      :value: True
+
+      
+
+

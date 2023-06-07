@@ -1,0 +1,915 @@
+:py:mod:`cls_luigi.inhabitation_task`
+=====================================
+
+.. py:module:: cls_luigi.inhabitation_task
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.inhabitation_task.TaskProcessingTime
+   cls_luigi.inhabitation_task.TaskState
+   cls_luigi.inhabitation_task.InhabitationTask
+   cls_luigi.inhabitation_task.InhabitationTest
+   cls_luigi.inhabitation_task.ClsParameter
+   cls_luigi.inhabitation_task.RepoMeta
+   cls_luigi.inhabitation_task.CLSLugiEncoder
+   cls_luigi.inhabitation_task.CLSLuigiDecoder
+   cls_luigi.inhabitation_task.LuigiCombinator
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   cls_luigi.inhabitation_task.CONFIG
+   cls_luigi.inhabitation_task.states
+   cls_luigi.inhabitation_task.ConfigIndex
+
+
+.. py:data:: CONFIG
+   :value: 'config.json'
+
+   
+
+.. py:class:: TaskProcessingTime
+
+   Bases: :py:obj:`object`
+
+   A mixin that when added to a luigi task, will save
+   the tasks execution time to the dynamic_pipeline.json
+
+   .. py:method:: save_execution_time_to_dynamic_pipeline_json(processing_time)
+
+
+
+.. py:class:: TaskState
+
+   Bases: :py:obj:`object`
+
+   .. py:attribute:: fcl
+      :type: cls.fcl.FiniteCombinatoryLogic
+
+      
+
+   .. py:attribute:: target
+      :type: cls.types.Type
+
+      
+
+   .. py:attribute:: result
+      :type: InhabitationResult | None
+
+      
+
+   .. py:attribute:: position
+      :type: int
+
+      
+
+   .. py:attribute:: stopped
+      :type: bool
+
+      
+
+   .. py:attribute:: processes
+      :type: list[multiprocessing.Process]
+
+      
+
+   .. py:attribute:: worker_scheduler_factory
+      :type: luigi.interface._WorkerSchedulerFactory
+
+      
+
+
+.. py:data:: states
+   :type: dict[str, TaskState]
+
+   
+
+.. py:class:: InhabitationTask(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.Task`, :py:obj:`TaskProcessingTime`
+
+   This is the base class of all Luigi Tasks, the base unit of work in Luigi.
+
+   A Luigi Task describes a unit or work.
+
+   The key methods of a Task, which must be implemented in a subclass are:
+
+   * :py:meth:`run` - the computation done by this task.
+   * :py:meth:`requires` - the list of Tasks that this Task depends on.
+   * :py:meth:`output` - the output :py:class:`Target` that this Task creates.
+
+   Each :py:class:`~luigi.Parameter` of the Task should be declared as members:
+
+   .. code:: python
+
+       class MyTask(luigi.Task):
+           count = luigi.IntParameter()
+           second_param = luigi.Parameter()
+
+   In addition to any declared properties and methods, there are a few
+   non-declared properties, which are created by the :py:class:`Register`
+   metaclass:
+
+
+   .. py:attribute:: accepts_messages
+      :value: True
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+   .. py:method:: complete()
+
+      If the task has any outputs, return ``True`` if all outputs exist.
+      Otherwise, return ``False``.
+
+      However, you may freely override this method with custom logic.
+
+
+
+.. py:class:: InhabitationTest(*args, **kwargs)
+
+   Bases: :py:obj:`luigi.Task`
+
+   This is the base class of all Luigi Tasks, the base unit of work in Luigi.
+
+   A Luigi Task describes a unit or work.
+
+   The key methods of a Task, which must be implemented in a subclass are:
+
+   * :py:meth:`run` - the computation done by this task.
+   * :py:meth:`requires` - the list of Tasks that this Task depends on.
+   * :py:meth:`output` - the output :py:class:`Target` that this Task creates.
+
+   Each :py:class:`~luigi.Parameter` of the Task should be declared as members:
+
+   .. code:: python
+
+       class MyTask(luigi.Task):
+           count = luigi.IntParameter()
+           second_param = luigi.Parameter()
+
+   In addition to any declared properties and methods, there are a few
+   non-declared properties, which are created by the :py:class:`Register`
+   metaclass:
+
+
+   .. py:attribute:: done
+
+      
+
+   .. py:attribute:: id
+
+      
+
+   .. py:attribute:: accepts_messages
+      :value: True
+
+      
+
+   .. py:method:: requires()
+
+      The Tasks that this Task depends on.
+
+      A Task will only run if all of the Tasks that it requires are completed.
+      If your Task does not require any other Tasks, then you don't need to
+      override this method. Otherwise, a subclass can override this method
+      to return a single Task, a list of Task instances, or a dict whose
+      values are Task instances.
+
+      See :ref:`Task.requires`
+
+
+   .. py:method:: run()
+
+      The task run method, to be overridden in a subclass.
+
+      See :ref:`Task.run`
+
+
+   .. py:method:: complete()
+
+      If the task has any outputs, return ``True`` if all outputs exist.
+      Otherwise, return ``False``.
+
+      However, you may freely override this method with custom logic.
+
+
+
+.. py:data:: ConfigIndex
+
+   
+
+.. py:class:: ClsParameter(tpe: Type | dict[ConfigIndex, Type], **kwargs)
+
+   Bases: :py:obj:`luigi.Parameter`, :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
+
+   Parameter whose value is a ``str``, and a base class for other parameter types.
+
+   Parameters are objects set on the Task class level to make it possible to parameterize tasks.
+   For instance:
+
+   .. code:: python
+
+       class MyTask(luigi.Task):
+           foo = luigi.Parameter()
+
+       class RequiringTask(luigi.Task):
+           def requires(self):
+               return MyTask(foo="hello")
+
+           def run(self):
+               print(self.requires().foo)  # prints "hello"
+
+   This makes it possible to instantiate multiple tasks, eg ``MyTask(foo='bar')`` and
+   ``MyTask(foo='baz')``. The task will then have the ``foo`` attribute set appropriately.
+
+   When a task is instantiated, it will first use any argument as the value of the parameter, eg.
+   if you instantiate ``a = TaskA(x=44)`` then ``a.x == 44``. When the value is not provided, the
+   value  will be resolved in this order of falling priority:
+
+       * Any value provided on the command line:
+
+         - To the root task (eg. ``--param xyz``)
+
+         - Then to the class, using the qualified task name syntax (eg. ``--TaskA-param xyz``).
+
+       * With ``[TASK_NAME]>PARAM_NAME: <serialized value>`` syntax. See :ref:`ParamConfigIngestion`
+
+       * Any default value set using the ``default`` flag.
+
+   Parameter objects may be reused, but you must then set the ``positional=False`` flag.
+
+   .. py:method:: decoder()
+
+
+   .. py:method:: encoder()
+
+
+   .. py:method:: parse(serialized)
+
+      Parse an individual value from the input.
+
+      The default implementation is the identity function, but subclasses should override
+      this method for specialized parsing.
+
+      :param str x: the value to parse.
+      :return: the parsed value.
+
+
+   .. py:method:: serialize(x)
+
+      Opposite of :py:meth:`parse`.
+
+      Converts the value ``x`` to a string.
+
+      :param x: the value to serialize.
+
+
+
+.. py:class:: RepoMeta(name, bases, dct)
+
+   Bases: :py:obj:`luigi.task_register.Register`
+
+   The Metaclass of :py:class:`Task`.
+
+   Acts as a global registry of Tasks with the following properties:
+
+   1. Cache instances of objects so that eg. ``X(1, 2, 3)`` always returns the
+      same object.
+   2. Keep track of all subclasses of :py:class:`Task` and expose them.
+
+   .. py:class:: TaskCtor
+
+      Bases: :py:obj:`object`
+
+      .. py:attribute:: tpe
+         :type: Type[Any]
+
+         
+
+      .. py:attribute:: cls_tpe
+         :type: str
+
+         
+
+      .. py:method:: __post_init__()
+
+
+      .. py:method:: __str__()
+
+         Return str(self).
+
+
+
+   .. py:class:: ClassIndex
+
+      Bases: :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
+
+      Abstract base class for generic types.
+
+      A generic type is typically declared by inheriting from
+      this class parameterized with one or more type variables.
+      For example, a generic mapping type might be defined as::
+
+        class Mapping(Generic[KT, VT]):
+            def __getitem__(self, key: KT) -> VT:
+                ...
+            # Etc.
+
+      This class can then be used as follows::
+
+        def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
+            try:
+                return mapping[key]
+            except KeyError:
+                return default
+
+      .. py:attribute:: tpe
+         :type: Type[Any]
+
+         
+
+      .. py:attribute:: at_index
+         :type: ConfigIndex
+
+         
+
+      .. py:attribute:: cls_tpe
+         :type: str
+
+         
+
+      .. py:method:: __post_init__()
+
+
+      .. py:method:: __str__()
+
+         Return str(self).
+
+
+
+   .. py:class:: WrappedTask
+
+      Bases: :py:obj:`object`
+
+      .. py:attribute:: cls
+         :type: Type[Any]
+
+         
+
+      .. py:attribute:: has_index
+         :type: bool
+
+         
+
+      .. py:attribute:: cls_params
+         :type: tuple[Tuple[str, ClsParameter[Any]]]
+
+         
+
+      .. py:attribute:: reverse_arguments
+         :type: tuple[Any]
+
+         
+
+      .. py:attribute:: name
+         :type: str
+
+         
+
+      .. py:method:: __post_init__()
+
+
+      .. py:method:: __call__(*args, **kwargs) -> Union[RepoMeta, LuigiCombinator[Any]]
+
+
+      .. py:method:: __str__()
+
+         Return str(self).
+
+
+
+   .. py:attribute:: repository
+      :type: dict[Any, cls.types.Type]
+
+      
+
+   .. py:attribute:: subtypes
+      :type: dict[RepoMeta, set[RepoMeta]]
+
+      
+
+   .. py:method:: _get_all_upstream_classes(target: Type) -> Tuple[Type, List[Type]]
+      :staticmethod:
+
+      This method returns a tuple. The first item is the given target, while the second item is
+      a list of all upstream classes.
+
+      Parameters
+      ----------
+      target: PyType
+          The class for which you want to know the abstract upper classes.
+
+      Returns
+      -------
+      Tuple[PyType, List[PyType]]
+          A tuple containing the target class and all upstream classes.
+
+
+   .. py:method:: _get_list_of_all_upstream_classes(target: Type) -> List[Type]
+      :staticmethod:
+
+      This method returns a list of all upstream classes till it its the empty set.
+      Uses information of the subtypes dict to get full chain. The resulting list will
+      include the target class itself as head.
+
+      Parameters
+      ----------
+      target: PyType
+          The class for which you want to know the abstract upper classes.
+
+      Returns
+      -------
+      List[PyType]
+          A list of the  classes found till it hit the top. The list is sorted according to first seen classes.
+
+
+   .. py:method:: _get_all_upstream_abstract_classes(target: Type) -> Tuple[Type, List[Type]]
+      :staticmethod:
+
+      This method returns a tuple which contains the target as the first element
+      and a list of all found abstract classes as the second element.
+
+      Parameters
+      ----------
+      target: PyType
+          The class for which you want to know the abstract upper classes.
+
+      Returns
+      -------
+          Tuple[PyType, List[PyType]]: a tuple containing the target class and all upstream abstract classes.
+
+
+   .. py:method:: _get_list_of_all_upstream_abstract_classes(target: Type) -> List[Type]
+      :staticmethod:
+
+      This method can be used to get all abstract classes that are reachable from a given target class.
+      It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
+      a class as key for the dict and gets an empty set back. It is possible that the target class is
+      included in the resulting list as head, if it is abstract itself.
+
+      Parameters
+      ----------
+      target: PyType
+          The class for which you want to know the abstract upper classes
+
+      Returns
+      -------
+      List[PyType]
+          A list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
+          So the head of the list is the first seen abstract class.
+
+
+   .. py:method:: _get_all_downstream_classes(target: Type) -> Tuple[Type, Set[Type]]
+      :staticmethod:
+
+      Get the set of all downstream classes for a given target class.
+
+      This method uses the `__get_set_of_all_downstream_classes` method to find all downstream
+      classes for the given `target` class, and returns a tuple containing the `target` class and
+      the set of downstream classes.
+
+      Parameters
+      ----------
+      target: PyType
+          The target class to find downstream classes for.
+
+      Returns
+      -------
+      Tuple[PyType, Set[PyType]]
+          A tuple containing the `target` class and the set of downstream classes for the given `target`.
+
+
+   .. py:method:: _get_all_downstream_abstract_classes(target: Type) -> Tuple[Type, Set[Type]]
+      :staticmethod:
+
+      Get all downstream abstract classes for a given class object.
+
+      This method returns a tuple of the target class object and a set of all class objects that are
+      downstream from the target and are abstract.
+
+      Parameters
+      ----------
+      target: PyType
+          The target class object for which the downstream abstract classes are to be returned.
+
+      Returns
+      -------
+      Tuple[PyType, Set[PyType]]
+          A tuple containing the target class object as the first element and a set of all
+          class objects that are downstream from the target and are abstract.
+
+
+   .. py:method:: _get_all_downstream_concrete_classes(target: Type) -> Tuple[Type, Set[Type]]
+      :staticmethod:
+
+      Get all downstream concrete classes for a given class object.
+
+      This method returns a tuple of the target class object and a set of all class objects that are
+      downstream from the target and are concrete.
+
+      Parameters
+      ----------
+      target: PyType
+          The target class object for which the downstream concrete classes are to be returned.
+
+      Returns
+      -------
+      Tuple[PyType, Set[PyType]]
+          A tuple containing the target class object as the first element and a set of all
+          class objects that are downstream from the target and are concrete.
+
+
+   .. py:method:: __get_set_of_all_downstream_classes(targets: List[Type], current_set: Set[Type] = set()) -> Set[Type]
+      :staticmethod:
+
+      Get the set of all downstream classes for a given set of targets.
+
+      This method uses a recursive approach to build up a set of downstream classes, starting
+      with the `targets` and iteratively adding any downstream classes that are found.
+      The `current_set` parameter is used to keep track of the set of downstream classes that
+      have already been found, and is updated and returned after each recursive call.
+
+      Parameters
+      ----------
+      targets: List[PyType]
+          A list of target classes to find downstream classes for.
+      current_set: Set[PyType]
+          A set of classes that have already been found as downstream classes. This set is updated
+          and returned after each recursive call.
+
+      Returns
+      -------
+      Set[PyType]
+          The set of all downstream classes for the given `targets`.
+
+
+   .. py:method:: _get_class_chain(target: Type) -> Tuple[Type, Set[Type], Set[Type]]
+      :staticmethod:
+
+      Get a tuple containing the target class and its upstream and downstream classes.
+
+      This method uses the `_get_all_upstream_classes` and `_get_all_downstream_classes` methods to
+      find the upstream and downstream classes for the given `target` class, and returns a tuple
+      containing the `target` class, the set of upstream classes, and the set of downstream classes.
+
+      Parameters
+      ----------
+      target: PyType
+          The target class to find upstream and downstream classes for.
+
+      Returns
+      -------
+      Tuple[PyType, Set[PyType], Set[PyType]]
+          A tuple containing the `target` class, the set of upstream classes, and the set of downstream classes.
+
+
+   .. py:method:: _get_abstract_class_chain(target: Type) -> Tuple[Type, Set[Type], Set[Type]]
+      :staticmethod:
+
+      Get a tuple containing the target class and its upstream and downstream abstract classes.
+
+      This method uses the `_get_all_upstream_abstract_classes` and `_get_all_downstream_abstract_classes` methods
+      to find the upstream and downstream abstract classes for the given `target` class, and returns a tuple
+      containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.
+
+      Parameters
+      ----------
+      target: PyType
+          The target class to find upstream and downstream abstract classes for.
+
+      Returns
+      -------
+      Tuple[PyType, Set[PyType], Set[PyType]]
+          A tuple containing the `target` class, the set of upstream abstract classes, and the set of downstream abstract classes.
+
+
+   .. py:method:: _get_maximal_shared_upper_classes(targets: List[Type]) -> Tuple[List[Type], bool]
+      :staticmethod:
+
+      Finds the maximal shared upper classes of the given targets.
+
+      Parameters
+      ----------
+      targets : List[PyType]
+          List of classes or tuples of classes to find maximal shared upper classes for.
+
+      Returns
+      -------
+      Tuple[List[PyType], bool]
+          A tuple containing the list of maximal shared upper classes and a boolean
+          that indicates whether or not all upper classes are equal.
+
+
+   .. py:method:: _delete_related_combinators(targets: List[Type], repository: Dict[Any, cls.types.Type] = repository) -> Dict[Any, cls.types.Type]
+      :staticmethod:
+
+      Removes the related combinators from the given repository based on the given targets
+      and returns a copy of the new repository.
+
+      Parameters
+      ----------
+      targets: List[PyType]
+          List of classes or tuples of classes that the related combinators will be removed from.
+      repository: Dict[Any, Type]
+          Dictionary containing the combinators that will be checked and removed.
+
+      Returns
+      -------
+      Dict[Any, Type]
+          A copy of the original repository with the related combinators removed.
+
+
+   .. py:method:: filtered_repository(targets: List[Type] = [], repository: Dict[Any, cls.types.Type] = repository) -> Dict[cls.types.Type, Any]
+      :staticmethod:
+
+      Filters the repository to include only combinators related to the specified targets.
+
+      This method filters the repository to include only combinators that are related to the specified targets.
+      The targets can be either abstract classes or concrete classes.
+
+      Parameters
+      ----------
+      targets: List[Type]
+          A list of class objects for which related combinators should be included.
+      repository: Dict[Type, Any]
+          A dictionary containing the combinators in the repository.
+
+      Returns
+      -------
+      Dict[Type, Any]
+          A copy of the repository with only the related combinators included.
+
+
+   .. py:method:: get_list_of_variated_abstract_tasks(repository=repository, subtypes=subtypes) -> List[cls.types.Type]
+      :staticmethod:
+
+      Get a list of variated abstract tasks.
+
+      This method returns a list of abstract tasks that have been really been variated and thus
+      should most likely be unique in any pipeline.
+
+      Parameters
+      ----------
+      repository: Dict[Type, Any]
+          A dictionary containing the combinators in the repository.
+      subtypes: Dict[Type, List[Type]]
+          A dictionary containing the subtypes of each class object.
+
+      Returns
+      -------
+      List[Type]
+          A list of class objects representing the variated abstract tasks.
+
+
+   .. py:method:: get_unique_abstract_task_validator() -> cls_luigi.unique_task_pipeline_validator.UniqueTaskPipelineValidator
+      :staticmethod:
+
+      Returns an instance of the `UniqueTaskPipelineValidator` class with the list of variated abstract tasks as its argument.
+
+      Returns
+      -------
+      UniqueTaskPipelineValidator
+          instance of the `UniqueTaskPipelineValidator` class.
+
+
+   .. py:method:: cls_tpe(cls) -> str
+      :staticmethod:
+
+
+   .. py:method:: _combinator_tpe(cls: Type[Any], index_set: set[Any], cls_params: list[Tuple[str, ClsParameter[Any]]]) -> cls.types.Type
+      :staticmethod:
+
+
+   .. py:method:: _index_set(cls_tpe: str, cls_params: list[Tuple[str, ClsParameter[Any]]]) -> set[Any]
+      :staticmethod:
+
+
+
+.. py:class:: CLSLugiEncoder(**kwargs)
+
+   Bases: :py:obj:`cls.cls_json.CLSEncoder`
+
+   A custom JSON encoder for classes related to Finite Combinatory Logic.
+
+   This class extends `json.JSONEncoder` and provides a custom implementation of the
+   `default` method to handle objects of the classes `Tree`, `Combinator`, `Apply`,
+   `Failed`, `Arrow`, `Intersection`, `Product`, `Omega`, `Constructor`, `Subtypes`,
+   `InhabitationResult`, and `FiniteCombinatoryLogic`.
+
+   The output of the encoding process is a dictionary with a special key `__type__` that
+   indicates the type of the original object. The remaining keys in the dictionary store
+   the attributes of the original object.
+
+   .. py:method:: _serialize_config_index(idx: RepoMeta)
+      :staticmethod:
+
+
+   .. py:method:: _serialize_combinator(c: RepoMeta)
+      :staticmethod:
+
+
+   .. py:method:: _serialize_task_ctor(ctor: RepoMeta)
+      :staticmethod:
+
+
+   .. py:method:: combinator_hook(o)
+
+      Handle the encoding of `Combinator` objects.
+
+      This method delegates the encoding of a `Combinator` object to the `default`
+      method of `json.JSONEncoder`.
+
+      :param o: The `Combinator` object to be encoded.
+      :type o: Combinator
+      :return: The encoded `Combinator` object.
+      :rtype: dict
+
+
+   .. py:method:: constructor_hook(o)
+
+      Handle the encoding of `Constructor` objects.
+
+      This method delegates the encoding of a `Constructor` object to the `default`
+      method of `json.JSONEncoder`.
+
+      :param o: The `Constructor` object to be encoded.
+      :type o: Constructor
+      :return: The encoded `Constructor` object.
+      :rtype: dict
+
+
+   .. py:method:: default(o)
+
+      Handle the encoding of objects.
+
+      This method provides a custom implementation of the `default` method to handle
+      objects of various types related to Finite Combinatory Logic. If the object is
+      not one of the supported types, the method delegates the encoding to the `default`
+      method of `json.JSONEncoder`.
+
+      :param o: The object to be encoded.
+      :type o: object
+      :return: The encoded object.
+      :rtype: dict
+
+
+
+.. py:class:: CLSLuigiDecoder(**kwargs)
+
+   Bases: :py:obj:`cls.cls_json.CLSDecoder`
+
+   A custom JSON decoder for decoding objects of different types from a JSON string related to Finite Combinatory Logic.
+
+   The decoder uses the `__type__` field in the JSON string to determine the type of the object being decoded. The object is then constructed using the information in the JSON string.
+
+   The decoder supports several different types of objects including `Tree`, `Combinator`, `Apply`, `Failed`, `Arrow`, `Intersection`, `Product`, `Omega`, `Constructor`, `Subtypes`, `InhabitationResult`, and `FiniteCombinatoryLogic`
+
+   .. py:method:: _deserialize_config_index(dct)
+      :staticmethod:
+
+
+   .. py:method:: _deserialize_combinator(dct)
+      :staticmethod:
+
+
+   .. py:method:: _deserialize_task_ctor(dct)
+      :staticmethod:
+
+
+   .. py:method:: combinator_hook(dct)
+
+      A hook for processing the `combinator` field in the JSON string.
+
+      By default, the hook simply returns the `combinator` field without any processing.
+
+      :param dct: The dictionary representing the JSON object being decoded.
+      :type dct: dict
+      :return: The `combinator` field.
+      :rtype: dict
+
+
+   .. py:method:: constructor_hook(dct)
+
+      Return the input dictionary `dct` unmodified.
+
+      This method is a hook for `CLSDecoder` class to handle `Constructor` objects
+      during JSON decoding. It simply returns the input dictionary `dct` unmodified.
+
+      :param dct: A dictionary representing a JSON object.
+      :type dct: dict
+      :return: The input dictionary `dct` unmodified.
+      :rtype: dict
+
+
+   .. py:method:: __call__(dct)
+
+      The `__call__` method of the `CLSDecoder` class is used to parse a dictionary, `dct`,
+      into an object of one of several possible subclasses of the `CLS` class.
+
+      The class of the returned object is determined by the `__type__` key in `dct`, which
+      specifies the type of the object. The type is represented as a string of the form
+      `module_name.class_name`. The method uses the `tpe` static method to convert a class
+      object into such a string.
+
+      The method uses several `if` statements to check the value of `dct["__type__"]` against
+      the string representation of each possible `CLS` subclass, and returns an object of the
+      corresponding class if a match is found. The constructor arguments of the returned object
+      are extracted from `dct` and possibly processed by the `constructor_hook` and
+      `combinator_hook` methods of the `CLSDecoder` class.
+
+      If the value of `dct["__type__"]` does not match any of the expected values, the original
+      dictionary `dct` is returned as is.
+
+
+      :param dct: The dictionary to be parsed into an object of a `CLS` subclass.
+      :type dct: dict
+      :return: An object of a subclass of the `CLS` class, or the original `dct` if no match was found.
+      :rtype: object
+
+
+
+.. py:class:: LuigiCombinator
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
+
+   Abstract base class for generic types.
+
+   A generic type is typically declared by inheriting from
+   this class parameterized with one or more type variables.
+   For example, a generic mapping type might be defined as::
+
+     class Mapping(Generic[KT, VT]):
+         def __getitem__(self, key: KT) -> VT:
+             ...
+         # Etc.
+
+   This class can then be used as follows::
+
+     def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
+         try:
+             return mapping[key]
+         except KeyError:
+             return default
+
+   .. py:attribute:: config_index
+
+      
+
+   .. py:attribute:: config_domain
+      :type: set[ConfigIndex] | None
+
+      
+
+   .. py:attribute:: abstract
+      :type: bool
+      :value: False
+
+      
+
+   .. py:method:: return_type(idx: ConfigIndex = None) -> cls.types.Type
+      :classmethod:
+
+
+

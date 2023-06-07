@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/js/fullscreen.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="cls_luigi.unique_task_pipeline_validator" href="../unique_task_pipeline_validator/index.html" />
+    <link rel="prev" title="cls_luigi.cls_tasks" href="../cls_tasks/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi</span></code></a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../cls_tasks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.cls_tasks</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.inhabitation_task</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../unique_task_pipeline_validator/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.unique_task_pipeline_validator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.inhabitation_task</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/cls-python/cls-luigi/blob/main/docs/autoapi/cls_luigi/inhabitation_task/index.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cls_luigi.inhabitation_task">
+<span id="cls-luigi-inhabitation-task"></span><h1><a class="reference internal" href="#module-cls_luigi.inhabitation_task" title="cls_luigi.inhabitation_task"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cls_luigi.inhabitation_task</span></code></a><a class="headerlink" href="#module-cls_luigi.inhabitation_task" title="Permalink to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="cls_luigi.inhabitation_task.TaskProcessingTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskProcessingTime</span></code></a></p></td>
+<td><p>A mixin that when added to a luigi task, will save</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskState" title="cls_luigi.inhabitation_task.TaskState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskState</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTask" title="cls_luigi.inhabitation_task.InhabitationTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTask</span></code></a></p></td>
+<td><p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTest" title="cls_luigi.inhabitation_task.InhabitationTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTest</span></code></a></p></td>
+<td><p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClsParameter</span></code></a></p></td>
+<td><p>Parameter whose value is a <code class="docutils literal notranslate"><span class="pre">str</span></code>, and a base class for other parameter types.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepoMeta</span></code></a></p></td>
+<td><p>The Metaclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLugiEncoder" title="cls_luigi.inhabitation_task.CLSLugiEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLugiEncoder</span></code></a></p></td>
+<td><p>A custom JSON encoder for classes related to Finite Combinatory Logic.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder" title="cls_luigi.inhabitation_task.CLSLuigiDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLuigiDecoder</span></code></a></p></td>
+<td><p>A custom JSON decoder for decoding objects of different types from a JSON string related to Finite Combinatory Logic.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.LuigiCombinator" title="cls_luigi.inhabitation_task.LuigiCombinator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LuigiCombinator</span></code></a></p></td>
+<td><p>Abstract base class for generic types.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CONFIG" title="cls_luigi.inhabitation_task.CONFIG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONFIG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.states" title="cls_luigi.inhabitation_task.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CONFIG">
+<span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">CONFIG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'config.json'</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CONFIG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CONFIG" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskProcessingTime">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">TaskProcessingTime</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskProcessingTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A mixin that when added to a luigi task, will save
+the tasks execution time to the dynamic_pipeline.json</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json">
+<span class="sig-name descname"><span class="pre">save_execution_time_to_dynamic_pipeline_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">TaskState</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.fcl">
+<span class="sig-name descname"><span class="pre">fcl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cls.fcl.FiniteCombinatoryLogic</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.fcl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.fcl" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.target">
+<span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cls.types.Type</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.target" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.result">
+<span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">InhabitationResult</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.position">
+<span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.position" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.stopped">
+<span class="sig-name descname"><span class="pre">stopped</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.stopped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.stopped" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.processes">
+<span class="sig-name descname"><span class="pre">processes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">multiprocessing.Process</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.processes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.processes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.worker_scheduler_factory">
+<span class="sig-name descname"><span class="pre">worker_scheduler_factory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">luigi.interface._WorkerSchedulerFactory</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.worker_scheduler_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.worker_scheduler_factory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.states">
+<span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskState" title="cls_luigi.inhabitation_task.TaskState"><span class="pre">TaskState</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.states" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">InhabitationTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Task</span></code>, <a class="reference internal" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="cls_luigi.inhabitation_task.TaskProcessingTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskProcessingTime</span></code></a></p>
+<p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p>
+<p>A Luigi Task describes a unit or work.</p>
+<p>The key methods of a Task, which must be implemented in a subclass are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTask.run" title="cls_luigi.inhabitation_task.InhabitationTask.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> - the computation done by this task.</p></li>
+<li><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTask.requires" title="cls_luigi.inhabitation_task.InhabitationTask.requires"><code class="xref py py-meth docutils literal notranslate"><span class="pre">requires()</span></code></a> - the list of Tasks that this Task depends on.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code> - the output <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> that this Task creates.</p></li>
+</ul>
+<p>Each <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code> of the Task should be declared as members:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">IntParameter</span><span class="p">()</span>
+    <span class="n">second_param</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In addition to any declared properties and methods, there are a few
+non-declared properties, which are created by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Register</span></code>
+metaclass:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask.accepts_messages">
+<span class="sig-name descname"><span class="pre">accepts_messages</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask.accepts_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask.accepts_messages" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask.complete">
+<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask.complete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask.complete" title="Permalink to this definition"></a></dt>
+<dd><p>If the task has any outputs, return <code class="docutils literal notranslate"><span class="pre">True</span></code> if all outputs exist.
+Otherwise, return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>However, you may freely override this method with custom logic.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">InhabitationTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Task</span></code></p>
+<p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p>
+<p>A Luigi Task describes a unit or work.</p>
+<p>The key methods of a Task, which must be implemented in a subclass are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTest.run" title="cls_luigi.inhabitation_task.InhabitationTest.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> - the computation done by this task.</p></li>
+<li><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTest.requires" title="cls_luigi.inhabitation_task.InhabitationTest.requires"><code class="xref py py-meth docutils literal notranslate"><span class="pre">requires()</span></code></a> - the list of Tasks that this Task depends on.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">output()</span></code> - the output <code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code> that this Task creates.</p></li>
+</ul>
+<p>Each <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code> of the Task should be declared as members:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">IntParameter</span><span class="p">()</span>
+    <span class="n">second_param</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In addition to any declared properties and methods, there are a few
+non-declared properties, which are created by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Register</span></code>
+metaclass:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.done">
+<span class="sig-name descname"><span class="pre">done</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.done" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.accepts_messages">
+<span class="sig-name descname"><span class="pre">accepts_messages</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.accepts_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.accepts_messages" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.requires"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.requires" title="Permalink to this definition"></a></dt>
+<dd><p>The Tasks that this Task depends on.</p>
+<p>A Task will only run if all of the Tasks that it requires are completed.
+If your Task does not require any other Tasks, then you don’t need to
+override this method. Otherwise, a subclass can override this method
+to return a single Task, a list of Task instances, or a dict whose
+values are Task instances.</p>
+<p>See <span class="xref std std-ref">Task.requires</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.run" title="Permalink to this definition"></a></dt>
+<dd><p>The task run method, to be overridden in a subclass.</p>
+<p>See <span class="xref std std-ref">Task.run</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTest.complete">
+<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTest.complete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTest.complete" title="Permalink to this definition"></a></dt>
+<dd><p>If the task has any outputs, return <code class="docutils literal notranslate"><span class="pre">True</span></code> if all outputs exist.
+Otherwise, return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>However, you may freely override this method with custom logic.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ConfigIndex">
+<span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">ConfigIndex</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ConfigIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ConfigIndex" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">ClsParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigIndex</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Parameter</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a>]</p>
+<p>Parameter whose value is a <code class="docutils literal notranslate"><span class="pre">str</span></code>, and a base class for other parameter types.</p>
+<p>Parameters are objects set on the Task class level to make it possible to parameterize tasks.
+For instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">RequiringTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MyTask</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">requires</span><span class="p">()</span><span class="o">.</span><span class="n">foo</span><span class="p">)</span>  <span class="c1"># prints &quot;hello&quot;</span>
+</pre></div>
+</div>
+<p>This makes it possible to instantiate multiple tasks, eg <code class="docutils literal notranslate"><span class="pre">MyTask(foo='bar')</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MyTask(foo='baz')</span></code>. The task will then have the <code class="docutils literal notranslate"><span class="pre">foo</span></code> attribute set appropriately.</p>
+<p>When a task is instantiated, it will first use any argument as the value of the parameter, eg.
+if you instantiate <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">TaskA(x=44)</span></code> then <code class="docutils literal notranslate"><span class="pre">a.x</span> <span class="pre">==</span> <span class="pre">44</span></code>. When the value is not provided, the
+value  will be resolved in this order of falling priority:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Any value provided on the command line:</p>
+<ul>
+<li><p>To the root task (eg. <code class="docutils literal notranslate"><span class="pre">--param</span> <span class="pre">xyz</span></code>)</p></li>
+<li><p>Then to the class, using the qualified task name syntax (eg. <code class="docutils literal notranslate"><span class="pre">--TaskA-param</span> <span class="pre">xyz</span></code>).</p></li>
+</ul>
+</li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">[TASK_NAME]&gt;PARAM_NAME:</span> <span class="pre">&lt;serialized</span> <span class="pre">value&gt;</span></code> syntax. See <span class="xref std std-ref">ParamConfigIngestion</span></p></li>
+<li><p>Any default value set using the <code class="docutils literal notranslate"><span class="pre">default</span></code> flag.</p></li>
+</ul>
+</div></blockquote>
+<p>Parameter objects may be reused, but you must then set the <code class="docutils literal notranslate"><span class="pre">positional=False</span></code> flag.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter.decoder">
+<span class="sig-name descname"><span class="pre">decoder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter.decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter.decoder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter.encoder">
+<span class="sig-name descname"><span class="pre">encoder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter.encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter.encoder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter.parse">
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serialized</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter.parse" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an individual value from the input.</p>
+<p>The default implementation is the identity function, but subclasses should override
+this method for specialized parsing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>str</em>) – the value to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the parsed value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter.serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter.serialize" title="Permalink to this definition"></a></dt>
+<dd><p>Opposite of <a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter.parse" title="cls_luigi.inhabitation_task.ClsParameter.parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse()</span></code></a>.</p>
+<p>Converts the value <code class="docutils literal notranslate"><span class="pre">x</span></code> to a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – the value to serialize.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">RepoMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.task_register.Register</span></code></p>
+<p>The Metaclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>.</p>
+<p>Acts as a global registry of Tasks with the following properties:</p>
+<ol class="arabic simple">
+<li><p>Cache instances of objects so that eg. <code class="docutils literal notranslate"><span class="pre">X(1,</span> <span class="pre">2,</span> <span class="pre">3)</span></code> always returns the
+same object.</p></li>
+<li><p>Keep track of all subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> and expose them.</p></li>
+</ol>
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.TaskCtor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TaskCtor</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.TaskCtor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.TaskCtor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.TaskCtor.tpe">
+<span class="sig-name descname"><span class="pre">tpe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.TaskCtor.tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.TaskCtor.cls_tpe">
+<span class="sig-name descname"><span class="pre">cls_tpe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.TaskCtor.cls_tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.cls_tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.TaskCtor.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__post_init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.TaskCtor.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.TaskCtor.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>Return str(self).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ClassIndex</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a>]</p>
+<p>Abstract base class for generic types.</p>
+<p>A generic type is typically declared by inheriting from
+this class parameterized with one or more type variables.
+For example, a generic mapping type might be defined as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Mapping</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">KT</span><span class="p">,</span> <span class="n">VT</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VT</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="c1"># Etc.</span>
+</pre></div>
+</div>
+<p>This class can then be used as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">lookup_name</span><span class="p">(</span><span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">KT</span><span class="p">,</span> <span class="n">VT</span><span class="p">],</span> <span class="n">key</span><span class="p">:</span> <span class="n">KT</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">VT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VT</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex.tpe">
+<span class="sig-name descname"><span class="pre">tpe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex.tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex.at_index">
+<span class="sig-name descname"><span class="pre">at_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConfigIndex</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex.at_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.at_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex.cls_tpe">
+<span class="sig-name descname"><span class="pre">cls_tpe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex.cls_tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.cls_tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__post_init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.ClassIndex.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.ClassIndex.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>Return str(self).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WrappedTask</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls">
+<span class="sig-name descname"><span class="pre">cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.cls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.has_index">
+<span class="sig-name descname"><span class="pre">has_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.has_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.has_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls_params">
+<span class="sig-name descname"><span class="pre">cls_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><span class="pre">ClsParameter</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.cls_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.cls_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.reverse_arguments">
+<span class="sig-name descname"><span class="pre">reverse_arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.reverse_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.reverse_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__post_init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#cls_luigi.inhabitation_task.LuigiCombinator" title="cls_luigi.inhabitation_task.LuigiCombinator"><span class="pre">LuigiCombinator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__call__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.WrappedTask.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.WrappedTask.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>Return str(self).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.repository">
+<span class="sig-name descname"><span class="pre">repository</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.repository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.repository" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.subtypes">
+<span class="sig-name descname"><span class="pre">subtypes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.subtypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.subtypes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_all_upstream_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_all_upstream_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_classes" title="Permalink to this definition"></a></dt>
+<dd><p>This method returns a tuple. The first item is the given target, while the second item is
+a list of all upstream classes.</p>
+<section id="parameters">
+<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The class for which you want to know the abstract upper classes.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h4>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, List[PyType]]</dt><dd><p>A tuple containing the target class and all upstream classes.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_list_of_all_upstream_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_list_of_all_upstream_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_classes" title="Permalink to this definition"></a></dt>
+<dd><p>This method returns a list of all upstream classes till it its the empty set.
+Uses information of the subtypes dict to get full chain. The resulting list will
+include the target class itself as head.</p>
+<section id="id1">
+<h4>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The class for which you want to know the abstract upper classes.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h4>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>List[PyType]</dt><dd><p>A list of the  classes found till it hit the top. The list is sorted according to first seen classes.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_abstract_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_all_upstream_abstract_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_all_upstream_abstract_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_all_upstream_abstract_classes" title="Permalink to this definition"></a></dt>
+<dd><p>This method returns a tuple which contains the target as the first element
+and a list of all found abstract classes as the second element.</p>
+<section id="id3">
+<h4>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The class for which you want to know the abstract upper classes.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h4>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h4>
+<blockquote>
+<div><p>Tuple[PyType, List[PyType]]: a tuple containing the target class and all upstream abstract classes.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_abstract_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_list_of_all_upstream_abstract_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_list_of_all_upstream_abstract_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_list_of_all_upstream_abstract_classes" title="Permalink to this definition"></a></dt>
+<dd><p>This method can be used to get all abstract classes that are reachable from a given target class.
+It uses the information of the subtypes dict to find all abstract classes on the way, till it uses
+a class as key for the dict and gets an empty set back. It is possible that the target class is
+included in the resulting list as head, if it is abstract itself.</p>
+<section id="id5">
+<h4>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The class for which you want to know the abstract upper classes</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h4>Returns<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>List[PyType]</dt><dd><p>A list of the abstract classes found till it hit the top. The list is sorted according to first seen classes.
+So the head of the list is the first seen abstract class.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_all_downstream_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_all_downstream_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the set of all downstream classes for a given target class.</p>
+<p>This method uses the <cite>__get_set_of_all_downstream_classes</cite> method to find all downstream
+classes for the given <cite>target</cite> class, and returns a tuple containing the <cite>target</cite> class and
+the set of downstream classes.</p>
+<section id="id7">
+<h4>Parameters<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The target class to find downstream classes for.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h4>Returns<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, Set[PyType]]</dt><dd><p>A tuple containing the <cite>target</cite> class and the set of downstream classes for the given <cite>target</cite>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_abstract_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_all_downstream_abstract_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_all_downstream_abstract_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_abstract_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Get all downstream abstract classes for a given class object.</p>
+<p>This method returns a tuple of the target class object and a set of all class objects that are
+downstream from the target and are abstract.</p>
+<section id="id9">
+<h4>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The target class object for which the downstream abstract classes are to be returned.</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h4>Returns<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, Set[PyType]]</dt><dd><p>A tuple containing the target class object as the first element and a set of all
+class objects that are downstream from the target and are abstract.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_concrete_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_all_downstream_concrete_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_all_downstream_concrete_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_all_downstream_concrete_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Get all downstream concrete classes for a given class object.</p>
+<p>This method returns a tuple of the target class object and a set of all class objects that are
+downstream from the target and are concrete.</p>
+<section id="id11">
+<h4>Parameters<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The target class object for which the downstream concrete classes are to be returned.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h4>Returns<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, Set[PyType]]</dt><dd><p>A tuple containing the target class object as the first element and a set of all
+class objects that are downstream from the target and are concrete.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.__get_set_of_all_downstream_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__get_set_of_all_downstream_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">set()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.__get_set_of_all_downstream_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.__get_set_of_all_downstream_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the set of all downstream classes for a given set of targets.</p>
+<p>This method uses a recursive approach to build up a set of downstream classes, starting
+with the <cite>targets</cite> and iteratively adding any downstream classes that are found.
+The <cite>current_set</cite> parameter is used to keep track of the set of downstream classes that
+have already been found, and is updated and returned after each recursive call.</p>
+<section id="id13">
+<h4>Parameters<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>targets: List[PyType]</dt><dd><p>A list of target classes to find downstream classes for.</p>
+</dd>
+<dt>current_set: Set[PyType]</dt><dd><p>A set of classes that have already been found as downstream classes. This set is updated
+and returned after each recursive call.</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h4>Returns<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Set[PyType]</dt><dd><p>The set of all downstream classes for the given <cite>targets</cite>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_class_chain">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_class_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_class_chain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_class_chain" title="Permalink to this definition"></a></dt>
+<dd><p>Get a tuple containing the target class and its upstream and downstream classes.</p>
+<p>This method uses the <cite>_get_all_upstream_classes</cite> and <cite>_get_all_downstream_classes</cite> methods to
+find the upstream and downstream classes for the given <cite>target</cite> class, and returns a tuple
+containing the <cite>target</cite> class, the set of upstream classes, and the set of downstream classes.</p>
+<section id="id15">
+<h4>Parameters<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The target class to find upstream and downstream classes for.</p>
+</dd>
+</dl>
+</section>
+<section id="id16">
+<h4>Returns<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, Set[PyType], Set[PyType]]</dt><dd><p>A tuple containing the <cite>target</cite> class, the set of upstream classes, and the set of downstream classes.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_abstract_class_chain">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_abstract_class_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_abstract_class_chain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_abstract_class_chain" title="Permalink to this definition"></a></dt>
+<dd><p>Get a tuple containing the target class and its upstream and downstream abstract classes.</p>
+<p>This method uses the <cite>_get_all_upstream_abstract_classes</cite> and <cite>_get_all_downstream_abstract_classes</cite> methods
+to find the upstream and downstream abstract classes for the given <cite>target</cite> class, and returns a tuple
+containing the <cite>target</cite> class, the set of upstream abstract classes, and the set of downstream abstract classes.</p>
+<section id="id17">
+<h4>Parameters<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>target: PyType</dt><dd><p>The target class to find upstream and downstream abstract classes for.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h4>Returns<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[PyType, Set[PyType], Set[PyType]]</dt><dd><p>A tuple containing the <cite>target</cite> class, the set of upstream abstract classes, and the set of downstream abstract classes.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._get_maximal_shared_upper_classes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_maximal_shared_upper_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._get_maximal_shared_upper_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._get_maximal_shared_upper_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Finds the maximal shared upper classes of the given targets.</p>
+<section id="id19">
+<h4>Parameters<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>targets<span class="classifier">List[PyType]</span></dt><dd><p>List of classes or tuples of classes to find maximal shared upper classes for.</p>
+</dd>
+</dl>
+</section>
+<section id="id20">
+<h4>Returns<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Tuple[List[PyType], bool]</dt><dd><p>A tuple containing the list of maximal shared upper classes and a boolean
+that indicates whether or not all upper classes are equal.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._delete_related_combinators">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_delete_related_combinators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">repository</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._delete_related_combinators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._delete_related_combinators" title="Permalink to this definition"></a></dt>
+<dd><p>Removes the related combinators from the given repository based on the given targets
+and returns a copy of the new repository.</p>
+<section id="id21">
+<h4>Parameters<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>targets: List[PyType]</dt><dd><p>List of classes or tuples of classes that the related combinators will be removed from.</p>
+</dd>
+<dt>repository: Dict[Any, Type]</dt><dd><p>Dictionary containing the combinators that will be checked and removed.</p>
+</dd>
+</dl>
+</section>
+<section id="id22">
+<h4>Returns<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Dict[Any, Type]</dt><dd><p>A copy of the original repository with the related combinators removed.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.filtered_repository">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filtered_repository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">repository</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.filtered_repository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.filtered_repository" title="Permalink to this definition"></a></dt>
+<dd><p>Filters the repository to include only combinators related to the specified targets.</p>
+<p>This method filters the repository to include only combinators that are related to the specified targets.
+The targets can be either abstract classes or concrete classes.</p>
+<section id="id23">
+<h4>Parameters<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>targets: List[Type]</dt><dd><p>A list of class objects for which related combinators should be included.</p>
+</dd>
+<dt>repository: Dict[Type, Any]</dt><dd><p>A dictionary containing the combinators in the repository.</p>
+</dd>
+</dl>
+</section>
+<section id="id24">
+<h4>Returns<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>Dict[Type, Any]</dt><dd><p>A copy of the repository with only the related combinators included.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.get_list_of_variated_abstract_tasks">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_list_of_variated_abstract_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">repository</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">subtypes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.get_list_of_variated_abstract_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.get_list_of_variated_abstract_tasks" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of variated abstract tasks.</p>
+<p>This method returns a list of abstract tasks that have been really been variated and thus
+should most likely be unique in any pipeline.</p>
+<section id="id25">
+<h4>Parameters<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>repository: Dict[Type, Any]</dt><dd><p>A dictionary containing the combinators in the repository.</p>
+</dd>
+<dt>subtypes: Dict[Type, List[Type]]</dt><dd><p>A dictionary containing the subtypes of each class object.</p>
+</dd>
+</dl>
+</section>
+<section id="id26">
+<h4>Returns<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>List[Type]</dt><dd><p>A list of class objects representing the variated abstract tasks.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.get_unique_abstract_task_validator">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_unique_abstract_task_validator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../unique_task_pipeline_validator/index.html#cls_luigi.unique_task_pipeline_validator.UniqueTaskPipelineValidator" title="cls_luigi.unique_task_pipeline_validator.UniqueTaskPipelineValidator"><span class="pre">cls_luigi.unique_task_pipeline_validator.UniqueTaskPipelineValidator</span></a></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.get_unique_abstract_task_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.get_unique_abstract_task_validator" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an instance of the <cite>UniqueTaskPipelineValidator</cite> class with the list of variated abstract tasks as its argument.</p>
+<section id="id27">
+<h4>Returns<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>UniqueTaskPipelineValidator</dt><dd><p>instance of the <cite>UniqueTaskPipelineValidator</cite> class.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta.cls_tpe">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cls_tpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta.cls_tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta.cls_tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._combinator_tpe">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_combinator_tpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><span class="pre">ClsParameter</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cls.types.Type</span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._combinator_tpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._combinator_tpe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.RepoMeta._index_set">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_index_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls_tpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><span class="pre">ClsParameter</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#RepoMeta._index_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.RepoMeta._index_set" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">CLSLugiEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">cls.cls_json.CLSEncoder</span></code></p>
+<p>A custom JSON encoder for classes related to Finite Combinatory Logic.</p>
+<p>This class extends <cite>json.JSONEncoder</cite> and provides a custom implementation of the
+<cite>default</cite> method to handle objects of the classes <cite>Tree</cite>, <cite>Combinator</cite>, <cite>Apply</cite>,
+<cite>Failed</cite>, <cite>Arrow</cite>, <cite>Intersection</cite>, <cite>Product</cite>, <cite>Omega</cite>, <cite>Constructor</cite>, <cite>Subtypes</cite>,
+<cite>InhabitationResult</cite>, and <cite>FiniteCombinatoryLogic</cite>.</p>
+<p>The output of the encoding process is a dictionary with a special key <cite>__type__</cite> that
+indicates the type of the original object. The remaining keys in the dictionary store
+the attributes of the original object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_config_index">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_serialize_config_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder._serialize_config_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_config_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_combinator">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_serialize_combinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder._serialize_combinator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_combinator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_task_ctor">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_serialize_task_ctor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><span class="pre">RepoMeta</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder._serialize_task_ctor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder._serialize_task_ctor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder.combinator_hook">
+<span class="sig-name descname"><span class="pre">combinator_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder.combinator_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder.combinator_hook" title="Permalink to this definition"></a></dt>
+<dd><p>Handle the encoding of <cite>Combinator</cite> objects.</p>
+<p>This method delegates the encoding of a <cite>Combinator</cite> object to the <cite>default</cite>
+method of <cite>json.JSONEncoder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>o</strong> (<em>Combinator</em>) – The <cite>Combinator</cite> object to be encoded.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The encoded <cite>Combinator</cite> object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder.constructor_hook">
+<span class="sig-name descname"><span class="pre">constructor_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder.constructor_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder.constructor_hook" title="Permalink to this definition"></a></dt>
+<dd><p>Handle the encoding of <cite>Constructor</cite> objects.</p>
+<p>This method delegates the encoding of a <cite>Constructor</cite> object to the <cite>default</cite>
+method of <cite>json.JSONEncoder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>o</strong> (<em>Constructor</em>) – The <cite>Constructor</cite> object to be encoded.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The encoded <cite>Constructor</cite> object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLugiEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLugiEncoder.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLugiEncoder.default" title="Permalink to this definition"></a></dt>
+<dd><p>Handle the encoding of objects.</p>
+<p>This method provides a custom implementation of the <cite>default</cite> method to handle
+objects of various types related to Finite Combinatory Logic. If the object is
+not one of the supported types, the method delegates the encoding to the <cite>default</cite>
+method of <cite>json.JSONEncoder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>o</strong> (<em>object</em>) – The object to be encoded.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The encoded object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">CLSLuigiDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">cls.cls_json.CLSDecoder</span></code></p>
+<p>A custom JSON decoder for decoding objects of different types from a JSON string related to Finite Combinatory Logic.</p>
+<p>The decoder uses the <cite>__type__</cite> field in the JSON string to determine the type of the object being decoded. The object is then constructed using the information in the JSON string.</p>
+<p>The decoder supports several different types of objects including <cite>Tree</cite>, <cite>Combinator</cite>, <cite>Apply</cite>, <cite>Failed</cite>, <cite>Arrow</cite>, <cite>Intersection</cite>, <cite>Product</cite>, <cite>Omega</cite>, <cite>Constructor</cite>, <cite>Subtypes</cite>, <cite>InhabitationResult</cite>, and <cite>FiniteCombinatoryLogic</cite></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_config_index">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_deserialize_config_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder._deserialize_config_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_config_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_combinator">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_deserialize_combinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder._deserialize_combinator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_combinator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_task_ctor">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_deserialize_task_ctor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder._deserialize_task_ctor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder._deserialize_task_ctor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder.combinator_hook">
+<span class="sig-name descname"><span class="pre">combinator_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder.combinator_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder.combinator_hook" title="Permalink to this definition"></a></dt>
+<dd><p>A hook for processing the <cite>combinator</cite> field in the JSON string.</p>
+<p>By default, the hook simply returns the <cite>combinator</cite> field without any processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – The dictionary representing the JSON object being decoded.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <cite>combinator</cite> field.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder.constructor_hook">
+<span class="sig-name descname"><span class="pre">constructor_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder.constructor_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder.constructor_hook" title="Permalink to this definition"></a></dt>
+<dd><p>Return the input dictionary <cite>dct</cite> unmodified.</p>
+<p>This method is a hook for <cite>CLSDecoder</cite> class to handle <cite>Constructor</cite> objects
+during JSON decoding. It simply returns the input dictionary <cite>dct</cite> unmodified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – A dictionary representing a JSON object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input dictionary <cite>dct</cite> unmodified.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CLSLuigiDecoder.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CLSLuigiDecoder.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>The <cite>__call__</cite> method of the <cite>CLSDecoder</cite> class is used to parse a dictionary, <cite>dct</cite>,
+into an object of one of several possible subclasses of the <cite>CLS</cite> class.</p>
+<p>The class of the returned object is determined by the <cite>__type__</cite> key in <cite>dct</cite>, which
+specifies the type of the object. The type is represented as a string of the form
+<cite>module_name.class_name</cite>. The method uses the <cite>tpe</cite> static method to convert a class
+object into such a string.</p>
+<p>The method uses several <cite>if</cite> statements to check the value of <cite>dct[“__type__”]</cite> against
+the string representation of each possible <cite>CLS</cite> subclass, and returns an object of the
+corresponding class if a match is found. The constructor arguments of the returned object
+are extracted from <cite>dct</cite> and possibly processed by the <cite>constructor_hook</cite> and
+<cite>combinator_hook</cite> methods of the <cite>CLSDecoder</cite> class.</p>
+<p>If the value of <cite>dct[“__type__”]</cite> does not match any of the expected values, the original
+dictionary <cite>dct</cite> is returned as is.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – The dictionary to be parsed into an object of a <cite>CLS</cite> subclass.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An object of a subclass of the <cite>CLS</cite> class, or the original <cite>dct</cite> if no match was found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.LuigiCombinator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">LuigiCombinator</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#LuigiCombinator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.LuigiCombinator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a>]</p>
+<p>Abstract base class for generic types.</p>
+<p>A generic type is typically declared by inheriting from
+this class parameterized with one or more type variables.
+For example, a generic mapping type might be defined as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Mapping</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">KT</span><span class="p">,</span> <span class="n">VT</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VT</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="c1"># Etc.</span>
+</pre></div>
+</div>
+<p>This class can then be used as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">lookup_name</span><span class="p">(</span><span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">KT</span><span class="p">,</span> <span class="n">VT</span><span class="p">],</span> <span class="n">key</span><span class="p">:</span> <span class="n">KT</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">VT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VT</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.LuigiCombinator.config_index">
+<span class="sig-name descname"><span class="pre">config_index</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#LuigiCombinator.config_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.LuigiCombinator.config_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.LuigiCombinator.config_domain">
+<span class="sig-name descname"><span class="pre">config_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigIndex</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#LuigiCombinator.config_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.LuigiCombinator.config_domain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.LuigiCombinator.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#LuigiCombinator.abstract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.LuigiCombinator.abstract" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.LuigiCombinator.return_type">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">return_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigIndex</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cls.types.Type</span></span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#LuigiCombinator.return_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.LuigiCombinator.return_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cls_tasks/index.html" class="btn btn-neutral float-left" title="cls_luigi.cls_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../unique_task_pipeline_validator/index.html" class="btn btn-neutral float-right" title="cls_luigi.unique_task_pipeline_validator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

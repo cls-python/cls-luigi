@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.tests.test_inhabitation_task_repometa &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/js/fullscreen.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../cls_luigi.html">cls_luigi</a></li>
+      <li class="breadcrumb-item active">cls_luigi.tests.test_inhabitation_task_repometa</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cls_luigi.tests.test_inhabitation_task_repometa</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Apache Software License 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">luigi</span>
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">makedirs</span>
+
+<span class="kn">from</span> <span class="nn">cls_luigi.inhabitation_task</span> <span class="kn">import</span> <span class="n">ClsParameter</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="p">,</span> <span class="n">LuigiCombinator</span>
+<span class="kn">from</span> <span class="nn">cls_luigi.cls_tasks</span> <span class="kn">import</span> <span class="n">ClsTask</span><span class="p">,</span> <span class="n">ClsWrapperTask</span>
+<span class="kn">from</span> <span class="nn">cls_luigi</span> <span class="kn">import</span> <span class="n">RESULTS_PATH</span>
+
+<div class="viewcode-block" id="StartNode"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.StartNode">[docs]</a><span class="k">class</span> <span class="nc">StartNode</span><span class="p">(</span><span class="n">ClsTask</span><span class="p">):</span>
+<div class="viewcode-block" id="StartNode.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="StartNode.output"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_result_file</span><span class="p">(</span><span class="s2">&quot;.dirs_created&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StartNode.run"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.StartNode.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">RESULTS_PATH</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass">[docs]</a><span class="k">class</span> <span class="nc">SomeAbstractClass</span><span class="p">(</span><span class="n">ClsTask</span><span class="p">):</span>
+<div class="viewcode-block" id="SomeAbstractClass.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SomeAbstractClass.requires"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;start_node&quot;</span> <span class="p">:</span> <span class="n">StartNode</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="SomeAbstractClass.output"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_result_file</span><span class="p">(</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="s2">&quot;some_abstract_class_result&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SomeAbstractClass.run"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractClass.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass4"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass4</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass4.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass4.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="SomeAbstractAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass">[docs]</a><span class="k">class</span> <span class="nc">SomeAbstractAbstractClass</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="SomeAbstractAbstractClass.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeAbstractAbstractClass.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass1"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass1</span><span class="p">(</span><span class="n">SomeAbstractAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass1.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass1.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass2"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass2</span><span class="p">(</span><span class="n">SomeAbstractAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass2.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass2.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass3"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass3</span><span class="p">(</span><span class="n">SomeAbstractAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass3.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass3.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="SomeOtherAbstractAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass">[docs]</a><span class="k">class</span> <span class="nc">SomeOtherAbstractAbstractClass</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="SomeOtherAbstractAbstractClass.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.SomeOtherAbstractAbstractClass.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClassInAbstractChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClassInAbstractChain</span><span class="p">(</span><span class="n">SomeOtherAbstractAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClassInAbstractChain.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClassInAbstractChain.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="AbstractFromConcreteClassInChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain">[docs]</a><span class="k">class</span> <span class="nc">AbstractFromConcreteClassInChain</span><span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractFromConcreteClassInChain.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.AbstractFromConcreteClassInChain.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass5"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass5</span><span class="p">(</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass5.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass5.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass6"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass6</span><span class="p">(</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass6.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass6.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="ConcreteClass7"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7">[docs]</a><span class="k">class</span> <span class="nc">ConcreteClass7</span><span class="p">(</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">):</span>
+<div class="viewcode-block" id="ConcreteClass7.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.ConcreteClass7.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="UnrelatedAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass">[docs]</a><span class="k">class</span> <span class="nc">UnrelatedAbstractClass</span><span class="p">(</span><span class="n">ClsTask</span><span class="p">):</span>
+<div class="viewcode-block" id="UnrelatedAbstractClass.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div>
+<div class="viewcode-block" id="UnrelatedAbstractClass.some_class"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.some_class">[docs]</a>    <span class="n">some_class</span> <span class="o">=</span> <span class="n">ClsParameter</span><span class="p">(</span><span class="n">tpe</span><span class="o">=</span><span class="n">SomeAbstractClass</span><span class="o">.</span><span class="n">return_type</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="UnrelatedAbstractClass.requires"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;some_class&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">some_class</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="UnrelatedAbstractClass.output"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_result_file</span><span class="p">(</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="s2">&quot;unrelated_class_result&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UnrelatedAbstractClass.run"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedAbstractClass.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+
+<div class="viewcode-block" id="UnrelatedConcreteClass1"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1">[docs]</a><span class="k">class</span> <span class="nc">UnrelatedConcreteClass1</span><span class="p">(</span><span class="n">UnrelatedAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="UnrelatedConcreteClass1.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass1.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="UnrelatedConcreteClass2"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2">[docs]</a><span class="k">class</span> <span class="nc">UnrelatedConcreteClass2</span><span class="p">(</span><span class="n">UnrelatedAbstractClass</span><span class="p">):</span>
+<div class="viewcode-block" id="UnrelatedConcreteClass2.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.UnrelatedConcreteClass2.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="EndNode"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode">[docs]</a><span class="k">class</span> <span class="nc">EndNode</span><span class="p">(</span><span class="n">ClsTask</span><span class="p">):</span>
+<div class="viewcode-block" id="EndNode.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div>
+<div class="viewcode-block" id="EndNode.unreleated_class"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.unreleated_class">[docs]</a>    <span class="n">unreleated_class</span> <span class="o">=</span> <span class="n">ClsParameter</span><span class="p">(</span><span class="n">tpe</span><span class="o">=</span><span class="n">UnrelatedAbstractClass</span><span class="o">.</span><span class="n">return_type</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="EndNode.requires"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;unrelated_class&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">unreleated_class</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="EndNode.output"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_result_file</span><span class="p">(</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="s2">&quot;end_node_result&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EndNode.run"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndNode.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+
+<div class="viewcode-block" id="EndEndNode"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.EndEndNode">[docs]</a><span class="k">class</span> <span class="nc">EndEndNode</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">,</span> <span class="n">LuigiCombinator</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="WrapperTask"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask">[docs]</a><span class="k">class</span> <span class="nc">WrapperTask</span><span class="p">(</span><span class="n">ClsWrapperTask</span><span class="p">):</span>
+<div class="viewcode-block" id="WrapperTask.abstract"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">False</span></div>
+<div class="viewcode-block" id="WrapperTask.config"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config">[docs]</a>    <span class="n">config</span> <span class="o">=</span> <span class="n">ClsParameter</span><span class="p">(</span><span class="n">tpe</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">ConcreteClass1</span><span class="o">.</span><span class="n">return_type</span><span class="p">(),</span>
+                                        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="n">ConcreteClass2</span><span class="o">.</span><span class="n">return_type</span><span class="p">()})</span></div>
+<div class="viewcode-block" id="WrapperTask.config_domain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.config_domain">[docs]</a>    <span class="n">config_domain</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">}</span></div>
+<div class="viewcode-block" id="WrapperTask.requires"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.WrapperTask.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods">[docs]</a><span class="k">class</span> <span class="nc">TestRepositoryFilterMethods</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TestRepositoryFilterMethods.tearDownClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.tearDownClass">[docs]</a>    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+         <span class="n">show_repository_and_subtypes_dict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass3"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass3">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_classes_ConcreteClass3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">ConcreteClass3</span><span class="p">),</span>  <span class="p">[</span><span class="n">ConcreteClass3</span><span class="p">,</span> <span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass4"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass4">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_classes_ConcreteClass4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">ConcreteClass4</span><span class="p">),</span>  <span class="p">[</span><span class="n">ConcreteClass4</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass5"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_classes_ConcreteClass5">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_classes_ConcreteClass5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_classes</span><span class="p">(</span><span class="n">ConcreteClass5</span><span class="p">),</span>  <span class="p">[</span><span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass3"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass3">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_abstract_classes_ConcreteClass3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">ConcreteClass3</span><span class="p">),</span> <span class="p">[</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass5"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClass5">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_abstract_classes_ConcreteClass5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">ConcreteClass5</span><span class="p">),</span> <span class="p">[</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_abstract_classes_AbstractFromConcreteClassInChain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">),</span> <span class="p">[</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_list_of_all_upstream_abstract_classes_ConcreteClassInAbstractChain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_list_of_all_upstream_abstract_classes</span><span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">),</span> <span class="p">[</span><span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_all_upstream_classes_ConcreteClass1"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_upstream_classes_ConcreteClass1">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_upstream_classes_ConcreteClass1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_upstream_classes</span><span class="p">(</span><span class="n">ConcreteClass1</span><span class="p">),</span> <span class="p">(</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="p">[</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_set_of_all_downstream_classes_ConcreteClassInAbstractChain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_classes</span><span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">),</span> <span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="p">{</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_set_of_all_downstream_classes_SomeAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_set_of_all_downstream_classes_SomeAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_classes</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">{</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_SomeAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_downstream_abstract_classes_SomeAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_abstract_classes</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">{</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_UnrelatedAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_abstract_classes_UnrelatedAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_downstream_abstract_classes_UnrelatedAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_abstract_classes</span><span class="p">(</span><span class="n">UnrelatedAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">UnrelatedAbstractClass</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_class_chain_SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_SomeAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_class_chain_SomeAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_class_chain</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">[</span><span class="n">ClsTask</span><span class="p">],</span> <span class="p">{</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_class_chain_ConcreteClass5"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_class_chain_ConcreteClass5">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_class_chain_ConcreteClass5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_abstract_class_chain</span><span class="p">(</span><span class="n">ConcreteClass5</span><span class="p">),</span> <span class="p">(</span><span class="n">ConcreteClass5</span><span class="p">,</span> <span class="p">[</span><span class="n">AbstractFromConcreteClassInChain</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">ClsTask</span><span class="p">],</span> <span class="nb">set</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_abstract_class_chain_SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_abstract_class_chain_SomeAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_abstract_class_chain_SomeAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_abstract_class_chain</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">[</span><span class="n">ClsTask</span><span class="p">],</span> <span class="p">{</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_maximal_shared_upper_classes_ConcreteClass5_ConcreteClass6</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_maximal_shared_upper_classes</span><span class="p">([</span><span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">ClsTask</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">AbstractFromConcreteClassInChain</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_maximal_shared_upper_classes_ConcreteClass2_ConcreteClass7</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_maximal_shared_upper_classes</span><span class="p">([</span><span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">ClsTask</span><span class="p">,</span> <span class="n">SomeAbstractClass</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_downstream_concrete_classes_ConcreteClassInAbstractChain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">),</span> <span class="p">(</span><span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="p">{</span><span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_SomeAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_get_all_downstream_concrete_classes_SomeAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_downstream_concrete_classes_SomeAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">_get_all_downstream_concrete_classes</span><span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">),</span> <span class="p">(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">{</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">,</span> <span class="n">ConcreteClass4</span> <span class="p">,</span><span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">}))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_delete_related_combinators_1"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_delete_related_combinators_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="p">(</span><span class="n">UnrelatedConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">,</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">)):</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="n">reference</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_delete_related_combinators</span><span class="p">([</span><span class="n">UnrelatedConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">,</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_delete_related_combinators_2"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_delete_related_combinators_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_delete_related_combinators_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="p">(</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">UnrelatedConcreteClass1</span><span class="p">)):</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="n">reference</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_delete_related_combinators</span><span class="p">([</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">UnrelatedConcreteClass1</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_filtered_repository_SomeAbstractAbstractClass"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeAbstractAbstractClass">[docs]</a>    <span class="k">def</span> <span class="nf">test_filtered_repository_SomeAbstractAbstractClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_repo</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_delete_related_combinators</span><span class="p">([</span><span class="n">ConcreteClass4</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">filtered_repository</span><span class="p">([</span><span class="n">SomeAbstractAbstractClass</span><span class="p">]),</span> <span class="n">new_repo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_filtered_repository_ConcreteClass1_ConcreteClass2"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_ConcreteClass1_ConcreteClass2">[docs]</a>    <span class="k">def</span> <span class="nf">test_filtered_repository_ConcreteClass1_ConcreteClass2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_repo</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">_delete_related_combinators</span><span class="p">([</span><span class="n">ConcreteClass3</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">filtered_repository</span><span class="p">([</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">]),</span> <span class="n">new_repo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1">[docs]</a>    <span class="k">def</span> <span class="nf">test_filtered_repository_SomeOtherAbstractAbstractClass_UnrelatedConcreteClass1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_repo</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="p">(</span><span class="n">UnrelatedConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">,</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">)):</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="n">new_repo</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">filtered_repository</span><span class="p">([</span><span class="n">SomeOtherAbstractAbstractClass</span><span class="p">,</span> <span class="n">UnrelatedConcreteClass1</span><span class="p">]),</span> <span class="n">new_repo</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRepositoryFilterMethods.test_filtered_repository_with_deep_filter"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.TestRepositoryFilterMethods.test_filtered_repository_with_deep_filter">[docs]</a>    <span class="k">def</span> <span class="nf">test_filtered_repository_with_deep_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_repo</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="p">(</span><span class="n">ConcreteClass1</span><span class="p">,</span> <span class="n">UnrelatedConcreteClass1</span><span class="p">,</span> <span class="n">ConcreteClass5</span><span class="p">,</span> <span class="n">ConcreteClass6</span><span class="p">,</span> <span class="n">ConcreteClass7</span><span class="p">)):</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="n">new_repo</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">RepoMeta</span><span class="o">.</span><span class="n">filtered_repository</span><span class="p">([(</span><span class="n">SomeAbstractClass</span><span class="p">,</span> <span class="p">[</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="n">ConcreteClassInAbstractChain</span><span class="p">,</span> <span class="n">ConcreteClass4</span><span class="p">]),</span> <span class="p">(</span><span class="n">SomeAbstractAbstractClass</span><span class="p">,</span> <span class="p">[</span><span class="n">ConcreteClass2</span><span class="p">,</span> <span class="n">ConcreteClass3</span><span class="p">]),</span> <span class="n">UnrelatedConcreteClass2</span><span class="p">]),</span> <span class="n">new_repo</span><span class="p">)</span></div></div>
+
+
+
+
+<div class="viewcode-block" id="show_repository_and_subtypes_dict"><a class="viewcode-back" href="../../../autoapi/cls_luigi/tests/test_inhabitation_task_repometa/index.html#cls_luigi.tests.test_inhabitation_task_repometa.show_repository_and_subtypes_dict">[docs]</a><span class="k">def</span> <span class="nf">show_repository_and_subtypes_dict</span><span class="p">():</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Repo: &quot;</span><span class="p">)</span>
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">repository</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">repository</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#################&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;key: &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="s2">&quot; :-&gt; &quot;</span><span class="p">,</span> <span class="s2">&quot;value: &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">repository</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#################&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SubTypes:&quot;</span><span class="p">)</span>
+    <span class="n">subtypes</span> <span class="o">=</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">subtypes</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subtypes</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*****************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;key: &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="s2">&quot; :-&gt; &quot;</span><span class="p">,</span> <span class="s2">&quot;value: &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">subtypes</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*****************&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

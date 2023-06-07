@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicle Routing Example &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/js/fullscreen.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lot Sizing Example" href="../lot_sizing/README.html" />
+    <link rel="prev" title="ML-Blood Sugar Level Example" href="../ml_blood_sugar_level/README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ny_taxi/README.html">NY Taxi Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ml_blood_sugar_level/README.html">ML-Blood Sugar Level Example</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Vehicle Routing Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-pipeline">The Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run">How to run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-features-implemented-tested-while-working-on-the-example">New Features implemented/tested while working on the example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#problems-while-working-on-this">Problems while working on this</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../lot_sizing/README.html">Lot Sizing Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../examples.html">Examples</a></li>
+      <li class="breadcrumb-item active">Vehicle Routing Example</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/cls-python/cls-luigi/blob/main/docs/examples/vehicle_routing/README.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vehicle-routing-example">
+<h1>Vehicle Routing Example<a class="headerlink" href="#vehicle-routing-example" title="Permalink to this heading"></a></h1>
+<p>You can find the source for the example <a class="reference external" href="https://github.com/cls-python/cls-luigi/tree/main/examples/vehicle_routing/">here</a>:</p>
+<p>Here we utilized CLS-Luigi to construct vehicle routing pipelines for sales persons. This was a master thesis topic.
+The goal was to get as close as possible to the original modeling of the pipeline to test out the abilities of CLS Luigi.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
+<p>The example contains a <a class="reference external" href="https://github.com/cls-python/cls-luigi/tree/main/examples/ny_taxi/requirements.txt">requirements.txt</a> file. To experiment with the example, you can set up your environment by executing the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># cd into the vehicle routing example folder</span>
+<span class="linenos">2</span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="the-pipeline">
+<h2>The Pipeline<a class="headerlink" href="#the-pipeline" title="Permalink to this heading"></a></h2>
+<p>This is an overview of the pipeline implemented during the master thesis:</p>
+<img alt="../../_images/profitable_tour_pipeline_mthesis.svg" class="fullscreen-image" src="../../_images/profitable_tour_pipeline_mthesis.svg" /><p>Here is an overview of what I planned to implement:</p>
+<figure class="align-default">
+<img alt="../../_images/pipeline_to_implement.svg" class="fullscreen-image" src="../../_images/pipeline_to_implement.svg" /></figure>
+</section>
+<section id="how-to-run">
+<h2>How to run<a class="headerlink" href="#how-to-run" title="Permalink to this heading"></a></h2>
+<p>You need to set an Environment Variable “DISTANCEMATRIXAIAPI” with a valid API_Key since i used this Service during the routing phase. If you do not wish to run this Service, you could exclude the implementation of the “DistanceMatrixAiRoutingPhase” Class and only use the “OsrmRoutingPhase” Class. This one need a running ORSM and Nominatin Docker Container running on your local system. Change directory into the
+variant folders and run “python tour_planning_tasks.py”.</p>
+</section>
+<section id="new-features-implemented-tested-while-working-on-the-example">
+<h2>New Features implemented/tested while working on the example<a class="headerlink" href="#new-features-implemented-tested-while-working-on-the-example" title="Permalink to this heading"></a></h2>
+<ol class="arabic">
+<li><p>You are now able to use Dictionaries in your requires and output
+functions.</p>
+<ol class="arabic simple">
+<li><p>this makes it possible to be more explicit while implementing your
+tasks. makes it more understandable since you can actually use
+names for the results.</p></li>
+<li><p>For that i had to implement small changes to the
+“UniqueTaskPipelineValidator” and the “_get_variant_label”
+function.</p></li>
+</ol>
+</li>
+<li><p>Many new methods for RepoMeta to get information about a task node
+(mainly information about abstract/concrete classes up- or
+downstream).</p>
+<ol class="arabic simple">
+<li><p>also what are shared upstream classes between nodes.</p></li>
+</ol>
+</li>
+<li><p>Repository filter methods to specify which tasks you want to include
+or exclude during inhabitation.</p></li>
+<li><p>Helper method in RepoMeta to get an “unique abstract task” Validator
+based on the current Repository without the need to specify them by
+hand.</p>
+<ol class="arabic simple">
+<li><p>This idea was born due to the fact that we always threw all
+abstract tasks into the UniqueTaskPipelineValidator.</p></li>
+<li><p>This method gives you all abstract tasks that were variated in the
+given pipeline/s, since those are the only tasks that you really
+want to be unique.</p></li>
+</ol>
+</li>
+<li><p>Running CLSLuigi Pipeline as a Luigi.Task.</p></li>
+<li><p>A idea to implement a wrapper task that is actually providing output
+to the next task.</p>
+<ol class="arabic">
+<li><p>not tested yet.</p>
+<ol class="arabic">
+<li><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">luigi</span>
+
+<span class="k">class</span> <span class="nc">MyWrapperTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">WrapperTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># yield a list of tasks that the wrapper task depends on</span>
+        <span class="k">yield</span> <span class="n">MyTask1</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">MyTask2</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">MyTask3</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># do something with the outputs of the yielded tasks</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f1</span><span class="p">:</span>
+            <span class="n">data1</span> <span class="o">=</span> <span class="n">f1</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f2</span><span class="p">:</span>
+            <span class="n">data2</span> <span class="o">=</span> <span class="n">f2</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f3</span><span class="p">:</span>
+            <span class="n">data3</span> <span class="o">=</span> <span class="n">f3</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="c1"># combine the outputs of the tasks</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">data1</span> <span class="o">+</span> <span class="n">data2</span> <span class="o">+</span> <span class="n">data3</span>
+        <span class="c1"># write the combined output to the output file</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="s1">&#39;/path/to/output&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyWrapperWithPassThrough</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">WrapperTask</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># yield a list of tasks that the wrapper task depends on</span>
+        <span class="k">yield</span> <span class="n">MyTask1</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">MyTask2</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">MyTask3</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;MyTask1_result&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;MyTask2_result&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;MyTask3_result&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()[</span><span class="mi">2</span><span class="p">]}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p>could be useful to have a node that brings the pipelines together
+again.</p></li>
+<li><p>The idea could be further worked on to have some new ClsParameter
+to do something like this:</p>
+<ol class="arabic simple">
+<li><p><img alt="newCLSParameter" class="fullscreen-image" src="../../_images/CLSTaskListParameter.svg" /></p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="problems-while-working-on-this">
+<h2>Problems while working on this<a class="headerlink" href="#problems-while-working-on-this" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>It is hard to understand how to use luigi.config. The documentation
+on that is very slim and not that verbose. So the way i used
+luigi.config during my implementation efforts is most likely wrong.
+What i gathered during my research, can be found in the files
+“stuff/luigi_config_example.py” and
+“stuff/luigi_configuration_example.py”. I think those variants shown
+there are the way to go, although the way i have used it now can also
+be found in the luigi documentation (see
+<a class="reference external" href="https://luigi.readthedocs.io/en/stable/api/luigi.util.html?highlight=%40requires#using-inherits-and-requires-to-ease-parameter-pain">here</a>).</p></li>
+<li><p>Since the usage of config and configuration was unclear, i had
+problems setting up the modeling of my pipeline. I was planning on
+using the Luigi.Parameter Defaults (ClsParameter is also a
+Luigi.Parameter) to set up my basic structure of the Pipeline,
+meaning if i do not use any parametrization or config/configuration i
+would get all variants that are possible (“everything with
+everything”). And then would like to be able to parameterize the
+Pipeline Model to fit my needs.</p>
+<ol class="arabic simple">
+<li><p>The main problem steams from the fact that i was unable to
+parametrizes ClsParameter or Tasks that have a ClsParameter in it.
+The moment i tried to parametrizes it (with or without the
+ClsParameter) i got errors according to giving too few parameters
+(When not trying to parametrizes the ClsParameter) or to many (in
+case i tried to set it). To this day i am not sure if it is really
+not possible or i am just doing “wrong” python.</p></li>
+</ol>
+</li>
+<li><p>I find the way we do Aggregation Tasks, e. g. finding “the best
+result” of all pipelines that were scheduled or creating a scoring
+board (EvaluateAndVisualize Task in Example “ny_taxi_paper.py)
+troubling since it relays on the fact that the tasks do not run
+concurrently (which they can given the number of works involved).
+Right now they are all just reading/writing a single property, in
+this case the file on the filesystem, without a method of
+locking/releasing. Could lead to overwrite or inconsistent data. This
+is one of the reasons for me to think about the new Wrapper Tasks, if
+that could even be implemented.</p></li>
+<li><p>There should be a possibility to ask for multiple types in
+ClsParameter so that CLSLuigi uses every task that fits (subtype
+relation).</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../ml_blood_sugar_level/README.html" class="btn btn-neutral float-left" title="ML-Blood Sugar Level Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../lot_sizing/README.html" class="btn btn-neutral float-right" title="Lot Sizing Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

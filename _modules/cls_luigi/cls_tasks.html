@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.cls_tasks &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/js/fullscreen.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../cls_luigi.html">cls_luigi</a></li>
+      <li class="breadcrumb-item active">cls_luigi.cls_tasks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cls_luigi.cls_tasks</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Apache Software License 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file contains the CLSBaseTask implementation, which is used to extend the actual implementation of</span>
+<span class="sd">luigi.Task, luigi.WrapperTask and luigi.ExternalTask with helper methods to make the usage of our</span>
+<span class="sd">framework a bit easier.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">cls_luigi.inhabitation_task</span> <span class="kn">import</span> <span class="n">LuigiCombinator</span>
+<span class="kn">from</span> <span class="nn">cls_luigi</span> <span class="kn">import</span> <span class="n">INVISIBLE_PATH</span><span class="p">,</span> <span class="n">HASH_PATH</span><span class="p">,</span> <span class="n">RESULTS_PATH</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">luigi</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">makedirs</span>
+
+
+<div class="viewcode-block" id="ClsBaseTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask">[docs]</a><span class="k">class</span> <span class="nc">ClsBaseTask</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is used to implement some helper methods that all tasks in a CLS-Luigi pipeline should have.</span>
+
+<span class="sd">    The key methods are:</span>
+
+<span class="sd">    * :py:meth:`get_variant_filename` - This method creates a unique filename for (intermediate) results, which remains unique across the executed pipelines. For this purpose a hash value is created and persisted to disk, which can be looked up afterwards to trace the executed tasks back to this file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ClsBaseTask.initialized"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask.initialized">[docs]</a>    <span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ClsBaseTask</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">INVISIBLE_PATH</span><span class="p">):</span>
+                <span class="n">makedirs</span><span class="p">(</span><span class="n">INVISIBLE_PATH</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">HASH_PATH</span><span class="p">):</span>
+                <span class="n">makedirs</span><span class="p">(</span><span class="n">HASH_PATH</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">RESULTS_PATH</span><span class="p">):</span>
+                <span class="n">makedirs</span><span class="p">(</span><span class="n">RESULTS_PATH</span><span class="p">)</span>
+
+            <span class="n">ClsBaseTask</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_path</span> <span class="o">=</span> <span class="n">RESULTS_PATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash_path</span> <span class="o">=</span> <span class="n">HASH_PATH</span>
+
+
+<div class="viewcode-block" id="ClsBaseTask.__get_flatten_data"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask.__get_flatten_data">[docs]</a>    <span class="k">def</span> <span class="nf">__get_flatten_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span> <span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">FileSystemTarget</span><span class="o">|</span><span class="nb">tuple</span><span class="o">|</span><span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to flatten different possible input data types into a flattened list.</span>
+
+<span class="sd">        :param data: the data structure that should be flattened to a list.</span>
+<span class="sd">        :type data: luigi.target.FileSystemTarget | tuple | dict</span>
+<span class="sd">        :return: a flattened list of the data provided.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flattened_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">luigi</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">FileSystemTarget</span><span class="p">):</span>
+            <span class="n">flattened_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">flattened_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_flatten_data</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">flattened_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_flatten_data</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># error case ? just throw away?</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">flattened_data</span></div>
+
+<div class="viewcode-block" id="ClsBaseTask.get_variant_filename"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask.get_variant_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_variant_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a variant filename based on the provided name.</span>
+<span class="sd">        Also does hashing of the name, since is has to be unique over every pipeline.</span>
+
+<span class="sd">        :param name: optional name for the variant, defaults to &quot;&quot;</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        :return: the variant filename.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;_result&quot;</span>
+        <span class="c1">#makedirs(dirname(self.hash_path), exist_ok=True)</span>
+        <span class="n">hash_value</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(),</span> <span class="n">luigi</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">FileSystemTarget</span><span class="p">):</span>
+            <span class="n">input_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__helper_variant_label</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(),</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+
+            <span class="n">flattened_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_flatten_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">())</span>
+            <span class="n">var_label_name</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">flattened_data</span><span class="p">:</span>
+                <span class="n">input_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">var_label_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__helper_variant_label</span><span class="p">(</span><span class="n">input_file</span><span class="p">))</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_label_name</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span> <span class="o">+</span> <span class="s2">&quot; --&gt; &quot;</span> <span class="o">+</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_label_name</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">label</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span>  <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+        <span class="n">hash_value</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_path</span><span class="p">,</span> <span class="n">hash_value</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hash_file</span><span class="p">:</span>
+                <span class="n">hash_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="n">hash_value</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="k">if</span> <span class="n">label</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">name</span></div>
+
+<div class="viewcode-block" id="ClsBaseTask.__helper_variant_label"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask.__helper_variant_label">[docs]</a>    <span class="k">def</span> <span class="nf">__helper_variant_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+
+        <span class="n">input_filename</span> <span class="o">=</span> <span class="n">input_file</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">lookup_hash</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">input_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lookup_hash</span><span class="p">)</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
+                <span class="n">hash_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_path</span><span class="p">,</span>  <span class="n">lookup_hash</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">hash_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                    <span class="k">with</span> <span class="n">hash_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">replacement_of_hash</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                        <span class="c1"># label = &quot;(&quot; + replacement_of_hash + &quot;)&quot; + &quot; --&gt; &quot; + self.__class__.__name__ if len(</span>
+                        <span class="c1">#     input_filename) &gt; 0 else self.__class__.__name__</span>
+                        <span class="n">label</span> <span class="o">=</span> <span class="n">replacement_of_hash</span>
+                        <span class="k">return</span> <span class="n">label</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">input_filename</span>
+            <span class="k">return</span> <span class="n">label</span></div>
+
+<div class="viewcode-block" id="ClsBaseTask.create_result_file"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsBaseTask.create_result_file">[docs]</a>    <span class="k">def</span> <span class="nf">create_result_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variant_filename</span><span class="p">(</span><span class="n">file_name</span><span class="p">)))</span></div></div>
+
+
+<div class="viewcode-block" id="ClsTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask">[docs]</a><span class="k">class</span> <span class="nc">ClsTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">,</span> <span class="n">LuigiCombinator</span><span class="p">,</span> <span class="n">ClsBaseTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ClsTask.abstract"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsTask.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ClsBaseTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ClsWrapperTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsWrapperTask">[docs]</a><span class="k">class</span> <span class="nc">ClsWrapperTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">WrapperTask</span><span class="p">,</span> <span class="n">LuigiCombinator</span><span class="p">,</span> <span class="n">ClsBaseTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representing a CLS-Luigi wrapper task. It combines the functionality of `luigi.WrapperTask`, `LuigiCombinator`, and `ClsBaseTask`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ClsWrapperTask.abstract"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsWrapperTask.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ClsBaseTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ClsExternalTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsExternalTask">[docs]</a><span class="k">class</span> <span class="nc">ClsExternalTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">ExternalTask</span><span class="p">,</span> <span class="n">LuigiCombinator</span><span class="p">,</span> <span class="n">ClsBaseTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representing a CLS-Luigi external task. It combines the functionality of `luigi.ExternalTask`, `LuigiCombinator`, and `ClsBaseTask`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ClsExternalTask.abstract"><a class="viewcode-back" href="../../autoapi/cls_luigi/cls_tasks/index.html#cls_luigi.cls_tasks.ClsExternalTask.abstract">[docs]</a>    <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ClsBaseTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

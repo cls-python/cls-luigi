@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.repo_visualizer.visualizer &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/js/fullscreen.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../cls_luigi.html">cls_luigi</a></li>
+      <li class="breadcrumb-item active">cls_luigi.repo_visualizer.visualizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cls_luigi.repo_visualizer.visualizer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Apache Software License 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">http.server</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">HTTPServer</span>
+
+<span class="kn">from</span> <span class="nn">cls_luigi.repo_visualizer.json_io</span> <span class="kn">import</span> <span class="n">load_json</span><span class="p">,</span> <span class="n">dump_json</span>
+<div class="viewcode-block" id="VIS"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.VIS">[docs]</a><span class="n">VIS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="PORT"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.PORT">[docs]</a><span class="n">PORT</span> <span class="o">=</span> <span class="mi">8000</span></div>
+<div class="viewcode-block" id="CONFIG"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.CONFIG">[docs]</a><span class="n">CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config.json&quot;</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">luigi_daemon</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">start_luigi_daemon</span><span class="p">)</span>
+    <span class="n">luigi_daemon</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Started luigid</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">status_update_daemon</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">update_tasks_status</span><span class="p">)</span>
+    <span class="n">status_update_daemon</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Task-Status Updater is ready</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">httpd</span> <span class="o">=</span> <span class="n">HTTPServer</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">PORT</span><span class="p">),</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Started visualization server</span><span class="se">\n\n</span><span class="s2">Navigate to: &quot;</span><span class="p">,</span>
+              <span class="n">link</span><span class="p">(</span><span class="s1">&#39;http://localhost:</span><span class="si">{}</span><span class="s1">/</span><span class="se">\n\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">PORT</span><span class="p">)))</span>
+        <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">httpd</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+        <span class="n">httpd</span><span class="o">.</span><span class="n">server_close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="link"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.link">[docs]</a><span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">escape_mask</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">]8;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="se">\033\\</span><span class="si">{}</span><span class="se">\033</span><span class="s1">]8;;</span><span class="se">\033\\</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">escape_mask</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="start_luigi_daemon"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.start_luigi_daemon">[docs]</a><span class="k">def</span> <span class="nf">start_luigi_daemon</span><span class="p">():</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;luigid&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_tasks_status"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/visualizer/index.html#cls_luigi.repo_visualizer.visualizer.update_tasks_status">[docs]</a><span class="k">def</span> <span class="nf">update_tasks_status</span><span class="p">():</span>
+    <span class="n">dynamic_repo_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">VIS</span><span class="p">,</span> <span class="s1">&#39;dynamic_pipeline.json&#39;</span><span class="p">)</span>
+
+    <span class="n">keep_updating</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">keep_updating</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">loaded</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">dynamic_repo_name</span><span class="p">)</span>
+            <span class="n">luigi_task_updates</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://localhost:8082/api/task_list&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span>
+            <span class="n">tasks_status</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">loaded</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;luigiName&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">luigi_task_updates</span><span class="p">:</span>
+                        <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luigi_task_updates</span><span class="p">[</span><span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;luigiName&quot;</span><span class="p">]][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+                        <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;timeRunning&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luigi_task_updates</span><span class="p">[</span><span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;luigiName&quot;</span><span class="p">]][</span><span class="s2">&quot;time_running&quot;</span><span class="p">]</span>
+                        <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;startTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luigi_task_updates</span><span class="p">[</span><span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;luigiName&quot;</span><span class="p">]][</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span>
+                        <span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;lastUpdated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luigi_task_updates</span><span class="p">[</span><span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;luigiName&quot;</span><span class="p">]][</span><span class="s2">&quot;last_updated&quot;</span><span class="p">]</span>
+                        <span class="n">tasks_status</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">luigi_task_updates</span><span class="p">[</span><span class="n">loaded</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;luigiName&quot;</span><span class="p">]][</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
+
+
+
+            <span class="n">dump_json</span><span class="p">(</span><span class="n">dynamic_repo_name</span><span class="p">,</span> <span class="n">loaded</span><span class="p">)</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># wait a sec till system stabilizes</span>
+
+            <span class="c1"># if (len(tasks_status) == 1) and (&quot;DONE&quot; in tasks_status):</span>
+            <span class="c1">#     keep_updating = False</span>
+            <span class="c1">#     print(&#39;All tasks completed \nStoping updating task status&#39;)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Data Available yet</span><span class="se">\n</span><span class="s2"> &quot;</span><span class="p">)</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">pass</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

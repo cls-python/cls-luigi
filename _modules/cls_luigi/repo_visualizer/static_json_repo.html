@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cls_luigi.repo_visualizer.static_json_repo &mdash; cls-luigi 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/js/fullscreen.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cls-luigi
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/getting_started/README.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cls-luigi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../cls_luigi.html">cls_luigi</a></li>
+      <li class="breadcrumb-item active">cls_luigi.repo_visualizer.static_json_repo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cls_luigi.repo_visualizer.static_json_repo</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Apache Software License 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">cls.types</span>
+<span class="kn">from</span> <span class="nn">cls_luigi.inhabitation_task</span> <span class="kn">import</span> <span class="n">RepoMeta</span>
+<span class="kn">from</span> <span class="nn">cls_luigi.repo_visualizer.json_io</span> <span class="kn">import</span> <span class="n">load_json</span><span class="p">,</span> <span class="n">dump_json</span>
+
+<span class="kn">from</span> <span class="nn">cls.types</span> <span class="kn">import</span> <span class="n">Constructor</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<div class="viewcode-block" id="VIS"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.VIS">[docs]</a><span class="n">VIS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CONFIG"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.CONFIG">[docs]</a><span class="n">CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config.json&quot;</span></div>
+
+
+<div class="viewcode-block" id="StaticJSONRepo"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo">[docs]</a><span class="k">class</span> <span class="nc">StaticJSONRepo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a json representation of all components in repository, their types,</span>
+<span class="sd">    their concrete implementations or config indexes, and their dependencies.</span>
+
+<span class="sd">    usage:</span>
+<span class="sd">      StaticJSONRepo(RepoMeta).dump_static_repo_json()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_meta</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_meta</span> <span class="o">=</span> <span class="n">repo_meta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repository</span> <span class="o">=</span> <span class="n">repo_meta</span><span class="o">.</span><span class="n">repository</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_tasks_and_concreate_implementations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependencies_and_indexed_tasks</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_pipeline_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">VIS</span><span class="p">,</span> <span class="s1">&#39;static_pipeline.json&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">static_pipeline_json</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">static_pipeline_json</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="StaticJSONRepo._prettify_name"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo._prettify_name">[docs]</a>    <span class="k">def</span> <span class="nf">_prettify_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StaticJSONRepo.add_tasks_and_concreate_implementations"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo.add_tasks_and_concreate_implementations">[docs]</a>    <span class="k">def</span> <span class="nf">add_tasks_and_concreate_implementations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_meta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="n">pretty_task_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;abstract&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_meta</span><span class="o">.</span><span class="n">subtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">pretty_task_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">v</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;abstract&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+                    <span class="k">elif</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tpe</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="n">pretty_abst_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s2">&quot;concreteImplementations&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_abst_task</span><span class="p">]:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_abst_task</span><span class="p">][</span><span class="s2">&quot;concreteImplementations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_abst_task</span><span class="p">][</span><span class="s2">&quot;concreteImplementations&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pretty_task_name</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">[</span><span class="n">pretty_task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pretty_abst_task</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;abstract&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="StaticJSONRepo.add_dependencies_and_indexed_tasks"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo.add_dependencies_and_indexed_tasks">[docs]</a>    <span class="k">def</span> <span class="nf">add_dependencies_and_indexed_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">RepoMeta</span><span class="o">.</span><span class="n">ClassIndex</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">abstract</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intersection</span><span class="p">):</span>
+                        <span class="n">pretty_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">intersection</span> <span class="o">=</span> <span class="n">v</span>
+                        <span class="n">inter_org</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">intersection</span><span class="o">.</span><span class="n">organized</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inter_org</span><span class="p">):</span>
+                            <span class="n">path</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">path</span>
+                            <span class="n">index</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">at_index</span>
+                            <span class="n">indexed_t_name</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">cls_tpe</span>
+                            <span class="n">pretty_indexed_t_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">indexed_t_name</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="s2">&quot;configIndexes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">]:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;configIndexes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;configIndexes&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pretty_indexed_t_name</span><span class="p">]</span>
+
+                            <span class="k">if</span> <span class="n">pretty_indexed_t_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">:</span>
+                                <span class="n">pretty_indexed_t_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">[</span><span class="n">pretty_indexed_t_name</span><span class="p">]</span>
+
+                            <span class="k">if</span> <span class="s2">&quot;inputQueue&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">]:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;inputQueue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                            <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;inputQueue&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pretty_indexed_t_name</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Constructor</span><span class="p">):</span>
+                        <span class="n">pretty_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+                        <span class="n">predecessors</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">path</span>
+                        <span class="k">if</span> <span class="n">predecessors</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                                <span class="n">pretty_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prettify_name</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">cls_tpe</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">pretty_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">:</span>
+                                    <span class="n">pretty_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">[</span><span class="n">pretty_p</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">pretty_task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">:</span>
+                                    <span class="n">pretty_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concrete_to_abst_mapper</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="s2">&quot;inputQueue&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">]:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;inputQueue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="n">pretty_task</span><span class="p">][</span><span class="s2">&quot;inputQueue&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pretty_p</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StaticJSONRepo.dump_static_repo_json"><a class="viewcode-back" href="../../../autoapi/cls_luigi/repo_visualizer/static_json_repo/index.html#cls_luigi.repo_visualizer.static_json_repo.StaticJSONRepo.dump_static_repo_json">[docs]</a>    <span class="k">def</span> <span class="nf">dump_static_repo_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">outfile_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_pipeline_json</span>
+        <span class="n">dump_json</span><span class="p">(</span><span class="n">outfile_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
