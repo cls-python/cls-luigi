@@ -151,7 +151,7 @@ html_static_path = ["_static"]
 
 html_js_files = ['js/fullscreen.js']
 
-html_logo = "_static/images/cls-luigi-logo-transparent-scale.png"
+# html_logo = "_static/images/cls-luigi-logo-transparent-scale.png"
 # html_theme_options = {
 #     'logo_only': True,
 #     'display_version': True,

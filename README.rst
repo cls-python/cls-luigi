@@ -1,6 +1,6 @@
-.. image:: https://raw.githubusercontent.com/cls-python/cls-luigi/master/docs/images/cls-luigi-logo-transparent.png
+.. image:: https://raw.githubusercontent.com/cls-python/cls-luigi/master/doc/_static/images/logo.png
   :target: https://github.com/cls-python/cls-luigi/
-  :width: 60%
+  :width: 90%
   :align: center
 
 .. image:: https://img.shields.io/pypi/v/cls-luigi
@@ -15,14 +15,14 @@
 .. image:: https://img.shields.io/github/issues/cls-python/cls-luigi
         :target: https://github.com/cls-python/cls-luigi/issues
 
-.. image:: https://github.com/cls-python/cls-python/actions/workflows/test-build-release.yaml/badge.svg
-        :target: https://github.com/cls-python/cls-python/actions/workflows/test-build-release.yaml
+.. image:: https://github.com/cls-python/cls-luigi/actions/workflows/test-build-release.yaml/badge.svg
+        :target: https://github.com/cls-python/cls-luigi/actions/workflows/test-build-release.yaml
 
-.. image:: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Jekannadar/bc966a7d659af93f31be6b04415b9468/raw/covbadge.json
+.. image:: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/DanielScholtyssek/d2c0e9041ce417fd42c710572e02c2aa/raw/covbadge.json
         :target: https://github.com/cls-python/cls-luigi/actions/workflows/test-build-release.yaml
 
 .. image:: https://img.shields.io/badge/docs-online-green
-        :target: https://cls-python.github.io/cls-python/readme.html
+        :target: https://cls-python.github.io/cls-luigi
         :alt: Documentation Status
 ..
   .. image:: https://pyup.io/repos/github/cls-python/cls-luigi/shield.svg

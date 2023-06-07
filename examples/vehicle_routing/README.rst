@@ -172,3 +172,5 @@ Problems while working on this
    relation).
 
 .. |newCLSParameter| image:: images/CLSTaskListParameter.svg
+       :class: fullscreen-image
+
