@@ -1,13 +1,15 @@
 Examples
 ========
 
+**The provided examples are not yet in their final form and were primarily used as toy examples to assist in the conceptualization and implementation of CLS-Luigi. Hence, it is advisable to approach them with caution, as certain aspects are likely to undergo changes within the framework.**
+
 You can find all the examples along with their source code here_.
 
 .. toctree::
    :maxdepth: 2
 
-   ../examples/ny_taxi/README
    ../examples/ml_blood_sugar_level/README
-   ../examples/vehicle_routing/README
    ../examples/lot_sizing/README
+   ../examples/vehicle_routing/README
+   ../examples/ny_taxi/README
 .. _here: https://github.com/cls-python/cls-luigi/tree/main/examples

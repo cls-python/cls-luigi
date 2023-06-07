@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TL:DR &mdash; cls-luigi 0.0.0 documentation</title>
+  <title>CLS-Luigi &mdash; cls-luigi 0.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -69,7 +69,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">TL:DR</li>
+      <li class="breadcrumb-item active">CLS-Luigi</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/cls-python/cls-luigi/blob/main/docs/index.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -79,7 +79,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <a class="reference external image-reference" href="https://github.com/cls-python/cls-luigi/"><img alt="https://raw.githubusercontent.com/cls-python/cls-luigi/master/doc/_static/images/logo.png" class="align-center" src="https://raw.githubusercontent.com/cls-python/cls-luigi/master/doc/_static/images/logo.png" style="width: 90%;" /></a>
+  <section id="cls-luigi">
+<h1>CLS-Luigi<a class="headerlink" href="#cls-luigi" title="Permalink to this heading"></a></h1>
 <a class="reference external image-reference" href="https://pypi.python.org/pypi/cls-luigi"><img alt="https://img.shields.io/pypi/v/cls-luigi" src="https://img.shields.io/pypi/v/cls-luigi" /></a>
 <a class="reference external image-reference" href="https://pypi.python.org/pypi/cls-luigi"><img alt="https://img.shields.io/pypi/pyversions/cls-luigi" src="https://img.shields.io/pypi/pyversions/cls-luigi" /></a>
 <a class="reference external image-reference" href="https://github.com/cls-python/cls-luigi/blob/main/LICENSE"><img alt="https://img.shields.io/pypi/l/cls-luigi?color=blue" src="https://img.shields.io/pypi/l/cls-luigi?color=blue" /></a>
@@ -89,7 +90,7 @@
 <a class="reference external image-reference" href="https://cls-python.github.io/cls-luigi"><img alt="Documentation Status" src="https://img.shields.io/badge/docs-online-green" /></a>
 <hr class="docutils" />
 <section id="tl-dr">
-<h1>TL:DR<a class="headerlink" href="#tl-dr" title="Permalink to this heading"></a></h1>
+<h2>TL:DR<a class="headerlink" href="#tl-dr" title="Permalink to this heading"></a></h2>
 <p>A framework for automated synthesis and execution of decision pipelines.</p>
 <ul class="simple">
 <li><p>Free software: Apache Software License 2.0</p></li>
@@ -97,7 +98,7 @@
 </ul>
 </section>
 <section id="what-is-it">
-<h1>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this heading"></a></h1>
+<h2>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this heading"></a></h2>
 <p><strong>In short:</strong> our goal is to automatically create decision pipelines based on domain specific algorithmic repositories and depending on the available data!</p>
 <p>In order to streamline decision-making processes, it is common practice to construct decision pipelines comprising various algorithms. These pipelines encompass tasks such as basic data pre-processing, statistical analysis, machine learning, and optimization. Consequently, building an effective pipeline necessitates expertise in the domains of machine learning, optimization, and the specific field at hand.</p>
 <p>Moreover, it is important to note that there is no universally optimal pipeline for every problem in any domain. There is no single pipeline that represents the best choice, nor is there an ultimate model or configuration for machine learning approches. Likewise, the ideal model and solution method for optimization problems may vary. One of the main reasons for this can be the available data, which can change over time.</p>
@@ -105,7 +106,7 @@
 It combines <a class="reference external" href="https://github.com/cls-python/cls-python">CLS-Python</a>, a type-theoretic framework for software component synthesis,  with <a class="reference external" href="https://github.com/spotify/luigi">Luigi</a>, a tool created by Spotify to build and execute pipelines for batch jobs. At its core, <strong>CLS-Luigi</strong> aims to integrate elements from <em>AutoML</em>, <em>Algorithm selection and configuration</em>, and <em>DevOps</em> to provide a comprehensive solution. However, it is important to note that <strong>CLS-Luigi</strong> is currently in its early stages of development, undergoing ongoing refinement and enhancement.</p>
 </section>
 <section id="main-features">
-<h1>Main Features<a class="headerlink" href="#main-features" title="Permalink to this heading"></a></h1>
+<h2>Main Features<a class="headerlink" href="#main-features" title="Permalink to this heading"></a></h2>
 <p>Here are just a few of the things that <strong>CLS-Luigi</strong> does well:</p>
 <ul class="simple">
 <li><p>Allows natural modeling by specifying the necessary input to a component based on the types of the components it depends on.</p></li>
@@ -119,7 +120,7 @@ It combines <a class="reference external" href="https://github.com/cls-python/cl
 </ul>
 </section>
 <section id="authors">
-<h1>Authors<a class="headerlink" href="#authors" title="Permalink to this heading"></a></h1>
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Jan Bessai &lt;<a class="reference external" href="mailto:jan&#46;bessai&#37;&#52;&#48;tu-dortmund&#46;de">jan<span>&#46;</span>bessai<span>&#64;</span>tu-dortmund<span>&#46;</span>de</a>&gt;</p></li>
 <li><p>Anne Meyer &lt;<a class="reference external" href="mailto:anne2&#46;meyer&#37;&#52;&#48;tu-dortmund&#46;de">anne2<span>&#46;</span>meyer<span>&#64;</span>tu-dortmund<span>&#46;</span>de</a>&gt;</p></li>
@@ -144,42 +145,43 @@ It combines <a class="reference external" href="https://github.com/cls-python/cl
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#from-luigi-to-cls-luigi">From Luigi to CLS-Luigi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#basic-concepts-of-cls-luigi">Basic concepts of CLS-Luigi</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#how-to-run-your-very-first-cls-luigi-pipeline">How to run your very first CLS-Luigi Pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#ml-pipeline-example">ML-Pipeline example</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="examples/getting_started/README.html#using-dictionaries-instead-of-lists-in-requires-and-output-methods">Using dictionaries instead of lists in <em>requires</em> and <em>output</em> methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#workflow-of-cls-luigi">Workflow of CLS-Luigi</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#step-1-designing-the-pipeline">Step 1: Designing the Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#step-2-implementing-the-work-steps">Step 2: Implementing the Work Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#step-3-writing-the-boilerplate-code">Step 3: Writing the Boilerplate Code</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#exploring-cls-luigi-with-an-example">Exploring CLS-Luigi with an Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/getting_started/README.html#peculiarities-of-cls-luigi">Peculiarities of CLS-Luigi</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#how-to-visualize-your-pipeline">How to visualize your Pipeline?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/getting_started/README.html#known-issues">Known Issues</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/ny_taxi/README.html">NY Taxi Example</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#requirements">Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#static-visualization">Static Visualization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#dynamic-visualization">Dynamic Visualization</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="examples/ml_blood_sugar_level/README.html">ML-Blood Sugar Level Example</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/ml_blood_sugar_level/README.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/ml_blood_sugar_level/README.html#static-visualization">Static Visualization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/ml_blood_sugar_level/README.html#dynamic-visualization">Dynamic Visualization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples/vehicle_routing/README.html">Vehicle Routing Example</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#requirements">Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#the-pipeline">The Pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#how-to-run">How to run</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#new-features-implemented-tested-while-working-on-the-example">New Features implemented/tested while working on the example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#problems-while-working-on-this">Problems while working on this</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="examples/lot_sizing/README.html">Lot Sizing Example</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/lot_sizing/README.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/lot_sizing/README.html#static-visualization">Static Visualization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/lot_sizing/README.html#dynamic-visualization">Dynamic Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/vehicle_routing/README.html">Vehicle Routing Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#the-pipeline">The Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/vehicle_routing/README.html#how-to-run">How to run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/ny_taxi/README.html">NY Taxi Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#static-visualization">Static Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/ny_taxi/README.html#dynamic-visualization">Dynamic Visualization</a></li>
 </ul>
 </li>
 </ul>
@@ -231,19 +233,20 @@ It combines <a class="reference external" href="https://github.com/cls-python/cl
 </li>
 <li class="toctree-l1"><a class="reference internal" href="code_of_conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 (2023-07-01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 (2023-06-07)</a></li>
 </ul>
 </li>
 </ul>
 </div>
+</section>
+</section>
 <section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</section>
 </section>
 
 

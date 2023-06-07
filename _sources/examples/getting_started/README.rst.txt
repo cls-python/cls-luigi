@@ -1,6 +1,8 @@
 Getting Started
 ===============
 
+**The Getting Started section is still a work in progress, and certain concepts have not been fully explained yet. We are in the process of adding them and they will be included shortly. As a result, please keep this in mind while reading this section.**
+
 The purpose of this guide is to illustrate some of the main features that CLS-Luigi provides. It assumes a very basic knowledge of python. Please refer to our :doc:`installation instructions <../../installation>` for installing CLS-Luigi.
 
 .. _luigi_getting_started:
@@ -20,7 +22,8 @@ Luigi models pipelines as Directed Acyclic Graphs (DAGs), where tasks are repres
 What is a Luigi Task?
 ~~~~~~~~~~~~~~~~~~~~~
 
-In Luigi, a task represents an atomic unit of work in a pipeline. Tasks are defined as Python classes that inherit from ``luigi.Task``. Each task should have an ``output()`` method that specifies the output it produces. The ``run()`` method contains the logic for executing the task. Luigi provides various other methods, such as ``requires()``, ``complete()``, and ``output()``, to define dependencies, check task completeness, and specify output targets.
+In Luigi, a task represents an atomic unit of work in a pipeline. Tasks are defined as Python classes that inherit from ``luigi.Task``. Each task should have an ``output()`` method that specifies the output it produces, a ``requires()`` that specifies what other tasks are required to be run beforehand and a ``run()`` method that contains the logic for executing the task. Luigi provides various other methods, for more information check out the `Luigi documentation <https://luigi.readthedocs.io/en/stable/api/luigi.task.html?highlight=task>`__.
+When you implement your own tasks, you often override these base class methods.
 
 
 Advantage of Luigi
@@ -84,7 +87,7 @@ From Luigi to CLS-Luigi
 CLS-Luigi combines Luigi with the `(CL)S Framework <https://eldorado.tu-dortmund.de/handle/2003/38387>`__. CLS is a Type-Theoretic Framework for Software Component Synthesis.
 
 CLS fundamentally solves the type-theoretical
-problem of inhabitation. This problem denotes the question if a well-typed applicative term exists, that can be formed from a given repository Γ of typed combinators to satisfy a user-specified target type. The inhabitation problem can be expressed mathematically as follows: Γ ⊢? : σ. The repository Γ consists of combinators in the form (c : τ ) which can be read as ”In the respository Γ it is assumed that combinator c has type τ ”. CLS implements a inhabitation algorithm that uses the combinator types to determine which combinators can be applied to each other in order to satisfy the user-specified type σ. If a Term M exists, such as it satisfies the inhabitation request (Γ ⊢ M : σ), then we call M inhabitant of σ. If you want to learn more about the topic, you can read `this <https://eldorado.tu-dortmund.de/handle/2003/38387>`_.
+problem of inhabitation. This problem denotes the question if a well-typed applicative term exists, that can be formed from a given repository Γ of typed combinators to satisfy a user-specified target type. The inhabitation problem can be expressed mathematically as follows: Γ ⊢? : σ. The repository Γ consists of combinators in the form (c : τ) which can be read as ”In the respository Γ it is assumed that combinator c has type τ ”. CLS implements a inhabitation algorithm that uses the combinator types to determine which combinators can be applied to each other in order to satisfy the user-specified type σ. If a Term M exists, such as it satisfies the inhabitation request (Γ ⊢ M : σ), then we call M inhabitant of σ. If you want to learn more about the topic, you can read `this <https://eldorado.tu-dortmund.de/handle/2003/38387>`_.
 
 In our use case CLS generates and executes Luigi pipelines. The Repository is composed of Classes that are derived from ``luigi.Task`` and ``cls_luigi.inhabitation_task.LuigiCombinator``. Finding the correct abstraction level, modeling components and creating the repository are sometimes the most difficult tasks when using CLS. It requires a lot of modeling experience as well as domain knowledge about the problem. To solve this challenge, CLS-Luigi uses Pythons reflection mechanisms to create the repository automatically. The user does not have to worry about this and simply implements components that he would have to implement anyways in some way.
 
@@ -93,173 +96,61 @@ CLS-Luigi generates all feasible luigi pipelines for a given target based on a r
 A Luigi tasks that not only inherit from ``luigi.Task`` but also from ``inhabitation_task.LuigiCombinator`` are automatically considered a component and thus will be added to the repository. All that needs to be done is to implement the methods ``run()``, ``output()`` and ``requires()``.
 
 
-Basic concepts of CLS-Luigi
----------------------------
+Workflow of CLS-Luigi
+---------------------
 
-In the following section, we will give a short introduction on how to use CLS-Luigi. The examples found throughout can be found in the repository in the `examples/getting_started <https://github.com/cls-python/cls-luigi/tree/main/examples/getting_started/>`_ folder.
+To create a pipeline, we need to follow these steps:
 
-We will structure it as follows:
+Step 1: Designing the Pipeline
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  `How to run your very first CLS-Luigi Pipeline`_
--  `Define dependencies on other tasks <#dfo>`_
--  `Add variation points <#avp>`_
--  `Variation points as a dependency <#vpa>`_
+First, we need to determine the structure of our pipeline. Consider the work steps (tasks) involved, their inputs and outputs, and how the data should flow through the pipeline. This careful planning will lay the foundation for a successful implementation.
+At this stage, it is essential to consider the potential variation points within our pipeline. These points represent locations where algorithmic components can be swapped out. While these components typically serve the same purpose, they may employ different methodologies, such as alternative heuristics for a given problem. By identifying these variation points, we can create abstract classes that can be used to specify method implementations that must be utilized in the child classes. For instance, this could be used to employ the template method design pattern to enforce a required algorithmic flow within the components.
 
-How to run your very first CLS-Luigi Pipeline
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 2: Implementing the Work Steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Once we have designed our pipeline, it's time to implement the work steps. We achieve this by creating classes that inherit from `luigi.Task`. These classes will represent the individual tasks within our pipeline. To create a new task class, we override the necessary methods (`requires()`, `run()`, `output()`) as explained in the documentation on `What is a Luigi Task?`_.
 
-ML-Pipeline example
-~~~~~~~~~~~~~~~~~~~
+While implementing the new task class, it's essential to ensure that it also inherits from `LuigiCombinator`. This step enables us to add these classes to the component repository through reflection, making them eligible for pipeline synthesis and variance consideration.
 
-You can find the source for the example `here <https://github.com/cls-python/cls-luigi/tree/main/examples/getting_started/70_ml_example.py>`_:
+Ensure that each task is appropriately labeled as either an abstract or a concrete class. This can be accomplished by modifying the class variable *abstract* and setting it to either *True* or *False*.
 
+Step 3: Writing the Boilerplate Code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let’s consider an example where we predict the blood sugar level of some
-patients. In this example we first start by loading the dataset from
-Scikit-Learn, then we split it into 2 subsets for training and testing.
+In the final step, we only require a small portion of boilerplate code to initiate the synthesis and subsequent execution of our pipelines. This boilerplate code remains mostly consistent across different implementations. In the future, we aim to integrate it into our framework so that users will not have to write it themselves, unless they specifically wish to make modifications for a particular use case.
 
-The first variation point is the scaling method. We introduce 2 concrete
-implementation, namely ``RobustScaler``\ & ``MinMaxScaler``. After
-scaling we have our second variation point which is the regression
-model. Here we have also 2 concrete implementation, namely
-``LinearRegression`` & ``LassoLars``.
+By following these steps, we can fully leverage the capabilities of CLS-Luigi to construct intricate and efficient pipelines for various data processing tasks.
 
-Lastly we evaluate each regression model by predicting the testing
-target and calculating the root mean squared error.
+Feel free to refer to the CLS-Luigi documentation for more comprehensive information on the framework's features and advanced usage.
 
-In this specific case we should have the following 4 pipelines:
-
-We can see that ``RobustScaler`` & ``MinMaxScaler`` is required by both
-the ``TrainLinearRegressionModel`` & ``TrainLassoLarsModel``, and
-``EvaluateRegressionModel``
-
-So the pipeline validation in this case looks like this:
-
-.. code:: python
-
-   validator = UniqueTaskPipelineValidator([FitTransformScaler])
-   results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
-
-Using dictionaries instead of lists in *requires* and *output* methods
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Code for this example is to be found
-`here <hello_world_examples/_71_ML_example_with_dicts.py>`__
-
-Till now, we only showed how to handle multiple dependencies and outputs
-using lists. However, lists can be akward to handle, especially once you
-deal with nested lists. Indexes are just not very easily readable.
-
-In the `last
-example <hello_world_examples/_70_ML_example_variation_point_multi_usage.py>`__
-we returned the output of data splitting in a list as follows:
-
-.. code:: python
-
-       def output(self):
-           return [
-               luigi.LocalTarget("x_train.pkl"),
-               luigi.LocalTarget("x_test.pkl"),
-               luigi.LocalTarget("y_train.pkl"),
-               luigi.LocalTarget("y_test.pkl")
-           ]
-
-       def run(self):
-          ...
-          ...
-          ...
-           X_train.to_pickle(self.output()[0].path)
-           X_test.to_pickle(self.output()[1].path)
-           y_train.to_pickle(self.output()[2].path)
-           y_test.to_pickle(self.output()[3].path)
-
-Note how we defined our outputs in *output* method, and had to feed in
-the index number of corresponding LocalTarget in the *run* method. We
-can do better than that! #### solution We can use dictionaries instead
-of lists, and reference the corresponding LocalTargets using keys:
-
-if your haven’t looked at the code for this example, you can also find
-it `here <hello_world_examples/_71_ML_example_with_dicts.py>`__
-
-.. code:: python
-
-   class TrainTestSplit(luigi.Task, LuigiCombinator):
-       abstract = False
-       diabetes = inhabitation_task.ClsParameter(tpe=LoadDiabetesData.return_type())
-
-       def output(self):
-           return {
-               "x_train": luigi.LocalTarget("x_train.pkl"),
-               "x_test": luigi.LocalTarget("x_test.pkl"),
-               "y_train": luigi.LocalTarget("y_train.pkl"),
-               "y_test": luigi.LocalTarget("y_test.pkl"),
-           }
-
-       def run(self):
-          ...
-          ...
-          ...
-
-           X_train.to_pickle(self.output()["x_train"].path)
-           X_test.to_pickle(self.output()["x_test"].path)
-           y_train.to_pickle(self.output()["y_train"].path)
-           y_test.to_pickle(self.output()["y_test"].path)
-
-This is way easier to read! By using dictionaries we don’t need to
-memorize the indexes of elements or even car about their order. We can
-just use the keys without having to go back searching for the write
-index.
-
-Note: You can use this way in your *requires* method as well. and
-instead of referencing as follows: \```python def requires(self): return
-[self.my_dependency()]
-
-def run(self): … # use the dependency output self.input()[0]
-
-::
+Now, let's delve into each step and thoroughly explore the detailed capabilities of CLS-Luigi by examining concrete examples.
 
 
-   your can just do the following instead:
-   ```python
-   def requires(self):
-      return {"some_dependency": self.my_dependency()}
+Exploring CLS-Luigi with an Example
+-----------------------------------
 
-   def run(self):
-      ...
-      # use the dependency output
-       self.input()["some_dependency"]
+In the following section, we will give a short introduction on how to use CLS-Luigi. You can locate the source code for the example in the repository's `examples/getting_started <https://github.com/cls-python/cls-luigi/tree/main/examples/getting_started/>`_ folder.
+We will gradually incorporate additions or modifications in a step-by-step manner. As a result, the repository will encompass all iterations of the process.
 
-This obviously makes more sense with multiple dependencies.
+*coming soon*
 
-Lastly: if you return dictionaries in both your *output* method and your
-’requires\* method , don’t forget that you have to reference 2 keys now.
-Still better as indexes :)
+Peculiarities of CLS-Luigi
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+*coming soon*
 
+How to visualize your Pipeline?
+-------------------------------
 
-   class SomeTaskA(luigi.Task, inhabitation_task.LuigiCombinator):
-      def output(self):
-         return {"output": Luigi.LocalTarget("output.suffix")}
+**The current version of the Vizualizer faces challenges when visualizing pipelines that are structured using abstract chains. Further details regarding this matter can be accessed in the Known Issues section. We are already working on an improved version**
 
-
-   class SomeTaskA(luigi.Task, inhabitation_task.LuigiCombinator):
-      dependency = ClsParameter(tpe= SomeTaskA.return_type())
-
-      def requires(self):
-         return {"output_from_SomeTaskA": self.dependency()}
-
-      def run(self):
-         ...
-       # do something with your input (dependency)
-           self.input()["output_from_SomeTaskA"]["output"].path
-
-
+*coming soon*
 
 Known Issues
 ------------
 
 1. Luigi on Windows got some `problems <https://luigi.readthedocs.io/en/stable/running_luigi.html?highlight=windows#luigi-on-windows>`_ due to the fact how windows is handling (or better not handling) forking of the python interpreter.
 2. CLS-Python has the same problem since it is also using the multiprocessing package. This has an impact on the performance on windows, which makes the inhabitation process a bit longer than on linux.
-3. The visualizer currently still has problems visualizing inheritance hierarchies and can currently only display pipelines that only contain Tasks that are direct implementations of luigi.Tasks and LuigiCombinator (see getting_started and lot_sizing examples). Therefore, we have currently refrained from using the classes in the module cls_tasks as base classes, as this would make the use of the visualizer impossible. On the other hand, only tasks are visualized, which are derived from LuigiCombinator and thus by using reflection are added to the Repository. However, pure Luigi tasks can also be used. While the visualizer's functionality is not yet fully comprehensive, it still offers valuable visualization capabilities for pipelines comprising tasks derived from luigi.Task and LuigiCombinator. Future enhancements and updates to the visualizer aim to address the challenges associated with visualizing inheritance hierarchies and expand the range of supported task types.
+3. The visualizer currently still has problems visualizing inheritance hierarchies and can currently only display pipelines that only contain Tasks that are direct implementations of luigi.Tasks and LuigiCombinator (see getting_started and lot_sizing examples). Currently it looks like the visualizer can't handle abstract chains (a class marked as abstract that inherits from another class that is marked abstract). Therefore, we have currently refrained from using the classes in the module cls_tasks as base classes, as this would make the use of the visualizer impossible. On the other hand, only tasks are visualized, which are derived from LuigiCombinator and thus by using reflection are added to the Repository. However, pure Luigi tasks can also be used. While the visualizer's functionality is not yet fully comprehensive, it still offers valuable visualization capabilities for pipelines comprising tasks derived from luigi.Task and LuigiCombinator. Future enhancements and updates to the visualizer aim to address the challenges associated with visualizing inheritance hierarchies and expand the range of supported task types.
