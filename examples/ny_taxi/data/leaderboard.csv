@@ -1,0 +1,13 @@
+index,regressor,RMSE,MAE,R2
+4,light_gbm-train-final_dataset-filtered-raw_temporal_features-standard_scaled.pkl,326.079,190.971,0.625
+5,light_gbm-train-final_dataset-filtered-raw_temporal_features-robust_scaled.pkl,326.32,191.118,0.624
+3,light_gbm-train-final_dataset-filtered-raw_temporal_features-minmax_scaled.pkl,326.361,191.057,0.624
+10,extra_tree-train-final_dataset-filtered-raw_temporal_features-standard_scaled.pkl,328.453,190.354,0.619
+11,extra_tree-train-final_dataset-filtered-raw_temporal_features-robust_scaled.pkl,328.453,190.353,0.619
+9,extra_tree-train-final_dataset-filtered-raw_temporal_features-minmax_scaled.pkl,328.999,190.477,0.618
+2,decision_tree-train-final_dataset-filtered-raw_temporal_features-robust_scaled.pkl,347.442,210.071,0.574
+0,decision_tree-train-final_dataset-filtered-raw_temporal_features-minmax_scaled.pkl,347.454,210.078,0.574
+1,decision_tree-train-final_dataset-filtered-raw_temporal_features-standard_scaled.pkl,347.454,210.078,0.574
+6,xgboost-train-final_dataset-filtered-raw_temporal_features-minmax_scaled.pkl,466.762,304.644,0.231
+8,xgboost-train-final_dataset-filtered-raw_temporal_features-robust_scaled.pkl,466.764,304.646,0.231
+7,xgboost-train-final_dataset-filtered-raw_temporal_features-standard_scaled.pkl,466.767,304.646,0.231

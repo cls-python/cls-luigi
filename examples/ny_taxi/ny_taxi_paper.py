@@ -14,14 +14,15 @@ from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBRegressor
 import lightgbm as lgb
 
-from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
+from cls_luigi.inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
+from cls.fcl import FiniteCombinatoryLogic
+from cls.subtypes import Subtypes
 from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 sns.set_style('darkgrid')
 sns.set_context('talk')
@@ -598,11 +599,14 @@ class EvaluateAndVisualize(luigi.Task, LuigiCombinator):
 
 
 if __name__ == '__main__':
+    from cls_luigi.repo_visualizer.static_json_repo import StaticJSONRepo
+    from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
 
     target = EvaluateAndVisualize.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Build Repository...")
+    StaticJSONRepo(RepoMeta).dump_static_repo_json()
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
     print("Build Tree Grammar and inhabit Pipelines...")
 
@@ -619,6 +623,7 @@ if __name__ == '__main__':
 
 
     if results:
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")

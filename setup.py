@@ -72,6 +72,6 @@ setup(
     test_suite='cls_luigi.tests',
     tests_require=test_requirements,
     url="https://github.com/cls-python/cls-luigi",
-    version="0.1.0",
+    version="0.0.0",
     zip_safe=False,
 )

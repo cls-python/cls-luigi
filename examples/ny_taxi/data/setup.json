@@ -1,0 +1,66 @@
+{
+    "csv_file": "data/taxy_trips_ny_2016-06-01to03_3%sample.csv",
+    "date_column": [
+        "pickup_datetime"
+    ],
+    "drop_column": [
+        "s_fall",
+        "has_snow",
+        "has_rain",
+        "s_depth",
+        "main_street",
+        "trip_distance",
+        "pickup_datetime",
+        "dropoff_datetime",
+        "vendor_id",
+        "passenger_count",
+        "max_temp",
+        "min_temp",
+        "pickup_zipcode",
+        "dropoff_zipcode",
+        "totalturn",
+        "totalleft",
+        "haversine_distance",
+        "totalsteps"
+    ],
+    "target_column": "trip_duration",
+    "seed": 42,
+    "reg_params": {
+        "decision_tree": {
+            "max_depth": 23,
+            "min_samples_leaf": 100,
+            "random_state": 42
+        },
+        "random_forest": {
+            "max_depth": 28,
+            "max_features": 0.8,
+            "max_samples": 0.9,
+            "n_estimators": 80,
+            "random_state": 42
+        },
+        "extra_trees": {
+            "n_estimators": 60,
+            "max_depth": 28,
+            "max_features": 0.6,
+            "random_state": 42
+        },
+        "xgb": {
+            "eta": 0.01,
+            "lambda": 1,
+            "max_depth": 21,
+            "gamma": 0,
+            "min_child_weight": 110,
+            "subsample": 1.0,
+            "colsample_bytree": 1.0,
+            "seed": 42
+        },
+        "light_gbm": {
+            "max_leaves": 900,
+            "min_data_in_leaf": 130,
+            "gamma": 20,
+            "lambda": 1,
+            "learning_rate": 0.05,
+            "seed": 42
+        }
+    }
+}
