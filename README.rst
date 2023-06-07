@@ -1,7 +1,9 @@
-.. image:: https://raw.githubusercontent.com/cls-python/cls-luigi/master/doc/_static/images/logo.png
-  :target: https://github.com/cls-python/cls-luigi/
-  :width: 90%
-  :align: center
+CLS-Luigi
+=========
+.. .. image:: https://raw.githubusercontent.com/cls-python/cls-luigi/master/doc/_static/images/logo.png
+..   :target: https://github.com/cls-python/cls-luigi/
+..   :width: 90%
+..   :align: center
 
 .. image:: https://img.shields.io/pypi/v/cls-luigi
         :target: https://pypi.python.org/pypi/cls-luigi

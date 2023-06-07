@@ -70,7 +70,7 @@ with open("examples.rst", 'w+') as f:
     f.write('Examples\n')
     f.write('========\n\n')
 
-    f.write('You can find all the examples along with their source code here_.\n\n')
+    f.write('**The provided examples are not yet in their final form and were primarily used as toy examples to assist in the conceptualization and implementation of CLS-Luigi. Hence, it is advisable to approach them with caution, as certain aspects are likely to undergo changes within the framework.**\n\nYou can find all the examples along with their source code here_.\n\n')
 
     f.write('.. toctree::\n')
     f.write('   :maxdepth: 2\n\n')
