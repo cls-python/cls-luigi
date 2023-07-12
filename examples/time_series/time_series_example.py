@@ -84,7 +84,7 @@ class ReadTimeSeriesCSV(BaseClass):
         print("============= ReadTimeSeriesCSV RUN")
 
         time_series = pd.read_csv(INPUT_DATA_PATH, parse_dates=DATE_COLS_LIST)
-        time_series.to_csv(self.output().path, index=False, index_label="index")
+        time_series.to_csv(self.output().path, index_label="index")
 
     def output(self):
         return LocalTarget(
@@ -232,14 +232,12 @@ class ExponentialSmoother(BaseClass):
     abstract = True
     supervised_data = ClsParameter(tpe=ConvertTargetValuesToFeatures.return_type())
 
-    smoothing_level = 0.15
-    smoothing_trend = 0.05
-    smoothing_seasonal = 0.7
+
     trend_component = "multiplicative"
     season_component = "additive"
-    initialization_method = None
+    initialization_method = "estimated"
     seasonal_periods = 12
-    optimized = True
+    optimized = False
 
     def requires(self):
         return self.supervised_data()
@@ -270,110 +268,18 @@ class ExponentialSmoothing1stOrder(ExponentialSmoother):
         train = pd.read_csv(self.input()["train"].path, index_col="index")
         test = pd.read_csv(self.input()["test"].path, index_col="index")
 
-        joined = pd.concat([train, test])
-
         es = SimpleExpSmoothing(
-            joined[TARGET_NAME],
-            initialization_method=self.initialization_method).fit(
-            smoothing_level=self.smoothing_level,
-            optimized=self.optimized)
-
-        joined["Exp. Smoothing 1st Order Prediction"] = es.fittedvalues
-
-        train = joined.loc[train.index]
-        test = joined.loc[test.index]
-
-        train.to_csv(self.output()["train"].path)
-        test.to_csv(self.output()["test"].path)
-
-
-class ExponentialSmoothing2ndOrder(ExponentialSmoother):
-    abstract = False
-
-    def output(self):
-        print("============= ExponentialSmoothingSecondOrder OUTPUT")
-
-        return {
-            "train": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self._get_last_output_name('train')}-exp_smt_2nd.csv"
-                )
-            ),
-            "test": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self._get_last_output_name('test')}-exp_smt_2nd.csv"
-                ),
-            )
-        }
-
-    def run(self):
-        print("============= ExponentialSmoothingSecondOrder RUN")
-
-        train = pd.read_csv(self.input()["train"].path, index_col="index")
-        test = pd.read_csv(self.input()["test"].path, index_col="index")
-
-        es = Holt(train[TARGET_NAME],
-                  initialization_method=self.initialization_method
-                  ).fit(
-            smoothing_level=self.smoothing_level,
-            smoothing_trend=self.smoothing_trend,
-            optimized=self.optimized,
-        )
-
-        n_forcast_steps = test.shape[0]
-
-        train["Exp. Smoothing 2nd Order Prediction"] = es.fittedvalues
-        test["Exp. Smoothing 2nd Order Prediction"] = es.forecast(steps=n_forcast_steps).to_list()
-
-        train.to_csv(self.output()["train"].path)
-        test.to_csv(self.output()["test"].path)
-
-
-class ExponentialSmoothing3rdOrder(ExponentialSmoother):
-    abstract = False
-
-    def output(self):
-        print("============= ExponentialSmoothingThirdOrder OUTPUT")
-
-        return {
-            "train": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self._get_last_output_name('train')}-exp_smt_3rd.csv"
-                )
-            ),
-            "test": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self._get_last_output_name('test')}-exp_smt_3rd.csv"
-                ),
-            )
-        }
-
-    def run(self):
-        print("============= ExponentialSmoothingThirdOrder RUN")
-
-        train = pd.read_csv(self.input()["train"].path, index_col="index")
-        test = pd.read_csv(self.input()["test"].path, index_col="index")
-
-        es = ExponentialSmoothing(
             train[TARGET_NAME],
-            initialization_method=self.initialization_method,
-            trend=self.trend_component,
-            seasonal=self.season_component,
-            seasonal_periods=self.seasonal_periods,
-        ).fit(
-            smoothing_level=self.smoothing_level,
-            smoothing_trend=self.smoothing_trend,
-            smoothing_seasonal=self.smoothing_seasonal,
-            optimized=self.optimized,
-        )
+            initialization_method=self.initialization_method).fit()
 
-        n_forcast_steps = test.shape[0]
 
-        train["Exp. Smoothing 3rd Order Prediction"] = es.fittedvalues
-        test["Exp. Smoothing 3rd Order Prediction"] = es.forecast(steps=n_forcast_steps).to_list()
+        train["Exp. Smoothing 1st Order Prediction"] = es.fittedvalues
+        test["Exp. Smoothing 1st Order Prediction"] = es.forecast(len(test))
 
         train.to_csv(self.output()["train"].path)
         test.to_csv(self.output()["test"].path)
+
+
 
 
 from cls_luigi.cls_tasks import  ClsBaseTask
@@ -617,6 +523,6 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        build(results, local_scheduler=False, detailed_summary=True)
+        build(results, local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")
