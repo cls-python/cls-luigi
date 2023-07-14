@@ -58,15 +58,17 @@ class ClsBaseTask():
 
         md5_hash = self.get_md5_hexdigest(self)
         label = "{0}-#{1}#".format(self.__class__.__name__, md5_hash)
-        label_path = Path(join(self.hash_path, label))
+        hash_label_file_path = Path(join(self.hash_path, label))
 
         deps_tree = self.get_deps_tree()
-        if label_path.exists() is False:
-            with label_path.open(mode='w+') as hash_file:
+        if hash_label_file_path.exists() is False:
+            with hash_label_file_path.open(mode='w+') as hash_file:
                 hash_file.write(deps_tree)
 
-        variant_file_name = self.__class__.__name__
-        return label + "-" + name
+        variant_path_and_name = join(self.result_path, label)
+        variant_path_and_name += "-" + name
+
+        return variant_path_and_name
 
     @staticmethod
     def get_md5_hexdigest(task: luigi.Task) -> str:
