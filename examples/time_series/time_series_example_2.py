@@ -1,3 +1,5 @@
+import time
+
 from luigi import LocalTarget, build
 from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
@@ -19,9 +21,8 @@ import os
 from os.path import join as pjoin
 from os import mkdir
 
-
 DIR = os.path.dirname(__file__)
-OUTPUTS_DIR = pjoin(DIR, "data")
+OUTPUTS_DIR = pjoin(DIR, "results")
 INPUT_DATA_NAME = "AirPassengers.csv"
 INPUT_DATA_PATH = pjoin(DIR, INPUT_DATA_NAME)
 TARGET_NAME = "Actual"
@@ -30,27 +31,13 @@ DATE_INDEX_COL = "Date"
 SEED = 123
 
 
-class MakeOutputDir(ClsTask):
-    abstract = False
-
-    def output(self):
-        return LocalTarget(OUTPUTS_DIR)
-
-    def run(self):
-        mkdir(OUTPUTS_DIR)
-
-
 class ReadTimeSeries(ClsTask):
     abstract = False
-    out_dir = ClsParameter(tpe=MakeOutputDir.return_type())
-
-    def requires(self):
-        return self.out_dir()
 
     def output(self):
         return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, "time_series.pkl"
+        pjoin(
+                OUTPUTS_DIR, f"{self.get_variant_filename('time_series.pkl')}"
             )
         )
 
@@ -73,8 +60,8 @@ class SplitData(ClsTask):
 
     def output(self):
         return {
-            "train": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename()}_train.pkl")),
-            "test": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename()}_test.pkl")),
+            "train": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}")),
+            "test": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}")),
         }
 
     def run(self):
@@ -97,17 +84,17 @@ class FitPredictExponentialSmoothingModel(ClsTask):
         return {
             "fitted_values": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_fitted_values.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('fitted_values.pkl')}"
                 )
             ),
             "prediction": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_prediction.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('prediction.pkl')}"
                 )
             ),
             "model": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_model.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('model.pkl')}"
                 )
             )
         }
@@ -221,12 +208,12 @@ class GenerateMonthAndYearColumns(ClsTask):
         return {
             "train": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_train.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
                 )
             ),
             "test": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_test.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
                 )
             )
         }
@@ -253,7 +240,7 @@ class GenerateMonthAndYearColumns(ClsTask):
         return time_stamp.year
 
 
-class ToSupervisedLearningDataset(ClsTask):
+class TimeSeriesToSupervisedLearningDataset(ClsTask):
     abstract = False
     split_data = ClsParameter(tpe=GenerateMonthAndYearColumns.return_type())
 
@@ -266,12 +253,12 @@ class ToSupervisedLearningDataset(ClsTask):
         return {
             "train": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_train.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
                 )
             ),
             "test": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_test.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
                 )
             )
         }
@@ -308,7 +295,7 @@ class ToSupervisedLearningDataset(ClsTask):
 
 class ExponentialSmoothingPreprocessor(ClsTask):
     abstract = False
-    supervised_data = ClsParameter(tpe=ToSupervisedLearningDataset.return_type())
+    supervised_data = ClsParameter(tpe=TimeSeriesToSupervisedLearningDataset.return_type())
     expo_smoothing = ClsParameter(tpe=FitPredictExponentialSmoothingModel.return_type())
 
     def requires(self):
@@ -321,12 +308,12 @@ class ExponentialSmoothingPreprocessor(ClsTask):
         return {
             "train": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_train.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
                 )
             ),
             "test": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_test.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
                 )
             )
         }
@@ -352,12 +339,12 @@ class FitPredictRegressionModel(ClsTask):
         return {
             "model": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_model.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('model.pkl')}"
                 )
             ),
             "prediction": LocalTarget(
                 pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename()}_prediction.pkl"
+                    OUTPUTS_DIR, f"{self.get_variant_filename('prediction.pkl')}"
                 )
             )
         }
@@ -400,7 +387,7 @@ class LassoConfig1(LassoConfigs):
     def output(self):
         return LocalTarget(
             pjoin(
-                OUTPUTS_DIR, "lasso_config_1.json"
+                OUTPUTS_DIR, f"{self.get_variant_filename('lasso_config_1.json')}"
             )
         )
 
@@ -424,7 +411,7 @@ class LassoConfig2(LassoConfigs):
     def output(self):
         return LocalTarget(
             pjoin(
-                OUTPUTS_DIR, "lasso_config_2.json"
+                OUTPUTS_DIR, f"{self.get_variant_filename('lasso_config_2.json')}"
             )
         )
 
@@ -445,7 +432,7 @@ class FitPredictLasso(FitPredictRegressionModel):
     abstract = False
     supervised_split_data = ClsParameter(
         tpe={
-            "without_exp_smoothing": ToSupervisedLearningDataset.return_type(),
+            "without_exp_smoothing": TimeSeriesToSupervisedLearningDataset.return_type(),
             "with_exp_smoothing": ExponentialSmoothingPreprocessor.return_type()
         }
     )
@@ -493,7 +480,7 @@ class RandomForestConfig1(RandomForestConfigs):
     def output(self):
         return LocalTarget(
             pjoin(
-                OUTPUTS_DIR, "random_forest_config_1.json"
+                OUTPUTS_DIR, f"{self.get_variant_filename('random_forest_config_1.json')}"
             )
         )
 
@@ -516,7 +503,7 @@ class RandomForestConfig2(RandomForestConfigs):
     def output(self):
         return LocalTarget(
             pjoin(
-                OUTPUTS_DIR, "random_forest_config_2.json"
+                OUTPUTS_DIR, f"{self.get_variant_filename('random_forest_config_2.json')}"
             )
         )
 
@@ -536,7 +523,7 @@ class FitPredictRandomForest(FitPredictRegressionModel):
     abstract = False
     supervised_split_data = ClsParameter(
         tpe={
-            "without_exp_smoothing": ToSupervisedLearningDataset.return_type(),
+            "without_exp_smoothing": TimeSeriesToSupervisedLearningDataset.return_type(),
             "with_exp_smoothing": ExponentialSmoothingPreprocessor.return_type()
         }
     )
@@ -598,7 +585,7 @@ class ScoreAndVisualizePredictions(ClsTask):
     def output(self):
         return LocalTarget(
             pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename()}_visual.png"
+                OUTPUTS_DIR, f"{self.get_variant_filename('_visual.json.png')}"
             )
         )
 
@@ -644,7 +631,7 @@ if __name__ == "__main__":
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
-    StaticJSONRepo(RepoMeta).dump_static_repo_json()
+    # StaticJSONRepo(RepoMeta).dump_static_repo_json()
 
     # print(deep_str(inhabitation_result.rules))
     max_tasks_when_infinite = 10
@@ -658,11 +645,14 @@ if __name__ == "__main__":
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     if results:
-        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
+        # DynamicJSONRepo(results).dump_dynamic_pipeline_json()
 
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        build(results, local_scheduler=False, detailed_summary=True)
+        tick = time.time()
+        build(results, local_scheduler=True, detailed_summary=True)
+        tock = time.time()
+        print(f"elapsed seconds for luigi.build(): {tock - tick}")
     else:
         print("No results!")
