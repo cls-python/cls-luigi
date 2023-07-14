@@ -60,8 +60,8 @@ class SplitData(ClsTask):
 
     def output(self):
         return {
-            "train": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}")),
-            "test": LocalTarget(pjoin(OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}")),
+            "train": LocalTarget(self.get_variant_filename('train.pkl')),
+            "test": LocalTarget(self.get_variant_filename('test.pkl')),
         }
 
     def run(self):
@@ -82,21 +82,9 @@ class FitPredictExponentialSmoothingModel(ClsTask):
 
     def output(self):
         return {
-            "fitted_values": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('fitted_values.pkl')}"
-                )
-            ),
-            "prediction": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('prediction.pkl')}"
-                )
-            ),
-            "model": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('model.pkl')}"
-                )
-            )
+            "fitted_values": LocalTarget(self.get_variant_filename('fitted_values.pkl')),
+            "prediction": LocalTarget(self.get_variant_filename('prediction.pkl')),
+            "model": LocalTarget(self.get_variant_filename('model.pkl'))
         }
 
     def _get_train_and_test_dfs(self):
@@ -206,16 +194,8 @@ class GenerateMonthAndYearColumns(ClsTask):
 
     def output(self):
         return {
-            "train": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
-                )
-            ),
-            "test": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
-                )
-            )
+            "train": LocalTarget(self.get_variant_filename('train.pkl')),
+            "test": LocalTarget(self.get_variant_filename('test.pkl'))
         }
 
     def run(self):
@@ -251,16 +231,8 @@ class TimeSeriesToSupervisedLearningDataset(ClsTask):
 
     def output(self):
         return {
-            "train": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
-                )
-            ),
-            "test": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
-                )
-            )
+            "train": LocalTarget(self.get_variant_filename('train.pkl')),
+            "test": LocalTarget(self.get_variant_filename('test.pkl'))
         }
 
     def run(self):
@@ -306,17 +278,8 @@ class ExponentialSmoothingPreprocessor(ClsTask):
 
     def output(self):
         return {
-            "train": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('train.pkl')}"
-                )
-            ),
-            "test": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('test.pkl')}"
-                )
-            )
-        }
+            "train": LocalTarget(self.get_variant_filename('train.pkl')),
+            "test": LocalTarget(self.get_variant_filename('test.pkl'))}
 
     def run(self):
         supervised_train = pd.read_pickle(self.input()["supervised_data"]["train"].path)
@@ -334,20 +297,17 @@ class ExponentialSmoothingPreprocessor(ClsTask):
 
 class FitPredictRegressionModel(ClsTask):
     abstract = True
+    supervised_split_data = ClsParameter(
+        tpe={
+            "without_exp_smoothing": TimeSeriesToSupervisedLearningDataset.return_type(),
+            "with_exp_smoothing": ExponentialSmoothingPreprocessor.return_type()
+        }
+    )
 
     def output(self):
         return {
-            "model": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('model.pkl')}"
-                )
-            ),
-            "prediction": LocalTarget(
-                pjoin(
-                    OUTPUTS_DIR, f"{self.get_variant_filename('prediction.pkl')}"
-                )
-            )
-        }
+            "model": LocalTarget(self.get_variant_filename('model.pkl')),
+            "prediction": LocalTarget(self.get_variant_filename('prediction.pkl'))}
 
     def _get_split_train_test_data(self):
         train = pd.read_pickle(self.input()["data"]["train"].path)
@@ -385,11 +345,7 @@ class LassoConfig1(LassoConfigs):
     name = "Lasso Config 1"
 
     def output(self):
-        return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename('lasso_config_1.json')}"
-            )
-        )
+        return LocalTarget(self.get_variant_filename('lasso_config_1.json'))
 
     def run(self):
         params = {
@@ -409,11 +365,7 @@ class LassoConfig2(LassoConfigs):
     name = "Lasso Config 2"
 
     def output(self):
-        return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename('lasso_config_2.json')}"
-            )
-        )
+        return LocalTarget(self.get_variant_filename('lasso_config_2.json'))
 
     def run(self):
         params = {
@@ -430,12 +382,6 @@ class LassoConfig2(LassoConfigs):
 
 class FitPredictLasso(FitPredictRegressionModel):
     abstract = False
-    supervised_split_data = ClsParameter(
-        tpe={
-            "without_exp_smoothing": TimeSeriesToSupervisedLearningDataset.return_type(),
-            "with_exp_smoothing": ExponentialSmoothingPreprocessor.return_type()
-        }
-    )
     config = ClsParameter(tpe=LassoConfigs.return_type())
 
     def requires(self):
@@ -478,11 +424,7 @@ class RandomForestConfig1(RandomForestConfigs):
     name = "Random Forest Config 1"
 
     def output(self):
-        return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename('random_forest_config_1.json')}"
-            )
-        )
+        return LocalTarget(self.get_variant_filename('random_forest_config_1.json'))
 
     def run(self):
         params = {
@@ -501,11 +443,8 @@ class RandomForestConfig2(RandomForestConfigs):
     name = "Random Forest Config 2"
 
     def output(self):
-        return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename('random_forest_config_2.json')}"
-            )
-        )
+        return LocalTarget(self.get_variant_filename('random_forest_config_2.json'))
+
 
     def run(self):
         params = {
@@ -521,12 +460,6 @@ class RandomForestConfig2(RandomForestConfigs):
 
 class FitPredictRandomForest(FitPredictRegressionModel):
     abstract = False
-    supervised_split_data = ClsParameter(
-        tpe={
-            "without_exp_smoothing": TimeSeriesToSupervisedLearningDataset.return_type(),
-            "with_exp_smoothing": ExponentialSmoothingPreprocessor.return_type()
-        }
-    )
     config = ClsParameter(tpe=RandomForestConfigs.return_type())
 
     def requires(self):
@@ -583,11 +516,7 @@ class ScoreAndVisualizePredictions(ClsTask):
         }
 
     def output(self):
-        return LocalTarget(
-            pjoin(
-                OUTPUTS_DIR, f"{self.get_variant_filename('_visual.json.png')}"
-            )
-        )
+        return LocalTarget(self.get_variant_filename('_visual.json.png'))
 
     def run(self):
         train = pd.read_pickle(self.input()["dataset"]["train"].path)
@@ -645,13 +574,13 @@ if __name__ == "__main__":
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     if results:
-        # DynamicJSONRepo(results).dump_dynamic_pipeline_json()
+        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
 
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         tick = time.time()
-        build(results, local_scheduler=True, detailed_summary=True)
+        build(results, local_scheduler=False, detailed_summary=True)
         tock = time.time()
         print(f"elapsed seconds for luigi.build(): {tock - tick}")
     else:
