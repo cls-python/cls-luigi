@@ -15,7 +15,10 @@ def get_unique_task_id(task: luigi.Task) -> str:
 
 def get_deps_tree_with_task_id(task: luigi.Task, indent: str = "", last: bool = True) -> str:
     """
-    returns a string representation of the dependency tree of the given task with the task id of each task.
+    returns a string representation of the dependency tree of the given task with the task id of each task. This
+    function is based on luigi's implementation to get the dependency tree of a task. checkout the source code:
+    https://luigi.readthedocs.io/en/stable/_modules/luigi/tools/deps_tree.html#print_tree
+
 
     :param task: luigi.Task to get the dependency tree from
     :return: string representation of the dependency tree for the given task with the task id of each task
@@ -39,7 +42,8 @@ def get_deps_tree_with_task_id(task: luigi.Task, indent: str = "", last: bool = 
 
 def save_deps_tree_with_task_id(task: luigi.Task, output_path: str = RESULTS_PATH, suffix: str = '.txt') -> None:
     """
-    Generates and saves a string representation of the dependency tree of the given task with the task id of each task to the given output path.
+    Generates and saves a string representation of the dependency tree of the given task with the task id of each task
+    to the given output path.
 
     :param task: luigi.Task to get the dependency tree from
     :return: None
