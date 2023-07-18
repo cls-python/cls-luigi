@@ -46,7 +46,16 @@ class ClsTask(luigi.Task, LuigiCombinator):
         super().__init__(*args, **kwargs)
         self.create_output_dir()
 
-    def get_unique_output_path(self, file_name, outputs_dir=RESULTS_PATH):
+    def get_unique_output_path(self, file_name: str, outputs_dir: str = RESULTS_PATH) -> str:
+        """
+        Returns a unique output path for the given file name using the task's unique id and the RESULT_PATH directory.
+
+        :param file_name: String; the file name to be used.
+        :param outputs_dir: String; the directory to be used.
+
+        :output: String; the unique output path.
+
+        """
         task_id = get_unique_task_id(task=self)
 
         return join(
@@ -54,11 +63,11 @@ class ClsTask(luigi.Task, LuigiCombinator):
         )
 
     @staticmethod
-    def create_output_dir(outputs_dir=RESULTS_PATH):
+    def create_output_dir(outputs_dir=RESULTS_PATH) -> None:
         if not exists(outputs_dir):
             os.mkdir(outputs_dir)
             print(f"Created output directory: {outputs_dir}")
-            return True
+
 
 class ClsWrapperTask(luigi.WrapperTask, LuigiCombinator):
     """
