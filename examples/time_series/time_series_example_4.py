@@ -1,23 +1,19 @@
 import pickle
-
 import luigi
 from luigi import LocalTarget
 from matplotlib import pyplot as plt
+
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Lasso, LinearRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
-
 from cls.subtypes import Subtypes
 from cls.fcl import FiniteCombinatoryLogic
-
 from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
-
 from cls_luigi.cls_tasks import (ClsTask)
-
-from cls_luigi.single_instance_per_task_in_pipeline_validator import SingleInstancePerTaskInPipelineValidator
+from cls_luigi.sub_pipeline_sequence_validator import SubPipelineSequenceValidator
 import pandas as pd
 import seaborn as sns
 
@@ -65,7 +61,7 @@ class SimpleSplitTS(Tabular):
     def output(self):
         return {
             "train": LocalTarget(self.get_unique_output_path('train.pkl')),
-            "test": LocalTarget(self.get_unique_output_path('test.pkl')),
+            "test": LocalTarget(self.get_unique_output_path('test.pkl'))
         }
 
     def run(self):
@@ -79,22 +75,63 @@ class SimpleSplitTS(Tabular):
 
 class TSToTabular(Tabular):
     abstract = True
-
     tabular = ClsParameter(tpe=Tabular.return_type())
 
     def requires(self):
         return self.tabular()
 
-    def get_train_test_dfs(self):
+    def get_train_test_dfs(self, input_=None):
+        if input_:
+            train = pd.read_pickle(input_["train"].path)
+            test = pd.read_pickle(input_["test"].path)
+            return train, test
+
         train = pd.read_pickle(self.input()["train"].path)
         test = pd.read_pickle(self.input()["test"].path)
-
         return train, test
+
+
+class ConfigAddLag(ClsTask):
+    abstract = True
+
+    def _dump_pickle_config(self, obj):
+        with open(self.output().path, "wb") as outfile:
+            pickle.dump(obj, outfile)
+
+
+class ConfigAddLag7(ConfigAddLag):
+    abstract = False
+
+    def output(self):
+        return LocalTarget(self.get_unique_output_path('lag_7.pkl'))
+
+    def run(self):
+        lag = 7
+        self._dump_pickle_config(lag)
+
+
+class ConfigAddLag14(ConfigAddLag):
+    abstract = False
+
+    def output(self):
+        return LocalTarget(self.get_unique_output_path('lag_14.pkl'))
+
+    def run(self):
+        lag = 14
+        self._dump_pickle_config(lag)
 
 
 class AddLagColumn(TSToTabular):
     abstract = False
-    n_in = 6
+
+    tabular = ClsParameter(tpe=Tabular.return_type())
+    config = ClsParameter(tpe=ConfigAddLag.return_type())
+
+    def requires(self):
+        return {
+            "data": self.tabular(),
+            "config": self.config()
+        }
 
     def output(self):
         return {
@@ -103,32 +140,38 @@ class AddLagColumn(TSToTabular):
         }
 
     def run(self):
-        train, test = self.get_train_test_dfs()
+        train, test = self.get_train_test_dfs(self.input()["data"])
+        lag_period = self.get_lag_period()
 
         concatenated = pd.concat([train, test])
         supervised_data = pd.DataFrame(
-            columns=[f"t-{i}" for i in range(self.n_in, 0, -1)],
-            data=self._get_supervised_learning_features_from_target(concatenated),
-            index=concatenated.index[self.n_in:]
+            columns=[f"t-{i}" for i in range(lag_period, 0, -1)],
+            data=self._get_supervised_learning_features_from_target(concatenated, lag_period),
+            index=concatenated.index[lag_period:]
         )
 
         supervised_data = supervised_data.join(concatenated)
-        supervised_train = supervised_data.iloc[: TRAIN_TO_INDEX - self.n_in]
-        supervised_test = supervised_data.iloc[TRAIN_TO_INDEX - self.n_in:]
+        supervised_train = supervised_data.iloc[: TRAIN_TO_INDEX - lag_period]
+        supervised_test = supervised_data.iloc[TRAIN_TO_INDEX - lag_period:]
 
         supervised_train.to_pickle(self.output()["train"].path)
         supervised_test.to_pickle(self.output()["test"].path)
 
-    def _get_supervised_learning_features_from_target(self, df):
+    def _get_supervised_learning_features_from_target(self, df, lag_period):
         cols = []
 
-        for i in range(self.n_in, 0, -1):
+        for i in range(lag_period, 0, -1):
             cols.append(df[TARGET_NAME].shift(i))
 
         supervised_data = pd.concat(cols, axis=1)
         supervised_data.dropna(inplace=True)
 
         return supervised_data.values
+
+    def get_lag_period(self):
+        with open(self.input()["config"].path, "rb") as infile:
+            lag = pickle.load(infile)
+        return lag
 
 
 class AddMonthYearColumn(TSToTabular):
@@ -221,11 +264,6 @@ class AddExponentialSmoothing3rdOrderColumn(TSToTabular):
 class TabularTSPredictor(ClsTask):
     abstract = True
 
-    tabualr_train_test = ClsParameter(tpe=TSToTabular.return_type())
-
-    def requires(self):
-        return self.tabualr_train_test()
-
     def output(self):
         return {
             "model": LocalTarget(self.get_unique_output_path("model.pkl")),
@@ -233,8 +271,8 @@ class TabularTSPredictor(ClsTask):
         }
 
     def _get_split_data(self):
-        train = pd.read_pickle(self.input()["train"].path)
-        test = pd.read_pickle(self.input()["test"].path)
+        train = pd.read_pickle(self.input()["data"]["train"].path)
+        test = pd.read_pickle(self.input()["data"]["test"].path)
 
         x_train = train.drop(TARGET_NAME, axis=1)
         x_test = test.drop(TARGET_NAME, axis=1)
@@ -243,35 +281,74 @@ class TabularTSPredictor(ClsTask):
 
         return x_train, x_test, y_train, y_test
 
+    def _get_config(self):
+        with open(self.input()["config"].path, "rb") as infile:
+            return pickle.load(infile)
 
-class FitPredictLinearRegression(TabularTSPredictor):
+
+class ConfigRandomForest(ClsTask):
+    abstract = True
+
+    def _dump_pickle_config(self, params):
+        with open(self.output().path, "wb") as outfile:
+            pickle.dump(params, outfile)
+
+
+class ConfigRandomForest1(ConfigRandomForest):
     abstract = False
 
+    def output(self):
+        return LocalTarget(self.get_unique_output_path("rf_config1.pkl"))
+
     def run(self):
-        x_train, x_test, y_train, y_test = self._get_split_data()
+        params = {
+            "n_estimators": 100,
+            "criterion": "absolute_error",
+            "max_features": "sqrt",
+            "random_state": 42,
+        }
+        self._dump_pickle_config(params)
 
-        lr = LinearRegression()
-        lr.fit(x_train, y_train)
 
-        with open(self.output()["model"].path, "wb") as outfile:
-            pickle.dump(lr, outfile)
+class ConfigRandomForest2(ConfigRandomForest):
+    abstract = False
 
-        predictions = pd.DataFrame(
-            data=lr.predict(x_test),
-            index=x_test.index,
-            columns=["Linear Regression"]
-        )
+    def output(self):
+        return LocalTarget(self.get_unique_output_path("rf_config2.pkl"))
 
-        predictions.to_pickle(self.output()["prediction"].path)
+    def run(self):
+        params = {
+            "n_estimators": 50,
+            "criterion": "squared_error",
+            "max_features": "log2",
+            "random_state": 42,
+        }
+        self._dump_pickle_config(params)
 
 
 class FitPredictRandomForest(TabularTSPredictor):
     abstract = False
 
+    tabular_train_test = ClsParameter(tpe=TSToTabular.return_type())
+    config = ClsParameter(tpe=ConfigRandomForest.return_type())
+
+    def requires(self):
+        return {
+            "data": self.tabular_train_test(),
+            "config": self.config()
+        }
+
     def run(self):
         x_train, x_test, y_train, y_test = self._get_split_data()
+        config = self._get_config()
 
-        rf = RandomForestRegressor()
+        rf = RandomForestRegressor(
+            n_estimators=config["n_estimators"],
+            criterion=config["criterion"],
+            max_features=config["max_features"],
+            random_state=config["random_state"]
+        )
+
         rf.fit(x_train, y_train)
 
         with open(self.output()["model"].path, "wb") as outfile:
@@ -281,6 +358,78 @@ class FitPredictRandomForest(TabularTSPredictor):
             data=rf.predict(x_test),
             index=x_test.index,
             columns=["Random Forest Regression"]
+        )
+
+        predictions.to_pickle(self.output()["prediction"].path)
+
+
+class ConfigLinearRegression(ClsTask):
+    abstract = True
+
+    def _dump_pickle_config(self, params):
+        with open(self.output().path, "wb") as outfile:
+            pickle.dump(params, outfile)
+
+
+class ConfigLinearRegression1(ConfigLinearRegression):
+    abstract = False
+
+    def output(self):
+        return LocalTarget(self.get_unique_output_path("lr_config1.pkl"))
+
+    def run(self):
+        params = {
+            "fit_intercept": False,
+            "copy_X": False
+        }
+        self._dump_pickle_config(params)
+
+
+class ConfigLinearRegression2(ConfigLinearRegression):
+    abstract = False
+
+    def output(self):
+        return LocalTarget(self.get_unique_output_path("lr_config2.pkl"))
+
+    def run(self):
+        params = {
+            "fit_intercept": True,
+            "copy_X": True
+        }
+        self._dump_pickle_config(params)
+
+
+class FitPredictLinearRegression(TabularTSPredictor):
+    abstract = False
+
+    tabular_train_test = ClsParameter(tpe=TSToTabular.return_type())
+    config = ClsParameter(tpe=ConfigLinearRegression.return_type())
+
+    def requires(self):
+        return {
+            "data": self.tabular_train_test(),
+            "config": self.config()
+        }
+
+    def run(self):
+        x_train, x_test, y_train, y_test = self._get_split_data()
+        config = self._get_config()
+
+        rf = LinearRegression(
+            fit_intercept=config["fit_intercept"],
+            copy_X=config["copy_X"],
+
+        )
+
+        rf.fit(x_train, y_train)
+
+        with open(self.output()["model"].path, "wb") as outfile:
+            pickle.dump(rf, outfile)
+
+        predictions = pd.DataFrame(
+            data=rf.predict(x_test),
+            index=x_test.index,
+            columns=["Linear Regression Regression"]
         )
 
         predictions.to_pickle(self.output()["prediction"].path)
@@ -304,6 +453,35 @@ class UnivariateTSPredictor(ClsTask):
         train = pd.read_pickle(self.input()["train"].path)
         test = pd.read_pickle(self.input()["test"].path)
         return train, test
+
+
+class ExponentialSmoothing1stOrder(UnivariateTSPredictor):
+    abstract = False
+
+    def run(self):
+        train, test = self._get_train_and_test_dfs()
+
+        es = ExponentialSmoothing(
+            train[TARGET_NAME]
+        ).fit()
+
+        with open(self.output()["model"].path, "wb") as outfile:
+            pickle.dump(es, outfile)
+
+        fitted_values = pd.DataFrame(
+            data=es.fittedvalues,
+            columns=["Exp. Smoothing 1st Order"],
+            index=train.index
+        )
+
+        prediction = pd.DataFrame(
+            data=es.forecast(len(test)),
+            columns=["Exp. Smoothing 1st Order"],
+            index=test.index
+        )
+
+        fitted_values.to_pickle(self.output()["fitted_values"].path)
+        prediction.to_pickle(self.output()["prediction"].path)
 
 
 class ExponentialSmoothing2ndOrder(UnivariateTSPredictor):
@@ -401,6 +579,7 @@ class ScoreAndVisualizePredictions(ClsTask):
 
         plt.tight_layout()
         plt.savefig(self.output().path)
+        plt.close()
 
     def _compute_metrics(self, y_test, predictions):
         self.rmse = mean_squared_error(y_test, predictions, squared=False)
@@ -439,35 +618,36 @@ if __name__ == '__main__':
     print("Collecting Repo")
     rm = RepoMeta
     repository = rm.repository
-    subtpes = rm.subtypes
     # StaticJSONRepo(rm).dump_static_repo_json()
 
     print("Build Repository...")
-    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
+    fcl = FiniteCombinatoryLogic(repository, Subtypes(rm.subtypes), processes=1)
     print("Build Tree Grammar and inhabit Pipelines...")
 
     inhabitation_result = fcl.inhabit(target)
     print("Enumerating results...")
-    max_pipelines_when_infinite = 50
+    max_pipelines_when_infinite = 2000
     actual = inhabitation_result.size()
     max_results = max_pipelines_when_infinite
     if actual > 0:
         max_results = actual
 
     print("Validating results...")
-    validator = SingleInstancePerTaskInPipelineValidator(
-        [AddMonthYearColumn, AddExponentialSmoothing2ndOrderColumn,
-         AddExponentialSmoothing3rdOrderColumn, AddLagColumn])
-
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
-
     unfiltered_results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     print("Number of unfiltered results", len(unfiltered_results))
+
+    validator = SubPipelineSequenceValidator(
+        sub_pipeline_template=[AddLagColumn, AddMonthYearColumn,
+                               AddExponentialSmoothing2ndOrderColumn,
+                               AddExponentialSmoothing3rdOrderColumn])
+
+
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    print("Number of results", len(results))
 
     if results:
         DynamicJSONRepo(results).dump_dynamic_pipeline_json()
 
-        print("Number of results", len(results))
         print("Run Pipelines")
         luigi.build(results,
                     local_scheduler=False)
@@ -476,3 +656,5 @@ if __name__ == '__main__':
 
     for r in results:
         save_deps_tree_with_task_id(r)
+
+    print("Number of results", len(results))
