@@ -23,15 +23,11 @@ luigi.Task, luigi.WrapperTask and luigi.ExternalTask with helper methods to make
 framework a bit easier.
 """
 import os
-import random
+from os.path import join, exists
+import luigi
 
 from cls_luigi.inhabitation_task import LuigiCombinator
 from cls_luigi import INVISIBLE_PATH, HASH_PATH, RESULTS_PATH
-import hashlib
-import luigi
-from pathlib import Path
-from os.path import join, exists
-from os import makedirs
 from cls_luigi.util.util import get_unique_task_id
 
 
