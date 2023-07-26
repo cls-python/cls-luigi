@@ -380,7 +380,6 @@ class ConfigLinearRegression1(ConfigLinearRegression):
     def run(self):
         params = {
             "fit_intercept": False,
-            "copy_X": False
         }
         self._dump_pickle_config(params)
 
@@ -394,7 +393,6 @@ class ConfigLinearRegression2(ConfigLinearRegression):
     def run(self):
         params = {
             "fit_intercept": True,
-            "copy_X": True
         }
         self._dump_pickle_config(params)
 
@@ -416,9 +414,7 @@ class FitPredictLinearRegression(TabularTSPredictor):
         config = self._get_config()
 
         rf = LinearRegression(
-            fit_intercept=config["fit_intercept"],
-            copy_X=config["copy_X"],
-
+            fit_intercept=config["fit_intercept"]
         )
 
         rf.fit(x_train, y_train)
@@ -614,36 +610,39 @@ class ScoreAndVisualizeTabularTSPrediction(ScoreAndVisualizePredictions):
 
 if __name__ == '__main__':
 
-    target = ScoreAndVisualizePredictions.return_type()
-    print("Collecting Repo")
-    rm = RepoMeta
-    repository = rm.repository
-    # StaticJSONRepo(rm).dump_static_repo_json()
+    for i in range(1, 10):
 
-    print("Build Repository...")
-    fcl = FiniteCombinatoryLogic(repository, Subtypes(rm.subtypes), processes=1)
-    print("Build Tree Grammar and inhabit Pipelines...")
+        target = ScoreAndVisualizePredictions.return_type()
+        print("Collecting Repo")
+        rm = RepoMeta
+        repository = rm.repository
+        # StaticJSONRepo(rm).dump_static_repo_json()
 
-    inhabitation_result = fcl.inhabit(target)
-    print("Enumerating results...")
-    max_pipelines_when_infinite = 2000
-    actual = inhabitation_result.size()
-    max_results = max_pipelines_when_infinite
-    if actual > 0:
-        max_results = actual
+        print("Build Repository...")
+        fcl = FiniteCombinatoryLogic(repository, Subtypes(rm.subtypes), processes=1)
+        print("Build Tree Grammar and inhabit Pipelines...")
 
-    print("Validating results...")
-    unfiltered_results = [t() for t in inhabitation_result.evaluated[0:max_results]]
-    print("Number of unfiltered results", len(unfiltered_results))
+        inhabitation_result = fcl.inhabit(target)
+        print("Enumerating results...")
+        max_pipelines_when_infinite = 2000
+        actual = inhabitation_result.size()
+        max_results = max_pipelines_when_infinite
+        if actual > 0:
+            max_results = actual
 
-    validator = SubPipelineSequenceValidator(
-        sub_pipeline_template=[AddLagColumn, AddMonthYearColumn,
-                               AddExponentialSmoothing2ndOrderColumn,
-                               AddExponentialSmoothing3rdOrderColumn])
+        print("Validating results...")
+        unfiltered_results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+        print("Number of unfiltered results", len(unfiltered_results))
+
+        validator = SubPipelineSequenceValidator( # todo why validator?? isn't filter better? filter criteria?
+            sub_pipeline_template=[AddLagColumn,
+                                   AddMonthYearColumn,
+                                   AddExponentialSmoothing2ndOrderColumn,
+                                   AddExponentialSmoothing3rdOrderColumn])
 
 
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
-    print("Number of results", len(results))
+        results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+        print("Number of results", len(results))
 
     if results:
         DynamicJSONRepo(results).dump_dynamic_pipeline_json()
