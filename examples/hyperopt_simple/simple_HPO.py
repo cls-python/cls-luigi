@@ -68,7 +68,7 @@ class EstimateXValue(luigi.Task, LuigiCombinator):
     shifter = ClsParameter(tpe=Shifter.return_type())
 
     hyper_parameters = {
-        "x-value": {"range": [0, 10], "default": 5}
+        "x-value": {"values": [0,1,2,3,4,5,6,7,8,9,10], "default": 5}
     }
 
     def requires(self):
