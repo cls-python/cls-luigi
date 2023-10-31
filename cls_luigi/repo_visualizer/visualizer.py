@@ -23,7 +23,7 @@ from time import sleep
 import requests
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from json_io import load_json, dump_json
 VIS = os.path.dirname(os.path.abspath(__file__))
 
 PORT = 8000
@@ -84,7 +84,7 @@ def update_tasks_status():
 
 
             dump_json(dynamic_repo_name, loaded)
-            sleep(1) # wait a sec till system stabilizes
+            sleep(2) # wait a sec till system stabilizes
 
             # if (len(tasks_status) == 1) and ("DONE" in tasks_status):
             #     keep_updating = False
