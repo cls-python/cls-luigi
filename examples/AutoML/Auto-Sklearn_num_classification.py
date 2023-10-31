@@ -1718,6 +1718,6 @@ if __name__ == '__main__':
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=False, detailed_summary=True)
+        luigi.build(results, local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")
