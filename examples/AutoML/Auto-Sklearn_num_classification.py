@@ -1456,137 +1456,137 @@ class SKLLinearDiscriminantAnalysis(Classifier):
         self.compute_accuracy()
         self.sava_outputs()
 
-# class SKLLinearSVC(Classifier):
-#     """
-#     https://github.com/automl/auto-sklearn/blob/development/autosklearn/pipeline/components/classification/liblinear_svc.py
-#     """
-#     abstract = False
-#
-#     @staticmethod
-#     def get_hyperparameter_search_space():
-#         cs = ConfigurationSpace(seed=SEED)
-#         penalty = CategoricalHyperparameter(
-#             name="penalty", choices=["l1", "l2"], default_value="l2"
-#         )
-#         loss = CategoricalHyperparameter(
-#             name="loss", choices=["hinge", "squared_hinge"], default_value="squared_hinge"
-#         )
-#         dual = Constant(name="dual", value="False")
-#         tol = UniformFloatHyperparameter(
-#             name="tol", lower=1e-5, upper=1e-1, default_value=1e-4, log=True
-#         )
-#         C = UniformFloatHyperparameter(
-#             name="C", lower=0.03125, upper=32768, log=True, default_value=1.0
-#         )
-#         multi_class = Constant(name="multi_class", value="ovr")
-#         fit_intercept = Constant("fit_intercept", "True")
-#         intercept_scaling = Constant(name="intercept_scaling", value=1)
-#         random_state = Constant(name="random_state", value=SEED)
-#
-#         cs.add_hyperparameters([penalty, loss, dual, tol, C, multi_class, intercept_scaling, random_state, fit_intercept])
-#
-#         penalty_and_loss = ForbiddenAndConjunction(
-#             ForbiddenEqualsClause(penalty, "l1"), ForbiddenEqualsClause(loss, "hinge")
-#         )
-#         constant_penalty_and_loss = ForbiddenAndConjunction(
-#             ForbiddenEqualsClause(dual, "False"),
-#             ForbiddenEqualsClause(penalty, "l2"),
-#             ForbiddenEqualsClause(loss, "hinge"),
-#         )
-#         penalty_and_dual = ForbiddenAndConjunction(
-#             ForbiddenEqualsClause(dual, "False"), ForbiddenEqualsClause(penalty, "l1")
-#         )
-#         cs.add_forbidden_clause(penalty_and_loss)
-#         cs.add_forbidden_clause(constant_penalty_and_loss)
-#         cs.add_forbidden_clause(penalty_and_dual)
-#
-#         return cs
-#
-#     def run(self):
-#         default_hyperparameters = self.get_default_hyperparameter_values_as_dict()
-#         self.load_split_processed_features()
-#         self.load_split_target_values()
-#
-#         self.estimator = LinearSVC(
-#             penalty=default_hyperparameters["penalty"],
-#             loss=default_hyperparameters["loss"],
-#             dual=default_hyperparameters["dual"],
-#             tol=default_hyperparameters["tol"],
-#             C=default_hyperparameters["C"],
-#             multi_class=default_hyperparameters["multi_class"],
-#             fit_intercept=default_hyperparameters["fit_intercept"],
-#             intercept_scaling=default_hyperparameters["intercept_scaling"],
-#             random_state=default_hyperparameters["random_state"],
-#             class_weight = None
-#         )
-#
-#         self.fit_predict_estimator()
-#         self.compute_accuracy()
-#         self.sava_outputs()
-#
-# class SKLKernelSVC(Classifier):
-#     """
-#     https://github.com/automl/auto-sklearn/blob/development/autosklearn/pipeline/components/classification/libsvm_svc.py
-#     """
-#     abstract = False
-#
-#     @staticmethod
-#     def get_hyperparameter_search_space():
-#         cs = ConfigurationSpace(seed=SEED)
-#         C = UniformFloatHyperparameter(
-#             name="C", lower=0.03125, upper=32768, log=True, default_value=1.0
-#         )
-#         kernel = CategoricalHyperparameter(
-#             name="kernel", choices=["rbf", "poly", "sigmoid"], default_value="rbf"
-#         )
-#         degree = UniformIntegerHyperparameter(
-#             name="degree", lower=2, upper=5, default_value=3
-#         )
-#         gamma = UniformFloatHyperparameter(
-#             name="gamma", lower=3.0517578125e-05, upper=8, log=True, default_value=0.1)
-#         coef0 = UniformFloatHyperparameter(
-#             name="coef0", lower=-1, upper=1, default_value=0
-#         )
-#         shrinking = CategoricalHyperparameter(
-#             name="shrinking", choices=["True", "False"], default_value="True"
-#         )
-#         tol = UniformFloatHyperparameter(
-#             name="tol", lower=1e-5, upper=1e-1, default_value=1e-3, log=True)
-#         max_iter = UnParametrizedHyperparameter(name="max_iter", value=-1)
-#         random_state = Constant(name="random_state", value=SEED)
-#
-#         cs.add_hyperparameters([C, kernel, degree, gamma, coef0, shrinking, tol, max_iter, random_state])
-#
-#         degree_depends_on_poly = EqualsCondition(degree, kernel, "poly")
-#         coef0_condition = InCondition(coef0, kernel, ["poly", "sigmoid"])
-#         cs.add_condition(degree_depends_on_poly)
-#         cs.add_condition(coef0_condition)
-#
-#         return cs
-#
-#     def run(self):
-#         default_hyperparameters = self.get_default_hyperparameter_values_as_dict()
-#         self.load_split_processed_features()
-#         self.load_split_target_values()
-#
-#
-#         self.estimator = SVC(
-#             C=default_hyperparameters["C"],
-#             kernel=default_hyperparameters["kernel"],
-#             # degree=default_hyperparameters["degree"],
-#             gamma=default_hyperparameters["gamma"],
-#             # coef0=default_hyperparameters["coef0"],
-#             shrinking=default_hyperparameters["shrinking"],
-#             tol=default_hyperparameters["tol"],
-#             max_iter=default_hyperparameters["max_iter"],
-#             random_state=default_hyperparameters["random_state"],
-#             class_weight = None,
-#             decision_function_shape="ovr",
-#         )
-#
-#         self.fit_predict_estimator()
-#         self.compute_accuracy()
-#         self.sava_outputs()
+class SKLLinearSVC(Classifier):
+    """
+    https://github.com/automl/auto-sklearn/blob/development/autosklearn/pipeline/components/classification/liblinear_svc.py
+    """
+    abstract = False
+
+    @staticmethod
+    def get_hyperparameter_search_space():
+        cs = ConfigurationSpace(seed=SEED)
+        penalty = CategoricalHyperparameter(
+            name="penalty", choices=["l1", "l2"], default_value="l2"
+        )
+        loss = CategoricalHyperparameter(
+            name="loss", choices=["hinge", "squared_hinge"], default_value="squared_hinge"
+        )
+        dual = Constant(name="dual", value="False")
+        tol = UniformFloatHyperparameter(
+            name="tol", lower=1e-5, upper=1e-1, default_value=1e-4, log=True
+        )
+        C = UniformFloatHyperparameter(
+            name="C", lower=0.03125, upper=32768, log=True, default_value=1.0
+        )
+        multi_class = Constant(name="multi_class", value="ovr")
+        fit_intercept = Constant("fit_intercept", "True")
+        intercept_scaling = Constant(name="intercept_scaling", value=1)
+        random_state = Constant(name="random_state", value=SEED)
+
+        cs.add_hyperparameters([penalty, loss, dual, tol, C, multi_class, intercept_scaling, random_state, fit_intercept])
+
+        penalty_and_loss = ForbiddenAndConjunction(
+            ForbiddenEqualsClause(penalty, "l1"), ForbiddenEqualsClause(loss, "hinge")
+        )
+        constant_penalty_and_loss = ForbiddenAndConjunction(
+            ForbiddenEqualsClause(dual, "False"),
+            ForbiddenEqualsClause(penalty, "l2"),
+            ForbiddenEqualsClause(loss, "hinge"),
+        )
+        penalty_and_dual = ForbiddenAndConjunction(
+            ForbiddenEqualsClause(dual, "False"), ForbiddenEqualsClause(penalty, "l1")
+        )
+        cs.add_forbidden_clause(penalty_and_loss)
+        cs.add_forbidden_clause(constant_penalty_and_loss)
+        cs.add_forbidden_clause(penalty_and_dual)
+
+        return cs
+
+    def run(self):
+        default_hyperparameters = self.get_default_hyperparameter_values_as_dict()
+        self.load_split_processed_features()
+        self.load_split_target_values()
+
+        self.estimator = LinearSVC(
+            penalty=default_hyperparameters["penalty"],
+            loss=default_hyperparameters["loss"],
+            dual=default_hyperparameters["dual"],
+            tol=default_hyperparameters["tol"],
+            C=default_hyperparameters["C"],
+            multi_class=default_hyperparameters["multi_class"],
+            fit_intercept=default_hyperparameters["fit_intercept"],
+            intercept_scaling=default_hyperparameters["intercept_scaling"],
+            random_state=default_hyperparameters["random_state"],
+            class_weight = None
+        )
+
+        self.fit_predict_estimator()
+        self.compute_accuracy()
+        self.sava_outputs()
+
+class SKLKernelSVC(Classifier):
+    """
+    https://github.com/automl/auto-sklearn/blob/development/autosklearn/pipeline/components/classification/libsvm_svc.py
+    """
+    abstract = False
+
+    @staticmethod
+    def get_hyperparameter_search_space():
+        cs = ConfigurationSpace(seed=SEED)
+        C = UniformFloatHyperparameter(
+            name="C", lower=0.03125, upper=32768, log=True, default_value=1.0
+        )
+        kernel = CategoricalHyperparameter(
+            name="kernel", choices=["rbf", "poly", "sigmoid"], default_value="rbf"
+        )
+        degree = UniformIntegerHyperparameter(
+            name="degree", lower=2, upper=5, default_value=3
+        )
+        gamma = UniformFloatHyperparameter(
+            name="gamma", lower=3.0517578125e-05, upper=8, log=True, default_value=0.1)
+        coef0 = UniformFloatHyperparameter(
+            name="coef0", lower=-1, upper=1, default_value=0
+        )
+        shrinking = CategoricalHyperparameter(
+            name="shrinking", choices=["True", "False"], default_value="True"
+        )
+        tol = UniformFloatHyperparameter(
+            name="tol", lower=1e-5, upper=1e-1, default_value=1e-3, log=True)
+        max_iter = UnParametrizedHyperparameter(name="max_iter", value=-1)
+        random_state = Constant(name="random_state", value=SEED)
+
+        cs.add_hyperparameters([C, kernel, degree, gamma, coef0, shrinking, tol, max_iter, random_state])
+
+        degree_depends_on_poly = EqualsCondition(degree, kernel, "poly")
+        coef0_condition = InCondition(coef0, kernel, ["poly", "sigmoid"])
+        cs.add_condition(degree_depends_on_poly)
+        cs.add_condition(coef0_condition)
+
+        return cs
+
+    def run(self):
+        default_hyperparameters = self.get_default_hyperparameter_values_as_dict()
+        self.load_split_processed_features()
+        self.load_split_target_values()
+
+
+        self.estimator = SVC(
+            C=default_hyperparameters["C"],
+            kernel=default_hyperparameters["kernel"],
+            # degree=default_hyperparameters["degree"],
+            gamma=default_hyperparameters["gamma"],
+            # coef0=default_hyperparameters["coef0"],
+            shrinking=default_hyperparameters["shrinking"],
+            tol=default_hyperparameters["tol"],
+            max_iter=default_hyperparameters["max_iter"],
+            random_state=default_hyperparameters["random_state"],
+            class_weight = None,
+            decision_function_shape="ovr",
+        )
+
+        self.fit_predict_estimator()
+        self.compute_accuracy()
+        self.sava_outputs()
 
 
 class SKLMultinominallNB(Classifier):
