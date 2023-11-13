@@ -1,4 +1,6 @@
 import sys
+import time
+
 sys.path.append('..')
 sys.path.append('../..')
 
@@ -679,322 +681,322 @@ class SKLAdaBoost(Classifier):
         self.sava_outputs()
 
 
-class SKLDecisionTree(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_processed_features()
-        self._read_split_target_values()
-
-        num_features = self.x_train.shape[1]
-
-        max_depth_factor = max(
-            1, int(np.round(0.5 * num_features, 0))
-        )
-
-        self.estimator = DecisionTreeClassifier(
-            criterion="gini",
-            max_depth=max_depth_factor,  #
-            min_samples_split=2,
-            min_samples_leaf=1,
-            min_weight_fraction_leaf=0.0,
-            max_features=1.0,
-            max_leaf_nodes=None,
-            min_impurity_decrease=0.0,
-            random_state=SEED,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLExtraTrees(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        max_features = int(self.x_train.shape[1] ** 0.5)
-        if max_features == 0:
-            max_features = "sqrt"
-        self.estimator = ExtraTreesClassifier(
-            criterion="gini",
-            max_features=max_features,
-            max_depth=None,
-            min_samples_split=2,
-            min_samples_leaf=1,
-            min_weight_fraction_leaf=0.0,
-            max_leaf_nodes=None,
-            min_impurity_decrease=0.0,
-            bootstrap=False,
-            random_state=SEED
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLGaussianNaiveBayes(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = GaussianNB()
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLSGD(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = SGDClassifier(
-            loss="log_loss",
-            penalty="l2",
-            alpha=0.0001,
-            l1_ratio=0.15,
-            fit_intercept=True,
-            tol=1e-4,
-            epsilon=1e-4,
-            learning_rate="invscaling",
-            eta0=0.01,
-            power_t=0.5,
-            average=False,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLGradientBoosting(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = HistGradientBoostingClassifier(
-            loss="log_loss",
-            learning_rate=0.1,
-            min_samples_leaf=20,
-            max_depth=None,
-            max_leaf_nodes=31,
-            max_bins=255,
-            l2_regularization=1e-10,
-            early_stopping=False,
-            tol=1e-7,
-            scoring="loss",
-            n_iter_no_change=10,
-            validation_fraction=0.1,
-            random_state=SEED,
-            warm_start=True
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLKNearestNeighbors(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_processed_features()
-        self._read_split_target_values()
-
-        self.estimator = KNeighborsClassifier(
-            n_neighbors=1,
-            weights="uniform",
-            p=2
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLLinearDiscriminantAnalysis(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_processed_features()
-        self._read_split_target_values()
-
-        self.estimator = LinearDiscriminantAnalysis(
-            shrinkage=None,
-            solver="svd",
-            tol=1e-1,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLLinearSVC(Classifier):
-    abstract = False
-    worker_timeout = TIMEOUT
-
-    def run(self):
-        self._read_split_processed_features()
-        self._read_split_target_values()
-
-        self.estimator = LinearSVC(
-            penalty="l2",
-            loss="squared_hinge",
-            dual=False,
-            tol=1e-4,
-            C=1.0,
-            multi_class="ovr",
-            fit_intercept=True,
-            intercept_scaling=1,
-            random_state=SEED
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLKernelSVC(Classifier):
-    abstract = False
-    worker_timeout = TIMEOUT
-
-    def run(self):
-        self._read_split_processed_features()
-        self._read_split_target_values()
-
-        self.estimator = SVC(
-            C=1.0,
-            kernel="rbf",
-            degree=3,
-            gamma=0.1,
-            coef0=0.0,
-            shrinking=True,
-            tol=1e-3,
-            max_iter=-1,
-            random_state=SEED,
-            class_weight=None,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKMultinomialNB(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        # self.x_train[self.x_train < 0] = 0.0
-        # self.x_test[self.x_test < 0] = 0.0
-
-        self.estimator = MultinomialNB(
-            alpha=1,
-            fit_prior=True
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLPassiveAggressive(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = PassiveAggressiveClassifier(
-            C=1.0,
-            fit_intercept=True,
-            loss="hinge",
-            tol=1e-4,
-            average=False,
-            shuffle=True,
-            random_state=SEED,
-            warm_start=True
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLQuadraticDiscriminantAnalysis(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = QuadraticDiscriminantAnalysis(
-            reg_param=0.0,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLRandomForest(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        max_features = int(self.x_train.shape[1] ** 0.5)
-
-        self.estimator = RandomForestClassifier(
-            criterion="gini",
-            max_features=max_features,
-            max_depth=None,
-            min_samples_split=2,
-            min_samples_leaf=1,
-            min_weight_fraction_leaf=0.0,
-            max_leaf_nodes=None,
-            min_impurity_decrease=0.0,
-            bootstrap=True,
-            random_state=SEED,
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
-
-
-class SKLBernoulliNB(Classifier):
-    abstract = False
-
-    def run(self):
-        self._read_split_target_values()
-        self._read_split_processed_features()
-
-        self.estimator = BernoulliNB(
-            alpha=1.0,
-            fit_prior=True,
-
-        )
-
-        self.fit_predict_estimator()
-        self.compute_accuracy()
-        self.sava_outputs()
+# class SKLDecisionTree(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_processed_features()
+#         self._read_split_target_values()
+#
+#         num_features = self.x_train.shape[1]
+#
+#         max_depth_factor = max(
+#             1, int(np.round(0.5 * num_features, 0))
+#         )
+#
+#         self.estimator = DecisionTreeClassifier(
+#             criterion="gini",
+#             max_depth=max_depth_factor,  #
+#             min_samples_split=2,
+#             min_samples_leaf=1,
+#             min_weight_fraction_leaf=0.0,
+#             max_features=1.0,
+#             max_leaf_nodes=None,
+#             min_impurity_decrease=0.0,
+#             random_state=SEED,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLExtraTrees(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         max_features = int(self.x_train.shape[1] ** 0.5)
+#         if max_features == 0:
+#             max_features = "sqrt"
+#         self.estimator = ExtraTreesClassifier(
+#             criterion="gini",
+#             max_features=max_features,
+#             max_depth=None,
+#             min_samples_split=2,
+#             min_samples_leaf=1,
+#             min_weight_fraction_leaf=0.0,
+#             max_leaf_nodes=None,
+#             min_impurity_decrease=0.0,
+#             bootstrap=False,
+#             random_state=SEED
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLGaussianNaiveBayes(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = GaussianNB()
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLSGD(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = SGDClassifier(
+#             loss="log_loss",
+#             penalty="l2",
+#             alpha=0.0001,
+#             l1_ratio=0.15,
+#             fit_intercept=True,
+#             tol=1e-4,
+#             epsilon=1e-4,
+#             learning_rate="invscaling",
+#             eta0=0.01,
+#             power_t=0.5,
+#             average=False,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLGradientBoosting(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = HistGradientBoostingClassifier(
+#             loss="log_loss",
+#             learning_rate=0.1,
+#             min_samples_leaf=20,
+#             max_depth=None,
+#             max_leaf_nodes=31,
+#             max_bins=255,
+#             l2_regularization=1e-10,
+#             early_stopping=False,
+#             tol=1e-7,
+#             scoring="loss",
+#             n_iter_no_change=10,
+#             validation_fraction=0.1,
+#             random_state=SEED,
+#             warm_start=True
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLKNearestNeighbors(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_processed_features()
+#         self._read_split_target_values()
+#
+#         self.estimator = KNeighborsClassifier(
+#             n_neighbors=1,
+#             weights="uniform",
+#             p=2
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLLinearDiscriminantAnalysis(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_processed_features()
+#         self._read_split_target_values()
+#
+#         self.estimator = LinearDiscriminantAnalysis(
+#             shrinkage=None,
+#             solver="svd",
+#             tol=1e-1,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLLinearSVC(Classifier):
+#     abstract = False
+#     worker_timeout = TIMEOUT
+#
+#     def run(self):
+#         self._read_split_processed_features()
+#         self._read_split_target_values()
+#
+#         self.estimator = LinearSVC(
+#             penalty="l2",
+#             loss="squared_hinge",
+#             dual=False,
+#             tol=1e-4,
+#             C=1.0,
+#             multi_class="ovr",
+#             fit_intercept=True,
+#             intercept_scaling=1,
+#             random_state=SEED
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLKernelSVC(Classifier):
+#     abstract = False
+#     worker_timeout = TIMEOUT
+#
+#     def run(self):
+#         self._read_split_processed_features()
+#         self._read_split_target_values()
+#
+#         self.estimator = SVC(
+#             C=1.0,
+#             kernel="rbf",
+#             degree=3,
+#             gamma=0.1,
+#             coef0=0.0,
+#             shrinking=True,
+#             tol=1e-3,
+#             max_iter=-1,
+#             random_state=SEED,
+#             class_weight=None,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKMultinomialNB(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         # self.x_train[self.x_train < 0] = 0.0
+#         # self.x_test[self.x_test < 0] = 0.0
+#
+#         self.estimator = MultinomialNB(
+#             alpha=1,
+#             fit_prior=True
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLPassiveAggressive(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = PassiveAggressiveClassifier(
+#             C=1.0,
+#             fit_intercept=True,
+#             loss="hinge",
+#             tol=1e-4,
+#             average=False,
+#             shuffle=True,
+#             random_state=SEED,
+#             warm_start=True
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLQuadraticDiscriminantAnalysis(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = QuadraticDiscriminantAnalysis(
+#             reg_param=0.0,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLRandomForest(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         max_features = int(self.x_train.shape[1] ** 0.5)
+#
+#         self.estimator = RandomForestClassifier(
+#             criterion="gini",
+#             max_features=max_features,
+#             max_depth=None,
+#             min_samples_split=2,
+#             min_samples_leaf=1,
+#             min_weight_fraction_leaf=0.0,
+#             max_leaf_nodes=None,
+#             min_impurity_decrease=0.0,
+#             bootstrap=True,
+#             random_state=SEED,
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
+#
+#
+# class SKLBernoulliNB(Classifier):
+#     abstract = False
+#
+#     def run(self):
+#         self._read_split_target_values()
+#         self._read_split_processed_features()
+#
+#         self.estimator = BernoulliNB(
+#             alpha=1.0,
+#             fit_prior=True,
+#
+#         )
+#
+#         self.fit_predict_estimator()
+#         self.compute_accuracy()
+#         self.sava_outputs()
 
 
 class GenerateAndUpdateLeaderboard(AutoSklearnTask):
@@ -1118,7 +1120,12 @@ if __name__ == '__main__':
     for i in ['pc4', 'MiniBooNE', 'APSFailure', 'phoneme', 'jasmine', 'kc1', 'wilt', 'sylvine']:
         print("Dataset {}".format(i))
         DATASET_NAME = i
+        tick = time.time()
         main()
+        tock = time.time()
+        print("Time taken: {}".format(tock - tick))
+        with open("results/{}/02_time.txt".format(DATASET_NAME), "w") as f:
+            f.write("{}".format(tock - tick))
         logger.debug("\n{}\n{} This was dataset: {} {}\n{}\n".format(
             "*" * 150,
             "*" * 65,
