@@ -53,14 +53,18 @@ if __name__ == "__main__":
         os.mkdir(DATASET_DIR)
 
     openml_tasks = [
-        146820,  # wilt classification
-        168868,  # APSFailure classification
-        168911,  # jasmine classification
-        168350,  # phoneme classification
-        359958,  # pc4 classification
-        359962,  # kc1 classification
-        359972,  # sylvin classification
-        359990,  # MiniBooNE classification
+        # 146820,  # wilt classification
+        # 168868,  # APSFailure classification
+        # 168911,  # jasmine classification
+        # 168350,  # phoneme classification
+        # 359958,  # pc4 classification
+        # 359962,  # kc1 classification
+        # 359972,  # sylvin classification
+        # 359990,  # MiniBooNE classification
+        361066, #bank-marketing classification
+        146606, # higgs
+        146820, #yeast
+
     ]
 
 
