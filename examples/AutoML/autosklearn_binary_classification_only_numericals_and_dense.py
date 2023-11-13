@@ -1,4 +1,8 @@
+import sys
 import json
+import logging
+import warnings
+
 import joblib
 import luigi
 import numpy as np
@@ -29,17 +33,25 @@ from cls.subtypes import Subtypes
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 from autosklearn_task import AutoSklearnTask
 
+logging.captureWarnings(True)
+from luigi.execution_summary import execution_summary
+
+sys.path.append('..')
+sys.path.append('../..')
+
+execution_summary.summary_length = 10000
+
 SEED = 123
 NJOBS = 1
 TIMEOUT = 10  # seconds for SVM Classifiers
-
+DATASET_NAME = None  # pc4 # phoneme #sylvine #
 
 
 class LoadAndSplitCSV(AutoSklearnTask):
     abstract = False
 
     def run(self):
-        df = pd.read_csv("data.csv")
+        df = pd.read_csv("datasets/{}.csv".format(DATASET_NAME))
 
         x_train, x_test, y_train, y_test = train_test_split(
             df.drop("target", axis=1), df["target"], test_size=0.33, random_state=SEED)
@@ -51,10 +63,10 @@ class LoadAndSplitCSV(AutoSklearnTask):
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl"),
-            "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl", dataset_name=DATASET_NAME),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl", dataset_name=DATASET_NAME),
+            "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl", dataset_name=DATASET_NAME),
+            "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl", dataset_name=DATASET_NAME)
         }
 
 
@@ -75,23 +87,26 @@ class NumericalImputation(AutoSklearnTask):
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl", dataset_name=DATASET_NAME),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl", dataset_name=DATASET_NAME),
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl",
+                                                                         dataset_name=DATASET_NAME)
         }
 
     def _fit_transform_imputer(self):
-        self.imputer.fit(self.x_train)
+        with warnings.catch_warnings(record=True) as w:
+            self.imputer.fit(self.x_train)
 
-        self.x_train = pd.DataFrame(
-            columns=self.x_train.columns,
-            data=self.imputer.transform(self.x_train)
-        )
+            self.x_train = pd.DataFrame(
+                columns=self.x_train.columns,
+                data=self.imputer.transform(self.x_train)
+            )
 
-        self.x_test = pd.DataFrame(
-            columns=self.x_test.columns,
-            data=self.imputer.transform(self.x_test)
-        )
+            self.x_test = pd.DataFrame(
+                columns=self.x_test.columns,
+                data=self.imputer.transform(self.x_test)
+            )
+            self._log_warnings(w)
 
     def _save_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
@@ -131,16 +146,18 @@ class Scaling(AutoSklearnTask):
         self.x_test = pd.read_pickle(self.input()["x_test"].path)
 
     def fit_transform_scaler(self):
-        self.scaler.fit(self.x_train)
+        with warnings.catch_warnings(record=True) as w:
+            self.scaler.fit(self.x_train)
 
-        self.x_train = pd.DataFrame(
-            columns=self.x_train.columns,
-            data=self.scaler.transform(self.x_train)
-        )
-        self.x_test = pd.DataFrame(
-            columns=self.x_test.columns,
-            data=self.scaler.transform(self.x_test)
-        )
+            self.x_train = pd.DataFrame(
+                columns=self.x_train.columns,
+                data=self.scaler.transform(self.x_train)
+            )
+            self.x_test = pd.DataFrame(
+                columns=self.x_test.columns,
+                data=self.scaler.transform(self.x_test)
+            )
+            self._log_warnings(w)
 
     def sava_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
@@ -150,9 +167,10 @@ class Scaling(AutoSklearnTask):
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl", dataset_name=DATASET_NAME),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl", dataset_name=DATASET_NAME),
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl",
+                                                                         dataset_name=DATASET_NAME)
         }
 
 
@@ -263,9 +281,10 @@ class FeaturePreprocessor(AutoSklearnTask):
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl", dataset_name=DATASET_NAME),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl", dataset_name=DATASET_NAME),
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl",
+                                                                         dataset_name=DATASET_NAME)
         }
 
     def _read_split_scaled_features(self):
@@ -283,33 +302,35 @@ class FeaturePreprocessor(AutoSklearnTask):
             joblib.dump(self.feature_preprocessor, outfile)
 
     def fit_transform_feature_preprocessor(self, x_and_y_required=False, handle_sparse_output=False):
+        with warnings.catch_warnings(record=True) as w:
+            if x_and_y_required is True:
+                assert self.y_train is not None, "y_train is None!"
+                self.feature_preprocessor.fit(self.x_train, self.y_train)
+            else:
+                self.feature_preprocessor.fit(self.x_train, self.y_train)
 
-        if x_and_y_required is True:
-            assert self.y_train is not None, "y_train is None!"
-            self.feature_preprocessor.fit(self.x_train, self.y_train)
-        else:
-            self.feature_preprocessor.fit(self.x_train, self.y_train)
+            if handle_sparse_output is True:
+                self.x_train = pd.DataFrame.sparse.from_spmatrix(
+                    columns=self.feature_preprocessor.get_feature_names_out(),
+                    data=self.feature_preprocessor.transform(self.x_train)
+                )
 
-        if handle_sparse_output is True:
-            self.x_train = pd.DataFrame.sparse.from_spmatrix(
-                columns=self.feature_preprocessor.get_feature_names_out(),
-                data=self.feature_preprocessor.transform(self.x_train)
-            )
+                self.x_test = pd.DataFrame.sparse.from_spmatrix(
+                    columns=self.feature_preprocessor.get_feature_names_out(),
+                    data=self.feature_preprocessor.transform(self.x_test)
+                )
 
-            self.x_test = pd.DataFrame.sparse.from_spmatrix(
-                columns=self.feature_preprocessor.get_feature_names_out(),
-                data=self.feature_preprocessor.transform(self.x_test)
-            )
-        elif handle_sparse_output is False:
+            elif handle_sparse_output is False:
 
-            self.x_train = pd.DataFrame(
-                columns=self.feature_preprocessor.get_feature_names_out(),
-                data=self.feature_preprocessor.transform(self.x_train)
-            )
-            self.x_test = pd.DataFrame(
-                columns=self.feature_preprocessor.get_feature_names_out(),
-                data=self.feature_preprocessor.transform(self.x_test)
-            )
+                self.x_train = pd.DataFrame(
+                    columns=self.feature_preprocessor.get_feature_names_out(),
+                    data=self.feature_preprocessor.transform(self.x_train)
+                )
+                self.x_test = pd.DataFrame(
+                    columns=self.feature_preprocessor.get_feature_names_out(),
+                    data=self.feature_preprocessor.transform(self.x_test)
+                )
+            self._log_warnings(w)
 
 
 class NoFeaturePreprocessor(FeaturePreprocessor):
@@ -389,18 +410,19 @@ class SKLFastICA(FeaturePreprocessor):
     abstract = False
 
     def run(self):
-        self._read_split_scaled_features()
+        with warnings.catch_warnings(record=True) as w:
+            self._read_split_scaled_features()
 
-        self.feature_preprocessor = FastICA(
-            # n_components=default_hyperparameters["n_components"],
-            algorithm="parallel",
-            whiten=False,
-            fun="logcosh",
-            random_state=SEED
-        )
+            self.feature_preprocessor = FastICA(
+                # n_components=default_hyperparameters["n_components"],
+                algorithm="parallel",
+                whiten=False,
+                fun="logcosh",
+                random_state=SEED
+            )
 
-        self.fit_transform_feature_preprocessor(x_and_y_required=False)
-        self.sava_outputs()
+            self.fit_transform_feature_preprocessor(x_and_y_required=False)
+            self.sava_outputs()
 
 
 class SKLFeatureAgglomeration(FeaturePreprocessor):
@@ -471,8 +493,8 @@ class SKLNystroem(FeaturePreprocessor):
 
         )
 
-        self.x_train[self.x_train < 0] = 0.0
-        self.x_test[self.x_test < 0] = 0.0
+        # self.x_train[self.x_train < 0] = 0.0
+        # self.x_test[self.x_test < 0] = 0.0
 
         self.fit_transform_feature_preprocessor(x_and_y_required=False)
         self.sava_outputs()
@@ -544,8 +566,8 @@ class SKLSelectPercentile(FeaturePreprocessor):
             score_func=chi2,
             percentile=50
         )
-        self.x_train[self.x_train < 0] = 0.0
-        self.x_test[self.x_test < 0] = 0.0
+        # self.x_train[self.x_train < 0] = 0.0
+        # self.x_test[self.x_test < 0] = 0.0
 
         self.fit_transform_feature_preprocessor(x_and_y_required=True)
         self.sava_outputs()
@@ -563,7 +585,6 @@ class SKLSelectRates(FeaturePreprocessor):
             mode="fpr",
             param=0.1
         )
-        self.x_train[self.x_train < 0] = 0.0
         self.fit_transform_feature_preprocessor(x_and_y_required=True)
         self.sava_outputs()
 
@@ -591,9 +612,10 @@ class Classifier(AutoSklearnTask):
 
     def output(self):
         return {
-            "prediction": self.get_luigi_local_target_with_task_id("prediction.pkl"),
-            "scores": self.get_luigi_local_target_with_task_id("score.json"),
-            "fitted_classifier": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "prediction": self.get_luigi_local_target_with_task_id("prediction.pkl", dataset_name=DATASET_NAME),
+            "scores": self.get_luigi_local_target_with_task_id("score.json", dataset_name=DATASET_NAME),
+            "fitted_classifier": self.get_luigi_local_target_with_task_id("fitted_component.pkl",
+                                                                          dataset_name=DATASET_NAME)
         }
 
     def _read_split_processed_features(self):
@@ -614,15 +636,17 @@ class Classifier(AutoSklearnTask):
             joblib.dump(self.estimator, outfile)
 
     def fit_predict_estimator(self):
-        self.estimator.fit(self.x_train, self.y_train)
+        with warnings.catch_warnings(record=True) as w:
+            self.estimator.fit(self.x_train, self.y_train)
+            self.y_test_predict = pd.DataFrame(
+                columns=["y_predict"],
+                data=self.estimator.predict(self.x_test))
 
-        self.y_test_predict = pd.DataFrame(
-            columns=["y_predict"],
-            data=self.estimator.predict(self.x_test))
+            self.y_train_predict = pd.DataFrame(
+                columns=["y_predict"],
+                data=self.estimator.predict(self.x_train))
 
-        self.y_train_predict = pd.DataFrame(
-            columns=["y_predict"],
-            data=self.estimator.predict(self.x_train))
+            self._log_warnings(w)
 
     def compute_accuracy(self):
         self.performance_scores["name"] = self.task_id,
@@ -692,7 +716,8 @@ class SKLExtraTrees(Classifier):
         self._read_split_processed_features()
 
         max_features = int(self.x_train.shape[1] ** 0.5)
-
+        if max_features == 0:
+            max_features = "sqrt"
         self.estimator = ExtraTreesClassifier(
             criterion="gini",
             max_features=max_features,
@@ -874,8 +899,8 @@ class SKMultinomialNB(Classifier):
         self._read_split_target_values()
         self._read_split_processed_features()
 
-        self.x_train[self.x_train < 0] = 0.0
-        self.x_test[self.x_test < 0] = 0.0
+        # self.x_train[self.x_train < 0] = 0.0
+        # self.x_test[self.x_test < 0] = 0.0
 
         self.estimator = MultinomialNB(
             alpha=1,
@@ -989,7 +1014,8 @@ class GenerateAndUpdateLeaderboard(AutoSklearnTask):
         return self.predictions_and_scores()
 
     def output(self):
-        return luigi.LocalTarget("leaderboard.csv")
+        # return luigi.LocalTarget("leaderboard.csv")
+        return self.get_luigi_local_target_without_task_id("01_leaderboard.csv", dataset_name=DATASET_NAME)
 
     def _read_accuracy_scores(self):
         with open(self.input()["scores"].path, "r") as f:
@@ -1048,21 +1074,19 @@ class GenerateAndUpdateLeaderboard(AutoSklearnTask):
         return _get_upstream_tasks_recursively(self)
 
 
-if __name__ == '__main__':
-
+def main():
     # from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
-    from dependecy_tree import write_dependency_tree_for_list_of_tasks
 
     target = GenerateAndUpdateLeaderboard.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
-    print("Build Repository...")
+    print("Building Repository")
 
-    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=4)
-    print("Build Tree Grammar and inhabit Pipelines...")
+    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
+    print("Build Tree Grammar and inhabit Pipelines")
 
     inhabitation_result = fcl.inhabit(target)
-    print("Enumerating results...")
+    print("Enumerating results")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
@@ -1075,12 +1099,28 @@ if __name__ == '__main__':
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     if results:
-        write_dependency_tree_for_list_of_tasks(results)
         # DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
-        print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True, workers=3)
+        print("Running Pipelines")
+        luigi_run_result = luigi.build(results, local_scheduler=True, detailed_summary=True,
+                                       logging_conf_file="logging.conf")
+        print(luigi_run_result.summary_text)
         print("Done!")
     else:
         print("No results!")
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger("luigi-root")
+
+    for i in ['pc4', 'MiniBooNE', 'APSFailure', 'phoneme', 'jasmine', 'kc1', 'wilt', 'sylvine']:
+        print("Dataset {}".format(i))
+        DATASET_NAME = i
+        main()
+        logger.debug("\n{}\n{} This was dataset: {} {}\n{}\n".format(
+            "*" * 150,
+            "*" * 65,
+            DATASET_NAME,
+            "*" * (65 - len(DATASET_NAME)),
+            "*" * 150))
