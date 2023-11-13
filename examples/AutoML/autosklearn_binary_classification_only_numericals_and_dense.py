@@ -1,4 +1,7 @@
 import sys
+sys.path.append('..')
+sys.path.append('../..')
+
 import json
 import logging
 import warnings
@@ -36,8 +39,6 @@ from autosklearn_task import AutoSklearnTask
 logging.captureWarnings(True)
 from luigi.execution_summary import execution_summary
 
-sys.path.append('..')
-sys.path.append('../..')
 
 execution_summary.summary_length = 10000
 
