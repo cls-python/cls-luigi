@@ -19,6 +19,8 @@
 
 from collections.abc import Iterable
 
+import luigi
+
 
 class UniqueTaskPipelineValidator(object):
 
@@ -26,6 +28,7 @@ class UniqueTaskPipelineValidator(object):
         self.unique_abstract_classes = unique_abstract_classes
 
     def validate(self, pipeline):
+        print(pipeline)
         traversal = self.dfs(pipeline)
         concrete_cls_map = dict()
         for obj in traversal:
@@ -42,15 +45,17 @@ class UniqueTaskPipelineValidator(object):
     def dfs(self, start):
         traversal = [start]
         dependencies = start.requires()
+
         if isinstance(dependencies, dict):
             for dependency in start.requires().values():
                 traversal.extend(self.dfs(dependency))
         elif isinstance(dependencies, Iterable):
             for dependency in start.requires():
                 traversal.extend(self.dfs(dependency))
-        else:
+        elif isinstance(dependencies, luigi.Task):
             traversal.extend(self.dfs(dependencies))
 
         return traversal
+
 
 
