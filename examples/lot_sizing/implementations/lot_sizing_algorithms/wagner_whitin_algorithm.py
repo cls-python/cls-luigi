@@ -79,9 +79,9 @@ class WagnerWhitin():
             #output = {"total_cost": np.array(kosten),
             #          "minimal": minListe,
             #          "Bestellperiode": periodeListe,
-            #          "bestellte Mengen": bestellteMenge,
+            #          "bestellte Menen": bestellteMenge,
             #          "minimale Kosten": minKosten}
-          #  print("Minimale Kosten: " + str(minKosten))
+            print("Minimale Kosten: " + str(minKosten))
             output = np.array(bestellteMenge)
         return output
 

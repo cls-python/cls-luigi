@@ -4,7 +4,8 @@
 
 import numpy
 
-class LeastUnitCostMethod():
+
+class SilverMeal():
 
     def __init__(self):
         pass
@@ -16,52 +17,65 @@ class LeastUnitCostMethod():
         kf = dict_in["fixedCost"]
         kv = dict_in["varCost"]
         pp = len(dem)
-
-        p = 0
-        kpj = 0
-        kppj = 0
+        #rh = dict_in["roll"]
+        #print(pp)
         orders = [0 for i in range(0, pp)]
-        total_c = 0
+        orders1 = [0 for i in range(0, pp)]
 
+        c = kf
+        d = kf + 1
+        p = 0
+        y = 1
+        cost_i = 0
 
         # testen ob "Null-Perioden am Anfang vorliegen
         while dem[p] == 0:
-            orders[p] = 0
-            p = p + 1
+            orders1[p] = 0
+            p = p+1
             if p == pp:
                 p = p-1
                 break
         i = p
 
         while p < pp:
-            j = p
-            lg1 = 0
-            lg2 = 0
-            kppj = (kf + (kv * dem[j] * (j - p))) / dem[j]
-            while j < pp:
-                last_c = kpj * lg2
-                lg1 += dem[j] * (j - p)  # Aufsummierung der Nachfrage, in Abhängigkeit der Verzinsung
-                lg2 += dem[j]  # Aufsummierung der Nachfrage
-                kpj = (kf + kv * lg1) / lg2
-                if kpj > kppj:
-                    orders[p] = lg2 - dem[j]
-                    total_c += last_c
-                    break
-                j += 1
-                kppj = kpj
-            temp = p
-            p = j
-        total_c += kpj * lg2
-        orders[temp] = lg2
-     #   print("Total Cost: " + str(total_c))
-#        print(sum(orders))
-        output = numpy.array(orders)
 
+            c = (c + kv * dem[p] * (p - i))
+
+            bed = c / y
+
+            if d > bed:
+                orders[p] += dem[p]
+                lot = sum(orders) - sum(orders1)
+                cost_i = kv * dem[p] * (p - i) + cost_i
+                d = bed
+                y = y + 1
+
+            else:
+                orders1[i] = lot
+                i = p
+                p = p - 1
+                c = kf
+                bed = 0
+                d = kf + 1
+                y = 1
+
+            p = p + 1
+
+        lot = sum(orders) - sum(orders1)
+        orders1[i] = lot
+
+        x = orders1.count(0)
+        fix = (pp - x) * kf
+        # print(cost_i)
+        total_c = cost_i + fix
+        print("Total Cost: " + str(total_c))
+        #print(sum(orders1))
+        output = numpy.array(orders1)
         return output
 
 
-if __name__ == "__main__":
-    # statisches Test dictionary
+if __name__ == "__main__" :
+    # static test dictionary
     dict_in = {
         "planningPeriod": 14,  # Anzahl der Perioden
         "fixedCost": 10000,  # Bestellkosten
@@ -83,6 +97,6 @@ if __name__ == "__main__":
               4000, 3400, 3400, 3444, 5006, 4500, 400, 4500, 3400, 5400, 0, 0, 0, 4500, 4500, 4400, 555, 4540, 0, 0,
               4555, 3000, 4555, 455, 3444, 4333, 2344, 4454, 4555, 3444]
 
-    leastunitcostmethod = LeastUnitCostMethod()
-    output = leastunitcostmethod.run(dict_in, demand)
+    silver_m = SilverMeal()
+    output = silver_m.run(dict_in, demand)
     print(output)

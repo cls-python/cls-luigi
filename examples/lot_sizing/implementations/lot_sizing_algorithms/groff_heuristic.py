@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/bin/bash
 #!/usr/bin/env  python
 # -*- coding: utf-8 -*-
 
@@ -48,7 +49,7 @@ class GroffHeuristic():
         print(fix)
         total_c = cost_v + fix
         print("total cost: " + str(total_c))
-        print(sum(orders))
+        #print(sum(orders))
         output = numpy.array(orders)
         return output
 
