@@ -9,7 +9,7 @@ from cls_luigi.inhabitation_task import LuigiCombinator
 from .global_parameters import GlobalParameters
 
 class AutoSklearnTask(luigi.Task, LuigiCombinator):
-    worker_timeout = 90
+    worker_timeout = 60
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

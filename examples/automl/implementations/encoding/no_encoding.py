@@ -1,7 +1,7 @@
-from ..template_2 import Encoding
+from ..template import CategoricalEncoder
 
 
-class NoEncoding(Encoding):
+class NoEncoding(CategoricalEncoder):
     abstract = False
 
     def output(self):

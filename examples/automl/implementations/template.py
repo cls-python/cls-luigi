@@ -24,19 +24,123 @@ class LoadAndSplitData(AutoSklearnTask):
             "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl"),
             "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl")
         }
+    
+
+class CategoryCoalescer(AutoSklearnTask):
+    abstract = True
+    split_data = ClsParameter(tpe=LoadAndSplitData.return_type())
+
+    component = None
+    x_train = None
+    x_test = None
+
+    def requires(self):
+        return self.split_data()
+    
+    def output(self):
+        return {
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+        }
+      
+    def _read_split_features(self):
+        self.x_train = pd.read_pickle(self.input()["x_train"].path)
+        self.x_test = pd.read_pickle(self.input()["x_test"].path)
+
+    def _get_categorical_features_names(self):
+        return self.x_train.select_dtypes(include=['category']).columns.tolist()
+    
+    def _save_outputs(self):
+        self.x_train.to_pickle(self.output()["x_train"].path)
+        self.x_test.to_pickle(self.output()["x_test"].path)
+        with open(self.output()["fitted_component"].path, 'wb') as outfile:
+            joblib.dump(self.component, outfile)
+
+
+class CategoricalEncoder(AutoSklearnTask):
+    abstract = True
+    coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
+
+    encoder = None
+    x_train = None
+    x_test = None
+    delete_cols = []
+
+    def requires(self):
+        return self.coalesced_features()
+    
+    def output(self):
+        return {
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+        }
+    
+
+    def _read_split_features(self):
+        self.x_train = pd.read_pickle(self.input()["x_train"].path)
+        self.x_test = pd.read_pickle(self.input()["x_test"].path)
+    
+
+    def _fit_transform_encoder(self, categorical_features_names, drop_original=True, suffix=""):
+        with warnings.catch_warnings(record=True) as w:
+
+            self.encoder.fit(self.x_train[categorical_features_names])
+
+            encoded_train_features = pd.DataFrame(
+                columns=self.encoder.get_feature_names_out() + suffix,
+                data=self.encoder.transform(self.x_train[categorical_features_names])
+            )
+
+            encoded_test_features = pd.DataFrame(
+                columns=self.encoder.get_feature_names_out() + suffix,
+                data=self.encoder.transform(self.x_test[categorical_features_names])
+            )
+
+            self.x_train = pd.concat([self.x_train, encoded_train_features], axis=1)
+            self.x_test = pd.concat([self.x_test, encoded_test_features], axis=1)
+
+
+            # self.x_train[self.encoder.get_feature_names_out() + suffix] = self.encoder.transform(self.x_train[categorical_features_names])
+            # self.x_test[self.encoder.get_feature_names_out() + suffix] = self.encoder.transform(self.x_test[categorical_features_names])
+
+
+
+            if drop_original is True:
+                self.x_train.drop(categorical_features_names, axis=1, inplace=True)
+                self.x_test.drop(categorical_features_names, axis=1, inplace=True)
+
+
+
+
+
+            self._log_warnings(w)
+
+    def _save_outputs(self):
+        self.x_train.to_pickle(self.output()["x_train"].path)
+        self.x_test.to_pickle(self.output()["x_test"].path)
+        with open(self.output()["fitted_component"].path, 'wb') as outfile:
+            joblib.dump(self.encoder, outfile)
+
+    def _get_categorical_features_names(self):
+        return self.x_train.select_dtypes(include=['category']).columns.tolist()
+    
+    
+    
 
 class NumericalImputer(AutoSklearnTask):
     abstract = True
-    split_data = ClsParameter(tpe=LoadAndSplitData.return_type())
+    encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
 
     imputer = None
     x_train = None
     x_test = None
 
     def requires(self):
-        return self.split_data()
+        return self.encoded_features()
 
-    def _read_split_features_from_input(self):
+    def _read_split_features(self):
         self.x_train = pd.read_pickle(self.input()["x_train"].path)
         self.x_test = pd.read_pickle(self.input()["x_test"].path)
 
@@ -71,14 +175,14 @@ class NumericalImputer(AutoSklearnTask):
 
 class Scaler(AutoSklearnTask):
     abstract = True
-    imputed_data = ClsParameter(tpe=NumericalImputer.return_type())
+    imputed_feaatures = ClsParameter(tpe=NumericalImputer.return_type())
 
     scaler = None
     x_train = None
     x_test = None
 
     def requires(self):
-        return self.imputed_data()
+        return self.imputed_feaatures()
 
     def _read_split_imputed_features(self):
         self.x_train = pd.read_pickle(self.input()["x_train"].path)
@@ -97,7 +201,6 @@ class Scaler(AutoSklearnTask):
                 data=self.scaler.transform(self.x_test)
             )
             self._log_warnings(w)
-
     def sava_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
         self.x_test.to_pickle(self.output()["x_test"].path)

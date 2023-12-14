@@ -6,7 +6,7 @@ class SKLSimpleImpute(NumericalImputer):
     abstract = False
 
     def run(self):
-        self._read_split_features_from_input()
+        self._read_split_features()
 
         self.imputer = SimpleImputer(
             strategy="mean",

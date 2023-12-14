@@ -2,6 +2,8 @@ import logging
 import sys
 sys.path.append('..')
 sys.path.append('../..')
+# sys.path.append('/home/hadi/cls-luigi')
+
 
 from luigi.execution_summary import execution_summary
 execution_summary.summary_length = 10000
@@ -11,6 +13,7 @@ execution_summary.summary_length = 10000
 import subprocess
 
 from cls_luigi.inhabitation_task import RepoMeta
+
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
@@ -26,6 +29,16 @@ from implementations.template import *
 #first node (loading and splitting)
 from implementations.load_and_split_data.load_openml_data_and_split import LoadOpenMLDataAndSplit
 
+
+from implementations.category_coalescence.no_category_coalescence import NoCategoryCoalescence
+from implementations.category_coalescence.minority_coalescence import MinorityCoalescence
+
+
+from implementations.encoding.no_encoding import NoEncoding
+from implementations.encoding.ordinal_encoder import OrdinalEncoding
+from implementations.encoding.one_hot_encoder import OneHotEncoding
+
+
 # second node (imputing)
 from implementations.numerical_imputers.simple_imputer import SKLSimpleImpute
 
@@ -39,7 +52,7 @@ from implementations.scalers.power_transformer import SKLPowerTransformer
 from implementations.scalers.no_scaling import NoScaling
 
 # forth node (feature preprocessing)
-# from implementations.feature_preprocessors.fast_ica import SKLFastICA
+from implementations.feature_preprocessors.fast_ica import SKLFastICA
 from implementations.feature_preprocessors.feature_agglomeration import SKLFeatureAgglomeration
 from implementations.feature_preprocessors.kernel_pca import SKLKernelPCA
 from implementations.feature_preprocessors.no_feature_preprocessor import NoFeaturePreprocessor
@@ -56,6 +69,7 @@ from implementations.feature_preprocessors.select_rates import SKLSelectRates
 # fifth node (classifier)
 from implementations.classifiers.adaboost import SKLAdaBoost
 from implementations.classifiers.decision_tree import SKLDecisionTree
+from implementations.classifiers.random_forest import SKLRandomForest
 from implementations.classifiers.extra_trees import SKLExtraTrees
 from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
 from implementations.classifiers.gradient_boosting import SKLGradientBoosting
@@ -63,9 +77,8 @@ from implementations.classifiers.knn import SKLKNearestNeighbors
 from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
 from implementations.classifiers.linear_svc import SKLLinearSVC
 from implementations.classifiers.multinominal_nb import SKLMultinomialNB
-from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
+# from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
 from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
-from implementations.classifiers.random_forest import SKLRandomForest
 from implementations.classifiers.sgd import SKLSGD
 from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
 from implementations.classifiers.svc import SKLKernelSVC
@@ -98,7 +111,7 @@ def main(task_id: int, local_scheduler=True) -> None:
         max_results = actual
 
     validator = UniqueTaskPipelineValidator(
-        [LoadAndSplitData, NumericalImputer, Scaler, FeaturePreprocessor, Classifier])
+        [LoadAndSplitData, CategoryCoalescer, CategoricalEncoder , NumericalImputer, Scaler, FeaturePreprocessor, Classifier])
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
@@ -120,6 +133,7 @@ def main(task_id: int, local_scheduler=True) -> None:
                                        local_scheduler=local_scheduler,
                                        detailed_summary=True,
                                        logging_conf_file="logging.conf",
+                                    #    logging_conf_file="/home/hadi/cls-luigi/examples/automl/logging.conf",
                                        workers=3)
 
         tock = time()
@@ -151,14 +165,14 @@ if __name__ == "__main__":
 
 
     tasks = [
-    361066,  # bank-marketing classification
+    # 361066,  # bank-marketing classification
     #146820,  # wilt classification
     #168868,  # APSFailure classification
     168911,  # jasmine classification
     # 168350,  # phoneme classification contains negative values
-    359958,  # pc4 classification
-    359962,  # kc1 classification
-    359972,  # sylvin classification
+    # 359958,  # pc4 classification
+    # 359962,  # kc1 classification
+    # 359972,  # sylvin classification
     #359990,  # MiniBooNE classification
     # 146606,  #higgs
     ]
