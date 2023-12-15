@@ -1,7 +1,8 @@
 from sklearn.neighbors import KNeighborsClassifier
 from ..template import Classifier
 
-
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLKNearestNeighbors(Classifier):
     abstract = False
 

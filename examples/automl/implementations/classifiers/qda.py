@@ -2,7 +2,8 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from ..template import Classifier
 
 
-
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLQuadraticDiscriminantAnalysis(Classifier):
     abstract = False
 

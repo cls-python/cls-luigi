@@ -36,7 +36,8 @@ from download_and_save_openml_datasets import download_and_save_openml_dataset
 def import_pipeline_components(
     include_categorical: bool = False,
     include_numerical: bool = True,
-    include_string: bool = False) -> None: 
+    include_string: bool = False,
+    multiclass_classification: bool = False) -> None: 
     
     # loading and splitting
     from implementations.load_and_split_data.load_and_split_pickled_tabular_data import LoadAndSplitPickledTabularData
@@ -80,20 +81,24 @@ def import_pipeline_components(
     from implementations.classifiers.decision_tree import SKLDecisionTree
     from implementations.classifiers.random_forest import SKLRandomForest
     from implementations.classifiers.extra_trees import SKLExtraTrees
-    from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
     from implementations.classifiers.gradient_boosting import SKLGradientBoosting
-    from implementations.classifiers.knn import SKLKNearestNeighbors
-    from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
-    from implementations.classifiers.linear_svc import SKLLinearSVC
-    from implementations.classifiers.multinominal_nb import SKLMultinomialNB
-    from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
-    from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
     from implementations.classifiers.sgd import SKLSGD
-    from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
     from implementations.classifiers.svc import SKLKernelSVC
     
-    
+    if multiclass_classification is False:
+        
+        from implementations.classifiers.multinominal_nb import SKLMultinomialNB
+        from implementations.classifiers.linear_svc import SKLLinearSVC
+        from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
+        from implementations.classifiers.knn import SKLKNearestNeighbors
+        from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
+        from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
+        from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
+        from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
+
+
     if include_categorical is True:
+        
         from implementations.encoding.ordinal_encoder import OrdinalEncoding
         from implementations.encoding.one_hot_encoder import OneHotEncoding
         from implementations.category_coalescence.minority_coalescence import MinorityCoalescence
@@ -117,7 +122,8 @@ def main(ds_id: int, local_scheduler=True) -> None:
     feature_type_analyzer = FeatureTypeAnalyzer(X_path) 
             
     import_pipeline_components(
-        include_categorical=feature_type_analyzer.has_categorical_features()
+        include_categorical=feature_type_analyzer.has_categorical_features(),
+        multiclass_classification=False
         )
         
 

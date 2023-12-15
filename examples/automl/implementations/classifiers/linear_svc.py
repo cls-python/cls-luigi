@@ -1,7 +1,8 @@
 from sklearn.svm import LinearSVC
 from ..template import Classifier
 
-
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLLinearSVC(Classifier):
     abstract = False
 

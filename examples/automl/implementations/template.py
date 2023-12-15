@@ -101,18 +101,9 @@ class CategoricalEncoder(AutoSklearnTask):
             self.x_train = pd.concat([self.x_train, encoded_train_features], axis=1)
             self.x_test = pd.concat([self.x_test, encoded_test_features], axis=1)
 
-
-            # self.x_train[self.encoder.get_feature_names_out() + suffix] = self.encoder.transform(self.x_train[categorical_features_names])
-            # self.x_test[self.encoder.get_feature_names_out() + suffix] = self.encoder.transform(self.x_test[categorical_features_names])
-
-
-
             if drop_original is True:
                 self.x_train.drop(categorical_features_names, axis=1, inplace=True)
                 self.x_test.drop(categorical_features_names, axis=1, inplace=True)
-
-
-
 
 
             self._log_warnings(w)

@@ -1,6 +1,8 @@
 from ..template import Classifier
 from sklearn.naive_bayes import BernoulliNB
 
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLBernoulliNB(Classifier):
     abstract = False
 

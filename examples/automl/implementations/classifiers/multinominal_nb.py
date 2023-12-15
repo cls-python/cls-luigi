@@ -1,6 +1,8 @@
 from sklearn.naive_bayes import MultinomialNB
 from ..template import Classifier
 
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 
 class SKLMultinomialNB(Classifier):
     abstract = False

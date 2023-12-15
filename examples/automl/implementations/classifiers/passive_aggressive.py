@@ -1,6 +1,9 @@
 from sklearn.linear_model import PassiveAggressiveClassifier
 from ..template import Classifier
 
+
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLPassiveAggressive(Classifier):
     abstract = False
 

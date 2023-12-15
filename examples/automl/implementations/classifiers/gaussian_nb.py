@@ -1,7 +1,8 @@
 from ..template import Classifier
 from sklearn.naive_bayes import GaussianNB
 
-
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLGaussianNaiveBayes(Classifier):
     abstract = False
 

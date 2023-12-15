@@ -1,7 +1,8 @@
 from ..template import Classifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-
+#TODO
+# - this hanles only binary classification. We neeed to add OneVsRestClassifier
 class SKLLinearDiscriminantAnalysis(Classifier):
     abstract = False
 
