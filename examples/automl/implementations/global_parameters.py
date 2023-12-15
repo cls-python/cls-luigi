@@ -5,6 +5,8 @@ class GlobalParameters(luigi.Config):
     """
     Global parameters for the pipeline, such as dataset id, name, seed, n_jobs, etc.
     """
-    dataset_id = luigi.IntParameter(default=None)
+    X_path = luigi.Parameter(default=None)
+    y_path = luigi.Parameter(default=None)
+    dataset_name = luigi.Parameter(default=None)
     n_jobs = luigi.IntParameter(default=1)
     seed = luigi.IntParameter(default=5)

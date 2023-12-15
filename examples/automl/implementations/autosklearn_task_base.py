@@ -31,7 +31,7 @@ class AutoSklearnTask(luigi.Task, LuigiCombinator):
                                             ) -> luigi.LocalTarget:
 
         if dataset_name is None:
-            dataset_name = self.global_params.dataset_id
+            dataset_name = self.global_params.dataset_name
 
         dataset_name = self._check_if_int_and_cast_to_str(dataset_name)
         dataset_outputs_folder = pjoin(output_folder, dataset_name)
@@ -45,7 +45,7 @@ class AutoSklearnTask(luigi.Task, LuigiCombinator):
                                                ) -> luigi.LocalTarget:
 
         if dataset_name is None:
-            dataset_name = self.global_params.dataset_id
+            dataset_name = self.global_params.dataset_name
 
         dataset_name = self._check_if_int_and_cast_to_str(dataset_name)
 

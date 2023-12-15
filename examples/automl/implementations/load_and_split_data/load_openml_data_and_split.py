@@ -10,7 +10,7 @@ class LoadOpenMLDataAndSplit(LoadAndSplitData):
 
     def run(self):
 
-        X, y, d_name = self._get_openml_dataset(self.global_params.dataset_id)
+        X, y, d_name = self._get_openml_dataset(self.global_params.dataset_name)
         y = self._encode_labels(y)
         X = self._drop_unnamed_col(X)
 

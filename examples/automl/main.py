@@ -23,75 +23,103 @@ from implementations.global_parameters import GlobalParameters
 from implementations.autosklearn_pipeline_validator import AutoMLPipelineValidator
 from implementations.forbidden import FORBIDDEN
 
-# Own implementations and template
+# template
 from implementations.template import *
 
-#first node (loading and splitting)
-from implementations.load_and_split_data.load_openml_data_and_split import LoadOpenMLDataAndSplit
-
-
-from implementations.category_coalescence.no_category_coalescence import NoCategoryCoalescence
-from implementations.category_coalescence.minority_coalescence import MinorityCoalescence
-
-
-from implementations.encoding.no_encoding import NoEncoding
-from implementations.encoding.ordinal_encoder import OrdinalEncoding
-from implementations.encoding.one_hot_encoder import OneHotEncoding
-
-
-# second node (imputing)
-from implementations.numerical_imputers.simple_imputer import SKLSimpleImpute
-
-# third node (scaling)
-from implementations.scalers.minmax_scaler import SKLMinMaxScaler
-from implementations.scalers.quantile_transformer import SKLQuantileTransformer
-from implementations.scalers.robust_scaler import SKLRobustScaler
-from implementations.scalers.standared_scaler import SKLStandardScaler
-from implementations.scalers.normalizer import SKLNormalizer
-from implementations.scalers.power_transformer import SKLPowerTransformer
-from implementations.scalers.no_scaling import NoScaling
-
-# forth node (feature preprocessing)
-from implementations.feature_preprocessors.fast_ica import SKLFastICA
-from implementations.feature_preprocessors.feature_agglomeration import SKLFeatureAgglomeration
-from implementations.feature_preprocessors.kernel_pca import SKLKernelPCA
-from implementations.feature_preprocessors.no_feature_preprocessor import NoFeaturePreprocessor
-from implementations.feature_preprocessors.nystroem import SKLNystroem
-from implementations.feature_preprocessors.pca import SKLPCA
-from implementations.feature_preprocessors.polynomial_features import SKLPolynomialFeatures
-from implementations.feature_preprocessors.random_trees_embedding import SKLRandomTreesEmbedding
-from implementations.feature_preprocessors.rbf_sampler import SKLRBFSampler
-from implementations.feature_preprocessors.select_from_extra_trees_clf import SKLSelectFromExtraTrees
-from implementations.feature_preprocessors.select_from_svc_clf import SKLSelectFromLinearSVC
-from implementations.feature_preprocessors.select_percentile import SKLSelectPercentile
-from implementations.feature_preprocessors.select_rates import SKLSelectRates
-
-# fifth node (classifier)
-from implementations.classifiers.adaboost import SKLAdaBoost
-from implementations.classifiers.decision_tree import SKLDecisionTree
-from implementations.classifiers.random_forest import SKLRandomForest
-from implementations.classifiers.extra_trees import SKLExtraTrees
-from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
-from implementations.classifiers.gradient_boosting import SKLGradientBoosting
-from implementations.classifiers.knn import SKLKNearestNeighbors
-from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
-from implementations.classifiers.linear_svc import SKLLinearSVC
-from implementations.classifiers.multinominal_nb import SKLMultinomialNB
-# from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
-from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
-from implementations.classifiers.sgd import SKLSGD
-from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
-from implementations.classifiers.svc import SKLKernelSVC
-
-
-# time
 from time import time
 import subprocess
+from feature_type_analyzer import FeatureTypeAnalyzer
+from download_and_save_openml_datasets import download_and_save_openml_dataset
 
 
 
-def main(task_id: int, local_scheduler=True) -> None:
-    GlobalParameters().dataset_id = task_id
+def import_pipeline_components(
+    include_categorical: bool = False,
+    include_numerical: bool = True,
+    include_string: bool = False) -> None: 
+    
+    # loading and splitting
+    from implementations.load_and_split_data.load_and_split_pickled_tabular_data import LoadAndSplitPickledTabularData
+
+    # category coalescence
+    from implementations.category_coalescence.no_category_coalescence import NoCategoryCoalescence
+
+    # encoding
+    from implementations.encoding.no_encoding import NoEncoding
+
+
+    # imputing
+    from implementations.numerical_imputers.simple_imputer import SKLSimpleImpute
+
+    # scaling
+    from implementations.scalers.minmax_scaler import SKLMinMaxScaler
+    from implementations.scalers.quantile_transformer import SKLQuantileTransformer
+    from implementations.scalers.robust_scaler import SKLRobustScaler
+    from implementations.scalers.standared_scaler import SKLStandardScaler
+    from implementations.scalers.normalizer import SKLNormalizer
+    from implementations.scalers.power_transformer import SKLPowerTransformer
+    from implementations.scalers.no_scaling import NoScaling
+
+    # feature preprocessing
+    from implementations.feature_preprocessors.fast_ica import SKLFastICA
+    from implementations.feature_preprocessors.feature_agglomeration import SKLFeatureAgglomeration
+    from implementations.feature_preprocessors.kernel_pca import SKLKernelPCA
+    from implementations.feature_preprocessors.no_feature_preprocessor import NoFeaturePreprocessor
+    from implementations.feature_preprocessors.nystroem import SKLNystroem
+    from implementations.feature_preprocessors.pca import SKLPCA
+    from implementations.feature_preprocessors.polynomial_features import SKLPolynomialFeatures
+    from implementations.feature_preprocessors.random_trees_embedding import SKLRandomTreesEmbedding
+    from implementations.feature_preprocessors.rbf_sampler import SKLRBFSampler
+    from implementations.feature_preprocessors.select_from_extra_trees_clf import SKLSelectFromExtraTrees
+    from implementations.feature_preprocessors.select_from_svc_clf import SKLSelectFromLinearSVC
+    from implementations.feature_preprocessors.select_percentile import SKLSelectPercentile
+    from implementations.feature_preprocessors.select_rates import SKLSelectRates
+
+    # classifier
+    from implementations.classifiers.adaboost import SKLAdaBoost
+    from implementations.classifiers.decision_tree import SKLDecisionTree
+    from implementations.classifiers.random_forest import SKLRandomForest
+    from implementations.classifiers.extra_trees import SKLExtraTrees
+    from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
+    from implementations.classifiers.gradient_boosting import SKLGradientBoosting
+    from implementations.classifiers.knn import SKLKNearestNeighbors
+    from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
+    from implementations.classifiers.linear_svc import SKLLinearSVC
+    from implementations.classifiers.multinominal_nb import SKLMultinomialNB
+    from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
+    from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
+    from implementations.classifiers.sgd import SKLSGD
+    from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
+    from implementations.classifiers.svc import SKLKernelSVC
+    
+    
+    if include_categorical is True:
+        from implementations.encoding.ordinal_encoder import OrdinalEncoding
+        from implementations.encoding.one_hot_encoder import OneHotEncoding
+        from implementations.category_coalescence.minority_coalescence import MinorityCoalescence
+        
+        
+    if include_string is True:
+        pass
+
+
+
+
+def main(ds_id: int, local_scheduler=True) -> None:
+    X_path, y_path, ds_name= download_and_save_openml_dataset(ds_id)
+    
+    global_parameters = GlobalParameters()
+    
+    global_parameters.X_path = X_path
+    global_parameters.y_path = y_path
+    global_parameters.dataset_name = ds_name
+
+    feature_type_analyzer = FeatureTypeAnalyzer(X_path) 
+            
+    import_pipeline_components(
+        include_categorical=feature_type_analyzer.has_categorical_features()
+        )
+        
 
     target = Classifier.return_type()
     print("Collecting Repo")
@@ -109,7 +137,8 @@ def main(task_id: int, local_scheduler=True) -> None:
 
     if actual > 0:
         max_results = actual
-
+        
+        
     validator = UniqueTaskPipelineValidator(
         [LoadAndSplitData, CategoryCoalescer, CategoricalEncoder , NumericalImputer, Scaler, FeaturePreprocessor, Classifier])
 
@@ -126,6 +155,7 @@ def main(task_id: int, local_scheduler=True) -> None:
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Running Pipelines")
+        
 
         tick = time()
 
@@ -133,12 +163,14 @@ def main(task_id: int, local_scheduler=True) -> None:
                                        local_scheduler=local_scheduler,
                                        detailed_summary=True,
                                        logging_conf_file="logging.conf",
+                                       workers=2)
+
                                     #    logging_conf_file="/home/hadi/cls-luigi/examples/automl/logging.conf",
-                                       workers=3)
+                                    #    workers =1)
 
         tock = time()
 
-        with open("logs/{}_time.txt".format(task_id), "w") as f:
+        with open("logs/{}_time.txt".format(ds_name), "w") as f:
             f.write("{} seconds".format(str(tock - tick)))
 
         print(luigi_run_result.summary_text)
@@ -155,8 +187,8 @@ def main(task_id: int, local_scheduler=True) -> None:
     loggers[1].warning("\n{}\n{} This was dataset: {} {}\n{}\n".format(
         "*" * 150,
         "*" * 65,
-        task_id,
-        "*" * (65 - len(str(task_id))),
+        ds_name,
+        "*" * (65 - len(str(ds_name))),
         "*" * 150))
 
 
@@ -164,7 +196,7 @@ if __name__ == "__main__":
     loggers = [logging.getLogger("luigi-root"), logging.getLogger("luigi-interface")]
 
 
-    tasks = [
+    datasets = [
     # 361066,  # bank-marketing classification
     #146820,  # wilt classification
     #168868,  # APSFailure classification
@@ -176,7 +208,9 @@ if __name__ == "__main__":
     #359990,  # MiniBooNE classification
     # 146606,  #higgs
     ]
+    
 
-    for task_id in tasks:
-        main(task_id, local_scheduler=False)
+
+    for ds_id in datasets:
+        main(ds_id, local_scheduler=False)
 
