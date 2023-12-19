@@ -21,7 +21,7 @@ from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 # Global Parameters and AutoML validator
 from implementations.global_parameters import GlobalParameters
-from implementations.autosklearn_pipeline_validator import AutoMLPipelineValidator
+from implementations.not_forbidden_validator import NotForbiddenValidator
 
 # template
 from implementations.template import *
@@ -37,7 +37,6 @@ def import_pipeline_components(
     include_numerical: bool = True,
     include_string: bool = False,
     multiclass_classification: bool = False) -> None:
-
     # loading and splitting
     from implementations.load_and_split_data.load_and_split_pickled_tabular_data import LoadAndSplitPickledTabularData
 
@@ -46,46 +45,46 @@ def import_pipeline_components(
 
     # scaling
     from implementations.scalers.minmax_scaler import SKLMinMaxScaler
-    # from implementations.scalers.quantile_transformer import SKLQuantileTransformer
-    # from implementations.scalers.robust_scaler import SKLRobustScaler
-    # from implementations.scalers.standared_scaler import SKLStandardScaler
-    # from implementations.scalers.normalizer import SKLNormalizer
-    # from implementations.scalers.power_transformer import SKLPowerTransformer
+    from implementations.scalers.quantile_transformer import SKLQuantileTransformer
+    from implementations.scalers.robust_scaler import SKLRobustScaler
+    from implementations.scalers.standared_scaler import SKLStandardScaler
+    from implementations.scalers.normalizer import SKLNormalizer
+    from implementations.scalers.power_transformer import SKLPowerTransformer
     # from implementations.scalers.no_scaling import NoScaling
 
     # feature preprocessing
-    # from implementations.feature_preprocessors.fast_ica import SKLFastICA
-    # from implementations.feature_preprocessors.feature_agglomeration import SKLFeatureAgglomeration
-    # from implementations.feature_preprocessors.kernel_pca import SKLKernelPCA
-    # from implementations.feature_preprocessors.no_feature_preprocessor import NoFeaturePreprocessor
-    # from implementations.feature_preprocessors.nystroem import SKLNystroem
-    # from implementations.feature_preprocessors.pca import SKLPCA
+    from implementations.feature_preprocessors.fast_ica import SKLFastICA
+    from implementations.feature_preprocessors.feature_agglomeration import SKLFeatureAgglomeration
+    from implementations.feature_preprocessors.kernel_pca import SKLKernelPCA
+    from implementations.feature_preprocessors.nystroem import SKLNystroem
+    from implementations.feature_preprocessors.pca import SKLPCA
     from implementations.feature_preprocessors.polynomial_features import SKLPolynomialFeatures
-    # from implementations.feature_preprocessors.random_trees_embedding import SKLRandomTreesEmbedding
-    # from implementations.feature_preprocessors.rbf_sampler import SKLRBFSampler
-    # from implementations.feature_preprocessors.select_from_extra_trees_clf import SKLSelectFromExtraTrees
-    # from implementations.feature_preprocessors.select_from_svc_clf import SKLSelectFromLinearSVC
-    # from implementations.feature_preprocessors.select_percentile import SKLSelectPercentile
-    # from implementations.feature_preprocessors.select_rates import SKLSelectRates
+    from implementations.feature_preprocessors.random_trees_embedding import SKLRandomTreesEmbedding
+    from implementations.feature_preprocessors.rbf_sampler import SKLRBFSampler
+    from implementations.feature_preprocessors.select_from_extra_trees_clf import SKLSelectFromExtraTrees
+    from implementations.feature_preprocessors.select_from_svc_clf import SKLSelectFromLinearSVC
+    from implementations.feature_preprocessors.select_percentile import SKLSelectPercentile
+    from implementations.feature_preprocessors.select_rates import SKLSelectRates
+    # from implementations.feature_preprocessors.no_feature_preprocessor import NoFeaturePreprocessor
 
     # classifier
-    # from implementations.classifiers.adaboost import SKLAdaBoost
-    # from implementations.classifiers.decision_tree import SKLDecisionTree
+    from implementations.classifiers.adaboost import SKLAdaBoost
+    from implementations.classifiers.decision_tree import SKLDecisionTree
     from implementations.classifiers.random_forest import SKLRandomForest
-    # from implementations.classifiers.extra_trees import SKLExtraTrees
-    # from implementations.classifiers.gradient_boosting import SKLGradientBoosting
-    # from implementations.classifiers.sgd import SKLSGD
-    # from implementations.classifiers.svc import SKLKernelSVC
+    from implementations.classifiers.extra_trees import SKLExtraTrees
+    from implementations.classifiers.gradient_boosting import SKLGradientBoosting
+    from implementations.classifiers.sgd import SKLSGD
+    from implementations.classifiers.svc import SKLKernelSVC
 
-    # if multiclass_classification is False:
-    # from implementations.classifiers.multinominal_nb import SKLMultinomialNB
-    # from implementations.classifiers.linear_svc import SKLLinearSVC
-    # from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
-    # from implementations.classifiers.knn import SKLKNearestNeighbors
-    # from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
-    # from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
-    # from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
-    # from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
+    if multiclass_classification is False:
+        from implementations.classifiers.multinominal_nb import SKLMultinomialNB
+        from implementations.classifiers.linear_svc import SKLLinearSVC
+        from implementations.classifiers.lda import SKLLinearDiscriminantAnalysis
+        from implementations.classifiers.knn import SKLKNearestNeighbors
+        from implementations.classifiers.gaussian_nb import SKLGaussianNaiveBayes
+        from implementations.classifiers.bernoulli_nb import SKLBernoulliNB
+        from implementations.classifiers.passive_aggressive import SKLPassiveAggressive
+        from implementations.classifiers.qda import SKLQuadraticDiscriminantAnalysis
 
     if include_categorical is True:
         from implementations.encoding.ordinal_encoder import OrdinalEncoding
@@ -119,14 +118,16 @@ def main(ds_id: int, local_scheduler=True) -> None:
     repository = RepoMeta.repository
     print("Building Repository")
 
-    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
+    fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     print("Build Tree Grammar and inhabit Pipelines")
 
     inhabitation_result = fcl.inhabit(target)
     print("Enumerating results")
-    max_tasks_when_infinite = 15
+    max_tasks_when_infinite = 45000
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
+
+    print("Number of results", max_results)
 
     if actual > 0:
         max_results = actual
@@ -137,14 +138,19 @@ def main(ds_id: int, local_scheduler=True) -> None:
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
-    # from single_task_validator import SingleTaskValidator
-    # validator = SingleTaskValidator()
-    # validator.validate(results[-1])
-    # results = [t for t in results if validator.validate(t)]
+    print("Number of results after UniqueTaskPipelineValidator", len(results))
 
+    from no_duplicate_tasks_validator import NoDuplicateTasksValidator
+    validator = NoDuplicateTasksValidator()
+    validator.validate(results[-1])
+    results = [t for t in results if validator.validate(t)]
 
-    automl_validator = AutoMLPipelineValidator()
-    results = [t for t in results if automl_validator.validate(t)]
+    print("Number of results after NoDuplicateTasksValidator", len(results))
+
+    not_forbidden_validator = NotForbiddenValidator()
+    results = [t for t in results if not_forbidden_validator.validate(t)]
+
+    print("Number of results after NotForbiddenValidator", len(results))
 
     if results:
         # print("Starting Luigid")
@@ -152,8 +158,6 @@ def main(ds_id: int, local_scheduler=True) -> None:
         # subprocess.run(["sudo", "luigid", "--background"])
         # subprocess.run(["luigid", "--background"])
 
-        print("Number of results", max_results)
-        print("Number of results after filtering", len(results))
         print("Running Pipelines")
 
         tick = time()

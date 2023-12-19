@@ -31,7 +31,7 @@ class LoadAndSplitData(FeatureProvider):
 
 
 class CategoryCoalescer(FeatureProvider):
-# class CategoryCoalescer(AutoSklearnTask):
+    # class CategoryCoalescer(AutoSklearnTask):
     abstract = True
     split_data = ClsParameter(tpe=LoadAndSplitData.return_type())
 
@@ -64,7 +64,7 @@ class CategoryCoalescer(FeatureProvider):
 
 
 class CategoricalEncoder(FeatureProvider):
-# class CategoricalEncoder(AutoSklearnTask):
+    # class CategoricalEncoder(AutoSklearnTask):
     abstract = True
     coalesced_features = ClsParameter(tpe=FeatureProvider.return_type())
     # coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
@@ -121,11 +121,14 @@ class CategoricalEncoder(FeatureProvider):
         return self.x_train.select_dtypes(include=['category']).columns.tolist()
 
 
-class NumericalImputer(AutoSklearnTask):
+class FeatureProvider2(AutoSklearnTask):
+    abstract = True
+
+
+class NumericalImputer(FeatureProvider2):
     abstract = True
     encoded_features = ClsParameter(tpe=FeatureProvider.return_type())
     # encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
-
 
     imputer = None
     x_train = None
@@ -167,7 +170,7 @@ class NumericalImputer(AutoSklearnTask):
             joblib.dump(self.imputer, outfile)
 
 
-class Scaler(AutoSklearnTask):
+class Scaler(FeatureProvider2):
     abstract = True
     imputed_feaatures = ClsParameter(tpe=NumericalImputer.return_type())
 
@@ -210,9 +213,9 @@ class Scaler(AutoSklearnTask):
         }
 
 
-class FeaturePreprocessor(AutoSklearnTask):
+class FeaturePreprocessor(FeatureProvider2):
     abstract = True
-    scaled_features = ClsParameter(tpe=Scaler.return_type())
+    scaled_features = ClsParameter(tpe=FeatureProvider2.return_type())
     target_values = ClsParameter(tpe=LoadAndSplitData.return_type())
 
     feature_preprocessor = None
@@ -282,7 +285,7 @@ class FeaturePreprocessor(AutoSklearnTask):
 
 class Classifier(AutoSklearnTask):
     abstract = True
-    processed_features = ClsParameter(tpe=FeaturePreprocessor.return_type())
+    processed_features = ClsParameter(tpe=FeatureProvider2.return_type())
     target_values = ClsParameter(tpe=LoadAndSplitData.return_type())
 
     estimator = None
@@ -347,13 +350,27 @@ class Classifier(AutoSklearnTask):
     def create_run_summary(self):
         upstream_tasks = self._get_upstream_tasks()
 
-        self.run_summary["pipeline"] = {
-            "imputer": list(filter(lambda task: isinstance(task, NumericalImputer), upstream_tasks))[0].task_family,
-            "scaler": list(filter(lambda task: isinstance(task, Scaler), upstream_tasks))[0].task_family,
-            "feature_preprocessor": list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))[
-                0].task_family,
-            "classifier": list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))[0].task_family
-        }
+        self.run_summary["pipeline"] = {}
+
+        imputer = list(filter(lambda task: isinstance(task, NumericalImputer), upstream_tasks))
+        self._add_component_to_run_summary("imputer", imputer)
+
+        scaler = list(filter(lambda task: isinstance(task, Scaler), upstream_tasks))
+        self._add_component_to_run_summary("scaler", scaler)
+
+        feature_preprocessor = list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))
+        self._add_component_to_run_summary("feature_preprocessor", feature_preprocessor)
+
+        classifier = list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))
+        self._add_component_to_run_summary("classifier", classifier)
+
+        # self.run_summary["pipeline"] = {
+        #     "imputer": list(filter(lambda task: isinstance(task, NumericalImputer), upstream_tasks))[0].task_family,
+        #     "scaler": list(filter(lambda task: isinstance(task, Scaler), upstream_tasks))[0].task_family,
+        #     "feature_preprocessor": list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))[
+        #         0].task_family,
+        #     "classifier": list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))[0].task_family
+        # }
 
         self.compute_accuracy()
 
@@ -380,5 +397,8 @@ class Classifier(AutoSklearnTask):
 
         return _get_upstream_tasks_recursively(self)
 
-
-
+    def _add_component_to_run_summary(self, component_name, component):
+        if component:
+            self.run_summary["pipeline"][component_name] = component[0].task_family
+        else:
+            self.run_summary["pipeline"][component_name] = None

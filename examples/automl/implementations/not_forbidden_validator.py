@@ -6,7 +6,7 @@ from luigi.task import flatten
 from .forbidden import FORBIDDEN
 
 
-class AutoMLPipelineValidator(object):
+class NotForbiddenValidator(object):
     def __init__(self, forbidden_tasks: List[Set[str]] = FORBIDDEN) -> None:
         self.forbidden_tasks = forbidden_tasks
 

@@ -21,7 +21,7 @@ from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 # Global Parameters and AutoML validator
 from implementations.global_parameters import GlobalParameters
-from implementations.autosklearn_pipeline_validator import AutoMLPipelineValidator
+from implementations.not_forbidden_validator import NotForbiddenValidator
 
 # template
 from implementations.template import *
@@ -140,7 +140,7 @@ def main(ds_id: int, local_scheduler=True) -> None:
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
-    automl_validator = AutoMLPipelineValidator()
+    automl_validator = NotForbiddenValidator()
 
     results = [t for t in results if automl_validator.validate(t)]
 

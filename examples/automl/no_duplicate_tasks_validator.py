@@ -2,7 +2,8 @@ import luigi
 from luigi.task import flatten
 from typing import List
 
-class SingleTaskValidator(object):
+
+class NoDuplicateTasksValidator(object):
 
     def __init__(self):
         pass
