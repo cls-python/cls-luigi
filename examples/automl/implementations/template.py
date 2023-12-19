@@ -8,10 +8,14 @@ from sklearn.metrics import accuracy_score
 
 from cls_luigi.inhabitation_task import ClsParameter
 from .autosklearn_task_base import AutoSklearnTask
-from .global_parameters import GlobalParameters
 
 
-class LoadAndSplitData(AutoSklearnTask):
+class FeatureProvider(AutoSklearnTask):
+    abstract = True
+
+
+# class LoadAndSplitData(AutoSklearnTask):
+class LoadAndSplitData(FeatureProvider):
     abstract = True
 
     def requires(self):
@@ -24,9 +28,10 @@ class LoadAndSplitData(AutoSklearnTask):
             "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl"),
             "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl")
         }
-    
 
-class CategoryCoalescer(AutoSklearnTask):
+
+class CategoryCoalescer(FeatureProvider):
+# class CategoryCoalescer(AutoSklearnTask):
     abstract = True
     split_data = ClsParameter(tpe=LoadAndSplitData.return_type())
 
@@ -36,21 +41,21 @@ class CategoryCoalescer(AutoSklearnTask):
 
     def requires(self):
         return self.split_data()
-    
+
     def output(self):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
             "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
         }
-      
+
     def _read_split_features(self):
         self.x_train = pd.read_pickle(self.input()["x_train"].path)
         self.x_test = pd.read_pickle(self.input()["x_test"].path)
 
     def _get_categorical_features_names(self):
         return self.x_train.select_dtypes(include=['category']).columns.tolist()
-    
+
     def _save_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
         self.x_test.to_pickle(self.output()["x_test"].path)
@@ -58,9 +63,11 @@ class CategoryCoalescer(AutoSklearnTask):
             joblib.dump(self.component, outfile)
 
 
-class CategoricalEncoder(AutoSklearnTask):
+class CategoricalEncoder(FeatureProvider):
+# class CategoricalEncoder(AutoSklearnTask):
     abstract = True
-    coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
+    coalesced_features = ClsParameter(tpe=FeatureProvider.return_type())
+    # coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
 
     encoder = None
     x_train = None
@@ -69,23 +76,20 @@ class CategoricalEncoder(AutoSklearnTask):
 
     def requires(self):
         return self.coalesced_features()
-    
+
     def output(self):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
             "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
         }
-    
 
     def _read_split_features(self):
         self.x_train = pd.read_pickle(self.input()["x_train"].path)
         self.x_test = pd.read_pickle(self.input()["x_test"].path)
-    
 
     def _fit_transform_encoder(self, categorical_features_names, drop_original=True, suffix=""):
         with warnings.catch_warnings(record=True) as w:
-
             self.encoder.fit(self.x_train[categorical_features_names])
 
             encoded_train_features = pd.DataFrame(
@@ -105,7 +109,6 @@ class CategoricalEncoder(AutoSklearnTask):
                 self.x_train.drop(categorical_features_names, axis=1, inplace=True)
                 self.x_test.drop(categorical_features_names, axis=1, inplace=True)
 
-
             self._log_warnings(w)
 
     def _save_outputs(self):
@@ -116,13 +119,13 @@ class CategoricalEncoder(AutoSklearnTask):
 
     def _get_categorical_features_names(self):
         return self.x_train.select_dtypes(include=['category']).columns.tolist()
-    
-    
-    
+
 
 class NumericalImputer(AutoSklearnTask):
     abstract = True
-    encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
+    encoded_features = ClsParameter(tpe=FeatureProvider.return_type())
+    # encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
+
 
     imputer = None
     x_train = None
@@ -192,6 +195,7 @@ class Scaler(AutoSklearnTask):
                 data=self.scaler.transform(self.x_test)
             )
             self._log_warnings(w)
+
     def sava_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
         self.x_test.to_pickle(self.output()["x_test"].path)
@@ -346,7 +350,8 @@ class Classifier(AutoSklearnTask):
         self.run_summary["pipeline"] = {
             "imputer": list(filter(lambda task: isinstance(task, NumericalImputer), upstream_tasks))[0].task_family,
             "scaler": list(filter(lambda task: isinstance(task, Scaler), upstream_tasks))[0].task_family,
-            "feature_preprocessor": list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))[0].task_family,
+            "feature_preprocessor": list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))[
+                0].task_family,
             "classifier": list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))[0].task_family
         }
 
@@ -374,3 +379,6 @@ class Classifier(AutoSklearnTask):
             return upstream_list
 
         return _get_upstream_tasks_recursively(self)
+
+
+
