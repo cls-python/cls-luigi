@@ -1,17 +1,15 @@
 import numpy as np
 
+
 class MinorityCoalescer(object):
-    def __init__(self, minimum_fraction: float = None) -> None: 
+    def __init__(self, minimum_fraction: float = None) -> None:
         self.minimum_fraction = minimum_fraction
 
-        
-
-    
     def fit(self, X, y=None) -> 'MinorityCoalescer':
-            
+
         if self.minimum_fraction is None:
             return self
-        
+
         do_not_coalesce = list()
         for column in range(X.shape[1]):
             do_not_coalesce.append(set())
@@ -23,14 +21,13 @@ class MinorityCoalescer(object):
                 fraction = float(count) / colsize
                 if fraction >= self.minimum_fraction:
                     do_not_coalesce[-1].add(unique_value)
-        
+
         self.do_not_coalesce_ = do_not_coalesce
         return self
-    
+
     def transform(self, X):
         if self.minimum_fraction is None:
             return self
-        
 
         for column in range(X.shape[1]):
             dtype = type(X[:, column][0])
@@ -48,7 +45,6 @@ class MinorityCoalescer(object):
                 X[mask, column] = 1
 
         return X
-    
 
 
 if __name__ == "__main__":
@@ -62,20 +58,14 @@ if __name__ == "__main__":
     for i in range(0, 100):
         cats.append(1)
 
-
     for i in range(0, 51):
         cats.append(2)
-
-
 
     for i in range(0, 26):
         cats.append(3)
 
-
-    for i in range(0,2):
+    for i in range(0, 2):
         cats.append(4)
-
-
 
     df["cats"] = cats
     df["cats"] = df["cats"].astype("category")
@@ -86,9 +76,7 @@ if __name__ == "__main__":
     df["num"] = 1
     df["str"] = "a"
 
-
     cat_df = df[df.select_dtypes(include=['category']).columns.tolist()]
-
 
     cs.fit(cat_df.values)
     coalesced = cs.transform(cat_df.values)
@@ -96,21 +84,3 @@ if __name__ == "__main__":
     print(coalesced)
 
     df[df.select_dtypes(include=['category']).columns.tolist()] = coalesced
-
-   
-
-
-
-
-
-
-    
-
-
-
-
-        
-
-
-    
-

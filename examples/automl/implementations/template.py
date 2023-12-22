@@ -10,12 +10,12 @@ from cls_luigi.inhabitation_task import ClsParameter
 from .autosklearn_task_base import AutoSklearnTask
 
 
-class FeatureProvider(AutoSklearnTask):
-    abstract = True
+# class FeatureProvider(AutoSklearnTask):
+#     abstract = True
 
 
-# class LoadAndSplitData(AutoSklearnTask):
-class LoadAndSplitData(FeatureProvider):
+class LoadAndSplitData(AutoSklearnTask):
+# class LoadAndSplitData(FeatureProvider):
     abstract = True
 
     def requires(self):
@@ -26,12 +26,13 @@ class LoadAndSplitData(FeatureProvider):
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
             "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl"),
-            "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl")
+            "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
 
-class CategoryCoalescer(FeatureProvider):
-    # class CategoryCoalescer(AutoSklearnTask):
+# class CategoryCoalescer(FeatureProvider):
+class CategoryCoalescer(AutoSklearnTask):
     abstract = True
     split_data = ClsParameter(tpe=LoadAndSplitData.return_type())
 
@@ -46,7 +47,8 @@ class CategoryCoalescer(FeatureProvider):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
     def _read_split_features(self):
@@ -63,11 +65,11 @@ class CategoryCoalescer(FeatureProvider):
             joblib.dump(self.component, outfile)
 
 
-class CategoricalEncoder(FeatureProvider):
-    # class CategoricalEncoder(AutoSklearnTask):
+# class CategoricalEncoder(FeatureProvider):
+class CategoricalEncoder(AutoSklearnTask):
     abstract = True
-    coalesced_features = ClsParameter(tpe=FeatureProvider.return_type())
-    # coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
+    # coalesced_features = ClsParameter(tpe=FeatureProvider.return_type())
+    coalesced_features = ClsParameter(tpe=CategoryCoalescer.return_type())
 
     encoder = None
     x_train = None
@@ -81,7 +83,8 @@ class CategoricalEncoder(FeatureProvider):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
     def _read_split_features(self):
@@ -121,14 +124,16 @@ class CategoricalEncoder(FeatureProvider):
         return self.x_train.select_dtypes(include=['category']).columns.tolist()
 
 
-class FeatureProvider2(AutoSklearnTask):
-    abstract = True
+# class FeatureProvider2(AutoSklearnTask):
+#     abstract = True
 
 
-class NumericalImputer(FeatureProvider2):
+# class NumericalImputer(FeatureProvider2):
+class NumericalImputer(AutoSklearnTask):
+
     abstract = True
-    encoded_features = ClsParameter(tpe=FeatureProvider.return_type())
-    # encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
+    # encoded_features = ClsParameter(tpe=FeatureProvider.return_type())
+    encoded_features = ClsParameter(tpe=CategoricalEncoder.return_type())
 
     imputer = None
     x_train = None
@@ -145,7 +150,8 @@ class NumericalImputer(FeatureProvider2):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
     def _fit_transform_imputer(self):
@@ -170,7 +176,9 @@ class NumericalImputer(FeatureProvider2):
             joblib.dump(self.imputer, outfile)
 
 
-class Scaler(FeatureProvider2):
+# class Scaler(FeatureProvider2):
+class Scaler(AutoSklearnTask):
+
     abstract = True
     imputed_feaatures = ClsParameter(tpe=NumericalImputer.return_type())
 
@@ -209,13 +217,16 @@ class Scaler(FeatureProvider2):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
 
-class FeaturePreprocessor(FeatureProvider2):
+# class FeaturePreprocessor(FeatureProvider2):
+class FeaturePreprocessor(AutoSklearnTask):
+
     abstract = True
-    scaled_features = ClsParameter(tpe=FeatureProvider2.return_type())
+    scaled_features = ClsParameter(tpe=Scaler.return_type())
     target_values = ClsParameter(tpe=LoadAndSplitData.return_type())
 
     feature_preprocessor = None
@@ -234,7 +245,8 @@ class FeaturePreprocessor(FeatureProvider2):
         return {
             "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
             "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_component": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
     def _read_split_scaled_features(self):
@@ -242,8 +254,8 @@ class FeaturePreprocessor(FeatureProvider2):
         self.x_test = pd.read_pickle(self.input()["scaled_features"]["x_test"].path)
 
     def _read_split_target_values(self):
-        self.y_train = pd.read_pickle(self.input()["target_values"]["y_train"].path)
-        self.y_test = pd.read_pickle(self.input()["target_values"]["y_test"].path)
+        self.y_train = pd.read_pickle(self.input()["target_values"]["y_train"].path).values.ravel()
+        self.y_test = pd.read_pickle(self.input()["target_values"]["y_test"].path).values.ravel()
 
     def sava_outputs(self):
         self.x_train.to_pickle(self.output()["x_train"].path)
@@ -285,7 +297,7 @@ class FeaturePreprocessor(FeatureProvider2):
 
 class Classifier(AutoSklearnTask):
     abstract = True
-    processed_features = ClsParameter(tpe=FeatureProvider2.return_type())
+    processed_features = ClsParameter(tpe=FeaturePreprocessor.return_type())
     target_values = ClsParameter(tpe=LoadAndSplitData.return_type())
 
     estimator = None
@@ -307,7 +319,8 @@ class Classifier(AutoSklearnTask):
         return {
             "prediction": self.get_luigi_local_target_with_task_id("prediction.pkl"),
             "run_summary": self.get_luigi_local_target_with_task_id("run_summary.json"),
-            "fitted_classifier": self.get_luigi_local_target_with_task_id("fitted_component.pkl")
+            "fitted_classifier": self.get_luigi_local_target_with_task_id("fitted_component.pkl"),
+            "run_time": self.get_luigi_local_target_with_task_id("run_time.json")
         }
 
     def _read_split_processed_features(self):
@@ -315,8 +328,8 @@ class Classifier(AutoSklearnTask):
         self.x_test = pd.read_pickle(self.input()["processed_features"]["x_test"].path)
 
     def _read_split_target_values(self):
-        self.y_train = pd.read_pickle(self.input()["target_values"]["y_train"].path)
-        self.y_test = pd.read_pickle(self.input()["target_values"]["y_test"].path)
+        self.y_train = pd.read_pickle(self.input()["target_values"]["y_train"].path).values.ravel()
+        self.y_test = pd.read_pickle(self.input()["target_values"]["y_test"].path).values.ravel()
 
     def sava_outputs(self):
         self.y_test_predict.to_pickle(self.output()["prediction"].path)
@@ -363,14 +376,6 @@ class Classifier(AutoSklearnTask):
 
         classifier = list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))
         self._add_component_to_run_summary("classifier", classifier)
-
-        # self.run_summary["pipeline"] = {
-        #     "imputer": list(filter(lambda task: isinstance(task, NumericalImputer), upstream_tasks))[0].task_family,
-        #     "scaler": list(filter(lambda task: isinstance(task, Scaler), upstream_tasks))[0].task_family,
-        #     "feature_preprocessor": list(filter(lambda task: isinstance(task, FeaturePreprocessor), upstream_tasks))[
-        #         0].task_family,
-        #     "classifier": list(filter(lambda task: isinstance(task, Classifier), upstream_tasks))[0].task_family
-        # }
 
         self.compute_accuracy()
 

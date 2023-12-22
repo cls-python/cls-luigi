@@ -8,8 +8,9 @@ from cls_luigi.inhabitation_task import LuigiCombinator
 
 from .global_parameters import GlobalParameters
 
+
 class AutoSklearnTask(luigi.Task, LuigiCombinator):
-    worker_timeout = 60
+    worker_timeout = 100
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,3 +70,4 @@ class AutoSklearnTask(luigi.Task, LuigiCombinator):
     @staticmethod
     def get_luigi_logger() -> Logger:
         return getLogger('luigi-root')
+

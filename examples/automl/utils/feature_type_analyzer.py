@@ -5,7 +5,7 @@ class FeatureTypeAnalyzer(object):
 
     def __init__(self, csv_file_path: str) -> None:
         self.csv_file_path = csv_file_path
-        self.dataframe = pd.read_pickle(csv_file_path)
+        self.dataframe = pd.read_csv(csv_file_path)
 
     def has_categorical_features(self) -> bool:
         categorical_feature_names = self.dataframe.select_dtypes(include=['category']).columns.tolist()

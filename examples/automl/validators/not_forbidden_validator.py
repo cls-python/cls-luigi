@@ -3,7 +3,7 @@ from typing import List, Set
 import luigi
 from luigi.task import flatten
 
-from .forbidden import FORBIDDEN
+from examples.automl.implementations.forbidden import FORBIDDEN
 
 
 class NotForbiddenValidator(object):

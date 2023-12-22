@@ -20,8 +20,8 @@ if __name__ == "__main__":
 
 
         out_path = os.path.join("results_summary", f"results_{dataset}.csv")
-        for results in os.listdir(os.path.join("results", dataset)):
-            if results.endswith(".json"):
+        for results in os.listdir(os.path.join("./results", dataset)):
+            if "run_summary.json" in results:
                 with open(os.path.join("results", dataset, results)) as f:
                     results_json = json.load(f)
 
