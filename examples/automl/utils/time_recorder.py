@@ -35,7 +35,7 @@ class TimeRecorder(object):
             output_dict.update(existing_json)
 
         with open(self.out_file_path, "w") as out_file:
-            json.dump(output_dict, out_file)
+            json.dump(output_dict, out_file, indent=3)
 
 
 if __name__ == "__main__":
