@@ -4,7 +4,7 @@ import warnings
 import joblib
 import luigi
 import pandas as pd
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score
 
 from cls_luigi.inhabitation_task import ClsParameter
 from .autosklearn_task_base import AutoSklearnTask
@@ -358,6 +358,11 @@ class Classifier(AutoSklearnTask):
         self.run_summary["accuracy"] = {
             "train": round(float(accuracy_score(self.y_train, self.y_train_predict)), 5),
             "test": round(float(accuracy_score(self.y_test, self.y_test_predict)), 5)
+        }
+
+        self.run_summary["balanced_accuracy"] = {
+            "train": round(float(balanced_accuracy_score(self.y_train, self.y_train_predict)), 5),
+            "test": round(float(balanced_accuracy_score(self.y_test, self.y_test_predict)), 5)
         }
 
     def create_run_summary(self):

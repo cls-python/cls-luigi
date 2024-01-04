@@ -14,8 +14,10 @@ if __name__ == "__main__":
         scaler_col = []
         feature_preprocessor_col = []
         classifier_col = []
-        train_score = []
-        test_score = []
+        train_accuracy = []
+        test_accuracy = []
+        train_balanced_accuracy =[]
+        test_balanced_accuracy = []
         last_task_col = []
 
 
@@ -31,19 +33,24 @@ if __name__ == "__main__":
                 feature_preprocessor_col.append(pipeline["feature_preprocessor"])
                 classifier_col.append(pipeline["classifier"])
 
-                train_score.append(results_json["accuracy"]["train"])
-                test_score.append(results_json["accuracy"]["test"])
+                train_accuracy.append(results_json["accuracy"]["train"])
+                test_accuracy.append(results_json["accuracy"]["test"])
+                train_balanced_accuracy.append(results_json["balanced_accuracy"]["train"])
+                test_balanced_accuracy.append(results_json["balanced_accuracy"]["test"])
+
                 last_task_col.append(results_json["last_task"])
 
         results_df["imputer"] = imputer_col
         results_df["scaler"] = scaler_col
         results_df["feature_preprocessor"] = feature_preprocessor_col
         results_df["classifier"] = classifier_col
-        results_df["train_score"] = train_score
-        results_df["test_score"] = test_score
+        results_df["train_accuracy"] = train_accuracy
+        results_df["test_accuracy"] = test_accuracy
+        results_df["train_balanced_accuracy"] = train_balanced_accuracy
+        results_df["test_balanced_accuracy"] = test_balanced_accuracy
         results_df["last_task"] = last_task_col
 
-        results_df.sort_values(by="test_score", ascending=False, inplace=True)
+        results_df.sort_values(by="test_balanced_accuracy", ascending=False, inplace=True)
 
         results_df.to_csv(out_path, index=False)
 
