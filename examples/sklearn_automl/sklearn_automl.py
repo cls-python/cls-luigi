@@ -90,7 +90,7 @@ class ReadData(BaseTaskClass):
         }
 
 
-class Scaler(BaseTaskClass):
+class SKLScaler(BaseTaskClass):
     abstract = True
     features = ClsParameter(tpe=ReadData.return_type())
 
@@ -117,7 +117,7 @@ class Scaler(BaseTaskClass):
             x_train = features["training"]["x"]
             x_validation = features["validation"]["x"]
 
-            self.scaler = self._init_component()
+            self.scaler = self._return_new_component_instance()
             self.scaler.fit(x_train)
 
             self.cv_transformed_features[fold] = {
@@ -133,7 +133,7 @@ class Scaler(BaseTaskClass):
     def _run_fit(self):
         self.x_train = pd.read_pickle(self.input()["x_train"].path)
 
-        self.scaler = self._init_component()
+        self.scaler = self._return_new_component_instance()
         self.scaler.fit(self.x_train)
 
         self.x_train = pd.DataFrame(self.scaler.transform(self.x_train),
@@ -144,7 +144,7 @@ class Scaler(BaseTaskClass):
     def _run_predict(self):
         self.x_test = pd.read_pickle(self.input()["x_test"].path)
 
-        scaler = self._load_component()
+        scaler = self._load_fitted_component()
 
         self.x_test = pd.DataFrame(scaler.transform(self.x_test),
                                    columns=self.x_test.columns)
@@ -153,7 +153,7 @@ class Scaler(BaseTaskClass):
     def _run_infer(self):
         self.x_infer = pd.read_pickle(self.input()["x_infer"].path)
 
-        scaler = self._load_component()
+        scaler = self._load_fitted_component()
 
         self.x_infer = pd.DataFrame(scaler.transform(self.x_infer),
                                     columns=self.x_infer.columns)
@@ -204,24 +204,24 @@ class Scaler(BaseTaskClass):
         }
 
 
-class SKLStandardScaler(Scaler):
+class SKLStandardScaler(SKLScaler):
     abstract = False
 
-    def _init_component(self):
+    def _component(self):
         return StandardScaler()
 
 
-class SKLRobustScaler(Scaler):
+class SKLRobustScaler(SKLScaler):
     abstract = False
 
-    def _init_component(self):
+    def _component(self):
         return RobustScaler()
 
 
-class Classifier(BaseTaskClass):
+class SKLClassifier(BaseTaskClass):
     abstract = True
     target_values = ClsParameter(tpe=ReadData.return_type())
-    transformed_features = ClsParameter(tpe=Scaler.return_type())
+    transformed_features = ClsParameter(tpe=SKLScaler.return_type())
 
     classifier = None
     cv_predictions = None
@@ -267,7 +267,7 @@ class Classifier(BaseTaskClass):
             y_train = cv_target[fold]["training"]["y"]
             y_validation = cv_target[fold]["validation"]["y"]
 
-            self.classifier = self._init_component()
+            self.classifier = self._return_new_component_instance()
             self.classifier.fit(x_train, y_train)
 
             train_prediction = self.classifier.predict(x_train)
@@ -300,7 +300,7 @@ class Classifier(BaseTaskClass):
         self.x_train = pd.read_pickle(self.input()["transformed_features"]["x_train"].path)
         self.y_train = pd.read_pickle(self.input()["target_values"]["y_train"].path)
 
-        self.classifier = self._init_component()
+        self.classifier = self._return_new_component_instance()
         self.classifier.fit(self.x_train, self.y_train)
 
         self.train_prediction = pd.DataFrame(
@@ -319,7 +319,7 @@ class Classifier(BaseTaskClass):
         self.x_test = pd.read_pickle(self.input()["transformed_features"]["x_test"].path)
         self.y_test = pd.read_pickle(self.input()["target_values"]["y_test"].path)
 
-        self.classifier = self._load_component()
+        self.classifier = self._load_fitted_component()
 
         self.test_prediction = pd.DataFrame(
             self.classifier.predict(self.x_test),
@@ -335,7 +335,7 @@ class Classifier(BaseTaskClass):
     def _run_infer(self):
         self.x_infer = pd.read_pickle(self.input()["transformed_features"]["x_infer"].path)
 
-        self.classifier = self._load_component()
+        self.classifier = self._load_fitted_component()
 
         self.infer_prediction = pd.DataFrame(
             self.classifier.predict(self.x_infer),
@@ -357,7 +357,6 @@ class Classifier(BaseTaskClass):
                 json.dump(self.cv_scores, f, indent=5)
 
         if mode == "fit":
-            pass
             self.train_prediction.to_pickle(self._fit_output()["train_prediction"].path)
 
             with open(self._fit_output()["fitted_component"].path, "wb") as f:
@@ -402,10 +401,10 @@ class Classifier(BaseTaskClass):
         }
 
 
-class SKLDecisionTreeClassifier(Classifier):
+class SKLDecisionTreeClassifier(SKLClassifier):
     abstract = False
 
-    def _init_component(self):
+    def _component(self):
         return tree.DecisionTreeClassifier()
 
 
@@ -421,7 +420,7 @@ if __name__ == "__main__":
     gp.x_infer_path = pjoin(ds_dir, "x_infer.pkl")
     gp.cv_features_and_targets_path = pjoin(ds_dir, "cv_features_and_targets.pkl")
 
-    target_values = Classifier.return_type()
+    target_values = SKLClassifier.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Building Repository")
@@ -439,8 +438,8 @@ if __name__ == "__main__":
         max_results = actual
 
     validator = UniqueTaskPipelineValidator(
-        [Scaler,
-         Classifier])
+        [SKLScaler,
+         SKLClassifier])
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
@@ -453,6 +452,6 @@ if __name__ == "__main__":
             results[ix].mode = ("cv", "fit", "predict", "infer")
 
         luigi_run_result = luigi.build(results,
-                                       local_scheduler=True,
+                                       local_scheduler=True
                                        # detailed_summary=True
                                        )

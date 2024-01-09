@@ -14,8 +14,6 @@ class BaseTaskClass(luigi.Task, LuigiCombinator):
     # worker_timeout = 100
 
     mode = luigi.TupleParameter(default=("cv"), significant=False)
-    # dataset_dir = luigi.Parameter(default="datasets/breast_cancer", significant=False)
-    # dataset_name = luigi.Parameter(default="breast_cancer", significant=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,8 +22,6 @@ class BaseTaskClass(luigi.Task, LuigiCombinator):
             makedirs("logs")
 
         self.global_params = GlobalParameters()
-
-
 
     @staticmethod
     def makedirs_in_not_exist(path: str) -> None:
@@ -122,10 +118,13 @@ class BaseTaskClass(luigi.Task, LuigiCombinator):
     def _infer_output(self):
         raise NotImplementedError
 
-    def _init_component(self):
+    def _return_new_component_instance(self):
+        return self._component()
+
+    def _component(self):
         return NotImplementedError
 
-    def _load_component(self):
+    def _load_fitted_component(self):
         try:
             with open(self._fit_output()["fitted_component"].path, "rb") as f:
                 return pickle.load(f)
