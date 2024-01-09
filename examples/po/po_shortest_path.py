@@ -6,30 +6,28 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputRegressor
-from tqdm import tqdm
 
 from base_task import BaseTaskClass
 from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
 import pyepo
 
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
-from global_parameters import GlobalParameters
 
 
-class GenerateAndSplitDataSet(BaseTaskClass):
+class SyntheticDataGenerator(BaseTaskClass):
     abstract = False
 
     def run(self):
         features, costs = pyepo.data.shortestpath.genData(
-            num_data=5000,
-            num_features=5,
+            num_data=2000,
+            num_features=8,
             grid=(5, 5),
             deg=6,
             noise_width=0.5,
             seed=self.global_params.seed
         )
 
-        x_train, x_test, c_train, c_test = train_test_split(
+        x_train, x_test, y_train, y_test = train_test_split(
             features,
             costs,
             test_size=1000,
@@ -38,21 +36,21 @@ class GenerateAndSplitDataSet(BaseTaskClass):
 
         self.dump_pickle(x_train, self.output()["x_train"].path)
         self.dump_pickle(x_test, self.output()["x_test"].path)
-        self.dump_pickle(c_train, self.output()["c_train"].path)
-        self.dump_pickle(c_test, self.output()["c_test"].path)
+        self.dump_pickle(y_train, self.output()["y_train"].path)
+        self.dump_pickle(y_test, self.output()["y_test"].path)
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
-            "c_train": self.get_luigi_local_target_with_task_id("c_train.pkl"),
-            "c_test": self.get_luigi_local_target_with_task_id("c_test.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-x_train.pkl"),
+            "x_test": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-x_test.pkl"),
+            "y_train": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-y_train.pkl"),
+            "y_test": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-y_test.pkl")
         }
 
 
 class MultiOutputRegressionModel(BaseTaskClass):
     abstract = True
-    split_dataset = ClsParameter(tpe=GenerateAndSplitDataSet.return_type())
+    split_dataset = ClsParameter(tpe=SyntheticDataGenerator.return_type())
 
     regressor = None
 
@@ -61,26 +59,26 @@ class MultiOutputRegressionModel(BaseTaskClass):
 
     def output(self):
         return {
-            "predictions": self.get_luigi_local_target_with_task_id("predictions.pkl"),
-            "model": self.get_luigi_local_target_with_task_id("model.pkl")
+            "test_predictions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-test_predictions.pkl"),
+            "fitted_model": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-fitted_model.pkl")
         }
 
     def _load_split_input_dataset(self):
         x_train = self.load_pickle(self.input()["x_train"].path)
         x_test = self.load_pickle(self.input()["x_test"].path)
-        c_train = self.load_pickle(self.input()["c_train"].path)
-        c_test = self.load_pickle(self.input()["c_test"].path)
-        return x_train, x_test, c_train, c_test
+        y_train = self.load_pickle(self.input()["y_train"].path)
+        y_test = self.load_pickle(self.input()["y_test"].path)
+        return x_train, x_test, y_train, y_test
 
     def run(self):
-        x_train, x_test, c_train, c_test = self._load_split_input_dataset()
+        x_train, x_test, y_train, y_test = self._load_split_input_dataset()
 
         self._init_regressor()
-        self.regressor.fit(x_train, c_train)
+        self.regressor.fit(x_train, y_train)
 
-        predictions = self.regressor.predict(x_test)
-        self.dump_pickle(predictions, self.output()["predictions"].path)
-        self.dump_pickle(self.regressor, self.output()["model"].path)
+        test_predictions = self.regressor.predict(x_test)
+        self.dump_pickle(test_predictions, self.output()["test_predictions"].path)
+        self.dump_pickle(self.regressor, self.output()["fitted_model"].path)
 
     def _init_regressor(self):
         return NotImplementedError
@@ -113,7 +111,7 @@ class RandomForestModel(MultiOutputRegressionModel):
 
 class OptimizationModel(BaseTaskClass):
     abstract = True
-    split_dataset = ClsParameter(tpe=GenerateAndSplitDataSet.return_type())
+    split_dataset = ClsParameter(tpe=SyntheticDataGenerator.return_type())
     predictions = ClsParameter(tpe=MultiOutputRegressionModel.return_type())
 
     optimizer = None
@@ -129,9 +127,9 @@ class OptimizationModel(BaseTaskClass):
 
     def output(self):
         return {
-            "true_solutions": self.get_luigi_local_target_with_task_id("true_solutions.pkl"),
-            "true_objective_value": self.get_luigi_local_target_with_task_id("true_objective_value.pkl"),
-            "prediction_solutions": self.get_luigi_local_target_with_task_id("prediction_solutions.pkl"),
+            "optimal_solutions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-optimal_solutions.pkl"),
+            "optimal_objective_values": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-optimal_objective_value.pkl"),
+            "test_prediction_solutions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-test_prediction_solutions.pkl"),
         }
 
     def _get_solutions_and_objective_values(self, costs):
@@ -139,7 +137,7 @@ class OptimizationModel(BaseTaskClass):
 
         sols = []
         objs = []
-        for c in tqdm(costs):
+        for c in costs:
             self.optimizer.setObj(c)
             sol, obj = self.optimizer.solve()
             sols.append(sol)
@@ -147,14 +145,14 @@ class OptimizationModel(BaseTaskClass):
         return np.array(sols), np.array(objs)
 
     def run(self):
-        c_test = self.load_pickle(self.input()["split_dataset"]["c_test"].path)
-        true_sols, true_objs = self._get_solutions_and_objective_values(c_test)
-        self.dump_pickle(true_sols, self.output()["true_solutions"].path)
-        self.dump_pickle(true_objs, self.output()["true_objective_value"].path)
+        c_test = self.load_pickle(self.input()["split_dataset"]["y_test"].path)
+        optimal_sols, optimal_objs = self._get_solutions_and_objective_values(c_test)
+        self.dump_pickle(optimal_sols, self.output()["optimal_solutions"].path)
+        self.dump_pickle(optimal_objs, self.output()["optimal_objective_values"].path)
 
-        predictions = self.load_pickle(self.input()["predictions"]["predictions"].path)
-        pred_sols, _ = self._get_solutions_and_objective_values(predictions)
-        self.dump_pickle(pred_sols, self.output()["prediction_solutions"].path)
+        test_predictions = self.load_pickle(self.input()["predictions"]["test_predictions"].path)
+        prediction_sols, _ = self._get_solutions_and_objective_values(test_predictions)
+        self.dump_pickle(prediction_sols, self.output()["test_prediction_solutions"].path)
 
 
 class OptimizeWithGurobi(OptimizationModel):
@@ -166,40 +164,44 @@ class OptimizeWithGurobi(OptimizationModel):
 
 class Evaluation(BaseTaskClass):
     abstract = False
-    solutions = ClsParameter(tpe=OptimizationModel.return_type())
+    sols_and_objs = ClsParameter(tpe=OptimizationModel.return_type())
     predictions = ClsParameter(tpe=MultiOutputRegressionModel.return_type())
-    split_dataset = ClsParameter(tpe=GenerateAndSplitDataSet.return_type())
+    split_dataset = ClsParameter(tpe=SyntheticDataGenerator.return_type())
 
     summary = {}
-    mse = 0
-    regret = 0
+    mse = None
+    regret = None
 
     def requires(self):
         return {
-            "solutions": self.solutions(),
+            "sols_and_objs": self.sols_and_objs(),
             "predictions": self.predictions(),
             "split_dataset": self.split_dataset()
         }
 
     def run(self):
-        true_solutions = self.load_pickle(self.input()["solutions"]["true_solutions"].path)
-        true_objective_values = self.load_pickle(self.input()["solutions"]["true_objective_value"].path)
-        prediction_solutions = self.load_pickle(self.input()["solutions"]["prediction_solutions"].path)
-        predictions = self.load_pickle(self.input()["predictions"]["predictions"].path)
-        c_test = self.load_pickle(self.input()["split_dataset"]["c_test"].path)
+        true_objective_values = self.load_pickle(self.input()["sols_and_objs"]["optimal_objective_values"].path)
+        prediction_solutions = self.load_pickle(self.input()["sols_and_objs"]["test_prediction_solutions"].path)
+        predictions = self.load_pickle(self.input()["predictions"]["test_predictions"].path)
+        y_test = self.load_pickle(self.input()["split_dataset"]["y_test"].path)
 
-        self._compute_regret(prediction_solutions, c_test, true_objective_values)
-        self._compute_mse(predictions, c_test)
+        self._compute_regret(prediction_solutions, y_test, true_objective_values)
+        self._compute_mse(predictions, y_test)
         self._write_pipeline_steps()
         self._save_outputs()
 
-    def _compute_regret(self, pred_sols, true_costs, true_objs):
-        for i, sol in enumerate(pred_sols):
-            cost = true_costs[i]
-            true_obj = true_objs[i]
+    def _compute_regret(self, predicted_sols, true_costs, true_objs, minimization=True):
+        self.regret = 0
+        for index, predicted_sol in enumerate(predicted_sols):
+            true_cost = true_costs[index]
+            true_obj = true_objs[index]
 
-            loss = np.dot(sol, cost) - true_obj
-            self.regret += loss
+            if minimization:
+                _regret = np.dot(predicted_sol, true_cost) - true_obj
+            elif minimization is False:
+                _regret = true_obj - np.dot(predicted_sol, true_cost)
+
+            self.regret += _regret
 
         self.regret /= abs(true_objs.sum() + 1e-3)
         self.summary["regret"] = self.regret
@@ -209,7 +211,7 @@ class Evaluation(BaseTaskClass):
         self.summary["mse"] = self.mse
 
     def _write_pipeline_steps(self):
-        self.summary["optimizer"] = self.requires()["solutions"].task_family
+        self.summary["optimizer"] = self.requires()["sols_and_objs"].task_family
         self.summary["regressor"] = self.requires()["predictions"].task_family
 
     def _save_outputs(self):
@@ -217,7 +219,7 @@ class Evaluation(BaseTaskClass):
 
     def output(self):
         return {
-            "summary": self.get_luigi_local_target_with_task_id("summary.json")
+            "summary": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-summary.json")
         }
 
 
