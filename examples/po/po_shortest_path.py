@@ -12,6 +12,7 @@ from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
 import pyepo
 
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from global_parameters import GlobalParameters
 
 
 class SyntheticDataGenerator(BaseTaskClass):
@@ -19,11 +20,11 @@ class SyntheticDataGenerator(BaseTaskClass):
 
     def run(self):
         features, costs = pyepo.data.shortestpath.genData(
-            num_data=2000,
-            num_features=8,
-            grid=(5, 5),
-            deg=6,
-            noise_width=0.5,
+            num_data=self.global_params.num_data + 1000,
+            num_features=self.global_params.num_features,
+            grid=self.global_params.grid,
+            deg=self.global_params.deg,
+            noise_width=self.global_params.noise_width,
             seed=self.global_params.seed
         )
 
@@ -41,10 +42,10 @@ class SyntheticDataGenerator(BaseTaskClass):
 
     def output(self):
         return {
-            "x_train": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-x_train.pkl"),
-            "x_test": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-x_test.pkl"),
-            "y_train": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-y_train.pkl"),
-            "y_test": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-y_test.pkl")
+            "x_train": self.get_luigi_local_target_with_task_id("x_train.pkl"),
+            "x_test": self.get_luigi_local_target_with_task_id("x_test.pkl"),
+            "y_train": self.get_luigi_local_target_with_task_id("y_train.pkl"),
+            "y_test": self.get_luigi_local_target_with_task_id("y_test.pkl")
         }
 
 
@@ -59,8 +60,8 @@ class MultiOutputRegressionModel(BaseTaskClass):
 
     def output(self):
         return {
-            "test_predictions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-test_predictions.pkl"),
-            "fitted_model": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-fitted_model.pkl")
+            "test_predictions": self.get_luigi_local_target_with_task_id("test_predictions.pkl"),
+            "fitted_model": self.get_luigi_local_target_with_task_id("fitted_model.pkl")
         }
 
     def _load_split_input_dataset(self):
@@ -127,9 +128,12 @@ class OptimizationModel(BaseTaskClass):
 
     def output(self):
         return {
-            "optimal_solutions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-optimal_solutions.pkl"),
-            "optimal_objective_values": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-optimal_objective_value.pkl"),
-            "test_prediction_solutions": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-test_prediction_solutions.pkl"),
+            "optimal_solutions": self.get_luigi_local_target_with_task_id(
+                "optimal_solutions.pkl"),
+            "optimal_objective_values": self.get_luigi_local_target_with_task_id(
+                "optimal_objective_value.pkl"),
+            "test_prediction_solutions": self.get_luigi_local_target_with_task_id(
+                "test_prediction_solutions.pkl"),
         }
 
     def _get_solutions_and_objective_values(self, costs):
@@ -145,8 +149,8 @@ class OptimizationModel(BaseTaskClass):
         return np.array(sols), np.array(objs)
 
     def run(self):
-        c_test = self.load_pickle(self.input()["split_dataset"]["y_test"].path)
-        optimal_sols, optimal_objs = self._get_solutions_and_objective_values(c_test)
+        y_test = self.load_pickle(self.input()["split_dataset"]["y_test"].path)
+        optimal_sols, optimal_objs = self._get_solutions_and_objective_values(y_test)
         self.dump_pickle(optimal_sols, self.output()["optimal_solutions"].path)
         self.dump_pickle(optimal_objs, self.output()["optimal_objective_values"].path)
 
@@ -181,29 +185,38 @@ class Evaluation(BaseTaskClass):
 
     def run(self):
         true_objective_values = self.load_pickle(self.input()["sols_and_objs"]["optimal_objective_values"].path)
+        optimal_solutions = self.load_pickle(self.input()["sols_and_objs"]["optimal_solutions"].path)
         prediction_solutions = self.load_pickle(self.input()["sols_and_objs"]["test_prediction_solutions"].path)
         predictions = self.load_pickle(self.input()["predictions"]["test_predictions"].path)
         y_test = self.load_pickle(self.input()["split_dataset"]["y_test"].path)
 
-        self._compute_regret(prediction_solutions, y_test, true_objective_values)
+        self._compute_regret(prediction_solutions, y_test, true_objective_values, optimal_solutions)
         self._compute_mse(predictions, y_test)
         self._write_pipeline_steps()
         self._save_outputs()
 
-    def _compute_regret(self, predicted_sols, true_costs, true_objs, minimization=True):
+    def _compute_regret(self, predicted_sols, true_costs, true_objs, optimal_solutions, minimization=True):
         self.regret = 0
         for index, predicted_sol in enumerate(predicted_sols):
             true_cost = true_costs[index]
             true_obj = true_objs[index]
 
-            if minimization:
+            if minimization is True:
                 _regret = np.dot(predicted_sol, true_cost) - true_obj
+
             elif minimization is False:
                 _regret = true_obj - np.dot(predicted_sol, true_cost)
 
+            if _regret < 0:
+                if np.array_equal(predicted_sol, optimal_solutions[index]):
+                    _regret = 0
+
             self.regret += _regret
 
-        self.regret /= abs(true_objs.sum() + 1e-3)
+        self.regret /= true_objs.sum()
+        if self.regret < 0:
+            print("regret is negative")
+
         self.summary["regret"] = self.regret
 
     def _compute_mse(self, predictions, true_costs):
@@ -219,7 +232,7 @@ class Evaluation(BaseTaskClass):
 
     def output(self):
         return {
-            "summary": self.get_luigi_local_target_with_task_id(f"seed_{self.global_params.seed}-summary.json")
+            "summary": self.get_luigi_local_target_with_task_id("summary.json")
         }
 
 
@@ -243,6 +256,21 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True)
+        gp = GlobalParameters()
+        for training_size in [100]:  # , 1000, 5000]:
+            for deg in [1]:  # , 2, 3, 4, 5, 6]:
+                for noice in [0]:  # , .5]:
+                    for seed in [1]:  # , 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+                        gp.num_data = training_size
+                        gp.deg = deg
+                        gp.noise_width = noice
+                        gp.seed = seed
+                        gp.grid = (5, 5)
+                        gp.num_features = 5
+                        gp.dataset_name = "shortest_path-" + "ts_" + str(training_size) + "-deg_" + str(
+                            deg) + "-noise_" + str(
+                            noice) + "-seed_" + str(seed)
+
+                        luigi.build(results, local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")

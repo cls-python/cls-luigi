@@ -24,12 +24,16 @@ class BaseTaskClass(luigi.Task, LuigiCombinator):
                                             output_folder: str = RESULTS_PATH,
                                             ) -> luigi.LocalTarget:
 
+        if self.global_params.dataset_name != "None":
+            output_folder = pjoin(output_folder, self.global_params.dataset_name)
+
         makedirs(output_folder, exist_ok=True)
 
         return luigi.LocalTarget(pjoin(output_folder, self.task_id + "_" + outfile))
 
     def get_luigi_local_target_without_task_id(self,
-                                               outfile, output_folder=RESULTS_PATH,
+                                               outfile,
+                                               output_folder=RESULTS_PATH,
                                                dataset_name: str | int = None
                                                ) -> luigi.LocalTarget:
 
