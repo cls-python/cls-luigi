@@ -257,10 +257,10 @@ if __name__ == "__main__":
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         gp = GlobalParameters()
-        for training_size in [100]:  # , 1000, 5000]:
-            for deg in [1]:  # , 2, 3, 4, 5, 6]:
-                for noice in [0]:  # , .5]:
-                    for seed in [1]:  # , 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        for training_size in [100, 1000, 5000]:
+            for deg in [1, 2, 3, 4, 5, 6]:
+                for noice in [0, .5]:
+                    for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
                         gp.num_data = training_size
                         gp.deg = deg
                         gp.noise_width = noice
