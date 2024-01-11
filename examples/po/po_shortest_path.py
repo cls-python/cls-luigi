@@ -1,3 +1,8 @@
+import sys
+sys.path.append('..')
+sys.path.append('../..')
+
+
 import luigi
 import numpy as np
 from cls.fcl import FiniteCombinatoryLogic
@@ -258,7 +263,7 @@ if __name__ == "__main__":
         print("Run Pipelines")
         gp = GlobalParameters()
         for training_size in [100, 1000, 5000]:
-            for deg in [1, 2, 3, 4, 5, 6]:
+            for deg in [1, 2, 4, 6]:
                 for noice in [0, .5]:
                     for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
                         gp.num_data = training_size
