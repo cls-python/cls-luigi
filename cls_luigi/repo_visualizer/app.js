@@ -383,7 +383,7 @@ async function singlePipelines(){
               TotalProcessingTime = TotalProcessingTime + pipeline[k]["processingTime"];
             }
 
-            let total = (TotalProcessingTime/ 60).toFixed(2);
+            let total = (TotalProcessingTime/ 60).toFixed(4);
 
             d3.select("#single_p_n_tasks")
               .append("div")

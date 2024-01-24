@@ -23,17 +23,37 @@
   <title>Repository Visualizer</title>
   <script src="js_lib/d3.js"></script>
   <script src="js_lib/dagre-d3.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" type="text/css" href="style.css?v=123456"> <!-- ?v=123456 to stop caching -->
 
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+  <script src="js_lib/cytoscape.umd.js"></script>
+  <script src="js_lib/dagre.js"></script>
+  <script src="js_lib/cytoscape-dagre.js"></script>
+  <script src="style.js"></script>
+  <script src="helper.js"></script>
+  <script src="static-cytoscape.js"></script>
+
+
+  <script>
+
+    window.addEventListener('DOMContentLoaded', function () {
+        createCytoscapeStaticGraph();
+    });
+  </script>
 
 </head>
 
 <body>
   <h1>CLS-Luigi Repository Visualization</h1>
+
+  <h2>cytoscape-dagre demo</h2>
+  <div id="cy"></div>
+  <div id="subgraph-container" style="display: none;"></div>
+
   <h2>
     Repository Overview
   </h2>
-
 
   <div class="static pipeline">
     <div class='legend'  style="top:30px; width: 390px; height: 180px;">

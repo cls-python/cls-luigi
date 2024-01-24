@@ -17,12 +17,26 @@
 # limitations under the License.
 #
 
-import cls.types
-from cls_luigi.inhabitation_task import RepoMeta
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from luigi import Task, WrapperTask
 
+import cls.types
+from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
+from cls_luigi.repo_visualizer.json_io import load_json, dump_json
 from cls.types import Constructor
+
 import os
+import inspect
+import gc
+import re
+
+from string import Template
+
+PARENT_NODE_TEMPLATE = "{ data: { id: '$ID' }, classes: 'parent' },\n"
+NODE_TEMPLATE = "{ data: { id: '$ID', label: '$LABEL' }, classes: '$CLASSES' },\n"
+CHILD_NODE_TEMPLATE = "{ data: { id: '$ID', parent: '$PARENT', label: '$LABEL' }, classes: '$CLASSES' },\n"
+EDGE_TEMPLATE = "{ data: { id: '$ID', source: '$SOURCE', target: '$TARGET' }, classes: '$CLASSES' },\n"
+GRAPHDATA_TEMPLATE = "var elementsData = \n\n {nodes: [$NODES], \n\n edges: [$EDGES]}"
+
 
 VIS = os.path.dirname(os.path.abspath(__file__))
 
@@ -122,3 +136,212 @@ class StaticJSONRepo:
     def dump_static_repo_json(self):
         outfile_name = self.static_pipeline_json
         dump_json(outfile_name, self.output_dict)
+
+class StaticCytoscapeRepo:
+    """
+    Creates a cytoscape representation of all relevant pipeline components.
+    usage:
+      StaticJSONRepo(RepoMeta).createGraph()
+    """
+    FILTER_PACKAGES = ["luigi", "cls_luigi"]
+
+    def __init__(self):
+        self.repo_meta = RepoMeta
+        self.repository = self.repo_meta.repository
+
+        self.graphdata_js = os.path.join(VIS, 'graphdata.js')
+        if os.path.exists(self.graphdata_js):
+            os.remove(self.graphdata_js)
+
+
+        self.repo_tasks = self._get_classes_with_multiple_inheritance(Task, LuigiCombinator)
+        self.pure_tasks = self._get_classes_with_multiple_inheritance(Task, exclude_classes=[LuigiCombinator])
+        self.all_tasks = self.repo_tasks + self.pure_tasks
+
+    @classmethod
+    def add_package_to_filter(cls, package):
+        cls.FILTER_PACKAGES.append(package)
+
+    def _filter_classes(self, classes_to_filter=[]):
+
+        for cls in classes_to_filter:
+            if cls in self.repo_tasks:
+                self.repo_tasks.remove(cls)
+            if cls in self.pure_tasks:
+                self.pure_tasks.remove(cls)
+        self.all_tasks = self.repo_tasks + self.pure_tasks
+
+
+    def create_graph(self):
+        """
+        Generates the 'graphdata.js' file that is used to visualize the overall pipeline structure.
+
+        """
+        graph_template = Template(GRAPHDATA_TEMPLATE)
+
+        # function to get all nodes as filled string template
+        # replace $NODES in graph_template
+
+        nodes = set()
+        edges = set()
+        # Maps from already added parent id to a set of nodes that ist should contain
+        parent_nodes = {}
+
+
+        for cls in self.all_tasks:
+
+            # Add node and edges for pure tasks.
+            if cls in self.pure_tasks:
+                node = Template(NODE_TEMPLATE)
+                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'CLASSES' : "luigi-task outline"}
+                nodes.add(node.substitute(data))
+                if "requires" in cls.__dict__:
+                    self._analyse_requires_and_add_edges(edges, cls)
+                self.pure_tasks.remove(cls)
+                break
+
+
+            # Else we deal with LuigiCombinator Tasks
+            # inherited_classes = [x for x in list(inspect.getmro(cls)[1:]) if x in self.all_tasks]
+
+            class_chain = self.repo_meta._get_class_chain(cls)
+            current_class = class_chain[0]
+            filtered_upstream  = [x for x in class_chain[1] if x in self.all_tasks]
+            filtered_downstream  = [x for x in class_chain[2] if x in self.all_tasks]
+            result_set_for_parent  = frozenset()
+
+            if "requires" in cls.__dict__:
+                self._analyse_requires_and_add_edges(edges, cls)
+
+
+
+            # only inhabitation chains from abstract classes should be visulized using parent/compound nodes
+            if cls.abstract:
+
+                new_parent = True
+                for key, set_of_classes in parent_nodes.items():
+                    if cls in set_of_classes:
+                        new_set = set_of_classes.union(frozenset(filtered_upstream)).union(frozenset(filtered_downstream)).union(frozenset([current_class]))
+                        parent_nodes[key] = new_set
+                        new_parent = False
+                        break
+
+                if new_parent:
+                    result_set_for_parent = result_set_for_parent.union(frozenset(filtered_upstream)).union(frozenset(filtered_downstream)).union(frozenset([current_class]))
+                    new_id = "PARENT_"+ str(id(cls))
+                    parent_nodes[new_id] = result_set_for_parent
+
+            # directly add inheritance edge if there should be any.
+            if filtered_upstream:
+                inherited_classes = cls.__bases__
+                filtered_inherited_classes = [item for item in inherited_classes if item in filtered_upstream]
+                for direct_parent in filtered_inherited_classes:
+                    edge = Template(EDGE_TEMPLATE)
+                    data = {'ID': direct_parent.__name__ + "_" + cls.__name__   , 'SOURCE': direct_parent.__name__ , 'TARGET': cls.__name__, 'CLASSES': 'inheritance'}
+                    edges.add(edge.substitute(data))
+
+        for key, set_of_classes in parent_nodes.items():
+            node = Template(PARENT_NODE_TEMPLATE)
+            data = {'ID': key}
+            nodes.add(node.substitute(data))
+
+            edge = Template(EDGE_TEMPLATE)
+            data = {'ID': key, 'SOURCE': key , 'TARGET': key, 'CLASSES': 'loop'}
+            edges.add(edge.substitute(data))
+
+            for cls in set_of_classes:
+                node = Template(CHILD_NODE_TEMPLATE)
+                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'PARENT' : str(key), 'CLASSES' : ("config-domain-task" if isinstance(cls, WrapperTask) else "abstract-task" if cls.abstract else "concrete-task") + " outline" }
+                nodes.add(node.substitute(data))
+
+                self.repo_tasks.remove(cls)
+
+        # for rest of not visulized task, draw them!
+        for cls in self.pure_tasks + self.repo_tasks:
+            node = Template(NODE_TEMPLATE)
+            data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'CLASSES' : "luigi-task outline" if cls in self.pure_tasks else "abstract-task outline" if cls.abstract else "concrete-task outline"}
+            nodes.add(node.substitute(data))
+            if "requires" in cls.__dict__:
+                    self._analyse_requires_and_add_edges(edges, cls)
+
+
+        graph_template = graph_template.substitute({'NODES': ''.join([node for node in nodes]), 'EDGES': ''.join([edge for edge in edges])})
+
+        with open(self.graphdata_js, 'w') as fp:
+            fp.write(graph_template)
+
+    def _analyse_requires_and_add_edges(self, edges, cls):
+        method_object = cls.requires
+        source_code = inspect.getsource(method_object)
+        return_code = self._remove_empty_characters(self._remove_quoted_text(self._remove_between_delimiters(source_code, "\"\"\"", "\"\"\"").split("return")[-1]))
+        for task in self.all_tasks:
+
+            pattern = r'(?:\W|^){}(?:\W|$)'.format(re.escape(task.__name__))
+
+
+            if bool(re.search(pattern, return_code)):
+                edge = Template(EDGE_TEMPLATE)
+                data = {'ID': task.__name__ + "_" + cls.__name__   , 'SOURCE': task.__name__ , 'TARGET': cls.__name__, 'CLASSES': ''}
+                edges.add(edge.substitute(data))
+
+
+                # uses reflection and __dict__ to see if class has ClsParameters defined,
+                # that are defined in class and not by parent.
+        cls_parameters = [
+                    name for name, param in inspect.getmembers(cls)
+                    if not name.startswith('__') and isinstance(param, ClsParameter) and name in cls.__dict__
+                ]
+
+        for param in cls_parameters:
+            if "self." + param + "()" in return_code:
+                parameter_object = getattr(cls, param)
+                id_name = parameter_object.tpe.name.cls_tpe.split('.')[-1]
+                edge = Template(EDGE_TEMPLATE)
+                data = {'ID': id_name + "_" + cls.__name__   , 'SOURCE': id_name , 'TARGET': cls.__name__, 'CLASSES': ''}
+                edges.add(edge.substitute(data))
+
+    def _get_classes_with_multiple_inheritance(self,*classes, exclude_classes = [], exclude_packages = []):
+        for packs in exclude_packages:
+            StaticCytoscapeRepo.add_package_to_filter(packs)
+        all_classes = []
+        for loaded_class in self._get_loaded_classes():
+            if inspect.isclass(loaded_class) and all(issubclass(loaded_class, cls) for cls in classes) and not any(issubclass(loaded_class, cls) for cls in exclude_classes):
+                add_to_list = True
+
+                for package_name in self.FILTER_PACKAGES:
+                    if loaded_class.__module__.startswith(package_name):
+                        add_to_list = False
+                        break
+
+                if add_to_list:
+                    all_classes.append(loaded_class)
+
+        return all_classes
+
+    @staticmethod
+    def _remove_empty_characters(input_string):
+        return re.sub(r'\s+', '', input_string)
+
+    @staticmethod
+    def _remove_quoted_text(input_string):
+        pattern = r"'[^']*'|\"[^\"]*\""
+        return re.sub(pattern, '', input_string)
+
+    @staticmethod
+    def _remove_between_delimiters(string, start_delim, end_delim):
+        parts = string.split(start_delim)
+        if len(parts) > 1:
+            first_part = parts[0]
+            last_part = parts[-1].split(end_delim, 1)[-1]
+            return first_part + last_part
+        else:
+            return string
+
+    @staticmethod
+    def _get_loaded_classes():
+        all_classes = []
+        for obj in gc.get_objects():
+            if inspect.isclass(obj):
+                all_classes.append(obj)
+
+        return all_classes

@@ -89,6 +89,21 @@ body {
 
   }
 
+  #cy {
+    width: 98%;
+    height: 900px;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 80px;
+    display: block;
+    overflow: hidden;
+    background-color: #333;
+
+
+
+  }
+
+
   svg {
     width: 98%;
     height: 93%;
@@ -309,6 +324,17 @@ body {
     color: white;
   }
 
+  #cy {
+    width: 98%;
+    height: 2100px;
+    display: block;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 80px;
+    background-color: #333;
+    display: block;
+    overflow: hidden;
+  }
 
   .dynamic.pipeline {
     width: 98%;
