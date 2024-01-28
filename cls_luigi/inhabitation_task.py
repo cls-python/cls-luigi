@@ -890,7 +890,7 @@ class CLSLuigiDecoder(cls_json.CLSDecoder):
             arg = serialized_args.pop()
             wrapped_task = wrapped_task(wrapped_task.cls.config_index.parse(arg))
         while serialized_args:
-            arg = CLSLuigiDecoder._deserialize_combinator(serialized_args.pop().values()[0])
+            arg = list(serialized_args.pop().values())[0]
             wrapped_task = wrapped_task(arg)
         return wrapped_task
 
