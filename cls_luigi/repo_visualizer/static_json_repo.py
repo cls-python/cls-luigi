@@ -193,7 +193,7 @@ class StaticCytoscapeRepo:
             # Add node and edges for pure tasks.
             if cls in self.pure_tasks:
                 node = Template(NODE_TEMPLATE)
-                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'CLASSES' : "luigi-task outline"}
+                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'CLASSES' : "luigi-task outline"}
                 nodes.add(node.substitute(data))
                 if "requires" in cls.__dict__:
                     self._analyse_requires_and_add_edges(edges, cls)
@@ -251,7 +251,7 @@ class StaticCytoscapeRepo:
 
             for cls in set_of_classes:
                 node = Template(CHILD_NODE_TEMPLATE)
-                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'PARENT' : str(key), 'CLASSES' : ("config-domain-task" if isinstance(cls, WrapperTask) else "abstract-task" if cls.abstract else "concrete-task") + " outline" }
+                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'PARENT' : str(key), 'CLASSES' : ("config-domain-task" if isinstance(cls, WrapperTask) else "abstract-task" if cls.abstract else "concrete-task") + " outline" }
                 nodes.add(node.substitute(data))
 
                 self.repo_tasks.remove(cls)
@@ -259,7 +259,7 @@ class StaticCytoscapeRepo:
         # for rest of not visulized task, draw them!
         for cls in self.pure_tasks + self.repo_tasks:
             node = Template(NODE_TEMPLATE)
-            data = {'ID': cls.__name__, 'LABEL' : cls.__name__ + "\\n" + "--" * len(cls.__name__) + "\\n\\n\\n\\n", 'CLASSES' : "luigi-task outline" if cls in self.pure_tasks else "abstract-task outline" if cls.abstract else "concrete-task outline"}
+            data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'CLASSES' : "luigi-task outline" if cls in self.pure_tasks else "abstract-task outline" if cls.abstract else "concrete-task outline"}
             nodes.add(node.substitute(data))
             if "requires" in cls.__dict__:
                     self._analyse_requires_and_add_edges(edges, cls)

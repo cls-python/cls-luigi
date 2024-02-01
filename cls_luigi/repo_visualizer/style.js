@@ -32,14 +32,13 @@ var dagre_tb_layout = {
       style: {
         'background-color': '#11479e',
         'z-index': '10',
-        'border-width': '1.5px',
-        'border-color': '#bbb',
       }
     },
+
     {
       selector: '.parent',
       style: {
-        'background-color': '#aeaeae',
+        'background-color': '#7a7a7a',
         'text-valign': 'top',
         'text-halign': 'center',
         'shape': 'barrel',
@@ -55,11 +54,12 @@ var dagre_tb_layout = {
       selector: '.luigi-task',
       style: {
         'label': 'data(label)',
-        'background-color': '#169f31',
+        'background-color': '#58814b',
         'shape': 'round-rectangle',
         'z-index': '10',
         'border-width': '1.5px',
         'border-color': '#bbb',
+        "font-weight": "bold",
 
       }
     },
@@ -68,7 +68,7 @@ var dagre_tb_layout = {
       selector: '.abstract-task',
       style: {
         'label': 'data(label)',
-        'background-color': '#11479e',
+        'background-color': '#8B0000',
         'shape': 'bottom-round-rectangle',
         'z-index': '10',
         'border-width': '1.5px',
@@ -81,7 +81,7 @@ var dagre_tb_layout = {
         selector: '.concrete-task',
         style: {
           'label': 'data(label)',
-          'background-color': '#d5026f',
+          'background-color': '#3498db',
           'shape': 'round-rectangle',
           'z-index': '10',
           'border-width': '1.5px',
@@ -94,7 +94,7 @@ var dagre_tb_layout = {
     selector: '.config-domain-task',
     style: {
         'label': 'data(label)',
-        'background-color': '#02d5cb',
+        'background-color': '#001F3F',
         'shape': 'round-diamond',
         'z-index': '10',
         'border-width': '1.5px',
@@ -106,9 +106,9 @@ var dagre_tb_layout = {
     {
       "selector": ".outline",
       "style": {
-        "color": "#fff",
-        "text-outline-color": "#888",
-        "text-outline-width": 3,
+        "color": "#FFFFFF",
+        "text-outline-color": "#FFFFFF",
+        "text-outline-width": '0.5',
         "text-wrap": "wrap",
         'text-valign': 'center', // Center the text vertically
         'text-halign': 'center', // Center the text horizontally
@@ -122,8 +122,8 @@ var dagre_tb_layout = {
         'width': 8,
         'line-style': 'dashed',
         'target-arrow-shape': 'vee',
-        'line-color': 'red',
-        'target-arrow-color': 'red',
+        'line-color': '#cfcfcf',
+        'target-arrow-color': '#cfcfcf',
         "curve-style": "bezier",
         "control-point-step-size": 40,
         //'curve-style' : 'taxi',
@@ -134,7 +134,7 @@ var dagre_tb_layout = {
     {
       selector: '.inheritance',
       style: {
-        'width': 10,
+        'width': 8,
         'source-arrow-shape': 'triangle-backcurve',
         'line-color': 'black',
         'target-arrow-shape': 'none',

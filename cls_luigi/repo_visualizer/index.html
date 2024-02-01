@@ -47,27 +47,24 @@
 <body>
   <h1>CLS-Luigi Repository Visualization</h1>
 
-  <h2>cytoscape-dagre demo</h2>
-  <div id="cy"></div>
-  <div id="subgraph-container" style="display: none;"></div>
-
   <h2>
     Repository Overview
   </h2>
 
   <div class="static pipeline">
-    <div class='legend'  style="top:30px; width: 390px; height: 180px;">
+    <div class='legend'  style="top:30px; width: 500px; height: 180px;">
       <div class='legend-title'>Component Type</div>
       <div class='legend-scale'>
         <ul class='legend-labels'>
-          <li><span class="abstract-color"></span>  Abstract</li>
-          <li><span class="non-abstract-color"></span>Non-Abstract</li>
-          <li><span class="indexed-color"></span>Non-Abstract with Config Index</li>
+          <li><span class="abstract-color"></span>Abstract Task</li>
+          <li><span class="non-abstract-color"></span>Non-Abstract Task</li>
+          <li><span class="indexed-color"></span>Non-Abstract Task with Config Index</li>
+          <li><span class="luigi-task-color"></span>Luigi Task</li>
         </ul>
       </div>
     </div>
-    <total-pipelines></total-pipelines>
-    <svg class = "static-pipeline"></svg>
+    <div id="cy" style="width: 98%; height: 88%; margin:40px;"></div>
+    <div id="subgraph-container" style="display: none; width: 100%; height: 100vh;"></div>
   </div>
 
   <h2>

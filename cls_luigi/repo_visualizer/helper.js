@@ -38,7 +38,7 @@
 
         var maxWidth = 0;
         var maxHeight = 0;
-        var padding= 10;
+        var padding= 15;
 
         nodes.forEach(function (node) {
 
@@ -81,8 +81,9 @@
       function resizeNodeToFitLabel(node, maxNodeSize) {
 
         // Update the node size based on the label size
-        node.style('width', maxNodeSize.width + 2 * maxNodeSize.padding);
-        node.style('height', maxNodeSize.height + 2 * maxNodeSize.padding);
+        node.style('width', maxNodeSize.width);
+        node.style('height', maxNodeSize.height);
+        node.style('padding', maxNodeSize.padding);
 
       };
 
