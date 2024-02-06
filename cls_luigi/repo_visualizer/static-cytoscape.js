@@ -1,3 +1,26 @@
+/*
+#
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+*/
+
+// should be an odd number, since we use a trick to layout nodes within a 'parent' node
+var maxNodesInOnLevel = 3;
+
 function createCytoscapeStaticGraph() {
 
     loadScript("graphdata.js", function () {
@@ -13,14 +36,6 @@ function createCytoscapeStaticGraph() {
         });
 
 
-        /**
-        * This subgraph is used to layout the compound nodes with a different layout.
-        */
-        var subgraphCy = cytoscape({
-            container: document.getElementById('subgraph-container'),
-            style: globalStyle,
-        });
-
         // search for biggest node based on label, and fit every other node to same size.
 
         maxNodeSize = getMaxNodeSize(cy.nodes())
@@ -31,8 +46,8 @@ function createCytoscapeStaticGraph() {
             resizeNodeToFitLabel(node, maxNodeSize);
 
         });
-
         cy.layout(dagre_lr_layout).run();
+
 
         // Get all the compound nodes
         var compoundNodes = cy.nodes().filter(function (node) {
@@ -61,6 +76,14 @@ function createCytoscapeStaticGraph() {
                 targetSize: {},
                 targetPosition: {}
             };
+
+            /**
+            * This subgraph is used to layout the compound nodes with a different layout.
+            */
+            var subgraphCy = cytoscape({
+                container: document.getElementById('subgraph-container'),
+                style: globalStyle,
+            });
 
             changedCompoundNodeData[node.data().id] = compoundNodeData;
 
@@ -96,6 +119,7 @@ function createCytoscapeStaticGraph() {
                     compoundNodeData.filteredEdges[edgeId] = { data: edgeData, classes: edgeClasses };
                 }
             });
+
             Object.keys(compoundNodeData.filteredEdges).forEach(function (id) {
 
                 delete compoundNodeData.innerEdges[id]
@@ -120,12 +144,7 @@ function createCytoscapeStaticGraph() {
 
                 }
             });
-            // resizes nodes to fit label. Will result in same size as in main graph.
-            subgraphCy.nodes().forEach(function (node) {
 
-                resizeNodeToFitLabel(node, maxNodeSize);
-
-            });
 
             /**
             * Iterate over innerEdges in dataStructure and adds them to the subgraph.
@@ -140,6 +159,67 @@ function createCytoscapeStaticGraph() {
                     });
                 }
             });
+
+            subgraphCy.nodes().forEach(function (node) {
+
+                // resizes nodes to fit label. Will result in same size as in main graph.
+                resizeNodeToFitLabel(node, maxNodeSize);
+
+                /**
+                * Iterate over every node in compoundNode and get how many direct child
+                * nodes the current nodes has.
+                * if more then 4
+                * seperate child list into list of lists of 4
+                * don't forget to save old reference to parent node for every node.
+                * put list[x+1] as childs of random node in list[x]
+                */
+                var currentNode = subgraphCy.getElementById(node.data().id);
+                var outgoingEdges = currentNode.outgoers("edge");
+                var numberOfOutgoingEdges = outgoingEdges.length;
+
+                if (numberOfOutgoingEdges > maxNodesInOnLevel){
+
+                    var edgeChunks = [];
+
+                    for (var i = 0; i < outgoingEdges.length; i += maxNodesInOnLevel) {
+                        var chunk = outgoingEdges.slice(i, i + maxNodesInOnLevel);
+                        edgeChunks.push(chunk);
+                    }
+
+                    // Iterate over the list of lists and update the target of edges in list x+1
+                    for (var j = 0; j < edgeChunks.length - 1; j++) {
+                        var currentChunk = edgeChunks[j];
+                        var nextChunk = edgeChunks[j + 1];
+
+                        // Get the middle node in list x
+                        var middleNodeIndex = Math.floor(currentChunk.length / 2);
+                        var middleNodeId = currentChunk[middleNodeIndex].data().target;
+
+                        // Iterate over edges in list x+1
+                        for (var k = 0; k < nextChunk.length; k++) {
+                            // Update the target of the edge in list x+1
+                            var edgeId = nextChunk[k].data().id;
+                            var edge = subgraphCy.getElementById(edgeId);
+                            var edgeData = edge.data();
+                            var edgeClasses = edge.classes;
+
+                            var newSource = middleNodeId;
+                            var newTarget = edgeData.target;
+
+                            edge.remove();
+
+                            subgraphCy.add({
+                                group: 'edges',
+                                data: { id: edgeId, source: newSource, target: newTarget },
+                                classes: edgeClasses
+                            });
+
+                        }
+                    }
+                }
+            });
+
+
             // run Top-Bottom Layout for a classdiagram-like layout.
             subgraphCy.layout(dagre_tb_layout).run();
 
@@ -177,8 +257,6 @@ function createCytoscapeStaticGraph() {
                 var edge = changedCompoundNodeData[compoundNodeId].filteredEdges[edgeId];
                 var edgeData = edge.data;
                 var edgeClasses = edge.classes;
-                var sourceNode = cy.getElementById(edgeData.source);
-                var targetNode = cy.getElementById(edgeData.target);
 
                 // Remove the existing edge from the graph
                 changedEdges[edgeId] = { source: edgeData.source, target: edgeData.target, classes: edgeClasses };

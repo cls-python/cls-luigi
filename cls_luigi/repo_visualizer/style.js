@@ -1,11 +1,31 @@
+/*
+#
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+*/
+
 var dagre_tb_layout = {
     name: 'dagre',
-    nodeSep: 80,
-    edgeSep: 20,
-    rankSep: 80,
+    nodeSep: 60,
+    edgeSep: 30,
+    rankSep: 50,
     rankDir: 'TB',
     fit: true,
-    padding: 50,
+    padding: 10,
     stop: true,
     minLen: 2,
 
@@ -15,12 +35,12 @@ var dagre_tb_layout = {
 
   var dagre_lr_layout = {
     name: 'dagre',
-    nodeSep: 100,
+    nodeSep: 60,
     edgeSep: 30,
-    rankSep: 80,
+    rankSep: 50,
     rankDir: 'LR',
     fit: true,
-    padding: 50,
+    padding: 10,
     minLen: 2,
     stop: true,
 
@@ -139,7 +159,7 @@ var dagre_tb_layout = {
         'line-color': 'black',
         'target-arrow-shape': 'none',
         'line-style': 'solid',
-        'source-arrow-color': 'black',
+        'source-arrow-color': 'white',
         'curve-style': 'taxi',
         'taxi-direction': 'downward',
         'z-index': '6',
