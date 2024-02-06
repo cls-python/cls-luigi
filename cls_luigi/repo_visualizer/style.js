@@ -20,29 +20,28 @@
 
 var dagre_tb_layout = {
     name: 'dagre',
-    nodeSep: 60,
-    edgeSep: 30,
-    rankSep: 50,
+    nodeSep: 20,
+    edgeSep: 0,
+    rankSep: 20,
     rankDir: 'TB',
     fit: true,
     padding: 10,
     stop: true,
     minLen: 2,
 
-
-
   };
 
   var dagre_lr_layout = {
     name: 'dagre',
-    nodeSep: 60,
-    edgeSep: 30,
-    rankSep: 50,
+    nodeSep: 40,
+    edgeSep: 80,
+    rankSep: 40,
     rankDir: 'LR',
     fit: true,
     padding: 10,
     minLen: 2,
     stop: true,
+    align: 'UL',
 
   };
 
