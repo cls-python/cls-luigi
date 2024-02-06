@@ -50,9 +50,7 @@ function createCytoscapeStaticGraph() {
 
 
         // Get all the compound nodes
-        var compoundNodes = cy.nodes().filter(function (node) {
-            return node.isParent();
-        });
+        var compoundNodes = getCompoundNodesOfGraph(cy);
 
 
         /**
@@ -110,21 +108,7 @@ function createCytoscapeStaticGraph() {
             * Namely every edge that goes in or out of the compound node.
             * Only edges left are "inheritance" edges.
             */
-            Object.keys(compoundNodeData.innerEdges).forEach(function (edgeId) {
-                var edge = compoundNodeData.innerEdges[edgeId];
-
-                if (!compoundNodeData.innerNodes.hasOwnProperty(edge.data.target) || !compoundNodeData.innerNodes.hasOwnProperty(edge.data.source)) {
-                    var edgeData = { id: edge.data.id, source: edge.data.source, target: edge.data.target };
-                    var edgeClasses = edge.classes;
-                    compoundNodeData.filteredEdges[edgeId] = { data: edgeData, classes: edgeClasses };
-                }
-            });
-
-            Object.keys(compoundNodeData.filteredEdges).forEach(function (id) {
-
-                delete compoundNodeData.innerEdges[id]
-
-            });
+            filterForInheritanceEdges(compoundNodeData);
 
 
             /**
@@ -165,57 +149,13 @@ function createCytoscapeStaticGraph() {
                 // resizes nodes to fit label. Will result in same size as in main graph.
                 resizeNodeToFitLabel(node, maxNodeSize);
 
-                /**
-                * Iterate over every node in compoundNode and get how many direct child
-                * nodes the current nodes has.
-                * if more then 4
-                * seperate child list into list of lists of 4
-                * don't forget to save old reference to parent node for every node.
-                * put list[x+1] as childs of random node in list[x]
-                */
                 var currentNode = subgraphCy.getElementById(node.data().id);
                 var outgoingEdges = currentNode.outgoers("edge");
                 var numberOfOutgoingEdges = outgoingEdges.length;
 
                 if (numberOfOutgoingEdges > maxNodesInOnLevel){
 
-                    var edgeChunks = [];
-
-                    for (var i = 0; i < outgoingEdges.length; i += maxNodesInOnLevel) {
-                        var chunk = outgoingEdges.slice(i, i + maxNodesInOnLevel);
-                        edgeChunks.push(chunk);
-                    }
-
-                    // Iterate over the list of lists and update the target of edges in list x+1
-                    for (var j = 0; j < edgeChunks.length - 1; j++) {
-                        var currentChunk = edgeChunks[j];
-                        var nextChunk = edgeChunks[j + 1];
-
-                        // Get the middle node in list x
-                        var middleNodeIndex = Math.floor(currentChunk.length / 2);
-                        var middleNodeId = currentChunk[middleNodeIndex].data().target;
-
-                        // Iterate over edges in list x+1
-                        for (var k = 0; k < nextChunk.length; k++) {
-                            // Update the target of the edge in list x+1
-                            var edgeId = nextChunk[k].data().id;
-                            var edge = subgraphCy.getElementById(edgeId);
-                            var edgeData = edge.data();
-                            var edgeClasses = edge.classes;
-
-                            var newSource = middleNodeId;
-                            var newTarget = edgeData.target;
-
-                            edge.remove();
-
-                            subgraphCy.add({
-                                group: 'edges',
-                                data: { id: edgeId, source: newSource, target: newTarget },
-                                classes: edgeClasses
-                            });
-
-                        }
-                    }
+                    doManualLevelWrapLayouting(outgoingEdges, subgraphCy);
                 }
             });
 
@@ -367,3 +307,4 @@ function createCytoscapeStaticGraph() {
 
     });
 };
+
