@@ -17,5 +17,5 @@
 # limitations under the License.
 #
 
-"""Top-level package for repo_visualizer."""
+"""Top-level package for visualizer."""
 

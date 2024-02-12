@@ -32,10 +32,10 @@ import luigi
 from luigi.task_register import Register
 from multiprocessing import Process
 
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from cls_luigi.visualizer.json_io import load_json, dump_json
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
-CONFIG = "config.json"
+CONFIG = "static/config/config.json"
 
 
 class TaskProcessingTime(object):

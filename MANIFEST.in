@@ -7,11 +7,16 @@ include README.rst
 recursive-include LICENSES *
 
 include cls_luigi/*
-include cls_luigi/repo_visualizer/*.js
-include cls_luigi/repo_visualizer/*.json
-include cls_luigi/repo_visualizer/*.html
-include cls_luigi/repo_visualizer/*.css
-include cls_luigi/repo_visualizer/js_lib/*.js
+include cls_luigi/visualizer/*.js
+include cls_luigi/visualizer/*.json
+include cls_luigi/visualizer/*.html
+include cls_luigi/visualizer/*.css
+include cls_luigi/visualizer/static/*
+include cls_luigi/visualizer/static/config/*
+include cls_luigi/visualizer/static/css/*
+include cls_luigi/visualizer/static/js/*
+include cls_luigi/visualizer/static/js_lib/*
+include cls_luigi/visualizer/static/sites/*
 
 
 recursive-exclude * __pycache__

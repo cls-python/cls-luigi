@@ -21,7 +21,7 @@ from luigi import Task, WrapperTask
 
 import cls.types
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from cls_luigi.visualizer.json_io import dump_json
 from cls.types import Constructor
 
 import os
@@ -39,8 +39,6 @@ GRAPHDATA_TEMPLATE = "var elementsData = \n\n {nodes: [$NODES], \n\n edges: [$ED
 
 
 VIS = os.path.dirname(os.path.abspath(__file__))
-
-CONFIG = "config.json"
 
 
 class StaticJSONRepo:
@@ -61,7 +59,7 @@ class StaticJSONRepo:
         self.add_tasks_and_concreate_implementations()
         self.add_dependencies_and_indexed_tasks()
 
-        self.static_pipeline_json = os.path.join(VIS, 'static_pipeline.json')
+        self.static_pipeline_json = os.path.join(VIS, "static", "static_pipeline.json")
         if os.path.exists(self.static_pipeline_json):
             os.remove(self.static_pipeline_json)
 
@@ -85,11 +83,20 @@ class StaticJSONRepo:
 
                     elif list(v)[0].tpe.abstract is True:
                         pretty_abst_task = self._prettify_name(list(v)[0].cls_tpe)
-                        if "concreteImplementations" not in self.output_dict[pretty_abst_task]:
-                            self.output_dict[pretty_abst_task]["concreteImplementations"] = []
+                        if (
+                            "concreteImplementations"
+                            not in self.output_dict[pretty_abst_task]
+                        ):
+                            self.output_dict[pretty_abst_task][
+                                "concreteImplementations"
+                            ] = []
 
-                        self.output_dict[pretty_abst_task]["concreteImplementations"] += [pretty_task_name]
-                        self.concrete_to_abst_mapper[pretty_task_name] = pretty_abst_task
+                        self.output_dict[pretty_abst_task][
+                            "concreteImplementations"
+                        ] += [pretty_task_name]
+                        self.concrete_to_abst_mapper[
+                            pretty_task_name
+                        ] = pretty_abst_task
                 else:
                     self.output_dict[pretty_task_name] = {"abstract": False}
 
@@ -108,15 +115,21 @@ class StaticJSONRepo:
                             pretty_indexed_t_name = self._prettify_name(indexed_t_name)
                             if "configIndexes" not in self.output_dict[pretty_task]:
                                 self.output_dict[pretty_task]["configIndexes"] = {}
-                            self.output_dict[pretty_task]["configIndexes"][index] = [pretty_indexed_t_name]
+                            self.output_dict[pretty_task]["configIndexes"][index] = [
+                                pretty_indexed_t_name
+                            ]
 
                             if pretty_indexed_t_name in self.concrete_to_abst_mapper:
-                                pretty_indexed_t_name = self.concrete_to_abst_mapper[pretty_indexed_t_name]
+                                pretty_indexed_t_name = self.concrete_to_abst_mapper[
+                                    pretty_indexed_t_name
+                                ]
 
                             if "inputQueue" not in self.output_dict[pretty_task]:
                                 self.output_dict[pretty_task]["inputQueue"] = []
 
-                            self.output_dict[pretty_task]["inputQueue"] += [pretty_indexed_t_name]
+                            self.output_dict[pretty_task]["inputQueue"] += [
+                                pretty_indexed_t_name
+                            ]
 
                     if not isinstance(v, Constructor):
                         pretty_task = self._prettify_name(k.name)
@@ -128,14 +141,19 @@ class StaticJSONRepo:
                                 if pretty_p in self.concrete_to_abst_mapper:
                                     pretty_p = self.concrete_to_abst_mapper[pretty_p]
                                 if pretty_task in self.concrete_to_abst_mapper:
-                                    pretty_task = self.concrete_to_abst_mapper[pretty_task]
+                                    pretty_task = self.concrete_to_abst_mapper[
+                                        pretty_task
+                                    ]
                                 if "inputQueue" not in self.output_dict[pretty_task]:
                                     self.output_dict[pretty_task]["inputQueue"] = []
-                                self.output_dict[pretty_task]["inputQueue"] += [pretty_p]
+                                self.output_dict[pretty_task]["inputQueue"] += [
+                                    pretty_p
+                                ]
 
     def dump_static_repo_json(self):
         outfile_name = self.static_pipeline_json
         dump_json(outfile_name, self.output_dict)
+
 
 class StaticCytoscapeRepo:
     """
@@ -143,19 +161,23 @@ class StaticCytoscapeRepo:
     usage:
       StaticJSONRepo(RepoMeta).createGraph()
     """
+
     FILTER_PACKAGES = ["luigi", "cls_luigi"]
 
     def __init__(self):
         self.repo_meta = RepoMeta
         self.repository = self.repo_meta.repository
 
-        self.graphdata_js = os.path.join(VIS, 'graphdata.js')
+        self.graphdata_js = os.path.join(VIS, "static", "graphdata.js")
         if os.path.exists(self.graphdata_js):
             os.remove(self.graphdata_js)
 
-
-        self.repo_tasks = self._get_classes_with_multiple_inheritance(Task, LuigiCombinator)
-        self.pure_tasks = self._get_classes_with_multiple_inheritance(Task, exclude_classes=[LuigiCombinator])
+        self.repo_tasks = self._get_classes_with_multiple_inheritance(
+            Task, LuigiCombinator
+        )
+        self.pure_tasks = self._get_classes_with_multiple_inheritance(
+            Task, exclude_classes=[LuigiCombinator]
+        )
         self.all_tasks = self.repo_tasks + self.pure_tasks
 
     @classmethod
@@ -163,14 +185,12 @@ class StaticCytoscapeRepo:
         cls.FILTER_PACKAGES.append(package)
 
     def _filter_classes(self, classes_to_filter=[]):
-
         for cls in classes_to_filter:
             if cls in self.repo_tasks:
                 self.repo_tasks.remove(cls)
             if cls in self.pure_tasks:
                 self.pure_tasks.remove(cls)
         self.all_tasks = self.repo_tasks + self.pure_tasks
-
 
     def create_graph(self):
         """
@@ -187,71 +207,96 @@ class StaticCytoscapeRepo:
         # Maps from already added parent id to a set of nodes that ist should contain
         parent_nodes = {}
 
-
         for cls in self.all_tasks:
-
             # Add node and edges for pure tasks.
             if cls in self.pure_tasks:
                 node = Template(NODE_TEMPLATE)
-                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'CLASSES' : "luigi-task outline"}
+                data = {
+                    "ID": cls.__name__,
+                    "LABEL": cls.__name__,
+                    "CLASSES": "luigi-task outline",
+                }
                 nodes.add(node.substitute(data))
                 if "requires" in cls.__dict__:
                     self._analyse_requires_and_add_edges(edges, cls)
                 self.pure_tasks.remove(cls)
                 break
 
-
             # Else we deal with LuigiCombinator Tasks
             # inherited_classes = [x for x in list(inspect.getmro(cls)[1:]) if x in self.all_tasks]
 
             class_chain = self.repo_meta._get_class_chain(cls)
             current_class = class_chain[0]
-            filtered_upstream  = [x for x in class_chain[1] if x in self.all_tasks]
-            filtered_downstream  = [x for x in class_chain[2] if x in self.all_tasks]
-            result_set_for_parent  = frozenset()
+            filtered_upstream = [x for x in class_chain[1] if x in self.all_tasks]
+            filtered_downstream = [x for x in class_chain[2] if x in self.all_tasks]
+            result_set_for_parent = frozenset()
 
             if "requires" in cls.__dict__:
                 self._analyse_requires_and_add_edges(edges, cls)
 
-
-
             # only inhabitation chains from abstract classes should be visulized using parent/compound nodes
             if cls.abstract:
-
                 new_parent = True
                 for key, set_of_classes in parent_nodes.items():
                     if cls in set_of_classes:
-                        new_set = set_of_classes.union(frozenset(filtered_upstream)).union(frozenset(filtered_downstream)).union(frozenset([current_class]))
+                        new_set = (
+                            set_of_classes.union(frozenset(filtered_upstream))
+                            .union(frozenset(filtered_downstream))
+                            .union(frozenset([current_class]))
+                        )
                         parent_nodes[key] = new_set
                         new_parent = False
                         break
 
                 if new_parent:
-                    result_set_for_parent = result_set_for_parent.union(frozenset(filtered_upstream)).union(frozenset(filtered_downstream)).union(frozenset([current_class]))
-                    new_id = "PARENT_"+ str(id(cls))
+                    result_set_for_parent = (
+                        result_set_for_parent.union(frozenset(filtered_upstream))
+                        .union(frozenset(filtered_downstream))
+                        .union(frozenset([current_class]))
+                    )
+                    new_id = "PARENT_" + str(id(cls))
                     parent_nodes[new_id] = result_set_for_parent
 
             # directly add inheritance edge if there should be any.
             if filtered_upstream:
                 inherited_classes = cls.__bases__
-                filtered_inherited_classes = [item for item in inherited_classes if item in filtered_upstream]
+                filtered_inherited_classes = [
+                    item for item in inherited_classes if item in filtered_upstream
+                ]
                 for direct_parent in filtered_inherited_classes:
                     edge = Template(EDGE_TEMPLATE)
-                    data = {'ID': direct_parent.__name__ + "_" + cls.__name__   , 'SOURCE': direct_parent.__name__ , 'TARGET': cls.__name__, 'CLASSES': 'inheritance'}
+                    data = {
+                        "ID": direct_parent.__name__ + "_" + cls.__name__,
+                        "SOURCE": direct_parent.__name__,
+                        "TARGET": cls.__name__,
+                        "CLASSES": "inheritance",
+                    }
                     edges.add(edge.substitute(data))
 
         for key, set_of_classes in parent_nodes.items():
             node = Template(PARENT_NODE_TEMPLATE)
-            data = {'ID': key}
+            data = {"ID": key}
             nodes.add(node.substitute(data))
 
             edge = Template(EDGE_TEMPLATE)
-            data = {'ID': key, 'SOURCE': key , 'TARGET': key, 'CLASSES': 'loop'}
+            data = {"ID": key, "SOURCE": key, "TARGET": key, "CLASSES": "loop"}
             edges.add(edge.substitute(data))
 
             for cls in set_of_classes:
                 node = Template(CHILD_NODE_TEMPLATE)
-                data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'PARENT' : str(key), 'CLASSES' : ("config-domain-task" if isinstance(cls, WrapperTask) else "abstract-task" if cls.abstract else "concrete-task") + " outline" }
+                data = {
+                    "ID": cls.__name__,
+                    "LABEL": cls.__name__,
+                    "PARENT": str(key),
+                    "CLASSES": (
+                        "config-domain-task"
+                        if isinstance(cls, WrapperTask)
+                        else "abstract-task"
+                        if cls.abstract
+                        else "concrete-task"
+                    )
+                    + " outline",
+                }
                 nodes.add(node.substitute(data))
 
                 self.repo_tasks.remove(cls)
@@ -259,53 +304,87 @@ class StaticCytoscapeRepo:
         # for rest of not visulized task, draw them!
         for cls in self.pure_tasks + self.repo_tasks:
             node = Template(NODE_TEMPLATE)
-            data = {'ID': cls.__name__, 'LABEL' : cls.__name__ , 'CLASSES' : "luigi-task outline" if cls in self.pure_tasks else "abstract-task outline" if cls.abstract else "concrete-task outline"}
+            data = {
+                "ID": cls.__name__,
+                "LABEL": cls.__name__,
+                "CLASSES": "luigi-task outline"
+                if cls in self.pure_tasks
+                else "abstract-task outline"
+                if cls.abstract
+                else "concrete-task outline",
+            }
             nodes.add(node.substitute(data))
             if "requires" in cls.__dict__:
-                    self._analyse_requires_and_add_edges(edges, cls)
+                self._analyse_requires_and_add_edges(edges, cls)
 
+        graph_template = graph_template.substitute(
+            {
+                "NODES": "".join([node for node in nodes]),
+                "EDGES": "".join([edge for edge in edges]),
+            }
+        )
 
-        graph_template = graph_template.substitute({'NODES': ''.join([node for node in nodes]), 'EDGES': ''.join([edge for edge in edges])})
-
-        with open(self.graphdata_js, 'w') as fp:
+        with open(self.graphdata_js, "w") as fp:
             fp.write(graph_template)
 
     def _analyse_requires_and_add_edges(self, edges, cls):
         method_object = cls.requires
         source_code = inspect.getsource(method_object)
-        return_code = self._remove_empty_characters(self._remove_quoted_text(self._remove_between_delimiters(source_code, "\"\"\"", "\"\"\"").split("return")[-1]))
+        return_code = self._remove_empty_characters(
+            self._remove_quoted_text(
+                self._remove_between_delimiters(source_code, '"""', '"""').split(
+                    "return"
+                )[-1]
+            )
+        )
         for task in self.all_tasks:
-
-            pattern = r'(?:\W|^){}(?:\W|$)'.format(re.escape(task.__name__))
-
+            pattern = r"(?:\W|^){}(?:\W|$)".format(re.escape(task.__name__))
 
             if bool(re.search(pattern, return_code)):
                 edge = Template(EDGE_TEMPLATE)
-                data = {'ID': task.__name__ + "_" + cls.__name__   , 'SOURCE': task.__name__ , 'TARGET': cls.__name__, 'CLASSES': ''}
+                data = {
+                    "ID": task.__name__ + "_" + cls.__name__,
+                    "SOURCE": task.__name__,
+                    "TARGET": cls.__name__,
+                    "CLASSES": "",
+                }
                 edges.add(edge.substitute(data))
-
 
                 # uses reflection and __dict__ to see if class has ClsParameters defined,
                 # that are defined in class and not by parent.
         cls_parameters = [
-                    name for name, param in inspect.getmembers(cls)
-                    if not name.startswith('__') and isinstance(param, ClsParameter) and name in cls.__dict__
-                ]
+            name
+            for name, param in inspect.getmembers(cls)
+            if not name.startswith("__")
+            and isinstance(param, ClsParameter)
+            and name in cls.__dict__
+        ]
 
         for param in cls_parameters:
             if "self." + param + "()" in return_code:
                 parameter_object = getattr(cls, param)
-                id_name = parameter_object.tpe.name.cls_tpe.split('.')[-1]
+                id_name = parameter_object.tpe.name.cls_tpe.split(".")[-1]
                 edge = Template(EDGE_TEMPLATE)
-                data = {'ID': id_name + "_" + cls.__name__   , 'SOURCE': id_name , 'TARGET': cls.__name__, 'CLASSES': ''}
+                data = {
+                    "ID": id_name + "_" + cls.__name__,
+                    "SOURCE": id_name,
+                    "TARGET": cls.__name__,
+                    "CLASSES": "",
+                }
                 edges.add(edge.substitute(data))
 
-    def _get_classes_with_multiple_inheritance(self,*classes, exclude_classes = [], exclude_packages = []):
+    def _get_classes_with_multiple_inheritance(
+        self, *classes, exclude_classes=[], exclude_packages=[]
+    ):
         for packs in exclude_packages:
             StaticCytoscapeRepo.add_package_to_filter(packs)
         all_classes = []
         for loaded_class in self._get_loaded_classes():
-            if inspect.isclass(loaded_class) and all(issubclass(loaded_class, cls) for cls in classes) and not any(issubclass(loaded_class, cls) for cls in exclude_classes):
+            if (
+                inspect.isclass(loaded_class)
+                and all(issubclass(loaded_class, cls) for cls in classes)
+                and not any(issubclass(loaded_class, cls) for cls in exclude_classes)
+            ):
                 add_to_list = True
 
                 for package_name in self.FILTER_PACKAGES:
@@ -320,12 +399,12 @@ class StaticCytoscapeRepo:
 
     @staticmethod
     def _remove_empty_characters(input_string):
-        return re.sub(r'\s+', '', input_string)
+        return re.sub(r"\s+", "", input_string)
 
     @staticmethod
     def _remove_quoted_text(input_string):
         pattern = r"'[^']*'|\"[^\"]*\""
-        return re.sub(pattern, '', input_string)
+        return re.sub(pattern, "", input_string)
 
     @staticmethod
     def _remove_between_delimiters(string, start_delim, end_delim):

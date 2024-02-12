@@ -42,4 +42,4 @@ def get_full_path(name):
 
 
 if __name__ == "__main__":
-    load_json('config.json')
+    load_json('static/config/config.json')

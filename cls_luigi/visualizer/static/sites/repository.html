@@ -1,0 +1,46 @@
+<script src="js_lib/cytoscape.umd.js"></script>
+<script src="js_lib/dagre.js"></script>
+<script src="js_lib/cytoscape-dagre.js"></script>
+<script src="js/style.js"></script>
+<script src="js/helper.js"></script>
+<script src="js/static-cytoscape.js"></script>
+
+<h2>
+    Repository
+</h2>
+
+<div class="static pipeline">
+    <div class='legend-container'>
+        <div class='legend' style="width: 380px; height: 180px;">
+            <div class='legend-title'>Task Type</div>
+            <div class='legend-scale'>
+                <ul class='legend-labels'>
+                    <li><span class="abstract-color"></span>Abstract</li>
+                    <li><span class="non-abstract-color"></span>Non-Abstract</li>
+                    <li><span class="indexed-color"></span>Non-Abstract with Config Index</li>
+                    <li><span class="luigi-task-color"></span>Luigi</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class='legend' style="width: 240px; height: 180px;">
+            <div class='legend-title'>Edge Type</div>
+            <div class='legend-scale'>
+                <ul class='legend-labels'>
+                    <li><span class="dataflow-color"></span>Data Flow</li>
+                    <li><span class="subtype-color"></span>Subtype</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="cy"></div>
+    <div id="subgraph-container" style="display: none;"></div>
+</div>
+
+<script>
+    createCytoscapeStaticGraph();
+    updateInterval = setInterval(function () {
+        checkFileChange(lastModified, fileChangedFunction);
+    }, 1000);
+</script>

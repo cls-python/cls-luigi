@@ -18,14 +18,11 @@
 #
 
 from luigi.task import flatten
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from cls_luigi.visualizer.json_io import dump_json
 import time
 import os
 
 VIS = os.path.dirname(os.path.abspath(__file__))
-
-
-CONFIG = "config.json"
 
 
 class DynamicJSONRepo:
@@ -42,19 +39,19 @@ class DynamicJSONRepo:
         self.dynamic_detailed_pipeline_dict = {}
         self._construct_dynamic_pipeline_dict()
 
-
-        self.dynamic_pipeline_json = os.path.join(VIS, 'dynamic_pipeline.json')
+        self.dynamic_pipeline_json = os.path.join(
+            VIS, "static", "dynamic_pipeline.json"
+        )
 
         if os.path.exists(self.dynamic_pipeline_json):
             os.remove(self.dynamic_pipeline_json)
 
-
     @staticmethod
     def _prettify_task_name(task):
         listed_task_id = task.task_id.split("_")
-        return listed_task_id[0] + "_" + listed_task_id[-1]  # @ [-1] is the hash of the task
-
-
+        return (
+            listed_task_id[0] + "_" + listed_task_id[-1]
+        )  # @ [-1] is the hash of the task
 
     def _construct_dynamic_pipeline_dict(self):
         def _get_deps_tree(task, base_dict=None):
@@ -62,16 +59,17 @@ class DynamicJSONRepo:
                 base_dict = {}
             name = self._prettify_task_name(task)
 
-            task_dict = {"inputQueue": [],
-                         "status": "NOTASSIGNED",
-                         "luigiName": task.task_id,
-                         "createdAt": time.time(),
-                         "timeRunning": None,
-                         "startTime": None,
-                         "lastUpdated": None,
-                         "processingTime":None
-                         # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
-                         }
+            task_dict = {
+                "inputQueue": [],
+                "status": "NOTASSIGNED",
+                "luigiName": task.task_id,
+                "createdAt": time.time(),
+                "timeRunning": None,
+                "startTime": None,
+                "lastUpdated": None,
+                "processingTime": None,
+                # Task-id from luigi itself. It will be shown @ http://localhost:8082/api/task_list
+            }
 
             if name not in base_dict:
                 base_dict[name] = task_dict
@@ -79,17 +77,17 @@ class DynamicJSONRepo:
             for child in children:
                 child_name = self._prettify_task_name(child)
                 if child_name not in base_dict[name]["inputQueue"]:
-                    base_dict[name]["inputQueue"] = base_dict[name]["inputQueue"] + [child_name]
+                    base_dict[name]["inputQueue"] = base_dict[name]["inputQueue"] + [
+                        child_name
+                    ]
                 _get_deps_tree(child, base_dict)
 
             return base_dict
-
 
         for ix, r in enumerate(self.cls_results):
             pipeline = _get_deps_tree(r)
             self.dynamic_detailed_pipeline_dict[ix] = {}
             self.dynamic_detailed_pipeline_dict[ix].update(pipeline)
-
 
     def dump_dynamic_pipeline_json(self):
         outfile_name = self.dynamic_pipeline_json

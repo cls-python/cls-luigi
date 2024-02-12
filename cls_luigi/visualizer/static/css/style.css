@@ -23,126 +23,147 @@ body {
     height: 6000px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
     background: #d8dadf;
-  }
+}
 
 
-  @-webkit-keyframes flash {
-    0%, 50%, 100% {
-      opacity: 1;
+@-webkit-keyframes flash {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
     }
 
-    25%, 75% {
-      opacity: 0.2;
+    25%,
+    75% {
+        opacity: 0.2;
     }
-  }
+}
 
-  @keyframes flash {
-    0%, 50%, 100% {
-      opacity: 1;
+@keyframes flash {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
     }
 
-    25%, 75% {
-      opacity: 0.2;
+    25%,
+    75% {
+        opacity: 0.2;
     }
-  }
+}
 
-  .warn {
+.warn {
     -webkit-animation-duration: 1s;
     animation-duration: 0.5s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
     -webkit-animation-iteration-count: infinite;
     animation-iteration-count: infinite;
-  }
+}
 
-  .warn {
+.warn {
     -webkit-animation-name: flash;
     animation-name: flash;
-  }
+}
 
-  .warn2 {
+.warn2 {
     -webkit-animation-duration: 1s;
     animation-duration: 3s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
     -webkit-animation-iteration-count: infinite;
     animation-iteration-count: infinite;
-  }
+}
 
-  .warn2 {
+.warn2 {
     -webkit-animation-name: flash;
     animation-name: flash;
-  }
+}
 
 
 
-  .static.pipeline {
+.static.pipeline {
     width: 98%;
-    height: 1800px;
+    height: 1200px;
     display: block;
     margin-left: 1%;
     margin-right: 1%;
     margin-top: 80px;
     background-color: #333;
-    display: block;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
-  }
 
-  svg {
+}
+
+svg {
     width: 98%;
     height: 93%;
     overflow: hidden;
     margin-left: 1px;
     margin-right: 1px;
     margin-top: -185px;
-  }
+}
 
-  .static.pipeline .node rect {
+.static.pipeline .node rect {
     stroke-width: 1.5px;
     stroke: #bbb;
     fill: #666;
     display: inline;
-    }
+}
 
-  .static.pipeline .status {
+.static.pipeline .status {
     height: 8px;
     width: 100%;
     display: block;
     float: left;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-  }
+}
 
-  .static.pipeline .abstractComponent .status {
+.static.pipeline .abstractComponent .status {
     background-color: #e67d6f;
-  }
+}
 
-  .static.pipeline .notAbstractComponent .status {
+.static.pipeline .notAbstractComponent .status {
     background-color: white;
-  }
+}
 
-  .static.pipeline .indexedComponent .status {
+.static.pipeline .indexedComponent .status {
     background-color: rgb(100, 234, 109);
-  }
+}
 
-  .abstract-color{
+.abstract-color {
     background-color: #8B0000;
 
-  }
-  .non-abstract-color{
+}
+
+.non-abstract-color {
     background-color: #3498db;
-  }
+}
 
-  .indexed-color {
+.indexed-color {
     background-color: #001F3F;
-  }
+}
 
-  .luigi-task-color {
+.luigi-task-color {
     background-color: #58814b;
-  }
+}
 
-  .static.pipeline .name {
+.dataflow-color {
+    background-color: #cfcfcf;
+}
+
+
+.subtype-color {
+    background-color: #000000;
+}
+
+
+.static.pipeline .name {
     display: inline;
     float: left;
     width: 100%;
@@ -152,10 +173,10 @@ body {
     margin-top: 4px;
     text-align: center;
 
-  }
+}
 
 
-  .static.pipeline .queue {
+.static.pipeline .queue {
     display: block;
     float: left;
     width: 300px;
@@ -163,71 +184,47 @@ body {
     font-size: 23px;
     margin-left: 6px;
     margin-bottom: 4px;
-  }
+}
 
-  .static.pipeline .node g div {
+.static.pipeline .node g div {
     width: 550px;
     height: max-content;
     color: #fff;
-  }
+}
 
-  .static.pipeline .edgeLabel text {
+.static.pipeline .edgeLabel text {
     width: 50px;
     fill: #fff;
-  }
+}
 
-  .static.pipeline .edgePath path {
+.static.pipeline .edgePath path {
     stroke: #999;
     stroke-width: 1.5px;
     fill: #999;
-  }
+}
 
-  h1  {
-    margin: -10px;
-    margin-block-end: 10px;
-    height:80px;
-    width: 102.1%;
-    background-color:#00a65a;
-    color: white;
-    display: block;
-    text-align: left;
-    line-height: 70px;
-    font-size: 38px;
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight: 300;
-    text-indent: 60px;
-    padding-top: 5px;
-
-
-
-  }
-
-  h2  {
+h2 {
     margin-top: 60px;
-    margin-bottom: 60px;
-    height:100px;
     color: black;
     display: block;
     text-align: center;
     line-height: 70px;
     font-size: 35px;
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 300;
-    padding: 1%;
 
+}
 
-  }
-
-  .legend{
+.legend {
     width: 350px;
     height: 150px;
     border: solid #999;
     margin-left: 27px;
     position: relative;
     color: #00a65a;
-  }
+}
 
-  .legend .legend-title {
+.legend .legend-title {
 
     text-align: left;
     margin-bottom: 10px;
@@ -238,17 +235,18 @@ body {
     color: white;
     text-align: center;
 
-  }
+}
 
-  .legend .legend-scale ul {
+.legend .legend-scale ul {
     margin: 0;
     margin-bottom: 5px;
     margin-left: 12px;
     padding: 0;
     float: left;
     list-style: none;
-  }
-  .legend .legend-scale ul li {
+}
+
+.legend .legend-scale ul li {
     font-size: 22px;
     list-style: none;
     margin-left: 0;
@@ -259,9 +257,9 @@ body {
     text-indent: 10px;
     color: white;
 
-  }
+}
 
-  .legend ul.legend-labels li span {
+.legend ul.legend-labels li span {
     display: block;
     float: left;
     height: 16px;
@@ -269,10 +267,10 @@ body {
     margin-right: 5px;
     margin-left: 0;
     border: transparent;
-  }
+}
 
 
-  .total-tasks {
+.total-tasks {
     width: 325px;
     height: 220px;
     border: solid #999;
@@ -281,9 +279,9 @@ body {
     position: relative;
     top: -269px;
     left: 390px;
-  }
+}
 
-  .total-tasks  .title {
+.total-tasks .title {
     text-align: left;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -291,9 +289,9 @@ body {
     font-size: 30px;
     font-weight: 500;
     color: white;
-  }
+}
 
-  .total-pipelines {
+.total-pipelines {
     width: 350px;
     height: 180px;
     border: solid #999;
@@ -302,9 +300,9 @@ body {
     position: relative;
     top: -160px;
     left: 413px;
-  }
+}
 
-  .total-pipelines  .title {
+.total-pipelines .title {
     text-align: left;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -312,18 +310,18 @@ body {
     font-size: 30px;
     font-weight: 500;
     color: white;
-  }
+}
 
-  #cy {
+#cy {
     width: 100%;
     height: 100%;
     display: block;
     background-color: #333;
-    display: block;
     overflow: hidden;
-  }
+    flex: 1;
+}
 
-  .dynamic.pipeline {
+.dynamic.pipeline {
     width: 98%;
     height: 2100px;
     display: block;
@@ -334,15 +332,15 @@ body {
     display: block;
     overflow: hidden;
     /*margin-top: -10%;*/
-  }
+}
 
-  .dynamic.pipeline .node rect {
+.dynamic.pipeline .node rect {
     stroke-width: 1.5px;
     stroke: #bbb;
     fill: #666;
-    }
+}
 
-  .dynamic.pipeline .status {
+.dynamic.pipeline .status {
     height: 100%;
     width: 3%;
     display: block;
@@ -350,10 +348,10 @@ body {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     margin-right: 4px;
-  }
+}
 
 
-  .dynamic.pipeline .name {
+.dynamic.pipeline .name {
     display: inline;
     float: left;
     width: 100%;
@@ -363,9 +361,9 @@ body {
     text-align: center;
     margin-top: -60px;
 
-  }
+}
 
-  .dynamic.pipeline .queue {
+.dynamic.pipeline .queue {
     display: block;
     float: left;
     width: 300px;
@@ -373,73 +371,73 @@ body {
     font-size: 18px;
     margin-left: 6px;
     margin-bottom: 4px;
-  }
+}
 
-  .dynamic.pipeline .node g div {
+.dynamic.pipeline .node g div {
     width: max-content;
     height: 80px;
     color: #fff;
-  }
+}
 
-  .dynamic.pipeline .edgeLabel text {
+.dynamic.pipeline .edgeLabel text {
     width: 50px;
     fill: #fff;
-  }
+}
 
-  .dynamic.pipeline .edgePath path {
+.dynamic.pipeline .edgePath path {
     stroke: #999;
     stroke-width: 1.5px;
     fill: #999;
-  }
+}
 
 
-  .dynamic.pipeline .FAILED .status {
+.dynamic.pipeline .FAILED .status {
     background-color: #f77;
-  }
+}
 
-  .dynamic.pipeline .RUNNING.warn .status {
+.dynamic.pipeline .RUNNING.warn .status {
     background-color: #80a0ec;
-  }
+}
 
-  .dynamic.pipeline .RUNNING .status {
+.dynamic.pipeline .RUNNING .status {
     background-color: #80a0ec;
-  }
+}
 
-  .dynamic.pipeline .PENDING .status {
+.dynamic.pipeline .PENDING .status {
     background-color: #EEBB00;
-  }
+}
 
-  .dynamic.pipeline .DONE .status {
+.dynamic.pipeline .DONE .status {
     background-color: #7f7;
-  }
+}
 
-  .dynamic.pipeline .NOTASSIGNED .status {
+.dynamic.pipeline .NOTASSIGNED .status {
     background-color: rgb(231, 179, 231);
-  }
+}
 
 
-  .FAILED {
+.FAILED {
     background-color: #f77;
-  }
+}
 
-  .RUNNING {
+.RUNNING {
     background-color: #80a0ec;
-  }
+}
 
-  .PENDING {
+.PENDING {
     background-color: #EEBB00;
-  }
+}
 
-  .DONE {
+.DONE {
     background-color: #7f7;
-  }
+}
 
-  .NOTASSIGNED {
+.NOTASSIGNED {
     background-color: rgb(231, 179, 231);
-  }
+}
 
 
-  .single.pipeline {
+.single.pipeline {
     width: 98%;
     height: 1000px;
     display: block;
@@ -449,15 +447,15 @@ body {
     background-color: #333;
     overflow: hidden;
     /*margin-top: -10%;*/
-  }
+}
 
-  .single.pipeline .node rect {
+.single.pipeline .node rect {
     stroke-width: 1.5px;
     stroke: #bbb;
     fill: #666;
-    }
+}
 
-  .single.pipeline .status {
+.single.pipeline .status {
     height: 100%;
     width: 3%;
     display: block;
@@ -465,10 +463,10 @@ body {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     margin-right: 4px;
-  }
+}
 
 
-  .single.pipeline .name {
+.single.pipeline .name {
     display: inline;
     float: left;
     width: 100%;
@@ -478,9 +476,9 @@ body {
     text-align: center;
     margin-top: -60px;
 
-  }
+}
 
-  .single.pipeline .queue {
+.single.pipeline .queue {
     display: block;
     float: left;
     width: 300px;
@@ -488,50 +486,51 @@ body {
     font-size: 18px;
     margin-left: 6px;
     margin-bottom: 4px;
-  }
+}
 
-  .single.pipeline .node g div {
+.single.pipeline .node g div {
     width: max-content;
     height: 80px;
     color: #fff;
-  }
+}
 
-  .single.pipeline .edgeLabel text {
+.single.pipeline .edgeLabel text {
     width: 50px;
     fill: #fff;
-  }
+}
 
-  .single.pipeline .edgePath path {
+.single.pipeline .edgePath path {
     stroke: #999;
     stroke-width: 1.5px;
     fill: #999;
-  }
+}
 
-  .single.pipeline .FAILED .status {
+.single.pipeline .FAILED .status {
     background-color: #f77;
-  }
+}
 
-  .single.pipeline .RUNNING  .status {
+.single.pipeline .RUNNING .status {
     background-color: #80a0ec;
-  }
-  /*.single.pipeline .RUNNING.warn .status {*/
-  /*  background-color: #80a0ec;*/
-  /*}*/
+}
 
-  .single.pipeline .PENDING .status {
+/*.single.pipeline .RUNNING.warn .status {*/
+/*  background-color: #80a0ec;*/
+/*}*/
+
+.single.pipeline .PENDING .status {
     background-color: #EEBB00;
-  }
+}
 
-  .single.pipeline .DONE .status {
+.single.pipeline .DONE .status {
     background-color: #7f7;
-  }
+}
 
-  .single.pipeline .NOTASSIGNED .status {
+.single.pipeline .NOTASSIGNED .status {
     background-color: rgb(231, 179, 231);
-  }
+}
 
 
-  .total-tasks-s {
+.total-tasks-s {
     width: 325px;
     height: 220px;
     border: solid #999;
@@ -540,9 +539,9 @@ body {
     position: relative;
     top: -269px;
     left: 390px;
-  }
+}
 
-  .total-tasks-s  .title {
+.total-tasks-s .title {
     text-align: left;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -550,4 +549,86 @@ body {
     font-size: 30px;
     font-weight: 500;
     color: white;
+}
+
+.legend-container {
+    display: flex;
+    margin-top: 30px;
+}
+
+.legend {
+    margin-right: 20px;
+}
+
+main {
+    padding-top: 60px;
+}
+
+.content {
+    padding: 20px;
+}
+
+/* Apply styles to the header */
+header {
+    width: 100%;
+    background-color: #375734;
+    color: white;
+    position: fixed; /* Make the header fixed */
+    top: 0; /* Position the header at the top */
+    left: 0;
+    z-index: 1000; /* Ensure the header stays on top of other content */
+}
+
+/* Apply styles to the header content */
+.header-content {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Align items vertically */
+    justify-content: space-between; /* Align items at each end of the container */
+}
+
+h1 {
+    background-color: #375734;
+    color: white;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    text-indent: 60px;
+
+}
+
+/* Apply styles to the navigation menu */
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex; /* Use flexbox for layout */
+}
+
+
+nav ul li button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    font-size: 20px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    text-indent: 60px;
+    margin: 40px;
+}
+
+nav ul li button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+}
+
+.nav-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .nav-button.active {
+    text-decoration: underline;
   }

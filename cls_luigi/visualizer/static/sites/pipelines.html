@@ -1,0 +1,59 @@
+<script src="js_lib/d3.js"></script>
+<script src="js_lib/dagre-d3.js"></script>
+<h2>
+    Pipelines
+</h2>
+
+<div class="dynamic pipeline">
+    <div class='legend' , style="height:225px; left:-5px; top:0px; margin: 40px;">
+        <div class='legend-title'> Task Status</div>
+        <div class='legend-scale'>
+            <ul class='legend-labels'>
+                <li><span class="FAILED"></span>Failed</li>
+                <li><span class="PENDING"></span>Pending</li>
+                <li><span class="DONE"></span>Done</li>
+                <li><span class="RUNNING"></span>Running</li>
+                <li><span class="NOTASSIGNED"></span>No Status Assigned Yet</li>
+            </ul>
+        </div>
+    </div>
+    <div class="total-tasks" , id="dynamic_p" , style="width: 400px;">
+
+    </div>
+    <svg class="dynamic-pipeline">
+    </svg>
+</div>
+
+<h2>
+    Selected Pipeline
+</h2>
+
+<div class="single pipeline">
+    <div class='legend' , style="height:225px; left:-5px; top:0px; margin: 40px;">
+        <div class='legend-title'> Task Status</div>
+        <div class='legend-scale'>
+            <ul class='legend-labels'>
+                <li><span class="FAILED"></span>Failed</li>
+                <li><span class="PENDING"></span>Pending</li>
+                <li><span class="DONE"></span>Done</li>
+                <li><span class="RUNNING"></span>Running</li>
+                <li><span class="NOTASSIGNED"></span>No Status Assigned Yet</li>
+            </ul>
+        </div>
+    </div>
+
+
+
+    <div class='legend' ,
+        style="height:226px; left:375px; top:-269px; margin: 40px; width: 270px; padding-inline: 10px;">
+        <div class='legend-title' , style="text-align: left"> Select a pipeline to show</div>
+        <div class='dropdown' style="margin-top: 30px; margin-left: 57px">
+            <select id="selectButton" , style="width: 130px; height: 33px;"></select>
+        </div>
+    </div>
+    <div class='legend' , id="single_p_n_tasks" ,
+        style="height:226px; left:692px; top:-542px; margin: 40px; width: 400px; padding-inline: 10px;">
+    </div>
+    <svg class="single-pipeline"></svg>
+</div>
+<script src="js/app.js"></script>

@@ -288,3 +288,25 @@ function doManualLevelWrapLayouting(outgoingEdges, subgraphCy) {
         }
     }
 };
+
+function checkFileChange(lastModified, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('HEAD', "graphdata.js");
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var newLastModified = xhr.getResponseHeader('Last-Modified');
+                if (newLastModified !== lastModified.time) {
+                    lastModified.time = newLastModified;
+                    callback();
+                }
+            }
+        }
+    };
+    xhr.send();
+}
+
+var fileChangedFunction = function () {
+    console.log('File changed, reload graph file!');
+    createCytoscapeStaticGraph();
+};

@@ -1,0 +1,90 @@
+<!-- #
+# Apache Software License 2.0
+#
+# Copyright (c) 2022-2023, Jan Bessai, Anne Meyer, Hadi Kutabi, Daniel Scholtyssek
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#  -->
+
+<!doctype html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>Repository Visualizer</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=123456"> <!-- ?v=123456 to stop caching -->
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <script src="js_lib/jquery-3.6.0.min.js"></script>
+    <script>
+        var updateInterval = null;
+        var lastModified = {time: null};
+        // Function to load content dynamically
+        function loadContent(page) {
+            // Set active class to the clicked button
+            $('.nav-button').removeClass('active');
+            $(`.nav-button:contains('${page.charAt(0).toUpperCase() + page.slice(1)}')`).addClass('active');
+
+            clearInterval(updateInterval);
+
+            // Clear existing content of #main-content
+            $('#main-content').empty();
+
+            // Load content based on the page parameter from the "sites" subfolder
+            $('#main-content').load(`sites/${page}.html`, function () {
+                // This function executes after the content is loaded
+
+                // Get the height of the loaded content
+                var contentHeight = $('#main-content').height();
+
+                // Set the height of #main-content to match the height of the loaded content
+                $('#main-content').height(contentHeight);
+                $('#body').height(contentHeight);
+
+            });
+        };
+
+        // Load repository content by default
+        $(document).ready(function () {
+            loadContent('repository');
+        });
+
+    </script>
+</head>
+
+<body id="body">
+
+    <header>
+        <div class="header-content">
+            <h1>CLS-Luigi Visualization</h1>
+            <nav>
+                <ul>
+                    <li><button class="nav-button active" onclick="loadContent('repository')">Repository</button></li>
+                    <li><button class="nav-button" onclick="loadContent('pipelines')">Pipelines</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    <main>
+        <div class="content" id="main-content">
+            <!-- Content will be loaded dynamically here -->
+        </div>
+    </main>
+</body>
+
+</html>

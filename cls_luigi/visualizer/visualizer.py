@@ -26,12 +26,11 @@ import signal
 import time
 import sys
 
-from cls_luigi.repo_visualizer.json_io import load_json, dump_json
+from cls_luigi.visualizer.json_io import load_json, dump_json
 
 VIS = os.path.dirname(os.path.abspath(__file__))
 
 PORT = 8000
-CONFIG = "config.json"
 LUIGI_DAEMON_THREAD = None
 UPDATE_THREAD = None
 HTTPD = None
@@ -49,13 +48,24 @@ def main():
     UPDATE_THREAD.start()
 
     try:
-        os.chdir(os.path.dirname(__file__))
+        print("Hallo")
+        # Get the current directory
+        current_dir = os.path.dirname(__file__)
+        print("Wurst")
+        # Navigate to the desired subfolder
+        subfolder_path = os.path.join(current_dir, 'static')
+        print("wass")
+        print("hands: ",subfolder_path)
+        # Change the current working directory to the subfolder
+        os.chdir(subfolder_path)
+        print("hands: ",subfolder_path)
         HTTPD = HTTPServer(("", PORT), SimpleHTTPRequestHandler)
         print(
             "\nStarted visualization server\n\nNavigate to: ",
             link("http://localhost:{}/\n\n\n".format(PORT)),
         )
 
+        # Add signals to gracefully shutdown server
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
 
@@ -101,7 +111,7 @@ def start_luigi_daemon(stop_event):
 
     luigid_process.terminate()
     luigid_process.wait()
-    print("Thread is exiting!")
+    print("Main thread is exiting!")
 
 
 def update_tasks_status(stop_event):
@@ -153,7 +163,7 @@ def update_tasks_status(stop_event):
         finally:
             time.sleep(3)
             pass
-    print("Update Thread is exiting!")
+    print("Update thread is exiting!")
 
 
 def cleanup():
@@ -162,7 +172,6 @@ def cleanup():
     stop_event.set()
     LUIGI_DAEMON_THREAD.join()
     UPDATE_THREAD.join()
-    print("Main thread is exiting!")
     sys.exit()
 
 

@@ -16,7 +16,7 @@
 // # limitations under the License.
 // #
 
-let config = 'config.json';
+var config = 'config/config.json';
 
 async function fetchJSON(path){
   const fetched = await fetch(path);
@@ -134,28 +134,28 @@ async function initRenderAndGraph(graphNodeSep=300, graphRankSep=70, rankDir="LR
 
 }
 
-async function staticGraph() {
+// async function staticGraph() {
 
-  let path = await fetchJSON(config);
-  path = path['static_pipeline']
+//   let path = await fetchJSON(config);
+//   path = path['static_pipeline']
 
-  // Set up zoom support
-  let svg = d3.select("svg.static-pipeline"),
-  inner = svg.append("g"),
-  zoom = d3.zoom().on("zoom", function() {
-    inner.attr("transform", d3.event.transform);
-  });
-  svg.call(zoom);
+//   // Set up zoom support
+//   let svg = d3.select("svg.static-pipeline"),
+//   inner = svg.append("g"),
+//   zoom = d3.zoom().on("zoom", function() {
+//     inner.attr("transform", d3.event.transform);
+//   });
+//   svg.call(zoom);
 
-  let renderAndGraph = await initRenderAndGraph()
-  const render = renderAndGraph[0],
-        g      = renderAndGraph[1];
+//   let renderAndGraph = await initRenderAndGraph()
+//   const render = renderAndGraph[0],
+//         g      = renderAndGraph[1];
 
-  JSONPipeline = await fetchJSON(path);
+//   JSONPipeline = await fetchJSON(path);
 
 
-  await draw(JSONPipeline, g, svg, zoom, inner, render, true, -25);
-}
+//   await draw(JSONPipeline, g, svg, zoom, inner, render, true, -25);
+// }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -396,6 +396,6 @@ async function singlePipelines(){
       })
 }
 
-document.addEventListener("DOMContentLoaded", staticGraph());
+// document.addEventListener("DOMContentLoaded", staticGraph());
 document.addEventListener("DOMContentLoaded", dynamicGraph());
 document.addEventListener("DOMContentLoaded", singlePipelines());

@@ -68,7 +68,7 @@ setup(
     include_package_data=True,
     keywords="cls-luigi",
     name="cls-luigi",
-    packages=find_packages(include=["cls_luigi", "cls_luigi.*", "cls_luigi.repo_visualizer.*"]),
+    packages=find_packages(include=["cls_luigi", "cls_luigi.*", "cls_luigi.visualizer.*"]),
     test_suite='cls_luigi.tests',
     tests_require=test_requirements,
     url="https://github.com/cls-python/cls-luigi",
