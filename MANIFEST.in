@@ -17,6 +17,8 @@ include cls_luigi/visualizer/static/css/*
 include cls_luigi/visualizer/static/js/*
 include cls_luigi/visualizer/static/js_lib/*
 include cls_luigi/visualizer/static/sites/*
+include cls_luigi/visualizer/static/graphdata.js
+include cls_luigi/visualizer/static/dynamic-pipeline.json
 
 
 recursive-exclude * __pycache__

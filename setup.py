@@ -27,16 +27,9 @@ with open("README.rst") as readme_file:
 with open("CHANGELOG.rst") as changelog_file:
     changelog = changelog_file.read()
 
-requirements = [
-    "cls-python",
-    "luigi",
-    "requests"
-]
+requirements = ["cls-python", "luigi", "requests"]
 
-test_requirements = [
-    "pytest>=3",
-    'coverage'
-]
+test_requirements = ["pytest>=3", "coverage"]
 
 setup(
     author="Jan Bessai",
@@ -68,8 +61,10 @@ setup(
     include_package_data=True,
     keywords="cls-luigi",
     name="cls-luigi",
-    packages=find_packages(include=["cls_luigi", "cls_luigi.*", "cls_luigi.visualizer.*"]),
-    test_suite='cls_luigi.tests',
+    packages=find_packages(
+        include=["cls_luigi", "cls_luigi.*", "cls_luigi.visualizer.*"]
+    ),
+    test_suite="cls_luigi.tests",
     tests_require=test_requirements,
     url="https://github.com/cls-python/cls-luigi",
     version="0.1.0",
