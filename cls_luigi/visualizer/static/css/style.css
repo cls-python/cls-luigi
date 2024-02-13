@@ -20,7 +20,6 @@
 
 body {
     width: 98%;
-    height: 6000px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
     background: #d8dadf;
 }
@@ -566,6 +565,7 @@ main {
 
 .content {
     padding: 20px;
+    width: 100%;
 }
 
 /* Apply styles to the header */

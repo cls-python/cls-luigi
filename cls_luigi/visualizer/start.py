@@ -48,17 +48,13 @@ def main():
     UPDATE_THREAD.start()
 
     try:
-        print("Hallo")
         # Get the current directory
         current_dir = os.path.dirname(__file__)
-        print("Wurst")
         # Navigate to the desired subfolder
         subfolder_path = os.path.join(current_dir, 'static')
-        print("wass")
-        print("hands: ",subfolder_path)
         # Change the current working directory to the subfolder
         os.chdir(subfolder_path)
-        print("hands: ",subfolder_path)
+
         HTTPD = HTTPServer(("", PORT), SimpleHTTPRequestHandler)
         print(
             "\nStarted visualization server\n\nNavigate to: ",
@@ -73,7 +69,7 @@ def main():
 
         HTTPD.serve_forever()
 
-    except:
+    except Exception:
         pass
     finally:
         HTTPD.shutdown()
@@ -156,7 +152,7 @@ def update_tasks_status(stop_event):
             else:
                 raise FileNotFoundError
 
-        except:
+        except Exception:
             # No Data Available yet
             time.sleep(3)
             pass
