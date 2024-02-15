@@ -38,11 +38,12 @@ function createCytoscapeStaticGraph() {
 
         // search for biggest node based on label, and fit every other node to same size.
 
-        maxNodeSize = getMaxNodeSize(cy.nodes())
+        maxNodeSize = getMaxNodeSize(cy.nodes().filter(function (node) {
+            return !node.isParent();
+        }));
 
         // Layout of generated graph. Maybe not needed!?
         cy.nodes().forEach(function (node) {
-
             resizeNodeToFitLabel(node, maxNodeSize);
 
         });
@@ -145,7 +146,6 @@ function createCytoscapeStaticGraph() {
             });
 
             subgraphCy.nodes().forEach(function (node) {
-
                 // resizes nodes to fit label. Will result in same size as in main graph.
                 resizeNodeToFitLabel(node, maxNodeSize);
 
@@ -162,6 +162,7 @@ function createCytoscapeStaticGraph() {
 
             // run Top-Bottom Layout for a classdiagram-like layout.
             subgraphCy.layout(dagre_tb_layout).run();
+
 
             var subCompoundNode = subgraphCy.getElementById(node.data().id);
 
@@ -306,5 +307,6 @@ function createCytoscapeStaticGraph() {
         });
 
     });
+
 };
 

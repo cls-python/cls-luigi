@@ -290,7 +290,7 @@ class StaticCytoscapeRepo:
                     "PARENT": str(key),
                     "CLASSES": (
                         "config-domain-task"
-                        if isinstance(cls, WrapperTask)
+                        if issubclass(cls, WrapperTask)
                         else "abstract-task"
                         if cls.abstract
                         else "concrete-task"
@@ -307,11 +307,16 @@ class StaticCytoscapeRepo:
             data = {
                 "ID": cls.__name__,
                 "LABEL": cls.__name__,
-                "CLASSES": "luigi-task outline"
-                if cls in self.pure_tasks
-                else "abstract-task outline"
-                if cls.abstract
-                else "concrete-task outline",
+                "CLASSES": (
+                    "luigi-task"
+                    if cls in self.pure_tasks
+                    else "config-domain-task"
+                    if issubclass(cls, WrapperTask)
+                    else "abstract-task"
+                    if cls.abstract
+                    else "concrete-task"
+                )
+                + " outline",
             }
             nodes.add(node.substitute(data))
             if "requires" in cls.__dict__:
@@ -363,15 +368,20 @@ class StaticCytoscapeRepo:
         for param in cls_parameters:
             if "self." + param + "()" in return_code:
                 parameter_object = getattr(cls, param)
-                id_name = parameter_object.tpe.name.cls_tpe.split(".")[-1]
-                edge = Template(EDGE_TEMPLATE)
-                data = {
-                    "ID": id_name + "_" + cls.__name__,
-                    "SOURCE": id_name,
-                    "TARGET": cls.__name__,
-                    "CLASSES": "",
-                }
-                edges.add(edge.substitute(data))
+                parameter_object_dict = parameter_object.tpe
+                if not isinstance(parameter_object_dict, dict):
+                    parameter_object_dict = {1: parameter_object_dict}
+
+                for return_type in parameter_object_dict.values():
+                    id_name = return_type.name.cls_tpe.split(".")[-1]
+                    edge = Template(EDGE_TEMPLATE)
+                    data = {
+                        "ID": id_name + "_" + cls.__name__,
+                        "SOURCE": id_name,
+                        "TARGET": cls.__name__,
+                        "CLASSES": "",
+                    }
+                    edges.add(edge.substitute(data))
 
     def _get_classes_with_multiple_inheritance(
         self, *classes, exclude_classes=[], exclude_packages=[]

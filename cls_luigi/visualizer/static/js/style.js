@@ -109,7 +109,7 @@ var dagre_tb_layout = {
     style: {
         'label': 'data(label)',
         'background-color': '#001F3F',
-        'shape': 'round-diamond',
+        'shape': 'round-rectangle',
         'z-index': '10',
         'border-width': '1.5px',
         'border-color': '#bbb',
