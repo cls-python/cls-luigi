@@ -133,7 +133,7 @@ var dagre_tb_layout = {
     {
       selector: 'edge',
       style: {
-        'width': 8,
+        'width': 4,
         'line-style': 'dashed',
         'target-arrow-shape': 'vee',
         'line-color': '#cfcfcf',
@@ -148,7 +148,7 @@ var dagre_tb_layout = {
     {
       selector: '.inheritance',
       style: {
-        'width': 8,
+        'width': 4,
         'source-arrow-shape': 'triangle-backcurve',
         'line-color': 'black',
         'target-arrow-shape': 'none',
