@@ -25,7 +25,7 @@ import os
 VIS = os.path.dirname(os.path.abspath(__file__))
 
 
-class DynamicJSONRepo:
+class DynamicVisualization:
     """
     Constructs a single json pipeline representation from all pipelines, that are produced from the FiniteCombinatoryLogic.
     The pipeline doesn't include any abstract tasks.

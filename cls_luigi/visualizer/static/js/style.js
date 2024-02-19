@@ -24,7 +24,9 @@ var dagre_tb_layout = {
     rankSep: 40,
     rankDir: 'TB',
     fit: true,
+    padding: 20,
     stop: true,
+    nodeDimensionsIncludeLabels: true,
   };
 
   var dagre_lr_layout = {
@@ -34,9 +36,9 @@ var dagre_tb_layout = {
     rankSep: 60,
     rankDir: 'LR',
     fit: true,
-    padding: 30,
-    minLen: 2,
+    padding: 20,
     stop: true,
+    nodeDimensionsIncludeLabels: true,
 
   };
 

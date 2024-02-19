@@ -199,7 +199,6 @@ async function highlightNodes(nodes){
 }
 
 async function dynamicGraph() {
-
    let path = await fetchJSON(config);
    path = path['dynamic_pipeline']
 
@@ -397,5 +396,5 @@ async function singlePipelines(){
 }
 
 // document.addEventListener("DOMContentLoaded", staticGraph());
-document.addEventListener("DOMContentLoaded", dynamicGraph());
-document.addEventListener("DOMContentLoaded", singlePipelines());
+// document.addEventListener("DOMContentLoaded", dynamicGraph());
+// document.addEventListener("DOMContentLoaded", singlePipelines());

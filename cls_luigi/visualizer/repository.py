@@ -19,10 +19,8 @@
 
 from luigi import Task, WrapperTask
 
-import cls.types
-from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 from cls_luigi.visualizer.json_io import dump_json
-from cls.types import Constructor
+from cls.types import Constructor, Intersection
 
 import os
 import inspect
@@ -101,10 +99,11 @@ class StaticJSONRepo:
                     self.output_dict[pretty_task_name] = {"abstract": False}
 
     def add_dependencies_and_indexed_tasks(self):
+        from cls_luigi.inhabitation_task import RepoMeta
         for k, v in self.repository.items():
             if not isinstance(k, RepoMeta.ClassIndex):
                 if k.cls.abstract is not None:
-                    if isinstance(v, cls.types.Intersection):
+                    if isinstance(v, Intersection):
                         pretty_task = self._prettify_name(k.name)
                         intersection = v
                         inter_org = list(intersection.organized)
@@ -155,16 +154,18 @@ class StaticJSONRepo:
         dump_json(outfile_name, self.output_dict)
 
 
-class StaticCytoscapeRepo:
+class StaticVisualization:
     """
     Creates a cytoscape representation of all relevant pipeline components.
+
     usage:
-      StaticJSONRepo(RepoMeta).createGraph()
+      StaticVisualization.createGraph()
     """
 
     FILTER_PACKAGES = ["luigi", "cls_luigi"]
 
     def __init__(self):
+        from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator
         self.repo_meta = RepoMeta
         self.repository = self.repo_meta.repository
 
@@ -333,6 +334,7 @@ class StaticCytoscapeRepo:
             fp.write(graph_template)
 
     def _analyse_requires_and_add_edges(self, edges, cls):
+        from cls_luigi.inhabitation_task import ClsParameter
         method_object = cls.requires
         source_code = inspect.getsource(method_object)
         return_code = self._remove_empty_characters(
@@ -387,7 +389,7 @@ class StaticCytoscapeRepo:
         self, *classes, exclude_classes=[], exclude_packages=[]
     ):
         for packs in exclude_packages:
-            StaticCytoscapeRepo.add_package_to_filter(packs)
+            StaticVisualization.add_package_to_filter(packs)
         all_classes = []
         for loaded_class in self._get_loaded_classes():
             if (

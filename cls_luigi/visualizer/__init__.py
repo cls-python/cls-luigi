@@ -19,3 +19,8 @@
 
 """Top-level package for visualizer."""
 
+
+from .repository import StaticVisualization as StaticVisualizer
+from .pipeline import DynamicVisualization as DynamicVisualizer
+
+__all__ = ['StaticVisualizer', 'DynamicVisualizer']
