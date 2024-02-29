@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.1.0 documentation</title>
+  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.1.1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
@@ -32,7 +32,7 @@
             cls-luigi
           </a>
               <div class="version">
-                0.1.0
+                0.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -116,41 +116,41 @@
 <span class="kn">from</span> <span class="nn">cls_luigi.repo_visualizer.json_io</span> <span class="kn">import</span> <span class="n">load_json</span><span class="p">,</span> <span class="n">dump_json</span>
 <span class="kn">from</span> <span class="nn">cls_luigi.unique_task_pipeline_validator</span> <span class="kn">import</span> <span class="n">UniqueTaskPipelineValidator</span>
 
-<div class="viewcode-block" id="CONFIG"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.CONFIG">[docs]</a><span class="n">CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config.json&quot;</span></div>
-
-
-<div class="viewcode-block" id="TaskProcessingTime"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskProcessingTime">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessingTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    A mixin that when added to a luigi task, will save</span>
-<span class="sd">    the tasks execution time to the dynamic_pipeline.json</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="nd">@luigi</span><span class="o">.</span><span class="n">Task</span><span class="o">.</span><span class="n">event_handler</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">PROCESSING_TIME</span><span class="p">)</span>
-<div class="viewcode-block" id="TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json">[docs]</a>    <span class="k">def</span> <span class="nf">save_execution_time_to_dynamic_pipeline_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_time</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">_prettify_task_name</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
-            <span class="n">listed_task_id</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">listed_task_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">listed_task_id</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">task_pretty_name</span> <span class="o">=</span> <span class="n">_prettify_task_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">dynamic_pipeline_path</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">)[</span><span class="s2">&quot;dynamic_pipeline&quot;</span><span class="p">]</span>
-            <span class="n">dynamic_pipeline_json</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">dynamic_pipeline_path</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">pipeline_ix</span> <span class="ow">in</span> <span class="n">dynamic_pipeline_json</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">dynamic_pipeline_json</span><span class="p">[</span><span class="n">pipeline_ix</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">task</span> <span class="o">==</span> <span class="n">task_pretty_name</span><span class="p">:</span>
-                        <span class="n">dynamic_pipeline_json</span><span class="p">[</span><span class="n">pipeline_ix</span><span class="p">][</span><span class="n">task</span><span class="p">][</span><span class="s2">&quot;processingTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processing_time</span>
-                        <span class="k">break</span> <span class="c1"># we know that in each pipeline the tasks are unique, so once we find the task we are looking for we break the inner loop</span>
-            <span class="n">dump_json</span><span class="p">(</span><span class="n">dynamic_pipeline_path</span><span class="p">,</span> <span class="n">dynamic_pipeline_json</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;There is either a problem with the path to &quot;dynamic_pipeline&quot; or you are running with local_scheduler = True&#39;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">return</span> <span class="ne">FileNotFoundError</span></div></div>
-            <span class="c1"># Daniel: maybe remove msg for less cluttered logs and remove return of exception since no one is handling it.</span>
-
-
+<span class="c1"># CONFIG = &quot;config.json&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># class TaskProcessingTime(object):</span>
+<span class="c1">#</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     A mixin that when added to a luigi task, will save</span>
+<span class="c1">#     the tasks execution time to the dynamic_pipeline.json</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     @luigi.Task.event_handler(luigi.Event.PROCESSING_TIME)</span>
+<span class="c1">#     def save_execution_time_to_dynamic_pipeline_json(self, processing_time):</span>
+<span class="c1">#         def _prettify_task_name(task):</span>
+<span class="c1">#             listed_task_id = task.split(&quot;_&quot;)</span>
+<span class="c1">#             return listed_task_id[0] + &quot;_&quot; + listed_task_id[-1]</span>
+<span class="c1">#</span>
+<span class="c1">#         task_pretty_name = _prettify_task_name(self.task_id)</span>
+<span class="c1">#</span>
+<span class="c1">#         try:</span>
+<span class="c1">#             dynamic_pipeline_path = load_json(CONFIG)[&quot;dynamic_pipeline&quot;]</span>
+<span class="c1">#             dynamic_pipeline_json = load_json(dynamic_pipeline_path)</span>
+<span class="c1">#</span>
+<span class="c1">#             for pipeline_ix in dynamic_pipeline_json.keys():</span>
+<span class="c1">#                 for task in dynamic_pipeline_json[pipeline_ix].keys():</span>
+<span class="c1">#                     if task == task_pretty_name:</span>
+<span class="c1">#                         dynamic_pipeline_json[pipeline_ix][task][&quot;processingTime&quot;] = processing_time</span>
+<span class="c1">#                         break # we know that in each pipeline the tasks are unique, so once we find the task we are looking for we break the inner loop</span>
+<span class="c1">#             dump_json(dynamic_pipeline_path, dynamic_pipeline_json)</span>
+<span class="c1">#</span>
+<span class="c1">#         except FileNotFoundError as e:</span>
+<span class="c1">#             msg = &#39;There is either a problem with the path to &quot;dynamic_pipeline&quot; or you are running with local_scheduler = True&#39;</span>
+<span class="c1">#             print(msg)</span>
+<span class="c1">#             return FileNotFoundError</span>
+<span class="c1">#             # Daniel: maybe remove msg for less cluttered logs and remove return of exception since no one is handling it.</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
 
 
 
@@ -170,7 +170,9 @@
 <div class="viewcode-block" id="states"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.states">[docs]</a><span class="n">states</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskState</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="InhabitationTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask">[docs]</a><span class="k">class</span> <span class="nc">InhabitationTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">,</span> <span class="n">TaskProcessingTime</span><span class="p">):</span>
+<span class="c1"># class InhabitationTask(luigi.Task, TaskProcessingTime):</span>
+<div class="viewcode-block" id="InhabitationTask"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask">[docs]</a><span class="k">class</span> <span class="nc">InhabitationTask</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+
 <div class="viewcode-block" id="InhabitationTask.accepts_messages"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.accepts_messages">[docs]</a>    <span class="n">accepts_messages</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="InhabitationTask.requires"><a class="viewcode-back" href="../../autoapi/cls_luigi/inhabitation_task/index.html#cls_luigi.inhabitation_task.InhabitationTask.requires">[docs]</a>    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -971,7 +973,7 @@
             <span class="n">arg</span> <span class="o">=</span> <span class="n">serialized_args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="n">wrapped_task</span> <span class="o">=</span> <span class="n">wrapped_task</span><span class="p">(</span><span class="n">wrapped_task</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">config_index</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
         <span class="k">while</span> <span class="n">serialized_args</span><span class="p">:</span>
-            <span class="n">arg</span> <span class="o">=</span> <span class="n">CLSLuigiDecoder</span><span class="o">.</span><span class="n">_deserialize_combinator</span><span class="p">(</span><span class="n">serialized_args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">serialized_args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">wrapped_task</span> <span class="o">=</span> <span class="n">wrapped_task</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">wrapped_task</span></div>
 

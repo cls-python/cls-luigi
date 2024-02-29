@@ -46,6 +46,7 @@ Functions
 
 .. py:class:: StartNode(*args, **kwargs)
 
+
    Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -81,6 +82,7 @@ Functions
 
 
 .. py:class:: SomeAbstractClass(*args, **kwargs)
+
 
    Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
 
@@ -131,6 +133,7 @@ Functions
 
 .. py:class:: ConcreteClass4(*args, **kwargs)
 
+
    Bases: :py:obj:`SomeAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -142,6 +145,7 @@ Functions
 
 
 .. py:class:: SomeAbstractAbstractClass(*args, **kwargs)
+
 
    Bases: :py:obj:`SomeAbstractClass`
 
@@ -155,6 +159,7 @@ Functions
 
 .. py:class:: ConcreteClass1(*args, **kwargs)
 
+
    Bases: :py:obj:`SomeAbstractAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -166,6 +171,7 @@ Functions
 
 
 .. py:class:: ConcreteClass2(*args, **kwargs)
+
 
    Bases: :py:obj:`SomeAbstractAbstractClass`
 
@@ -179,6 +185,7 @@ Functions
 
 .. py:class:: ConcreteClass3(*args, **kwargs)
 
+
    Bases: :py:obj:`SomeAbstractAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -190,6 +197,7 @@ Functions
 
 
 .. py:class:: SomeOtherAbstractAbstractClass(*args, **kwargs)
+
 
    Bases: :py:obj:`SomeAbstractClass`
 
@@ -203,6 +211,7 @@ Functions
 
 .. py:class:: ConcreteClassInAbstractChain(*args, **kwargs)
 
+
    Bases: :py:obj:`SomeOtherAbstractAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -214,6 +223,7 @@ Functions
 
 
 .. py:class:: AbstractFromConcreteClassInChain(*args, **kwargs)
+
 
    Bases: :py:obj:`ConcreteClassInAbstractChain`
 
@@ -227,6 +237,7 @@ Functions
 
 .. py:class:: ConcreteClass5(*args, **kwargs)
 
+
    Bases: :py:obj:`AbstractFromConcreteClassInChain`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -238,6 +249,7 @@ Functions
 
 
 .. py:class:: ConcreteClass6(*args, **kwargs)
+
 
    Bases: :py:obj:`AbstractFromConcreteClassInChain`
 
@@ -251,6 +263,7 @@ Functions
 
 .. py:class:: ConcreteClass7(*args, **kwargs)
 
+
    Bases: :py:obj:`AbstractFromConcreteClassInChain`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -262,6 +275,7 @@ Functions
 
 
 .. py:class:: UnrelatedAbstractClass(*args, **kwargs)
+
 
    Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
 
@@ -316,6 +330,7 @@ Functions
 
 .. py:class:: UnrelatedConcreteClass1(*args, **kwargs)
 
+
    Bases: :py:obj:`UnrelatedAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -328,6 +343,7 @@ Functions
 
 .. py:class:: UnrelatedConcreteClass2(*args, **kwargs)
 
+
    Bases: :py:obj:`UnrelatedAbstractClass`
 
    Abstract class representing a CLS-Luigi task. It combines the functionality of `luigi.Task`, `LuigiCombinator`, and `ClsBaseTask`.
@@ -339,6 +355,7 @@ Functions
 
 
 .. py:class:: EndNode(*args, **kwargs)
+
 
    Bases: :py:obj:`cls_luigi.cls_tasks.ClsTask`
 
@@ -393,6 +410,7 @@ Functions
 
 .. py:class:: EndEndNode(*args, **kwargs)
 
+
    Bases: :py:obj:`luigi.Task`, :py:obj:`cls_luigi.inhabitation_task.LuigiCombinator`
 
    This is the base class of all Luigi Tasks, the base unit of work in Luigi.
@@ -420,6 +438,7 @@ Functions
 
 
 .. py:class:: WrapperTask(*args, **kwargs)
+
 
    Bases: :py:obj:`cls_luigi.cls_tasks.ClsWrapperTask`
 
@@ -453,6 +472,7 @@ Functions
 
 
 .. py:class:: TestRepositoryFilterMethods(methodName='runTest')
+
 
    Bases: :py:obj:`unittest.TestCase`
 

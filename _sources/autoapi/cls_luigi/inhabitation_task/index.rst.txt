@@ -12,7 +12,6 @@ Classes
 
 .. autoapisummary::
 
-   cls_luigi.inhabitation_task.TaskProcessingTime
    cls_luigi.inhabitation_task.TaskState
    cls_luigi.inhabitation_task.InhabitationTask
    cls_luigi.inhabitation_task.InhabitationTest
@@ -30,28 +29,12 @@ Attributes
 
 .. autoapisummary::
 
-   cls_luigi.inhabitation_task.CONFIG
    cls_luigi.inhabitation_task.states
    cls_luigi.inhabitation_task.ConfigIndex
 
 
-.. py:data:: CONFIG
-   :value: 'config.json'
-
-   
-
-.. py:class:: TaskProcessingTime
-
-   Bases: :py:obj:`object`
-
-   A mixin that when added to a luigi task, will save
-   the tasks execution time to the dynamic_pipeline.json
-
-   .. py:method:: save_execution_time_to_dynamic_pipeline_json(processing_time)
-
-
-
 .. py:class:: TaskState
+
 
    Bases: :py:obj:`object`
 
@@ -66,7 +49,7 @@ Attributes
       
 
    .. py:attribute:: result
-      :type: InhabitationResult | None
+      :type: cls.fcl.InhabitationResult | None
 
       
 
@@ -98,7 +81,8 @@ Attributes
 
 .. py:class:: InhabitationTask(*args, **kwargs)
 
-   Bases: :py:obj:`luigi.Task`, :py:obj:`TaskProcessingTime`
+
+   Bases: :py:obj:`luigi.Task`
 
    This is the base class of all Luigi Tasks, the base unit of work in Luigi.
 
@@ -158,6 +142,7 @@ Attributes
 
 
 .. py:class:: InhabitationTest(*args, **kwargs)
+
 
    Bases: :py:obj:`luigi.Task`
 
@@ -230,7 +215,8 @@ Attributes
 
    
 
-.. py:class:: ClsParameter(tpe: Type | dict[ConfigIndex, Type], **kwargs)
+.. py:class:: ClsParameter(tpe: cls.types.Type | dict[ConfigIndex, cls.types.Type], **kwargs)
+
 
    Bases: :py:obj:`luigi.Parameter`, :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
 
@@ -299,6 +285,7 @@ Attributes
 
 .. py:class:: RepoMeta(name, bases, dct)
 
+
    Bases: :py:obj:`luigi.task_register.Register`
 
    The Metaclass of :py:class:`Task`.
@@ -310,6 +297,7 @@ Attributes
    2. Keep track of all subclasses of :py:class:`Task` and expose them.
 
    .. py:class:: TaskCtor
+
 
       Bases: :py:obj:`object`
 
@@ -333,6 +321,7 @@ Attributes
 
 
    .. py:class:: ClassIndex
+
 
       Bases: :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
 
@@ -380,6 +369,7 @@ Attributes
 
 
    .. py:class:: WrappedTask
+
 
       Bases: :py:obj:`object`
 
@@ -729,6 +719,7 @@ Attributes
 
 .. py:class:: CLSLugiEncoder(**kwargs)
 
+
    Bases: :py:obj:`cls.cls_json.CLSEncoder`
 
    A custom JSON encoder for classes related to Finite Combinatory Logic.
@@ -797,6 +788,7 @@ Attributes
 
 
 .. py:class:: CLSLuigiDecoder(**kwargs)
+
 
    Bases: :py:obj:`cls.cls_json.CLSDecoder`
 
@@ -871,6 +863,7 @@ Attributes
 
 
 .. py:class:: LuigiCombinator
+
 
    Bases: :py:obj:`Generic`\ [\ :py:obj:`ConfigIndex`\ ]
 

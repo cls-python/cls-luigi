@@ -37,6 +37,7 @@ Attributes
 
 .. py:class:: StaticJSONRepo(repo_meta)
 
+
    Creates a json representation of all components in repository, their types,
    their concrete implementations or config indexes, and their dependencies.
 

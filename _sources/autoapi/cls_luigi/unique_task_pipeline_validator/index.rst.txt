@@ -19,6 +19,7 @@ Classes
 
 .. py:class:: UniqueTaskPipelineValidator(unique_abstract_classes)
 
+
    Bases: :py:obj:`object`
 
    .. py:method:: validate(pipeline)

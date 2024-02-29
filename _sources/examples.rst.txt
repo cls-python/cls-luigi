@@ -8,8 +8,8 @@ You can find all the examples along with their source code here_.
 .. toctree::
    :maxdepth: 2
 
-   ../examples/ny_taxi/README
+   ../examples/lot_sizing/README
    ../examples/ml_blood_sugar_level/README
    ../examples/vehicle_routing/README
-   ../examples/lot_sizing/README
+   ../examples/ny_taxi/README
 .. _here: https://github.com/cls-python/cls-luigi/tree/main/examples

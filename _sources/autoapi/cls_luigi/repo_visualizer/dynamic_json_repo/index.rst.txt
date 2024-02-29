@@ -37,6 +37,7 @@ Attributes
 
 .. py:class:: DynamicJSONRepo(cls_results)
 
+
    Constructs a single json pipeline representation from all pipelines, that are produced from the FiniteCombinatoryLogic.
    The pipeline doesn't include any abstract tasks.
 

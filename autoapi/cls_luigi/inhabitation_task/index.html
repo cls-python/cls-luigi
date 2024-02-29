@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.1.0 documentation</title>
+  <title>cls_luigi.inhabitation_task &mdash; cls-luigi 0.1.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
@@ -35,7 +35,7 @@
             cls-luigi
           </a>
               <div class="version">
-                0.1.0
+                0.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -103,31 +103,28 @@
 <h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="cls_luigi.inhabitation_task.TaskProcessingTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskProcessingTime</span></code></a></p></td>
-<td><p>A mixin that when added to a luigi task, will save</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskState" title="cls_luigi.inhabitation_task.TaskState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskState</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.TaskState" title="cls_luigi.inhabitation_task.TaskState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskState</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTask" title="cls_luigi.inhabitation_task.InhabitationTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTask</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTask" title="cls_luigi.inhabitation_task.InhabitationTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTask</span></code></a></p></td>
 <td><p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTest" title="cls_luigi.inhabitation_task.InhabitationTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTest</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.InhabitationTest" title="cls_luigi.inhabitation_task.InhabitationTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InhabitationTest</span></code></a></p></td>
 <td><p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClsParameter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ClsParameter" title="cls_luigi.inhabitation_task.ClsParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClsParameter</span></code></a></p></td>
 <td><p>Parameter whose value is a <code class="docutils literal notranslate"><span class="pre">str</span></code>, and a base class for other parameter types.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepoMeta</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.RepoMeta" title="cls_luigi.inhabitation_task.RepoMeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepoMeta</span></code></a></p></td>
 <td><p>The Metaclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLugiEncoder" title="cls_luigi.inhabitation_task.CLSLugiEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLugiEncoder</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLugiEncoder" title="cls_luigi.inhabitation_task.CLSLugiEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLugiEncoder</span></code></a></p></td>
 <td><p>A custom JSON encoder for classes related to Finite Combinatory Logic.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder" title="cls_luigi.inhabitation_task.CLSLuigiDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLuigiDecoder</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CLSLuigiDecoder" title="cls_luigi.inhabitation_task.CLSLuigiDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CLSLuigiDecoder</span></code></a></p></td>
 <td><p>A custom JSON decoder for decoding objects of different types from a JSON string related to Finite Combinatory Logic.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.LuigiCombinator" title="cls_luigi.inhabitation_task.LuigiCombinator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LuigiCombinator</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.LuigiCombinator" title="cls_luigi.inhabitation_task.LuigiCombinator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LuigiCombinator</span></code></a></p></td>
 <td><p>Abstract base class for generic types.</p></td>
 </tr>
 </tbody>
@@ -137,35 +134,14 @@
 <h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.CONFIG" title="cls_luigi.inhabitation_task.CONFIG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONFIG</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.states" title="cls_luigi.inhabitation_task.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.states" title="cls_luigi.inhabitation_task.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py data">
-<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.CONFIG">
-<span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">CONFIG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'config.json'</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#CONFIG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.CONFIG" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskProcessingTime">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">TaskProcessingTime</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskProcessingTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A mixin that when added to a luigi task, will save
-the tasks execution time to the dynamic_pipeline.json</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json">
-<span class="sig-name descname"><span class="pre">save_execution_time_to_dynamic_pipeline_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskProcessingTime.save_execution_time_to_dynamic_pipeline_json" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">TaskState</span></span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState" title="Permalink to this definition"></a></dt>
@@ -182,7 +158,7 @@ the tasks execution time to the dynamic_pipeline.json</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cls_luigi.inhabitation_task.TaskState.result">
-<span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">InhabitationResult</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.result" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cls.fcl.InhabitationResult</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#TaskState.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.TaskState.result" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -215,7 +191,7 @@ the tasks execution time to the dynamic_pipeline.json</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cls_luigi.inhabitation_task.InhabitationTask">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">InhabitationTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#InhabitationTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.InhabitationTask" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Task</span></code>, <a class="reference internal" href="#cls_luigi.inhabitation_task.TaskProcessingTime" title="cls_luigi.inhabitation_task.TaskProcessingTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TaskProcessingTime</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Task</span></code></p>
 <p>This is the base class of all Luigi Tasks, the base unit of work in Luigi.</p>
 <p>A Luigi Task describes a unit or work.</p>
 <p>The key methods of a Task, which must be implemented in a subclass are:</p>
@@ -339,7 +315,7 @@ Otherwise, return <code class="docutils literal notranslate"><span class="pre">F
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cls_luigi.inhabitation_task.ClsParameter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">ClsParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigIndex</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cls_luigi.inhabitation_task.</span></span><span class="sig-name descname"><span class="pre">ClsParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tpe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cls.types.Type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigIndex</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">cls.types.Type</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cls_luigi/inhabitation_task.html#ClsParameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cls_luigi.inhabitation_task.ClsParameter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">luigi.Parameter</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#cls_luigi.inhabitation_task.ConfigIndex" title="cls_luigi.inhabitation_task.ConfigIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigIndex</span></code></a>]</p>
 <p>Parameter whose value is a <code class="docutils literal notranslate"><span class="pre">str</span></code>, and a base class for other parameter types.</p>
 <p>Parameters are objects set on the Task class level to make it possible to parameterize tasks.
