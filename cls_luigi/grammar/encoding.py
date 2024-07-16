@@ -1,6 +1,6 @@
 from typing import Iterable, Any
 import cls.fcl
-from cls_luigi.grammar.helpers import remove_module_names
+from cls_luigi.grammar.helpers import remove_module_names  # returns a string with the module names removed
 
 
 class ApplicativeTreeGrammarEncoder:
@@ -46,7 +46,7 @@ class ApplicativeTreeGrammarEncoder:
 
         combinators = set()
         args = set()
-        filtered_grammar = list(filter(lambda x: x.target == function_type, self.applicative_tree_grammar))
+        filtered_grammar = self._filter_applicative_tree_grammar(function_type)
 
         for rule in filtered_grammar:
             if isinstance(rule, cls.fcl.Combinator):
@@ -77,3 +77,9 @@ class ApplicativeTreeGrammarEncoder:
             if c not in self.tree_grammar[target]:
                 self.tree_grammar[target][c] = set()
             self.tree_grammar[target][c].update(combinator_args)
+
+    def _filter_applicative_tree_grammar(
+        self,
+        function_type: cls.fcl.Type
+    ) -> set[cls.fcl.Rule]:
+        return set(filter(lambda rule: rule.target == function_type, self.applicative_tree_grammar))
