@@ -27,41 +27,46 @@ class ApplicativeTreeGrammarEncoder:
                     combinator_args=set())
 
             elif isinstance(rule, cls.fcl.Apply):
-                combinators, args = self._compute_rules(
+                combinators_and_args = self._compute_application(
                     function_type=rule.function_type,
                     argument_type=rule.argument_type)
 
-                self._safe_update_tree_grammar_dict(
-                    target=target,
-                    combinators=combinators,
-                    combinator_args=args)
+                for combinator, args in combinators_and_args.items():
+                    self._safe_update_tree_grammar_dict(
+                        target=target,
+                        combinators={combinator},
+                        combinator_args=args)
 
         return self.tree_grammar
 
-    def _compute_rules(
+    def _compute_application(
         self,
         function_type: cls.fcl.Type,
         argument_type: cls.fcl.Type
-    ) -> tuple[set[str | Any], set[str | Any]]:
+    ) -> dict[str | Any: set[str | Any]]:
 
-        combinators = set()
-        args = set()
+        combinators_and_args = {}
         filtered_grammar = self._filter_applicative_tree_grammar(function_type)
 
         for rule in filtered_grammar:
             if isinstance(rule, cls.fcl.Combinator):
-                combinators.add(remove_module_names(rule.combinator))
-                args.add(remove_module_names(argument_type))
+                c = remove_module_names(rule.combinator)
+                if c not in combinators_and_args:
+                    combinators_and_args[c] = set()
+                combinators_and_args[c].add(remove_module_names(argument_type))
+
             elif isinstance(rule, cls.fcl.Apply):
-                temp_combinators, temp_args = self._compute_rules(
+                temp_combinators_and_args = self._compute_application(
                     function_type=rule.function_type,
                     argument_type=rule.argument_type
                 )
-                combinators.update(temp_combinators)
-                args.update(temp_args)
-                args.add(remove_module_names(argument_type))
+                for k, v in temp_combinators_and_args.items():
+                    if k not in combinators_and_args:
+                        combinators_and_args[k] = set()
+                    combinators_and_args[k].update(v)
+                    combinators_and_args[k].add(remove_module_names(argument_type))
 
-        return combinators, args
+        return combinators_and_args
 
     def _safe_update_tree_grammar_dict(
         self,
