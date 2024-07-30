@@ -1,4 +1,4 @@
-from typing import Iterable, Any
+from typing import Dict, Set, List
 import cls.fcl
 from cls_luigi.grammar.helpers import remove_module_names  # returns a string with the module names removed
 
@@ -6,7 +6,7 @@ from cls_luigi.grammar.helpers import remove_module_names  # returns a string wi
 class ApplicativeTreeGrammarEncoder:
     def __init__(
         self,
-        applicative_tree_grammar: Iterable[cls.fcl.Rule]
+        applicative_tree_grammar: Set[cls.fcl.Rule]
     ) -> None:
 
         self.applicative_tree_grammar = applicative_tree_grammar
@@ -14,28 +14,29 @@ class ApplicativeTreeGrammarEncoder:
 
     def encode_into_tree_grammar(
         self
-    ) -> dict[str | Any: dict[str | Any: set[str | Any]]]:
+    ) -> Dict[str, Dict[str, List[str]]]:
 
         for rule in self.applicative_tree_grammar:
-            target = remove_module_names(rule.target)
-            if isinstance(rule, cls.fcl.Combinator):
+            if not isinstance(rule.target, cls.fcl.Arrow):
+                target = remove_module_names(rule.target)
+                if isinstance(rule, cls.fcl.Combinator):
 
-                combinator = remove_module_names(rule.combinator)
-                self._safe_update_tree_grammar_dict(
-                    target=target,
-                    combinators={combinator},
-                    combinator_args=set())
-
-            elif isinstance(rule, cls.fcl.Apply):
-                combinators_and_args = self._compute_application(
-                    function_type=rule.function_type,
-                    argument_type=rule.argument_type)
-
-                for combinator, args in combinators_and_args.items():
+                    combinator = remove_module_names(rule.combinator)
                     self._safe_update_tree_grammar_dict(
                         target=target,
-                        combinators={combinator},
-                        combinator_args=args)
+                        combinators=[combinator],
+                        combinator_args=[])
+
+                elif isinstance(rule, cls.fcl.Apply):
+                    combinators_and_args = self._compute_application(
+                        function_type=rule.function_type,
+                        argument_type=rule.argument_type)
+
+                    for combinator, args in combinators_and_args.items():
+                        self._safe_update_tree_grammar_dict(
+                            target=target,
+                            combinators=[combinator],
+                            combinator_args=args)
 
         return self.tree_grammar
 
@@ -43,7 +44,7 @@ class ApplicativeTreeGrammarEncoder:
         self,
         function_type: cls.fcl.Type,
         argument_type: cls.fcl.Type
-    ) -> dict[str | Any: set[str | Any]]:
+    ) -> Dict[str, List[str]]:
 
         combinators_and_args = {}
         filtered_grammar = self._filter_applicative_tree_grammar(function_type)
@@ -52,8 +53,9 @@ class ApplicativeTreeGrammarEncoder:
             if isinstance(rule, cls.fcl.Combinator):
                 c = remove_module_names(rule.combinator)
                 if c not in combinators_and_args:
-                    combinators_and_args[c] = set()
-                combinators_and_args[c].add(remove_module_names(argument_type))
+                    combinators_and_args[c] = []
+                if remove_module_names(argument_type) not in combinators_and_args[c]:
+                    combinators_and_args[c].append(remove_module_names(argument_type))
 
             elif isinstance(rule, cls.fcl.Apply):
                 temp_combinators_and_args = self._compute_application(
@@ -62,17 +64,20 @@ class ApplicativeTreeGrammarEncoder:
                 )
                 for k, v in temp_combinators_and_args.items():
                     if k not in combinators_and_args:
-                        combinators_and_args[k] = set()
-                    combinators_and_args[k].update(v)
-                    combinators_and_args[k].add(remove_module_names(argument_type))
+                        combinators_and_args[k] = []
+
+                    combinators_and_args[k].extend(v)
+
+                    if remove_module_names(argument_type) not in combinators_and_args[k]:
+                        combinators_and_args[k].append(remove_module_names(argument_type))
 
         return combinators_and_args
 
     def _safe_update_tree_grammar_dict(
         self,
-        target: str | Any,
-        combinators: set[str | Any],
-        combinator_args: set[str | Any]
+        target: str,
+        combinators: List[str | None],
+        combinator_args: List[str | None]
     ) -> None:
 
         if target not in self.tree_grammar:
@@ -80,8 +85,10 @@ class ApplicativeTreeGrammarEncoder:
 
         for c in combinators:
             if c not in self.tree_grammar[target]:
-                self.tree_grammar[target][c] = set()
-            self.tree_grammar[target][c].update(combinator_args)
+                self.tree_grammar[target][c] = []
+
+            if combinator_args not in self.tree_grammar[target][c]:
+                self.tree_grammar[target][c].extend(combinator_args)
 
     def _filter_applicative_tree_grammar(
         self,
