@@ -1,3 +1,5 @@
+import logging
+
 import luigi
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -5,6 +7,7 @@ from cls.subtypes import Subtypes
 from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
 from cls_luigi.grammar.hypergraph import plot_hypergraph_components, get_hypergraph_dict_from_tree_grammar
 from cls_luigi.inhabitation_task import ClsParameter, LuigiCombinator, RepoMeta
+from cls_luigi.search.mcts.sp_mcts import SP_MCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 
@@ -191,6 +194,7 @@ class adaboost(CLF):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
 
     target = CLF.return_type()
     repository = RepoMeta.repository
@@ -210,16 +214,29 @@ if __name__ == "__main__":
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
 
-    tree_grammar = ApplicativeTreeGrammarEncoder(rules).encode_into_tree_grammar()
+    tree_grammar = ApplicativeTreeGrammarEncoder(rules, CLF.__name__).encode_into_tree_grammar()
 
-    for k, v in tree_grammar.items():
+    print("start", tree_grammar["start"])
+    print("non_terminals", tree_grammar["non_terminals"])
+    print("terminals", tree_grammar["terminals"])
+    print("rules")
+    for k, v in tree_grammar["rules"].items():
         print(k)
         print(v)
         print()
 
-
-
-
     hypergraph = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
 
+    params = {
+        "num_iterations": 100,
+        "exploration_param": 0.5
+    }
+
+    mcts = SP_MCTS(
+        grammar=tree_grammar,
+        parameters=params,
+    )
+    mcts.run()
+    mcts.draw_tree("nx_di_graph.png", plot=True)
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

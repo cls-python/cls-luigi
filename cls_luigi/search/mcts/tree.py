@@ -1,4 +1,3 @@
-import json
 import logging
 import pickle
 from typing import Dict, List, Tuple
@@ -10,6 +9,8 @@ from matplotlib.patches import Patch
 
 from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.tree import TreeBase
+
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 
 class MCTSTreeWithGrammar(TreeBase):
@@ -90,7 +91,8 @@ class MCTSTreeWithGrammar(TreeBase):
         min_target_margin: int = 25,
         legend_loc: str = 'best',
         out_dpi: int = 600,
-        plot: bool = False
+        plot: bool = False,
+        plot_title: str = "MCTS Tree"
 
     ) -> None:
 
@@ -148,6 +150,7 @@ class MCTSTreeWithGrammar(TreeBase):
                    label='Terminals', markerfacecolor=terminal_nodes_color, markersize=14, linewidth=0),
         ]
 
+        axs.set_title(plot_title, fontsize=15, fontweight='bold', loc='center')
         axs.legend(handles=legend_elements, loc=legend_loc)
 
         plt.tight_layout()

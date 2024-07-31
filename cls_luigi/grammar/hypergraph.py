@@ -8,30 +8,19 @@ from matplotlib.patches import Patch
 
 
 def get_hypergraph_dict_from_tree_grammar(
-    tree_grammar: Dict[str, Dict[str, List[str]]]
+    tree_grammar: Dict[str, str | List[str] | Dict[str, List[str]]]
 ) -> Dict[str, List[str]]:
 
     hypergraph = {
         "choice_edges": [],
         "arg_edges": [],
-        "non_terminal_nodes": [],
-        "terminal_nodes": []}
+        "non_terminal_nodes": tree_grammar["non_terminals"],
+        "terminal_nodes": tree_grammar["terminals"]}
 
-    for lhs, rhs in tree_grammar.items():
-
-        if lhs not in hypergraph["non_terminal_nodes"]:
-            hypergraph["non_terminal_nodes"].append(lhs)
-
+    for lhs, rhs in tree_grammar["rules"].items():
         for combinator, args in rhs.items():
-
-            if combinator not in hypergraph["terminal_nodes"]:
-                hypergraph["terminal_nodes"].append(combinator)
-
             hypergraph["choice_edges"].append((lhs, combinator))
             for arg in args:
-                if arg not in hypergraph["non_terminal_nodes"]:
-                    hypergraph["non_terminal_nodes"].append(arg)
-
                 hypergraph["arg_edges"].append((combinator, arg))
 
     return hypergraph
@@ -56,7 +45,8 @@ def plot_hypergraph_components(
     arrow_width: int = 2,
     min_target_margin: int = 38,
     legend_loc: str = 'best',
-    out_dpi: int = 600
+    out_dpi: int = 600,
+    plot_title: str = "Tree Grammar as Hypergraph"
 ) -> None:
 
     fig, axs = plt.subplots(1, 1, figsize=figsize)
@@ -93,9 +83,10 @@ def plot_hypergraph_components(
         Line2D([0], [0], color=choice_edges_color, lw=2, linestyle=choice_edges_style, label='Choice'),
         Line2D([0], [0], color=arg_edges_color, lw=2, label='Arg', linestyle=arg_edges_style),
         Patch(facecolor=non_terminal_nodes_color, edgecolor=non_terminal_nodes_color, label="Non-terminals"),
-        Line2D([0], [0], marker='o', color=terminal_nodes_color, label='Terminals', markerfacecolor=terminal_nodes_color, markersize=20),
+        Line2D([0], [0], marker='o', color=terminal_nodes_color, label='Terminals',
+               markerfacecolor=terminal_nodes_color, markersize=20, linewidth=0),
     ]
-
+    axs.set_title(plot_title, fontsize=15, fontweight='bold', loc='center')
     axs.legend(handles=legend_elements, loc=legend_loc)
 
     plt.tight_layout()
