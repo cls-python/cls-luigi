@@ -1,4 +1,5 @@
 import logging
+import pickle
 from typing import Dict, List, Type, Any
 
 from cls_luigi.search.core.node import NodeBase
@@ -31,13 +32,13 @@ class SP_MCTS:
         self.selection_policy = selection_policy
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
-        self.tree = tree_cls(root=self.init_root(), grammar=grammar)
+        self.tree = tree_cls(root=self.get_root_node(), grammar=self.grammar)
         if logger:
             self.logger = logger
         else:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-    def init_root(
+    def get_root_node(
         self
     ) -> NodeBase:
         root_node = Node(
@@ -90,10 +91,13 @@ class SP_MCTS:
 
         # print(paths)
         # print("=================================================\n")
-        self.tree.draw_tree()
+        # self.tree.draw_tree()
         # best = self.get_best_path()
         # print("Best path:", best)
         # print("=================================================\n")
+
+    def draw_tree(self, out_path: str, plot: bool = False, *args) -> None:
+        self.tree.draw_tree(out_name=out_path, plot=plot, *args)
 
     def get_best_path(
         self
@@ -105,6 +109,19 @@ class SP_MCTS:
             node = node.select()
             path.append(node)
         return path
+
+    def shut_down(
+        self,
+        mcts_path: str = None,
+        tree_path: str = None
+    ) -> None:
+
+        self.logger.debug("Shutting down SP-MCTS")
+        if mcts_path:
+            with open(mcts_path, "wb") as f:
+                pickle.dump(self, f)
+        if tree_path:
+            self.tree.save(tree_path)
 
 
 if __name__ == "__main__":
@@ -134,3 +151,5 @@ if __name__ == "__main__":
         selection_policy=UCB1,
     )
     mcts.run()
+    mcts.draw_tree("nx_di_graph.png", plot=True)
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

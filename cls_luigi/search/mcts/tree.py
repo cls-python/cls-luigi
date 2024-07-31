@@ -1,4 +1,6 @@
+import json
 import logging
+import pickle
 from typing import Dict, List, Tuple
 
 import networkx as nx
@@ -87,7 +89,9 @@ class MCTSTreeWithGrammar(TreeBase):
         arrow_width: int = 2,
         min_target_margin: int = 25,
         legend_loc: str = 'best',
-        out_dpi: int = 600
+        out_dpi: int = 600,
+        plot: bool = False
+
     ) -> None:
 
         fig, axs = plt.subplots(1, 1, figsize=figsize)
@@ -97,9 +101,9 @@ class MCTSTreeWithGrammar(TreeBase):
         pos = nx.bfs_layout(self.G, start=start_node_id)
 
         non_terminal_nodes = [node_id for node_id in self.G.nodes if
-                      self.get_node(node_id).name in self.grammar["non_terminals"]]
+                              self.get_node(node_id).name in self.grammar["non_terminals"]]
         terminal_nodes = [node_id for node_id in self.G.nodes if
-                         self.get_node(node_id).name in self.grammar["terminals"]]
+                          self.get_node(node_id).name in self.grammar["terminals"]]
 
         nx.draw_networkx_nodes(self.G,
                                pos,
@@ -142,11 +146,25 @@ class MCTSTreeWithGrammar(TreeBase):
             Patch(facecolor=non_terminal_nodes_color, edgecolor=non_terminal_nodes_color, label="Non-terminals"),
             Line2D([0], [0], marker='o', color=terminal_nodes_color,
                    label='Terminals', markerfacecolor=terminal_nodes_color, markersize=14, linewidth=0),
-            ]
+        ]
 
         axs.legend(handles=legend_elements, loc=legend_loc)
 
         plt.tight_layout()
         if out_name:
             plt.savefig(out_name, dpi=out_dpi)
-        plt.show()
+
+        if plot:
+            plt.show()
+
+    def save(
+        self,
+        path: str
+    ):
+        if not path.endswith(".pkl"):
+            self.logger.debug("Appending .pkl to the path")
+            path = path + ".pkl"
+
+        # Save the graph to a JSON file
+        with open(path, 'wb') as f:
+            pickle.dump(self.G, f)

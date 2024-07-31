@@ -18,3 +18,9 @@ class TreeBase(abc.ABC):
                 self.logger = logging.getLogger(self.__class__.__name__)
 
             self.root = root
+
+    def draw_tree(self, *args, **kwargs):
+        ...
+
+    def save(self, *args, **kwargs):
+        ...
