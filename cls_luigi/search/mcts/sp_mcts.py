@@ -1,3 +1,5 @@
+import logging
+
 import networkx as nx
 from typing import Tuple, Dict, List, Type, Any
 from matplotlib import pyplot as plt
@@ -13,13 +15,21 @@ class Tree:
     def __init__(
         self,
         root: NodeBase,
-        grammar: Dict[str, Dict[str, List[str]] | str | List[str]]
+        grammar: Dict[str, Dict[str, List[str]] | str | List[str]],
+        logger: logging.Logger = None
+
     ) -> None:
 
         self.G = nx.DiGraph()
         self.id_count = -1
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
+
         self.add_root(root)
         self.grammar = grammar
+
 
     def add_root(
         self,
@@ -29,6 +39,7 @@ class Tree:
         self.id_count += 1
         node.node_id = self.id_count
         self.G.add_node(node.node_id, value=node)
+        self.logger.debug(f"Added root node {node.name}")
 
     def add_node(
         self,
@@ -39,6 +50,7 @@ class Tree:
         node.node_id = self.id_count
         self.G.add_node(node.node_id, value=node)
         self.G.add_edge(node.parent.node_id, node.node_id)
+        self.logger.debug(f"Added node {node.name} and an edge from {node.parent.name}")
 
     def draw(
         self
@@ -125,14 +137,16 @@ class Tree:
 
 class SP_MCTS:
     """Pure implementation of a Single player Monte Carlo Tree Search ."""
+
     def __init__(
         self,
         grammar: Dict[str, Dict[str, List[str]] | str | List[str]],
-        parameters: Dict[str,  Any],
+        parameters: Dict[str, Any],
         game_class: Type[OnePlayerGame] = TreeGrammarGame,
         selection_policy: Type[SelectionPolicy] = UCB1,
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
-        simulation_policy: Type[SimulationPolicy] = RandomSimulation
+        simulation_policy: Type[SimulationPolicy] = RandomSimulation,
+        logger: logging.Logger = None
     ) -> None:
 
         self.grammar = grammar
@@ -142,62 +156,68 @@ class SP_MCTS:
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
         self.tree = Tree(root=self.init_root(), grammar=grammar)
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
 
     def init_root(
         self
     ) -> NodeBase:
-
-        return Node(
+        root_node = Node(
             game=self.game,
             params=self.parameters,
             name=self.game.get_initial_state(),
             selection_policy_cls=self.selection_policy,
             expansion_policy_cls=self.expansion_policy,
             simulation_policy_cls=self.simulation_policy)
+        logging.debug(f"Initialized root node {root_node.name}")
+
+        return root_node
 
     def run(
         self
     ) -> None:
+        self.logger.debug("Running SP-MCTS for {} iterations".format(self.parameters["num_iterations"]))
 
         paths = []
 
         for _ in range(self.parameters["num_iterations"]):
             path = []
-            print("iteration", _)
+            logging.debug("======== Iteration: {}".format(_))
             node = self.tree.get_root()
             path.append(node)
-            print("========= root:", node.name)
 
             while node.is_fully_expanded():
-                print("fully expanded")
+                self.logger.debug(f"========= fully expanded: {node.name}")
                 node = node.select()
                 path.append(node)
-                print("========= new node:", node.name)
+                self.logger.debug(f"========= selected new node: {node.name}")
 
             is_terminal = False
             if node.parent:
                 is_terminal = self.game.is_terminal(node.parent.name, node.name, node.action_taken)
 
             if not is_terminal:
+                self.logger.debug(f"========= not terminal: {node.name}")
                 node = node.expand()
                 self.tree.add_node(node)
-                print("========= expanded:", node.name)
+                self.logger.debug(f"========= expanded:{node.name}")
                 reward = node.simulate(path)
             else:
+                self.logger.debug(f"========= terminal:{node.name}")
                 if path not in paths:
                     paths.append(path)
                 reward = self.game.get_reward(path)
 
             node.backprop(reward)
-            print("========= backpropagated:", node.name)
-            print("=================================================\n")
 
-        print(paths)
-        print("=================================================\n")
-        self.tree.draw_tree()
-        best = self.get_best_path()
-        print("Best path:", best)
-        print("=================================================\n")
+        # print(paths)
+        # print("=================================================\n")
+        # self.tree.draw_tree()
+        # best = self.get_best_path()
+        # print("Best path:", best)
+        # print("=================================================\n")
 
     def get_best_path(
         self
@@ -212,6 +232,7 @@ class SP_MCTS:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     tree_grammar = {
         "start": "CLF",
         "non_terminals": ["CLF", "FP", "Scaler", "Imputer", "Data"],
@@ -237,4 +258,3 @@ if __name__ == "__main__":
         selection_policy=UCB1,
     )
     mcts.run()
-

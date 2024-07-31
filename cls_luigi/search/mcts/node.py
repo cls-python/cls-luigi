@@ -1,4 +1,5 @@
 import abc
+import logging
 from typing import Type, Dict, Any, List
 
 from cls_luigi.search.core.node import NodeBase
@@ -18,10 +19,16 @@ class Node(NodeBase):
         node_id: int = None,
         parent: Type['Node'] = None,
         action_taken: str = None,
+        logger: logging.Logger = None,
         **kwargs
     ) -> None:
 
         super().__init__(**kwargs)
+
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
 
         self.game = game
         self.params = params
@@ -67,6 +74,7 @@ class Node(NodeBase):
     def expand(
         self
     ) -> 'Node':
+        self.logger.debug(f"========= expanding: {self.name}")
 
         sampled_action = self.expansion_policy.get_action()
         child_state = self.game.get_next_state(sampled_action)
@@ -85,16 +93,20 @@ class Node(NodeBase):
         self,
         path: List['Node']
     ) -> float:
-
         rollout_state = self
+        self.logger.debug(f"========= simulating: {rollout_state.name}")
+
         while True:
-            action = self.simulation_policy.get_action(state=rollout_state)  #
+            action = self.simulation_policy.get_action(state=rollout_state)
             path.append(rollout_state)
             path.append(action)
             is_terminal = self.game.is_terminal(rollout_state.parent.name, rollout_state.name, action)
 
             if is_terminal:
+                self.logger.debug(f"========= terminal state: {rollout_state.name} with action: {action}")
                 return self.game.get_reward(path)
+
+            self.logger.debug(f"========= non terminal state: {rollout_state.name} with action: {action}")
 
             rollout_parent = rollout_state
             rollout_state = Node(
@@ -112,6 +124,7 @@ class Node(NodeBase):
         self,
         reward: float
     ) -> None:
+        self.logger.debug(f"========= backpropagating: {self.name}")
 
         self.visits += 1
         self.reward += reward

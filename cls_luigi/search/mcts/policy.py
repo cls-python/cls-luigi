@@ -1,3 +1,4 @@
+import logging
 import math
 import random
 from math import sqrt
@@ -13,9 +14,10 @@ class UCB1(SelectionPolicy):
         self,
         node: NodeBase,
         exploration_param: float,
+        logger: logging.Logger = None,
         **kwargs
     ) -> None:
-        super().__init__(node, **kwargs)
+        super().__init__(node, logger, **kwargs)
         self.exploration_param = exploration_param
 
     def select(
@@ -50,17 +52,21 @@ class RandomExpansion(ExpansionPolicy):
     def __init__(
         self,
         node: NodeBase,
+        logger: logging.Logger = None,
         **kwargs
     ) -> None:
-        super().__init__(node, **kwargs)
+        super().__init__(node, logger, **kwargs)
 
     def get_action(
         self
     ) -> Type[NodeBase]:
+
         if len(self.node.expandable_actions) == 0:
             return None
         sampled = random.choice(self.node.expandable_actions)
         self.node.expandable_actions.remove(sampled)
+        self.logger.debug(f"========= sampled action: {sampled}")
+
         return sampled
 
 
@@ -68,16 +74,22 @@ class RandomSimulation(SimulationPolicy):
     def __init__(
         self,
         game: OnePlayerGame,
+        logger: logging.Logger = None,
         **kwargs
     ) -> None:
-        super().__init__(game, **kwargs)
+        super().__init__(game, logger, **kwargs)
 
     def get_action(
         self,
         state: NodeBase
     ) -> Type[NodeBase] | None:
+
         valid_moves = self.game.get_valid_actions(state.name, state.parent.name)
         if len(valid_moves) == 0:
+            self.logger.debug(f"========= no valid actions for: {state.name}")
+
             return None
         action = random.choice(valid_moves)
+        self.logger.debug(f"========= simulated action: {action}")
+
         return action

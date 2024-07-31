@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import Dict, List
 from cls_luigi.search.core.game import OnePlayerGame
@@ -8,6 +9,7 @@ class TreeGrammarGame(OnePlayerGame):
         self,
         grammar: Dict[str, Dict[str, List[str]]],
         *args,
+        logger: logging.Logger = None,
         **kwargs
     ) -> None:
 
@@ -17,6 +19,11 @@ class TreeGrammarGame(OnePlayerGame):
         self.non_terminals = self.grammar["non_terminals"]
         self.terminals = self.grammar["terminals"]
         self.rules = self.grammar["rules"]
+
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
 
     def get_initial_state(self):
         return self.start
