@@ -92,7 +92,13 @@ class MCTSTreeWithGrammar(TreeBase):
         legend_loc: str = 'best',
         out_dpi: int = 600,
         plot: bool = False,
-        plot_title: str = "MCTS Tree"
+        plot_title: str = "MCTS Tree",
+        non_terminal_node_shape: str = 's',
+        terminal_node_shape: str = 'o',
+        node_label_color="white",
+        title_fontsize: int = 15,
+        title_font_weight: str = 'bold',
+        title_loc: str = 'center',
 
     ) -> None:
 
@@ -112,7 +118,7 @@ class MCTSTreeWithGrammar(TreeBase):
                                node_size=node_size,
                                ax=axs,
                                node_color=non_terminal_nodes_color,
-                               node_shape='s',
+                               node_shape=non_terminal_node_shape,
                                nodelist=non_terminal_nodes)
 
         nx.draw_networkx_nodes(self.G,
@@ -120,7 +126,7 @@ class MCTSTreeWithGrammar(TreeBase):
                                node_size=node_size,
                                ax=axs,
                                node_color=terminal_nodes_color,
-                               node_shape='o',
+                               node_shape=terminal_node_shape,
                                nodelist=terminal_nodes)
 
         nx.draw_networkx_edges(self.G, pos, ax=axs, edge_color=choice_edges_color,
@@ -133,7 +139,7 @@ class MCTSTreeWithGrammar(TreeBase):
         labels = {i: self.G.nodes[i]["value"].name for i in self.G.nodes}
 
         nx.draw_networkx_labels(self.G, pos, labels,
-                                ax=axs, font_color='white', font_size=node_font_size)
+                                ax=axs, font_color=node_label_color, font_size=node_font_size)
 
         edge_labels = {}
 
@@ -146,11 +152,11 @@ class MCTSTreeWithGrammar(TreeBase):
 
         legend_elements = [
             Patch(facecolor=non_terminal_nodes_color, edgecolor=non_terminal_nodes_color, label="Non-terminals"),
-            Line2D([0], [0], marker='o', color=terminal_nodes_color,
+            Line2D([0], [0], marker=terminal_node_shape, color=terminal_nodes_color,
                    label='Terminals', markerfacecolor=terminal_nodes_color, markersize=14, linewidth=0),
         ]
 
-        axs.set_title(plot_title, fontsize=15, fontweight='bold', loc='center')
+        axs.set_title(plot_title, fontsize=title_fontsize, fontweight=title_font_weight, loc=title_loc)
         axs.legend(handles=legend_elements, loc=legend_loc)
 
         plt.tight_layout()
