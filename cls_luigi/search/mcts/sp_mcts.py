@@ -2,6 +2,7 @@ import logging
 import pickle
 from typing import Dict, List, Type, Any
 
+from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components
 from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
 from cls_luigi.search.core.tree import TreeBase
@@ -139,9 +140,13 @@ if __name__ == "__main__":
         }
     }
 
+    hypergraph = get_hypergraph_dict_from_tree_grammar(tree_grammar)
+    plot_hypergraph_components(hypergraph, "hypergraph.png", start_node="CLF", node_size=5000, node_font_size=11)
+
     params = {
         "num_iterations": 100,
-        "exploration_param": 0.5
+        "exploration_param": 0.5,
+        "num_simulations": 10,
     }
 
     mcts = SP_MCTS(
@@ -153,3 +158,12 @@ if __name__ == "__main__":
     mcts.run()
     mcts.draw_tree("nx_di_graph.png", plot=True)
     mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
+
+    print("start", tree_grammar["start"])
+    print("non_terminals", tree_grammar["non_terminals"])
+    print("terminals", tree_grammar["terminals"])
+    print("rules")
+    for k, v in tree_grammar["rules"].items():
+        print(k)
+        print(v)
+        print()

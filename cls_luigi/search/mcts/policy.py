@@ -39,9 +39,6 @@ class UCB1(SelectionPolicy):
         self,
         child: NodeBase
     ) -> float:
-
-        if child.visits == 0:
-            print()
         exploitation = child.reward / child.visits
         exploration = sqrt(math.log(child.parent.visits) / child.visits)
 

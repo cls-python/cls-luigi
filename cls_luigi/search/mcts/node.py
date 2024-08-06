@@ -90,8 +90,22 @@ class Node(NodeBase):
 
     def simulate(
         self,
+        path: List['Node'],
+    ) -> float:
+        sum_rewards = 0
+        self.logger.debug(f"========= simulating {self.params['num_simulations']} times: {self.name}")
+
+        for _ in range(self.params["num_simulations"]):
+            self.logger.debug(f"========= simulation {_}")
+            sum_rewards += self._simulate(path=path)
+
+        return sum_rewards / self.params["num_simulations"]
+
+    def _simulate(
+        self,
         path: List['Node']
     ) -> float:
+
         rollout_state = self
         self.logger.debug(f"========= simulating: {rollout_state.name}")
 
