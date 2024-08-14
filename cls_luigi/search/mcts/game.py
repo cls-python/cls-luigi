@@ -1,68 +1,39 @@
 import logging
 import random
 from typing import Dict, List
+
+import networkx as nx
+
 from cls_luigi.search.core.game import OnePlayerGame
 
 
-class TreeGrammarGame(OnePlayerGame):
-    def __init__(
-        self,
-        grammar: Dict[str, Dict[str, List[str]]],
-        *args,
-        logger: logging.Logger = None,
-        **kwargs
-    ) -> None:
-
+class HyperGraphGame(OnePlayerGame):
+    def __init__(self, g: nx.DiGraph, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.grammar = grammar
-        self.start = self.grammar["start"]
-        self.non_terminals = self.grammar["non_terminals"]
-        self.terminals = self.grammar["terminals"]
-        self.rules = self.grammar["rules"]
-
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = logging.getLogger(self.__class__.__name__)
+        self.G = g
 
     def get_initial_state(self):
-        return self.start
+        start_state = [
+            node for node, data in self.G.nodes(data=True)
+            if data.get("start_node") is True
+        ]
+        assert len(start_state) == 1, "There should be only one start node!"
+        return start_state[0]
 
-    def get_valid_actions(
-        self,
-        state: str,
-        parent: str | None = None):
+    def get_valid_actions(self, state):
+        return list(self.G.successors(state))
 
-        if state in self.non_terminals:
-            return list(self.rules[state].keys()).copy()
+    def is_terminal(self, state):
+        return self.G.nodes(data=True)[state].get("terminal_node")
 
-        elif state in self.terminals:
-            return self.rules[parent][state].copy()
-
-    def get_next_state(
-        self,
-        action: str
-    ):
-        return action
-
-    def is_terminal(self, parent, state, action):
-        if state == self.get_initial_state():
-            return False
-
-        if state in self.non_terminals:
-            return False
-
-        elif state in self.terminals:
-            if self.rules[parent][state]:
-                return False
-
-        if not action:
-            return True
-
-        return True
+    def is_start(self, state):
+        return self.G.nodes(data=True)[state].get("start_node")
 
     def get_reward(self, path):
         return random.random()
+
+    def is_final_state(self, state):
+        return self.get_valid_actions(state) == []
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, Simul
 from cls_luigi.search.mcts.game import OnePlayerGame
 
 
-class UCB1(SelectionPolicy):
+class UCT(SelectionPolicy):
     def __init__(
         self,
         node: NodeBase,
@@ -56,7 +56,7 @@ class RandomExpansion(ExpansionPolicy):
 
     def get_action(
         self
-    ) -> Type[NodeBase]:
+    ) -> Type[NodeBase] | None:
 
         if len(self.node.expandable_actions) == 0:
             return None
@@ -70,7 +70,7 @@ class RandomExpansion(ExpansionPolicy):
 class RandomSimulation(SimulationPolicy):
     def __init__(
         self,
-        game: OnePlayerGame,
+        game: Type[OnePlayerGame],
         logger: logging.Logger = None,
         **kwargs
     ) -> None:
@@ -81,9 +81,9 @@ class RandomSimulation(SimulationPolicy):
         state: NodeBase
     ) -> Type[NodeBase] | None:
 
-        valid_moves = self.game.get_valid_actions(state.name, state.parent.name)
+        valid_moves = self.game.get_valid_actions(state)
         if len(valid_moves) == 0:
-            self.logger.debug(f"========= no valid actions for: {state.name}")
+            self.logger.debug(f"========= no valid actions for: {state}")
 
             return None
         action = random.choice(valid_moves)

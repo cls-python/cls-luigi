@@ -1,6 +1,6 @@
 import logging
 import pickle
-from typing import Dict, List, Tuple
+from typing import Tuple
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -17,16 +17,17 @@ class MCTSTreeWithGrammar(TreeBase):
     def __init__(
         self,
         root: NodeBase,
-        grammar: Dict[str, Dict[str, List[str]] | str | List[str]],
+        hypergraph: nx.Graph,
         logger: logging.Logger = None,
         **kwargs
     ) -> None:
-        super().__init__(root, **kwargs)
+        super().__init__(root, logger, **kwargs)
 
         self.G = nx.DiGraph()
+        self.hypergraph = hypergraph
         self.id_count = -1
         self.add_root(self.root)
-        self.grammar = grammar
+        # self.grammar = grammar
 
     def add_root(
         self,
@@ -108,10 +109,20 @@ class MCTSTreeWithGrammar(TreeBase):
 
         pos = nx.bfs_layout(self.G, start=start_node_id)
 
+        non_terminal_node_names = [
+            node for node, data in self.hypergraph.nodes(data=True)
+            if data.get("terminal_node") is False
+        ]
+
+        terminal_nodes_names = [
+            node for node, data in self.hypergraph.nodes(data=True)
+            if data.get("terminal_node")
+        ]
+
         non_terminal_nodes = [node_id for node_id in self.G.nodes if
-                              self.get_node(node_id).name in self.grammar["non_terminals"]]
+                              self.get_node(node_id).name in non_terminal_node_names]
         terminal_nodes = [node_id for node_id in self.G.nodes if
-                          self.get_node(node_id).name in self.grammar["terminals"]]
+                          self.get_node(node_id).name in terminal_nodes_names]
 
         nx.draw_networkx_nodes(self.G,
                                pos,

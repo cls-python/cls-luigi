@@ -54,7 +54,7 @@ class ExpansionPolicy(abc.ABC):
 class SimulationPolicy(abc.ABC):
     def __init__(
         self,
-        game: OnePlayerGame,
+        game: Type[OnePlayerGame],
         logger: logging.Logger = None,
         **kwargs
     ) -> None:
@@ -66,6 +66,6 @@ class SimulationPolicy(abc.ABC):
 
     def get_action(
         self,
-        state: NodeBase
-    ) -> Type[NodeBase]:
+        state: str
+    ) -> str:
         ...

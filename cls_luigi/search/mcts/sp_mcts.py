@@ -2,14 +2,15 @@ import logging
 import pickle
 from typing import Dict, List, Type, Any
 
-from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components
+from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
+    build_hypergraph
 from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
 from cls_luigi.search.core.tree import TreeBase
-from cls_luigi.search.mcts.game import TreeGrammarGame, OnePlayerGame
+from cls_luigi.search.mcts.game import HyperGraphGame, OnePlayerGame
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
-from cls_luigi.search.mcts.node import Node
-from cls_luigi.search.mcts.policy import UCB1, RandomExpansion, RandomSimulation
+from cls_luigi.search.mcts.node import Node, NodeFactory
+from cls_luigi.search.mcts.policy import UCT, RandomExpansion, RandomSimulation
 
 
 class SP_MCTS:
@@ -17,23 +18,24 @@ class SP_MCTS:
 
     def __init__(
         self,
-        grammar: Dict[str, Dict[str, List[str]] | str | List[str]],
         parameters: Dict[str, Any],
-        game_class: Type[OnePlayerGame] = TreeGrammarGame,
-        selection_policy: Type[SelectionPolicy] = UCB1,
+        game: Type[OnePlayerGame],
+        selection_policy: Type[SelectionPolicy] = UCT,
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
         simulation_policy: Type[SimulationPolicy] = RandomSimulation,
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
-        logger: logging.Logger = None
+        node_factory_cls: Type[NodeFactory] = NodeFactory,
+        logger: logging.Logger = None,
     ) -> None:
 
-        self.grammar = grammar
-        self.game = game_class(self.grammar)
+        self.game = game
+        self.node_factory_cls = node_factory_cls
+        self.node_factory = self.node_factory_cls(self.game)
         self.parameters = parameters
         self.selection_policy = selection_policy
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
-        self.tree = tree_cls(root=self.get_root_node(), grammar=self.grammar)
+        self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.G)
         if logger:
             self.logger = logger
         else:
@@ -42,16 +44,15 @@ class SP_MCTS:
     def get_root_node(
         self
     ) -> NodeBase:
-        root_node = Node(
-            game=self.game,
+
+        return self.node_factory.create_node(
             params=self.parameters,
             name=self.game.get_initial_state(),
             selection_policy_cls=self.selection_policy,
             expansion_policy_cls=self.expansion_policy,
-            simulation_policy_cls=self.simulation_policy)
-        logging.debug(f"Initialized root node {root_node.name}")
-
-        return root_node
+            simulation_policy_cls=self.simulation_policy,
+            node_factory=self.node_factory,
+        )
 
     def run(
         self
@@ -72,11 +73,9 @@ class SP_MCTS:
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
-            is_terminal = False
-            if node.parent:
-                is_terminal = self.game.is_terminal(node.parent.name, node.name, node.action_taken)
+            is_final_state = self.game.is_final_state(node.name)
 
-            if not is_terminal:
+            if not is_final_state:
                 self.logger.debug(f"========= not terminal: {node.name}")
                 node = node.expand()
                 self.tree.add_node(node)
@@ -140,20 +139,24 @@ if __name__ == "__main__":
         }
     }
 
-    hypergraph = get_hypergraph_dict_from_tree_grammar(tree_grammar)
-    plot_hypergraph_components(hypergraph, "hypergraph.png", start_node="CLF", node_size=5000, node_font_size=11)
+    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
+    hypergraph = build_hypergraph(hypergraph_dict)
+    plot_hypergraph_components(hypergraph, "hypergraph.png", start_node=tree_grammar["start"], node_size=5000,
+                               node_font_size=11)
 
     params = {
-        "num_iterations": 100,
+        "num_iterations": 50,
         "exploration_param": 0.5,
-        "num_simulations": 10,
+        "num_simulations": 2,
     }
 
+    game = HyperGraphGame(hypergraph)
+
     mcts = SP_MCTS(
-        game_class=TreeGrammarGame,
-        grammar=tree_grammar,
+        game=game,
+        # grammar=tree_grammar,
         parameters=params,
-        selection_policy=UCB1,
+        selection_policy=UCT,
     )
     mcts.run()
     mcts.draw_tree("nx_di_graph.png", plot=True)
