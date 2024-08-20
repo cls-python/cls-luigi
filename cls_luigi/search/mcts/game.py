@@ -33,28 +33,32 @@ class HyperGraphGame(OnePlayerGame):
         self,
         state: Tuple[str]
     ) -> List[str]:
+        # todo: needs optimization
 
+        successors = []
         valid_actions = []
 
-        if len(state) == 1:
-            if not self.is_terminal_term(state):
-                valid_actions.extend(list(map(lambda x: (x,), list(self.G.successors(state[0])))))
-                # return valid_actions
+        for s in state:
+            _successors = list(self.G.successors(s))
+            if _successors:
+                successors.append(_successors)
+
+        if successors:
+            if len(state) == 1:
+                if not self.is_terminal_term(state) and successors:
+                    valid_actions.extend(list(map(lambda x: (x,), successors[0])))
+
+                elif self.is_terminal_term(state) and successors:
+                    valid_actions.append(tuple(successors[0]))
 
             else:
-                successors = tuple(self.G.successors(state[0]))
-                if successors:
-                    valid_actions.append(successors)
-
-        else:
-            for s in state:
-                successors = list(self.G.successors(s))
-                if successors:
-                    valid_actions.append(successors)
-            if len(valid_actions) > 1:
-                valid_actions = list(itertools.product(*valid_actions))
-            elif len(valid_actions) == 1:
-                valid_actions = [(valid_actions[0][0],)]
+                for s in successors:
+                    valid_actions.append(s)
+                if valid_actions:
+                    if len(valid_actions) > 1:
+                        valid_actions = list(itertools.product(*valid_actions))
+                    elif len(valid_actions) == 1:
+                        valid_actions[0] = tuple(valid_actions[0])
 
         return valid_actions
 
