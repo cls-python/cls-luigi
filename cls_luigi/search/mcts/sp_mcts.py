@@ -7,6 +7,7 @@ from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, 
 from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
 from cls_luigi.search.core.tree import TreeBase
+from cls_luigi.search.helpers import set_seed
 from cls_luigi.search.mcts.game import HyperGraphGame, OnePlayerGame
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
 from cls_luigi.search.mcts.node import Node, NodeFactory
@@ -24,7 +25,7 @@ class SP_MCTS:
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
         simulation_policy: Type[SimulationPolicy] = RandomSimulation,
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
-        node_factory_cls: Type[NodeFactory] = NodeFactory,
+        node_factory_cls: NodeFactory = NodeFactory,
         logger: logging.Logger = None,
     ) -> None:
 
@@ -43,7 +44,7 @@ class SP_MCTS:
 
     def get_root_node(
         self
-    ) -> NodeBase:
+    ) -> Type[NodeBase]:
 
         return self.node_factory.create_node(
             params=self.parameters,
@@ -70,6 +71,8 @@ class SP_MCTS:
             while node.is_fully_expanded():
                 self.logger.debug(f"========= fully expanded: {node.name}")
                 node = node.select()
+                # if not node:
+                #     break
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
@@ -79,7 +82,9 @@ class SP_MCTS:
                 self.logger.debug(f"========= not terminal: {node.name}")
                 node = node.expand()
                 self.tree.add_node(node)
-                self.logger.debug(f"========= expanded:{node.name}")
+                path.append(node)
+
+                # self.logger.debug(f"========= expanded:{n.name for n in node}")
                 reward = node.simulate(path)
             else:
                 self.logger.debug(f"========= terminal:{node.name}")
@@ -88,13 +93,6 @@ class SP_MCTS:
                 reward = self.game.get_reward(path)
 
             node.backprop(reward)
-
-        # print(paths)
-        # print("=================================================\n")
-        # self.tree.draw_tree()
-        # best = self.get_best_path()
-        # print("Best path:", best)
-        # print("=================================================\n")
 
     def draw_tree(self, out_path: str, plot: bool = False, *args) -> None:
         self.tree.draw_tree(out_name=out_path, plot=plot, *args)
@@ -126,6 +124,7 @@ class SP_MCTS:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
+    set_seed(250)
     tree_grammar = {
         "start": "CLF",
         "non_terminals": ["CLF", "FP", "Scaler", "Imputer", "Data"],
@@ -138,6 +137,25 @@ if __name__ == "__main__":
             "Data": {"csv": []}
         }
     }
+
+    tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
+                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax'],
+                    'rules': {'Input': {'csv': []},
+                              'CLF': {'random_forest': ['DataPrep', 'Input']},
+                              'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
+                              'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
+                              'Imputer': {'s_imp': ['Input']}}}
+
+    # tree_grammar = {
+    #     "start": "A",
+    #     "terminals": ["c", "d", "e"],
+    #     "non_terminals": ["A", "D", "E"],
+    #     "rules": {
+    #         "A": {"c": ["D", "E"], "d": []},
+    #         "D": {"d": []},
+    #         "E": {"e": ["A"]}
+    #     }
+    # }
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
@@ -154,8 +172,7 @@ if __name__ == "__main__":
 
     mcts = SP_MCTS(
         game=game,
-        # grammar=tree_grammar,
-        parameters=params,
+       parameters=params,
         selection_policy=UCT,
     )
     mcts.run()

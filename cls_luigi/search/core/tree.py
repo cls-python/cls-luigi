@@ -1,5 +1,6 @@
 import abc
 import logging
+from typing import Type
 
 from cls_luigi.search.core.node import NodeBase
 
@@ -7,7 +8,7 @@ from cls_luigi.search.core.node import NodeBase
 class TreeBase(abc.ABC):
     def __init__(
         self,
-        root: NodeBase,
+        root: Type[NodeBase],
         logger: logging.Logger = None,
         ** kwargs
     ) -> None:

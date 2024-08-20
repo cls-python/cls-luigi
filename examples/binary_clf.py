@@ -8,6 +8,7 @@ from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
 from cls_luigi.grammar.hypergraph import plot_hypergraph_components, get_hypergraph_dict_from_tree_grammar, \
     build_hypergraph
 from cls_luigi.inhabitation_task import ClsParameter, LuigiCombinator, RepoMeta
+from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
 from cls_luigi.search.mcts.sp_mcts import SP_MCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
@@ -53,8 +54,8 @@ class minmax(Scaler):
     abstract = False
 
 
-# class robust(Scaler):
-#     abstract = False
+class robust(Scaler):
+    abstract = False
 
 
 # class standard(Scaler):
@@ -82,8 +83,8 @@ class pca(FeatPrep):
     abstract = False
 
 
-# class ica(FeatPrep):
-#     abstract = False
+class ica(FeatPrep):
+    abstract = False
 
 
 # class feature_agglomeration(FeatPrep):
@@ -139,8 +140,8 @@ class random_forest(CLF):
     abstract = False
 
 
-# class adaboost(CLF):
-#     abstract = False
+class adaboost(CLF):
+    abstract = False
 
 
 # class bernoulli_nb(CLF):
@@ -197,8 +198,9 @@ class random_forest(CLF):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
+    target_class = CLF
 
-    target = CLF.return_type()
+    target = target_class.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
 
@@ -227,23 +229,26 @@ if __name__ == "__main__":
         print(v)
         print()
 
+    print(tree_grammar)
+
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
     plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
 
+    print(tree_grammar)
 
-    # params = {
-    #     "num_iterations": 100,
-    #     "exploration_param": 0.5,
-    #     "num_simulations": 10,
-    # }
+    params = {
+        "num_iterations": 200,
+        "exploration_param": 0.5,
+        "num_simulations": 1,
+    }
+    game = HyperGraphGame(hypergraph)
 
-    # mcts = SP_MCTS(
-    #     game_class=SingleArgTreeGrammarGame,
-    #     grammar=tree_grammar,
-    #     parameters=params,
-    #     selection_policy=UCT,
-    # )
-    # mcts.run()
-    # mcts.draw_tree("nx_di_graph.png", plot=True)
-    # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
+    mcts = SP_MCTS(
+        game=game,
+        parameters=params,
+        selection_policy=UCT,
+    )
+    mcts.run()
+    mcts.draw_tree("nx_di_graph.png", plot=True)
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

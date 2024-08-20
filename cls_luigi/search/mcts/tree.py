@@ -1,6 +1,6 @@
 import logging
 import pickle
-from typing import Tuple
+from typing import Tuple, Literal, Type
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -16,7 +16,7 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 class MCTSTreeWithGrammar(TreeBase):
     def __init__(
         self,
-        root: NodeBase,
+        root: Type[NodeBase],
         hypergraph: nx.Graph,
         logger: logging.Logger = None,
         **kwargs
@@ -31,7 +31,7 @@ class MCTSTreeWithGrammar(TreeBase):
 
     def add_root(
         self,
-        node: NodeBase
+        node: Type[NodeBase]
     ) -> None:
 
         self.id_count += 1
@@ -99,7 +99,7 @@ class MCTSTreeWithGrammar(TreeBase):
         node_label_color="white",
         title_fontsize: int = 15,
         title_font_weight: str = 'bold',
-        title_loc: str = 'center',
+        title_loc: Literal['center', "left", "right"] = "center"
 
     ) -> None:
 
@@ -109,24 +109,19 @@ class MCTSTreeWithGrammar(TreeBase):
 
         pos = nx.bfs_layout(self.G, start=start_node_id)
 
-        non_terminal_node_names = [
-            node for node, data in self.hypergraph.nodes(data=True)
-            if data.get("terminal_node") is False
-        ]
+        non_terminal_nodes = []
+        terminal_nodes = []
 
-        terminal_nodes_names = [
-            node for node, data in self.hypergraph.nodes(data=True)
-            if data.get("terminal_node")
-        ]
-
-        non_terminal_nodes = [node_id for node_id in self.G.nodes if
-                              self.get_node(node_id).name in non_terminal_node_names]
-        terminal_nodes = [node_id for node_id in self.G.nodes if
-                          self.get_node(node_id).name in terminal_nodes_names]
+        for node in self.G.nodes(data=True):
+            term = node[1]["value"].name[0]
+            if self.hypergraph.nodes[term]["terminal_node"]:
+                terminal_nodes.append(node[0])
+            else:
+                non_terminal_nodes.append(node[0])
 
         nx.draw_networkx_nodes(self.G,
                                pos,
-                               node_size=node_size,
+                               node_size=node_size * 2,
                                ax=axs,
                                node_color=non_terminal_nodes_color,
                                node_shape=non_terminal_node_shape,
@@ -134,7 +129,7 @@ class MCTSTreeWithGrammar(TreeBase):
 
         nx.draw_networkx_nodes(self.G,
                                pos,
-                               node_size=node_size,
+                               node_size=node_size * 4,
                                ax=axs,
                                node_color=terminal_nodes_color,
                                node_shape=terminal_node_shape,
@@ -148,6 +143,14 @@ class MCTSTreeWithGrammar(TreeBase):
                                min_target_margin=min_target_margin)
 
         labels = {i: self.G.nodes[i]["value"].name for i in self.G.nodes}
+        for k, v in labels.items():
+            if isinstance(v, tuple):
+                new_label = ""
+                for j in v:
+                    new_label += j
+                    if len(v) > 1:
+                        new_label += "\n"
+                labels[k] = new_label
 
         nx.draw_networkx_labels(self.G, pos, labels,
                                 ax=axs, font_color=node_label_color, font_size=node_font_size)

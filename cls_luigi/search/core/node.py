@@ -1,13 +1,14 @@
 import abc
 import logging
-from typing import Type
+from typing import Type, Tuple
 
 
 class NodeBase(abc.ABC):
     def __init__(
         self,
+        name: str | Tuple[str],
         logger: logging.Logger = None,
-        **kwargs
+        **kwargs,
 
     ) -> None:
         self.expandable_actions = None
@@ -21,6 +22,7 @@ class NodeBase(abc.ABC):
         self.children = []
         self.visits = 0
         self.reward = 0
+        self.name = name
 
     def select(
         self
