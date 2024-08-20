@@ -33,31 +33,28 @@ class HyperGraphGame(OnePlayerGame):
         self,
         state: Tuple[str]
     ) -> List[str]:
+
         valid_actions = []
 
-        # if isinstance(state, tuple) and len(state) == 1:
-        #     state = state[0]
-        #
-        # # if isinstance(state, str):
-        #     successors = list(self.G.successors(state))
-        #
-        #     if not self.is_terminal_term(state):
-        #         valid_actions = successors
-        #     if self.is_terminal_term(state):
-        #         if successors:
-        #             valid_actions.append(tuple(self.G.successors(state)))
-        # elif isinstance(state, tuple):
-        separate_valid_actions = []
-        for s in state:
-            node_valid_actions = list(self.G.successors(s))
-            if node_valid_actions:
-                separate_valid_actions.append(list(self.G.successors(s)))
+        if len(state) == 1:
+            if not self.is_terminal_term(state):
+                valid_actions.extend(list(map(lambda x: (x,), list(self.G.successors(state[0])))))
+                # return valid_actions
 
-        if separate_valid_actions:
-            if len(separate_valid_actions) > 1:
-                valid_actions = list(itertools.product(*separate_valid_actions))
             else:
-                valid_actions.append(tuple(separate_valid_actions[0]))
+                successors = tuple(self.G.successors(state[0]))
+                if successors:
+                    valid_actions.append(successors)
+
+        else:
+            for s in state:
+                successors = list(self.G.successors(s))
+                if successors:
+                    valid_actions.append(successors)
+            if len(valid_actions) > 1:
+                valid_actions = list(itertools.product(*valid_actions))
+            elif len(valid_actions) == 1:
+                valid_actions = [(valid_actions[0][0],)]
 
         return valid_actions
 

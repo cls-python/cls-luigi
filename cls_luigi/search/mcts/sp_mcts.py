@@ -139,23 +139,23 @@ if __name__ == "__main__":
     }
 
     tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
-                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax'],
+                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree'],
                     'rules': {'Input': {'csv': []},
-                              'CLF': {'random_forest': ['DataPrep', 'Input']},
+                              'CLF': {'random_forest': ['DataPrep', 'Input'], 'decision_tree': ['DataPrep', 'Input']},
                               'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
                               'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
                               'Imputer': {'s_imp': ['Input']}}}
-
-    # tree_grammar = {
-    #     "start": "A",
-    #     "terminals": ["c", "d", "e"],
-    #     "non_terminals": ["A", "D", "E"],
-    #     "rules": {
-    #         "A": {"c": ["D", "E"], "d": []},
-    #         "D": {"d": []},
-    #         "E": {"e": ["A"]}
-    #     }
-    # }
+    #
+    tree_grammar = {
+        "start": "A",
+        "terminals": ["c", "d", "e"],
+        "non_terminals": ["A", "D", "E"],
+        "rules": {
+            "A": {"c": ["D", "E"], "d": []},
+            "D": {"d": []},
+            "E": {"e": ["A"]}
+        }
+    }
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
@@ -163,7 +163,7 @@ if __name__ == "__main__":
                                node_font_size=11)
 
     params = {
-        "num_iterations": 50,
+        "num_iterations": 100,
         "exploration_param": 0.5,
         "num_simulations": 2,
     }
