@@ -1,0 +1,63 @@
+import pickle
+from typing import List
+import luigi
+from luigi.task import flatten
+
+from cls_luigi.inhabitation_task import RepoMeta
+
+
+class Evaluator:
+    def __init__(
+        self,
+        pipelines: List[luigi.Task]
+    ) -> None:
+
+        self.pipelines = pipelines
+        self.pipeline_map = {}
+        self.populate_pipeline_map()
+        self.temp_pipeline_key = None
+
+    def populate_pipeline_map(self) -> None:
+        for luigi_pipeline in self.pipelines:
+            self.temp_pipeline_key = []
+            self._build_pipeline_key(luigi_pipeline)
+            self.temp_pipeline_key = tuple(map(lambda x: tuple(x), self.temp_pipeline_key))
+            self.pipeline_map[self.temp_pipeline_key] = luigi_pipeline
+            self.temp_pipeline_key = None
+
+    def _build_pipeline_key(self, task: luigi.task, level: int = 0) -> None:
+        print(f"Level: {level}")
+        children = tuple(flatten(task.requires()))
+
+        if level == 0:
+            self.temp_pipeline_key.append([])
+
+        self.temp_pipeline_key[level].append(task.__class__.__name__)
+
+        if children:
+            level += 1
+            if len(self.temp_pipeline_key) < level + 1:
+                self.temp_pipeline_key.insert(level, [])
+            for index, child in enumerate(children):
+                self._build_pipeline_key(task=child, level=level)
+
+    def evaluate(
+        self,
+        path
+    ) -> float:
+        path = list(filter(lambda x: x.is_terminal_term, path))
+        path = tuple(map(lambda x: x.name, path))
+
+        luigi_pipeline = self.pipeline_map.get(path)
+        if luigi_pipeline:
+
+            score_pkl_path = luigi_pipeline.output()["score"].path
+
+            luigi.build([luigi_pipeline], local_scheduler=True)
+
+            with open(score_pkl_path, "rb") as in_file:
+                score = pickle.load(in_file)
+
+
+            return -score
+        return float("inf")

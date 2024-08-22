@@ -1,3 +1,4 @@
+import logging
 import pickle
 
 import luigi
@@ -5,6 +6,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
+from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
+from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, build_hypergraph, \
+    plot_hypergraph_components
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -14,207 +18,240 @@ import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LinearRegression, LassoLars
 
+from cls_luigi.search.mcts.evaluator import Evaluator
+from cls_luigi.search.mcts.game import HyperGraphGame
+from cls_luigi.search.mcts.policy import UCT
+from cls_luigi.search.mcts.sp_mcts import SP_MCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
+RESULTUS_DIR = "results"
 
-class LoadDiabetesData(luigi.Task, LuigiCombinator):
+
+class Dataset(luigi.Task, LuigiCombinator):
+    abstract = True
+
+
+class Diabetes(Dataset):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget("diabetes.pkl")
+        return {"diabetes_data": luigi.LocalTarget(RESULTUS_DIR + "/" + "diabetes.pkl")}
 
     def run(self):
         diabetes = load_diabetes()
         df = pd.DataFrame(data=np.c_[diabetes['data'], diabetes['target']],
                           columns=diabetes['feature_names'] + ['target'])
 
-        df.to_pickle(self.output().path)
+        df.to_pickle(self.output()["diabetes_data"].path)
 
 
-class TrainTestSplit(luigi.Task, LuigiCombinator):
+class Split(luigi.Task, LuigiCombinator):
+    abstract = True
+
+
+class TT(Split):
     abstract = False
-    diabetes = ClsParameter(tpe=LoadDiabetesData.return_type())
+    diabetes = ClsParameter(tpe=Dataset.return_type())
 
     def output(self):
-        return [
-            luigi.LocalTarget("x_train.pkl"),
-            luigi.LocalTarget("x_test.pkl"),
-            luigi.LocalTarget("y_train.pkl"),
-            luigi.LocalTarget("y_test.pkl")
-        ]
+        return {
+            "x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_train.pkl"),
+            "x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_test.pkl"),
+            "y_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_train.pkl"),
+            "y_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_test.pkl"),
+        }
 
     def requires(self):
-        return self.diabetes()
+        return [self.diabetes()]
 
     def run(self):
-        data = pd.read_pickle(self.input().path)
+        data = pd.read_pickle(self.input()[0]["diabetes_data"].path)
         X = data.drop(["target"], axis="columns")
         y = data[["target"]]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-        X_train.to_pickle(self.output()[0].path)
-        X_test.to_pickle(self.output()[1].path)
-        y_train.to_pickle(self.output()[2].path)
-        y_test.to_pickle(self.output()[3].path)
+        X_train.to_pickle(self.output()["x_train"].path)
+        X_test.to_pickle(self.output()["x_test"].path)
+        y_train.to_pickle(self.output()["y_train"].path)
+        y_test.to_pickle(self.output()["y_test"].path)
 
 
-class FitTransformScaler(luigi.Task, LuigiCombinator):
+class Scale(luigi.Task, LuigiCombinator):
     abstract = True
-    splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
+    splitted_data = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
         return self.splitted_data()
 
 
-class FitTransformMinMaxScaler(FitTransformScaler):
+class MinMax(Scale):
     abstract = False
 
     def output(self):
-        return [
-            luigi.LocalTarget("minmax_scaled_x_train.pkl"),
-            luigi.LocalTarget("minmax_scaled_x_test.pkl"),
-            luigi.LocalTarget("minmax_scaler.pkl")
-        ]
+        return {
+            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaler.pkl")
+        }
 
     def run(self):
-        x_train = pd.read_pickle(self.input()[0].path)
+        x_train = pd.read_pickle(self.input()["x_train"].path)
         scaler = MinMaxScaler()
         scaler.fit(x_train)
         scaled_x_train = pd.DataFrame(scaler.transform(x_train),
                                       columns=scaler.feature_names_in_,
                                       index=x_train.index)
-        scaled_x_train.to_pickle(self.output()[0].path)
+        scaled_x_train.to_pickle(self.output()["scaled_x_train"].path)
 
-        x_test = pd.read_pickle(self.input()[1].path)
+        x_test = pd.read_pickle(self.input()["x_test"].path)
         scaler.transform(x_test)
         scaled_x_test = pd.DataFrame(scaler.transform(x_test),
                                      columns=scaler.feature_names_in_,
                                      index=x_test.index)
-        scaled_x_test.to_pickle(self.output()[1].path)
+        scaled_x_test.to_pickle(self.output()["scaled_x_test"].path)
 
-        with open(self.output()[2].path, 'wb') as outfile:
+        with open(self.output()["scaler"].path, 'wb') as outfile:
             pickle.dump(scaler, outfile)
 
 
-class FitTransformRobustScaler(FitTransformScaler):
+class Robust(Scale):
     abstract = False
 
     def output(self):
-        return [
-            luigi.LocalTarget("robust_scaled_x_train.pkl"),
-            luigi.LocalTarget("robust_scaled_x_test.pkl"),
-            luigi.LocalTarget("robust_scaler.pkl")
-        ]
+        return {
+            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaler.pkl")
+        }
 
     def run(self):
-        x_train = pd.read_pickle(self.input()[0].path)
+        x_train = pd.read_pickle(self.input()["x_train"].path)
         scaler = RobustScaler()
         scaler.fit(x_train)
         scaled_x_train = pd.DataFrame(scaler.transform(x_train),
                                       columns=scaler.feature_names_in_,
                                       index=x_train.index)
-        scaled_x_train.to_pickle(self.output()[0].path)
+        scaled_x_train.to_pickle(self.output()["scaled_x_train"].path)
 
-        x_test = pd.read_pickle(self.input()[1].path)
+        x_test = pd.read_pickle(self.input()["x_test"].path)
         scaler.transform(x_test)
         scaled_x_test = pd.DataFrame(scaler.transform(x_test),
                                      columns=scaler.feature_names_in_,
                                      index=x_test.index)
-        scaled_x_test.to_pickle(self.output()[1].path)
+        scaled_x_test.to_pickle(self.output()["scaled_x_test"].path)
 
-        with open(self.output()[2].path, 'wb') as outfile:
+        with open(self.output()["scaler"].path, 'wb') as outfile:
             pickle.dump(scaler, outfile)
 
 
-class TrainRegressionModel(luigi.Task, LuigiCombinator):
+class Reg(luigi.Task, LuigiCombinator):
     abstract = True
-    scaled_feats = ClsParameter(tpe=FitTransformScaler.return_type())
-    target_values = ClsParameter(tpe=TrainTestSplit.return_type())
+    scaled_feats = ClsParameter(tpe=Scale.return_type())
+    target_values = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
-        return [self.scaled_feats(), self.target_values()]
+        return {"scaled_feats": self.scaled_feats(),
+                "splitted_data": self.target_values()}
 
     def _get_variant_label(self):
-        return Path(self.input()[0][0].path).stem
+        return Path(self.input()["scaled_feats"]["scaled_x_train"].path).stem
 
 
-class TrainLinearRegressionModel(TrainRegressionModel):
+class LR(Reg):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget("linear_reg" + "-" + self._get_variant_label() + ".pkl")
+        return {
+            "model": luigi.LocalTarget(RESULTUS_DIR + "/" + "linear_reg" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
-        x_train = pd.read_pickle(self.input()[0][0].path)
-        y_train = pd.read_pickle(self.input()[1][2].path)
+        scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
+        y_train = pd.read_pickle(self.input()["splitted_data"]["y_train"].path)
 
         reg = LinearRegression()
-        reg.fit(x_train, y_train)
+        reg.fit(scaled_x_train, y_train)
 
-        with open(self.output().path, "wb") as outfile:
+        with open(self.output()["model"].path, "wb") as outfile:
             pickle.dump(reg, outfile)
 
 
-class TrainLassoLarsModel(TrainRegressionModel):
+class LL(Reg):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget("lasso_lars" + "-" + self._get_variant_label() + ".pkl")
+        return {
+            "model": luigi.LocalTarget(RESULTUS_DIR + "/" + "lasso_lars" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
-        x_train = pd.read_pickle(self.input()[0][0].path)
-        y_train = pd.read_pickle(self.input()[1][2].path)
+        scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
+        y_train = pd.read_pickle(self.input()["splitted_data"]["y_train"].path)
 
         reg = LassoLars()
-        reg.fit(x_train, y_train)
+        reg.fit(scaled_x_train, y_train)
 
-        with open(self.output().path, "wb") as outfile:
+        with open(self.output()["model"].path, "wb") as outfile:
             pickle.dump(reg, outfile)
 
 
-class EvaluateRegressionModel(luigi.Task, LuigiCombinator):
+class Eval(luigi.Task, LuigiCombinator):
+    abstract = True
+
+
+class Evaluate(Eval):
     abstract = False
-    regressor = ClsParameter(tpe=TrainRegressionModel.return_type())
-    scaled_feats = ClsParameter(tpe=FitTransformScaler.return_type())
-    target_values = ClsParameter(tpe=TrainTestSplit.return_type())
+    regressor = ClsParameter(tpe=Reg.return_type())
+    scaled_feats = ClsParameter(tpe=Scale.return_type())
+    splitted_data = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
-        return [self.regressor(),
-                self.scaled_feats(),
-                self.target_values()]
+        return {
+            "regressor": self.regressor(),
+            "scaled_feats": self.scaled_feats(),
+            "splitted_data": self.splitted_data()
+        }
 
     def _get_variant_label(self):
-        return Path(self.input()[0].path).stem
+        return Path(self.input()["regressor"]["model"].path).stem
 
     def output(self):
-        return luigi.LocalTarget("y_pred" + "-" + self._get_variant_label() + ".pkl")
+        return {
+            "y_pred": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_pred" + "-" + self._get_variant_label() + ".pkl"),
+            "score": luigi.LocalTarget(RESULTUS_DIR + "/" + "score" + "-" + self._get_variant_label() + ".pkl")
+        }
 
     def run(self):
-        with open(self.input()[0].path, 'rb') as file:
+        with open(self.input()["regressor"]["model"].path, 'rb') as file:
             reg = pickle.load(file)
 
-        x_test = pd.read_pickle(self.input()[1][1].path)
-        y_test = pd.read_pickle(self.input()[2][3].path)
+        scaled_x_test = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_test"].path)
+        y_test = pd.read_pickle(self.input()["splitted_data"]["y_test"].path)
         y_pred = pd.DataFrame()
-        y_pred["y_pred"] = reg.predict(x_test).ravel()
-        rmse = round(mean_squared_error(y_test, y_pred, squared=False), 3)
+        y_pred["y_pred"] = reg.predict(scaled_x_test).ravel()
+        rmse = float(mean_squared_error(y_test, y_pred, squared=False))
 
         print(self._get_variant_label())
-        print("RMSE: {}".format(rmse))
+        print("RMSE: {:0.2f}".format(rmse))
 
-        y_pred.to_pickle(self.output().path)
+        y_pred.to_pickle(self.output()["y_pred"].path)
+        with open(self.output()["score"].path, "wb") as outfile:
+            pickle.dump(rmse, outfile)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import os
 
-    target = EvaluateRegressionModel.return_type()
-    print("Collecting Repo")
+    os.makedirs(RESULTUS_DIR, exist_ok=True)
+
+    logging.basicConfig(level=logging.DEBUG)
+    target_class = Eval
+
+    target = target_class.return_type()
     repository = RepoMeta.repository
-    print("Build Repository...")
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
-    print("Build Tree Grammar and inhabit Pipelines...")
 
     inhabitation_result = fcl.inhabit(target)
+    rules = inhabitation_result.rules
+
     print("Enumerating results...")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
@@ -222,15 +259,30 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
 
-    validator = UniqueTaskPipelineValidator([FitTransformScaler])
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+    print(len(results))
+    luigi.build(results, local_scheduler=True)
 
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using in this case :)
+    tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
 
-    if results:
-        print("Number of results", max_results)
-        print("Number of results after filtering", len(results))
-        print("Run Pipelines")
-        luigi.build(results, local_scheduler=False, detailed_summary=True)
-    else:
-        print("No results!")
+    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
+    hypergraph = build_hypergraph(hypergraph_dict)
+    # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+
+    params = {
+        "num_iterations": 5000,
+        "exploration_param": 10,
+        "num_simulations": 1,
+    }
+    evaluator = Evaluator(pipelines=results)
+    evaluator.populate_pipeline_map()
+    game = HyperGraphGame(hypergraph, evaluator=evaluator)
+
+    mcts = SP_MCTS(
+        game=game,
+        parameters=params,
+        selection_policy=UCT,
+    )
+    mcts.run()
+    mcts.draw_tree("nx_di_graph.png", plot=True)
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

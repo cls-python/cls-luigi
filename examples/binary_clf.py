@@ -8,6 +8,7 @@ from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
 from cls_luigi.grammar.hypergraph import plot_hypergraph_components, get_hypergraph_dict_from_tree_grammar, \
     build_hypergraph
 from cls_luigi.inhabitation_task import ClsParameter, LuigiCombinator, RepoMeta
+from cls_luigi.search.mcts.evaluator import Evaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
 from cls_luigi.search.mcts.sp_mcts import SP_MCTS
@@ -242,7 +243,9 @@ if __name__ == "__main__":
         "exploration_param": 0.5,
         "num_simulations": 1,
     }
-    game = HyperGraphGame(hypergraph)
+
+    eval = Evaluator(pipelines=results)
+    game = HyperGraphGame(hypergraph, eval)
 
     mcts = SP_MCTS(
         game=game,

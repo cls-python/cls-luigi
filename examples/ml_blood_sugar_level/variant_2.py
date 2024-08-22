@@ -1,3 +1,4 @@
+import logging
 import pickle
 
 import luigi
@@ -5,6 +6,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
+from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
+from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, build_hypergraph
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -14,14 +17,24 @@ import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LinearRegression, LassoLars
 
+from cls_luigi.search.mcts.evaluator import Evaluator
+from cls_luigi.search.mcts.game import HyperGraphGame
+from cls_luigi.search.mcts.policy import UCT
+from cls_luigi.search.mcts.sp_mcts import SP_MCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
+RESULTUS_DIR = "results"
 
-class LoadDiabetesData(luigi.Task, LuigiCombinator):
+
+
+class Data(luigi.Task, LuigiCombinator):
+    abstract = True
+
+class data(luigi.Task, LuigiCombinator):
     abstract = False
 
     def output(self):
-        return {"diabetes_data": luigi.LocalTarget("diabetes.pkl")}
+        return {"diabetes_data": luigi.LocalTarget(RESULTUS_DIR + "/" + "diabetes.pkl")}
 
     def run(self):
         diabetes = load_diabetes()
@@ -30,17 +43,19 @@ class LoadDiabetesData(luigi.Task, LuigiCombinator):
 
         df.to_pickle(self.output()["diabetes_data"].path)
 
+class Split(luigi.Task, LuigiCombinator):
+    abstract = True
 
-class TrainTestSplit(luigi.Task, LuigiCombinator):
+class tts(luigi.Task, LuigiCombinator):
     abstract = False
-    diabetes = ClsParameter(tpe=LoadDiabetesData.return_type())
+    diabetes = ClsParameter(tpe=Data.return_type())
 
     def output(self):
         return {
-            "x_train": luigi.LocalTarget("x_train.pkl"),
-            "x_test": luigi.LocalTarget("x_test.pkl"),
-            "y_train": luigi.LocalTarget("y_train.pkl"),
-            "y_test": luigi.LocalTarget("y_test.pkl"),
+            "x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_train.pkl"),
+            "x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_test.pkl"),
+            "y_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_train.pkl"),
+            "y_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_test.pkl"),
         }
 
     def requires(self):
@@ -58,22 +73,22 @@ class TrainTestSplit(luigi.Task, LuigiCombinator):
         y_test.to_pickle(self.output()["y_test"].path)
 
 
-class FitTransformScaler(luigi.Task, LuigiCombinator):
+class Scaler(luigi.Task, LuigiCombinator):
     abstract = True
-    splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
+    splitted_data = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
         return self.splitted_data()
 
 
-class FitTransformMinMaxScaler(FitTransformScaler):
+class minmax(Scaler):
     abstract = False
 
     def output(self):
         return {
-            "scaled_x_train": luigi.LocalTarget("minmax_scaled_x_train.pkl"),
-            "scaled_x_test": luigi.LocalTarget("minmax_scaled_x_test.pkl"),
-            "scaler": luigi.LocalTarget("minmax_scaler.pkl")
+            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaler.pkl")
         }
 
     def run(self):
@@ -96,14 +111,14 @@ class FitTransformMinMaxScaler(FitTransformScaler):
             pickle.dump(scaler, outfile)
 
 
-class FitTransformRobustScaler(FitTransformScaler):
+class robust(Scaler):
     abstract = False
 
     def output(self):
         return {
-            "scaled_x_train": luigi.LocalTarget("robust_scaled_x_train.pkl"),
-            "scaled_x_test": luigi.LocalTarget("robust_scaled_x_test.pkl"),
-            "scaler": luigi.LocalTarget("robust_scaler.pkl")
+            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaler.pkl")
         }
 
     def run(self):
@@ -126,10 +141,10 @@ class FitTransformRobustScaler(FitTransformScaler):
             pickle.dump(scaler, outfile)
 
 
-class TrainRegressionModel(luigi.Task, LuigiCombinator):
+class Reg(luigi.Task, LuigiCombinator):
     abstract = True
-    scaled_feats = ClsParameter(tpe=FitTransformScaler.return_type())
-    splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
+    scaled_feats = ClsParameter(tpe=Scaler.return_type())
+    splitted_data = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
         return {"scaled_feats": self.scaled_feats(),
@@ -139,11 +154,11 @@ class TrainRegressionModel(luigi.Task, LuigiCombinator):
         return Path(self.input()["scaled_feats"]["scaled_x_train"].path).stem
 
 
-class TrainLinearRegressionModel(TrainRegressionModel):
+class lr(Reg):
     abstract = False
 
     def output(self):
-        return {"model": luigi.LocalTarget("linear_reg" + "-" + self._get_variant_label() + ".pkl")}
+        return {"model": luigi.LocalTarget(RESULTUS_DIR + "/" + "linear_reg" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
         scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
@@ -156,11 +171,11 @@ class TrainLinearRegressionModel(TrainRegressionModel):
             pickle.dump(reg, outfile)
 
 
-class TrainLassoLarsModel(TrainRegressionModel):
+class ll(Reg):
     abstract = False
 
     def output(self):
-        return {"model": luigi.LocalTarget("lasso_lars" + "-" + self._get_variant_label() + ".pkl")}
+        return {"model": luigi.LocalTarget(RESULTUS_DIR + "/" + "lasso_lars" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
         scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
@@ -172,12 +187,13 @@ class TrainLassoLarsModel(TrainRegressionModel):
         with open(self.output()["model"].path, "wb") as outfile:
             pickle.dump(reg, outfile)
 
-
-class EvaluateRegressionModel(luigi.Task, LuigiCombinator):
+class Eval(luigi.Task, LuigiCombinator):
+    abstract = True
+class eval(Eval):
     abstract = False
-    regressor = ClsParameter(tpe=TrainRegressionModel.return_type())
-    scaled_feats = ClsParameter(tpe=FitTransformScaler.return_type())
-    splitted_data = ClsParameter(tpe=TrainTestSplit.return_type())
+    regressor = ClsParameter(tpe=Reg.return_type())
+    scaled_feats = ClsParameter(tpe=Scaler.return_type())
+    splitted_data = ClsParameter(tpe=Split.return_type())
 
     def requires(self):
         return {
@@ -191,7 +207,7 @@ class EvaluateRegressionModel(luigi.Task, LuigiCombinator):
 
     def output(self):
         return {
-            "y_pred": luigi.LocalTarget("y_pred" + "-" + self._get_variant_label() + ".pkl")
+            "y_pred": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_pred" + "-" + self._get_variant_label() + ".pkl")
         }
 
     def run(self):
@@ -210,19 +226,20 @@ class EvaluateRegressionModel(luigi.Task, LuigiCombinator):
         y_pred.to_pickle(self.output()["y_pred"].path)
 
 
-if __name__ == '__main__':
-    from cls_luigi.repo_visualizer.static_json_repo import StaticJSONRepo
-    from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+if __name__ == "__main__":
+    import os
+    os.makedirs(RESULTUS_DIR, exist_ok=True)
 
-    target = EvaluateRegressionModel.return_type()
-    print("Collecting Repo")
+    logging.basicConfig(level=logging.DEBUG)
+    target_class = Eval
+
+    target = target_class.return_type()
     repository = RepoMeta.repository
-    print("Build Repository...")
-    StaticJSONRepo(RepoMeta).dump_static_repo_json()
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
-    print("Build Tree Grammar and inhabit Pipelines...")
 
     inhabitation_result = fcl.inhabit(target)
+    rules = inhabitation_result.rules
+
     print("Enumerating results...")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
@@ -230,16 +247,29 @@ if __name__ == '__main__':
     if actual > 0:
         max_results = actual
 
-    validator = UniqueTaskPipelineValidator([FitTransformScaler])
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
 
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results]] # this is what we should NOT be using in this case :)
 
-    if results:
-        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
-        print("Number of results", max_results)
-        print("Number of results after filtering", len(results))
-        print("Run Pipelines")
-        luigi.build(results, local_scheduler=False, detailed_summary=True)
-    else:
-        print("No results!")
+    tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
+
+    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
+    hypergraph = build_hypergraph(hypergraph_dict)
+    # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+
+    params = {
+        "num_iterations": 500,
+        "exploration_param": 0.5,
+        "num_simulations": 1,
+    }
+    evaluator = Evaluator(pipelines=results)
+    evaluator.populate_pipeline_map()
+    game = HyperGraphGame(hypergraph, evaluator=evaluator)
+
+    mcts = SP_MCTS(
+        game=game,
+        parameters=params,
+        selection_policy=UCT,
+    )
+    mcts.run()
+    mcts.draw_tree("nx_di_graph.png", plot=True)
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

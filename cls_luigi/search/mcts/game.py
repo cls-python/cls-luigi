@@ -5,12 +5,15 @@ from typing import Tuple, List
 import networkx as nx
 
 from cls_luigi.search.core.game import OnePlayerGame
+from cls_luigi.search.mcts.evaluator import Evaluator
+from luigi.task import flatten
 
 
 class HyperGraphGame(OnePlayerGame):
     def __init__(
         self,
         g: nx.DiGraph,
+        evaluator: Evaluator | None = None,
         logger=None,
         *args,
         **kwargs
@@ -18,6 +21,7 @@ class HyperGraphGame(OnePlayerGame):
 
         super().__init__(logger, *args, **kwargs)
         self.G = g
+        self.evaluator = evaluator
 
     def get_initial_state(
         self
@@ -33,7 +37,6 @@ class HyperGraphGame(OnePlayerGame):
         self,
         state: Tuple[str]
     ) -> List[str]:
-        # todo: needs optimization
 
         successors = []
         valid_actions = []
@@ -44,21 +47,15 @@ class HyperGraphGame(OnePlayerGame):
                 successors.append(_successors)
 
         if successors:
-            if len(state) == 1:
-                if not self.is_terminal_term(state) and successors:
-                    valid_actions.extend(list(map(lambda x: (x,), successors[0])))
-
-                elif self.is_terminal_term(state) and successors:
-                    valid_actions.append(tuple(successors[0]))
+            if self.is_terminal_term(state):
+                valid_actions.append(tuple(flatten(successors)))
 
             else:
-                for s in successors:
-                    valid_actions.append(s)
-                if valid_actions:
-                    if len(valid_actions) > 1:
-                        valid_actions = list(itertools.product(*valid_actions))
-                    elif len(valid_actions) == 1:
-                        valid_actions[0] = tuple(valid_actions[0])
+                if len(successors) == 1:
+                    successors = list(map(lambda x: (x,), successors[0]))
+                    valid_actions.append(tuple(successors[0]))
+                else:
+                    valid_actions = list(itertools.product(*successors))
 
         return valid_actions
 
@@ -81,7 +78,9 @@ class HyperGraphGame(OnePlayerGame):
         self,
         path: List[Tuple[str]]
     ) -> float:
+        if self.evaluator:
 
+            return self.evaluator.evaluate(path)
         return random.random()
 
     def is_final_state(

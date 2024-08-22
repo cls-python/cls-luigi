@@ -138,14 +138,14 @@ if __name__ == "__main__":
         }
     }
 
-    tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
-                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree'],
-                    'rules': {'Input': {'csv': []},
-                              'CLF': {'random_forest': ['DataPrep', 'Input'], 'decision_tree': ['DataPrep', 'Input']},
-                              'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
-                              'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
-                              'Imputer': {'s_imp': ['Input']}}}
-    #
+    # tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
+    #                 'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree'],
+    #                 'rules': {'Input': {'csv': []},
+    #                           'CLF': {'random_forest': ['DataPrep', 'Input'], 'decision_tree': ['DataPrep', 'Input']},
+    #                           'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
+    #                           'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
+    #                           'Imputer': {'s_imp': ['Input']}}}
+    # #
     tree_grammar = {
         "start": "A",
         "terminals": ["c", "d", "e"],
@@ -168,6 +168,7 @@ if __name__ == "__main__":
         "num_simulations": 2,
     }
 
+    # evaluator = Evaluator()
     game = HyperGraphGame(hypergraph)
 
     mcts = SP_MCTS(
