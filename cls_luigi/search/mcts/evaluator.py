@@ -41,16 +41,18 @@ class Evaluator:
             for index, child in enumerate(children):
                 self._build_pipeline_key(task=child, level=level)
 
+    def get_luigi_pipeline(self, path):
+        path = list(filter(lambda x: x.is_terminal_term, path))
+        path = tuple(map(lambda x: x.name, path))
+        return self.pipeline_map.get(path)
+
     def evaluate(
         self,
         path
     ) -> float:
-        path = list(filter(lambda x: x.is_terminal_term, path))
-        path = tuple(map(lambda x: x.name, path))
 
-        luigi_pipeline = self.pipeline_map.get(path)
+        luigi_pipeline = self.get_luigi_pipeline(path)
         if luigi_pipeline:
-
             score_pkl_path = luigi_pipeline.output()["score"].path
 
             luigi.build([luigi_pipeline], local_scheduler=True)
@@ -58,6 +60,5 @@ class Evaluator:
             with open(score_pkl_path, "rb") as in_file:
                 score = pickle.load(in_file)
 
-
-            return -score
+            return score
         return float("inf")

@@ -20,7 +20,7 @@ from sklearn.linear_model import LinearRegression, LassoLars
 from cls_luigi.search.mcts.evaluator import Evaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
-from cls_luigi.search.mcts.sp_mcts import SP_MCTS
+from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     evaluator.populate_pipeline_map()
     game = HyperGraphGame(hypergraph, evaluator=evaluator)
 
-    mcts = SP_MCTS(
+    mcts = PureSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,

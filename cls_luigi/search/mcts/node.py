@@ -96,7 +96,28 @@ class Node(NodeBase):
     def select(
         self
     ) -> Type[NodeBase]:
-        return self.selection_policy.select()
+        best_child = None
+        best_score = float("-inf")
+
+        for child in self.children:
+            score = self.selection_policy.get_score(child)
+            if score > best_score:
+                best_child = child
+                best_score = score
+
+        return best_child
+
+    def select_best(self):
+        best_child = None
+        best_score = float("-inf")
+
+        for child in self.children:
+            score = child.reward / child.visits
+            if score > best_score:
+                best_child = child
+                best_score = score
+
+        return best_child
 
     def expand(
         self

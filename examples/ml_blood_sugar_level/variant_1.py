@@ -2,6 +2,7 @@ import logging
 import pickle
 
 import luigi
+import networkx as nx
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
@@ -21,7 +22,7 @@ from sklearn.linear_model import LinearRegression, LassoLars
 from cls_luigi.search.mcts.evaluator import Evaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
-from cls_luigi.search.mcts.sp_mcts import SP_MCTS
+from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
@@ -267,22 +268,30 @@ if __name__ == "__main__":
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+    plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+
+    paths = nx.all_simple_paths(hypergraph, source=hypergraph_dict["start"], target="Diabetes")
+    for path in paths:
+        print(path)
+        print("====================================\n")
+
 
     params = {
-        "num_iterations": 5000,
-        "exploration_param": 10,
-        "num_simulations": 1,
+        "num_iterations": 10000,
+        "exploration_param": 4,
+        "num_simulations": 2,
     }
     evaluator = Evaluator(pipelines=results)
     evaluator.populate_pipeline_map()
     game = HyperGraphGame(hypergraph, evaluator=evaluator)
 
-    mcts = SP_MCTS(
+    mcts = PureSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,
     )
-    mcts.run()
+    best_pipeline = mcts.run()
+    print()
+
     mcts.draw_tree("nx_di_graph.png", plot=True)
     mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

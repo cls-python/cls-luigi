@@ -2,6 +2,9 @@ import logging
 import pickle
 from typing import Dict, List, Type, Any
 
+import luigi
+from luigi import Task
+
 from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
     build_hypergraph
 from cls_luigi.search.core.node import NodeBase
@@ -14,7 +17,7 @@ from cls_luigi.search.mcts.node import Node, NodeFactory
 from cls_luigi.search.mcts.policy import UCT, RandomExpansion, RandomSimulation
 
 
-class SP_MCTS:
+class PureSinglePlayerMCTS:
     """Pure implementation of a Single player Monte Carlo Tree Search ."""
 
     def __init__(
@@ -57,7 +60,7 @@ class SP_MCTS:
 
     def run(
         self
-    ) -> None:
+    ) -> luigi.Task:
         self.logger.debug("Running SP-MCTS for {} iterations".format(self.parameters["num_iterations"]))
 
         paths = []
@@ -71,8 +74,6 @@ class SP_MCTS:
             while node.is_fully_expanded():
                 self.logger.debug(f"========= fully expanded: {node.name}")
                 node = node.select()
-                # if not node:
-                #     break
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
@@ -93,13 +94,11 @@ class SP_MCTS:
                 reward = self.game.get_reward(path)
 
             node.backprop(reward)
-
-    def draw_tree(self, out_path: str, plot: bool = False, *args) -> None:
-        self.tree.draw_tree(out_name=out_path, plot=plot, *args)
+        return self.get_best_path()
 
     def get_best_path(
         self
-    ) -> List[Node]:
+    ) -> List[NodeBase]:
 
         node = self.tree.get_root()
         path = [node]
@@ -107,6 +106,11 @@ class SP_MCTS:
             node = node.select()
             path.append(node)
         return path
+
+
+
+    def draw_tree(self, out_path: str, plot: bool = False, *args) -> None:
+        self.tree.draw_tree(out_name=out_path, plot=plot, *args)
 
     def shut_down(
         self,
@@ -138,24 +142,24 @@ if __name__ == "__main__":
         }
     }
 
-    # tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
-    #                 'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree'],
-    #                 'rules': {'Input': {'csv': []},
-    #                           'CLF': {'random_forest': ['DataPrep', 'Input'], 'decision_tree': ['DataPrep', 'Input']},
-    #                           'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
-    #                           'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
-    #                           'Imputer': {'s_imp': ['Input']}}}
-    # #
-    tree_grammar = {
-        "start": "A",
-        "terminals": ["c", "d", "e"],
-        "non_terminals": ["A", "D", "E"],
-        "rules": {
-            "A": {"c": ["D", "E"], "d": []},
-            "D": {"d": []},
-            "E": {"e": ["A"]}
-        }
-    }
+    tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
+                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree'],
+                    'rules': {'Input': {'csv': []},
+                              'CLF': {'random_forest': ['DataPrep', 'Input'], 'decision_tree': ['DataPrep', 'Input']},
+                              'NumPrep': {'s_imp': ['Input'], 'minmax': ['Imputer']},
+                              'DataPrep': {'s_imp': ['Input'], 'pca': ['NumPrep', 'Input'], 'minmax': ['Imputer']},
+                              'Imputer': {'s_imp': ['Input']}}}
+    #
+    # tree_grammar = {
+    #     "start": "A",
+    #     "terminals": ["c", "d", "e"],
+    #     "non_terminals": ["A", "D", "E"],
+    #     "rules": {
+    #         "A": {"c": ["D", "E"], "d": []},
+    #         "D": {"d": []},
+    #         "E": {"e": ["A"]}
+    #     }
+    # }
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
@@ -171,12 +175,14 @@ if __name__ == "__main__":
     # evaluator = Evaluator()
     game = HyperGraphGame(hypergraph)
 
-    mcts = SP_MCTS(
+    mcts = PureSinglePlayerMCTS(
         game=game,
-       parameters=params,
+        parameters=params,
         selection_policy=UCT,
     )
-    mcts.run()
+    best_path = mcts.run()
+
+
     mcts.draw_tree("nx_di_graph.png", plot=True)
     mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
 

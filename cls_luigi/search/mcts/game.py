@@ -2,6 +2,7 @@ import itertools
 import random
 from typing import Tuple, List
 
+import luigi
 import networkx as nx
 
 from cls_luigi.search.core.game import OnePlayerGame
@@ -52,8 +53,8 @@ class HyperGraphGame(OnePlayerGame):
 
             else:
                 if len(successors) == 1:
-                    successors = list(map(lambda x: (x,), successors[0]))
-                    valid_actions.append(tuple(successors[0]))
+                    for s in successors[0]:
+                        valid_actions.append((s,))
                 else:
                     valid_actions = list(itertools.product(*successors))
 
@@ -79,7 +80,6 @@ class HyperGraphGame(OnePlayerGame):
         path: List[Tuple[str]]
     ) -> float:
         if self.evaluator:
-
             return self.evaluator.evaluate(path)
         return random.random()
 
@@ -87,8 +87,13 @@ class HyperGraphGame(OnePlayerGame):
         self,
         state: Tuple[str]
     ) -> bool:
-
         return self.get_valid_actions(state) == []
+
+    def get_luigi_pipeline(
+        self,
+        path: List[Tuple[str]]
+    ) -> luigi.Task:
+        return self.evaluator.get_luigi_pipeline(path)
 
 
 if __name__ == "__main__":

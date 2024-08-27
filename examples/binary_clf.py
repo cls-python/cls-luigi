@@ -11,7 +11,7 @@ from cls_luigi.inhabitation_task import ClsParameter, LuigiCombinator, RepoMeta
 from cls_luigi.search.mcts.evaluator import Evaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
-from cls_luigi.search.mcts.sp_mcts import SP_MCTS
+from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 
@@ -244,10 +244,10 @@ if __name__ == "__main__":
         "num_simulations": 1,
     }
 
-    eval = Evaluator(pipelines=results)
-    game = HyperGraphGame(hypergraph, eval)
+    # eval = Evaluator(pipelines=results)
+    game = HyperGraphGame(hypergraph)
 
-    mcts = SP_MCTS(
+    mcts = PureSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,

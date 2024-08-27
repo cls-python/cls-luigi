@@ -26,7 +26,7 @@ def get_hypergraph_dict_from_tree_grammar(
 
 
 def build_hypergraph(hyper_graph_dict: Dict[str, List[str | Tuple[str, str]]]):
-    g = nx.DiGraph()
+    g = nx.MultiDiGraph()
     g.add_nodes_from(hyper_graph_dict["non_terminal_nodes"], terminal_node=False, start_node=False)
     g.add_nodes_from(hyper_graph_dict["terminal_nodes"], terminal_node=True, start_node=False)
 
@@ -74,7 +74,6 @@ def plot_hypergraph_components(
 
     terminal_nodes = [node for node in g.nodes if g.nodes[node]["terminal_node"]]
     non_terminal_nodes = [node for node in g.nodes if not g.nodes[node]["terminal_node"]]
-    start_node = [node for node in g.nodes if g.nodes[node]["start_node"]]
 
     choice_edges = [edge for edge in g.edges if not g.edges[edge]["arg_edge"]]
     arg_edges = [edge for edge in g.edges if g.edges[edge]["arg_edge"]]
