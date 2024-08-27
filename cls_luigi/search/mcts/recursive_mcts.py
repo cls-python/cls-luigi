@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, Type, Any, List
 
+import luigi
+
 from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
     build_hypergraph
 from cls_luigi.search.core.mcts import SinglePlayerMCTS
@@ -14,8 +16,8 @@ from cls_luigi.search.mcts.node import NodeFactory
 from cls_luigi.search.mcts.policy import UCT, RandomExpansion, RandomSimulation
 
 
-class PureSinglePlayerMCTS(SinglePlayerMCTS):
-    """Pure implementation of a Single player Monte Carlo Tree Search ."""
+class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
+    """Recursive implementation of a Single player Monte Carlo Tree Search ."""
 
     def __init__(
         self,
@@ -23,18 +25,15 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
         game: Type[OnePlayerGame],
         selection_policy: Type[SelectionPolicy] = UCT,
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
-        simulation_policy: Type[SimulationPolicy] = RandomSimulation,
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: NodeFactory = NodeFactory,
         logger: logging.Logger = None,
     ) -> None:
-
         super().__init__(
             parameters=parameters,
             game=game,
             selection_policy=selection_policy,
             expansion_policy=expansion_policy,
-            simulation_policy=simulation_policy,
             tree_cls=tree_cls,
             node_factory_cls=node_factory_cls,
             logger=logger)
@@ -43,8 +42,6 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
         self
     ) -> List[NodeBase]:
         self.logger.debug("Running SP-MCTS for {} iterations".format(self.parameters["num_iterations"]))
-
-        paths = []
 
         for _ in range(self.parameters["num_iterations"]):
             path = []
@@ -58,23 +55,14 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
-            is_final_state = self.game.is_final_state(node.name)
-
-            if not is_final_state:
-                self.logger.debug(f"========= not terminal: {node.name}")
+            while not self.game.is_final_state(node.name):
                 node = node.expand()
                 self.tree.add_node(node)
                 path.append(node)
 
-                # self.logger.debug(f"========= expanded:{n.name for n in node}")
-                reward = node.simulate(path)
-            else:
-                self.logger.debug(f"========= terminal:{node.name}")
-                if path not in paths:
-                    paths.append(path)
-                reward = self.game.get_reward(path)
-
+            reward = self.game.get_reward(path)
             node.backprop(reward)
+
         return self.get_best_path()
 
 
@@ -119,7 +107,7 @@ if __name__ == "__main__":
                                node_font_size=11)
 
     params = {
-        "num_iterations": 100,
+        "num_iterations": 25,
         "exploration_param": 0.5,
         "num_simulations": 2,
     }
@@ -127,7 +115,7 @@ if __name__ == "__main__":
     # evaluator = Evaluator()
     game = HyperGraphGame(hypergraph)
 
-    mcts = PureSinglePlayerMCTS(
+    mcts = RecursiveSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,

@@ -160,7 +160,7 @@ class MCTSTreeWithGrammar(TreeBase):
         for edge in list(self.G.edges):
             source, target = edge
             q = round(self.get_node(target).reward / self.get_node(target).visits, 2)
-            edge_labels[(source, target)] = f"Q={q}"
+            edge_labels[(source, target)] = f"Q={q}\nV={self.get_node(target).visits}"
 
         nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels, ax=axs)
 

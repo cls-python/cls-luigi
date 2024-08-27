@@ -17,7 +17,7 @@ class NodeFactory:
         node_factory: Type['NodeFactory'],
         selection_policy_cls: Type[SelectionPolicy],
         expansion_policy_cls: Type[ExpansionPolicy],
-        simulation_policy_cls: Type[SimulationPolicy],
+        simulation_policy_cls: Type[SimulationPolicy] = None,
         parent: Type['Node'] = None,
         action_taken: str = None,
 
@@ -46,7 +46,7 @@ class Node(NodeBase):
         name: Tuple[str],
         selection_policy_cls: Type[SelectionPolicy],
         expansion_policy_cls: Type[ExpansionPolicy],
-        simulation_policy_cls: Type[SimulationPolicy],
+        simulation_policy_cls: Type[SimulationPolicy]=None,
         node_id: int = None,
         parent: Type[NodeBase] = None,
         action_taken: str = None,
@@ -73,7 +73,8 @@ class Node(NodeBase):
 
         self.expansion_policy = self.expansion_policy_cls(
             node=self)
-        self.simulation_policy = simulation_policy_cls(self.game)
+        if self.simulation_policy_cls:
+            self.simulation_policy = simulation_policy_cls(self.game)
 
         self.node_id = node_id
         self.expandable_actions = None
