@@ -168,19 +168,19 @@ if __name__ == "__main__":
     }
 
     # evaluator = Evaluator()
-    game = HyperGraphGame(hypergraph)
+    game = HyperGraphGame(hypergraph, minimization_problem=True)
 
-    progressive_widening_params = {
-        "threshold": 2,
-        "progressiv_widening_coeff": 0.5,
-        "max_children": 10
-    }
+    # progressive_widening_params = {
+    #     "threshold": 2,
+    #     "progressiv_widening_coeff": 0.5,
+    #     "max_children": 10
+    # }
 
     mcts = RecursiveSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,
-        fully_expanded_params=progressive_widening_params,
+        # fully_expanded_params=progressive_widening_params,
     )
     best_path = mcts.run()
 

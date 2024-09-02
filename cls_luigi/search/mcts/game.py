@@ -15,6 +15,7 @@ class HyperGraphGame(OnePlayerGame):
         self,
         g: nx.DiGraph,
         evaluator: Evaluator | None = None,
+        minimization_problem: bool = False,
         logger=None,
         *args,
         **kwargs
@@ -23,6 +24,8 @@ class HyperGraphGame(OnePlayerGame):
         super().__init__(logger, *args, **kwargs)
         self.G = g
         self.evaluator = evaluator
+        self.minimization_problem = minimization_problem
+
 
     def get_initial_state(
         self
@@ -80,7 +83,7 @@ class HyperGraphGame(OnePlayerGame):
         path: List[Tuple[str]]
     ) -> float:
         if self.evaluator:
-            return self.evaluator.evaluate(path)
+            return self.evaluator.evaluate(path) if not self.minimization_problem else -self.evaluator.evaluate(path)
         return random.random()
 
     def is_final_state(

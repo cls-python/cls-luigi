@@ -1,21 +1,26 @@
+import logging
 import pickle
 from typing import List
 import luigi
 from luigi.task import flatten
 
-from cls_luigi.inhabitation_task import RepoMeta
-
 
 class Evaluator:
     def __init__(
         self,
-        pipelines: List[luigi.Task]
+        pipelines: List[luigi.Task],
+        logger: logging.logger = None
     ) -> None:
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
 
         self.pipelines = pipelines
         self.pipeline_map = {}
         self.populate_pipeline_map()
         self.temp_pipeline_key = None
+
 
     def populate_pipeline_map(self) -> None:
         for luigi_pipeline in self.pipelines:
@@ -53,12 +58,17 @@ class Evaluator:
 
         luigi_pipeline = self.get_luigi_pipeline(path)
         if luigi_pipeline:
-            score_pkl_path = luigi_pipeline.output()["score"].path
+            try:
+                score_pkl_path = luigi_pipeline.output()["score"].path
 
-            luigi.build([luigi_pipeline], local_scheduler=True)
+                luigi.build([luigi_pipeline], local_scheduler=True)
 
-            with open(score_pkl_path, "rb") as in_file:
-                score = pickle.load(in_file)
+                with open(score_pkl_path, "rb") as in_file:
+                    score = pickle.load(in_file)
 
-            return score
+                return score
+            except:
+                self.logger.debug("Pipeline evaluation failed!")
+                return float("inf")
+        self.logger.debug("Pipeline doesn't exists!")
         return float("inf")

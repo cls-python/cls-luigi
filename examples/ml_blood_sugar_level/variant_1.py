@@ -276,7 +276,6 @@ if __name__ == "__main__":
         print(path)
         print("====================================\n")
 
-
     params = {
         "num_iterations": 123,
         "exploration_param": 4,
@@ -284,7 +283,7 @@ if __name__ == "__main__":
     }
     evaluator = Evaluator(pipelines=results)
     evaluator.populate_pipeline_map()
-    game = HyperGraphGame(hypergraph, evaluator=evaluator)
+    game = HyperGraphGame(hypergraph, evaluator=evaluator, minimization_problem=False)
 
     mcts = RecursiveSinglePlayerMCTS(
         game=game,
@@ -293,6 +292,9 @@ if __name__ == "__main__":
     )
     best_pipeline = mcts.run()
     print()
+    print("Best pipeline")
+    print(best_pipeline)
+
 
     mcts.draw_tree("nx_di_graph.png", plot=True)
-    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
+    # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
