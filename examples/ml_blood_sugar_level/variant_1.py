@@ -23,6 +23,7 @@ from cls_luigi.search.mcts.evaluator import Evaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
 from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
+from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
@@ -277,7 +278,7 @@ if __name__ == "__main__":
 
 
     params = {
-        "num_iterations": 10000,
+        "num_iterations": 123,
         "exploration_param": 4,
         "num_simulations": 2,
     }
@@ -285,7 +286,7 @@ if __name__ == "__main__":
     evaluator.populate_pipeline_map()
     game = HyperGraphGame(hypergraph, evaluator=evaluator)
 
-    mcts = PureSinglePlayerMCTS(
+    mcts = RecursiveSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,

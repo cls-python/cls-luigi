@@ -52,15 +52,13 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
             node = self.tree.get_root()
             path.append(node)
 
-            while node.is_fully_expanded():
+            while node.is_fully_expanded() and not self.game.is_final_state(node.name):
                 self.logger.debug(f"========= fully expanded: {node.name}")
                 node = node.select()
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
-            is_final_state = self.game.is_final_state(node.name)
-
-            if not is_final_state:
+            if not self.game.is_final_state(node.name):
                 self.logger.debug(f"========= not terminal: {node.name}")
                 node = node.expand()
                 self.tree.add_node(node)
@@ -75,6 +73,8 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
                 reward = self.game.get_reward(path)
 
             node.backprop(reward)
+            self.draw_tree(plot=True)
+
         return self.get_best_path()
 
 
@@ -113,13 +113,74 @@ if __name__ == "__main__":
     #     }
     # }
 
+    tree_grammar = {'start': 'CLF', 'non_terminals': ['Input', 'CLF', 'DataPrep', 'NumPrep', 'Imputer'],
+                    'terminals': ['csv', 'random_forest', 's_imp', 'pca', 'minmax', 'decision_tree',
+                                  "adaboost", "bernollinb", "extra_trees", "gradient_boosting", "gaussiannb",
+                                  "knn", "ida", "lin_svc", "mlp", "multinb", "passive_aggressive", "sgd", "svc",
+                                  "s_imp", "minmax", "robust", "power", "quantile", "standard", "pca", "ica",
+                                  "feat_ag", "k_pca", "nystroem", "poly", "rt_embedd", "rfb", "select_ext_t",
+                                  "select_svc", "select_percent", "select_rates"
+
+                                  ],
+                    'rules': {'Input': {'csv': []},
+                              'CLF': {
+                                  'random_forest': ['DataPrep', 'Input'],
+                                  'decision_tree': ['DataPrep', 'Input'],
+                                  'adaboost': ['DataPrep', 'Input'],
+                                  'bernollinb': ['DataPrep', 'Input'],
+                                  'extra_trees': ['DataPrep', 'Input'],
+                                  'gradient_boosting': ['DataPrep', 'Input'],
+                                  'gaussiannb': ['DataPrep', 'Input'],
+                                  'knn': ['DataPrep', 'Input'],
+                                  'ida': ['DataPrep', 'Input'],
+                                  'lin_svc': ['DataPrep', 'Input'],
+                                  'mlp': ['DataPrep', 'Input'],
+                                  'multinb': ['DataPrep', 'Input'],
+                                  'passive_aggressive': ['DataPrep', 'Input'],
+                                  'sgd': ['DataPrep', 'Input'],
+                                  'svc': ['DataPrep', 'Input'],
+
+                              },
+                              'NumPrep': {'s_imp': ['Input'],
+                                          'minmax': ['Imputer'],
+                                          'robust': ['Imputer'],
+                                          'power': ['Imputer'],
+                                          'quantile': ['Imputer'],
+                                          'standard': ['Imputer'],
+
+                                          },
+                              'DataPrep': {'s_imp': ['Input'],
+
+                                           'pca': ['NumPrep', 'Input'],
+                                           "ica": ['NumPrep', 'Input'],
+                                           'feat_ag': ['NumPrep', 'Input'],
+                                           "k_pca": ['NumPrep', 'Input'],
+                                           'nystroem': ['NumPrep', 'Input'],
+                                           "poly": ['NumPrep', 'Input'],
+                                           'rt_embedd': ['NumPrep', 'Input'],
+                                           "rfb": ['NumPrep', 'Input'],
+
+                                           "select_ext_t": ['NumPrep', 'Input'],
+                                           'select_svc': ['NumPrep', 'Input'],
+                                           "select_percent": ['NumPrep', 'Input'],
+                                           "select_rates": ['NumPrep', 'Input'],
+
+                                           'minmax': ['Imputer'],
+                                           'robust': ['Imputer'],
+                                           'power': ['Imputer'],
+                                           'quantile': ['Imputer'],
+                                           'standard': ['Imputer'],
+
+                                           },
+                              'Imputer': {'s_imp': ['Input']}}}
+
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
     plot_hypergraph_components(hypergraph, "hypergraph.png", start_node=tree_grammar["start"], node_size=5000,
                                node_font_size=11)
 
     params = {
-        "num_iterations": 100,
+        "num_iterations": 200,
         "exploration_param": 0.5,
         "num_simulations": 2,
     }

@@ -23,6 +23,7 @@ class NodeBase(abc.ABC):
         self.visits = 0
         self.reward = 0
         self.name = name
+        self.explanations = []
 
     def select(
         self

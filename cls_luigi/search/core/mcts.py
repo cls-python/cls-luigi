@@ -25,8 +25,9 @@ class SinglePlayerMCTS(abc.ABC):
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: NodeFactory = NodeFactory,
         simulation_policy: Type[SimulationPolicy] = None,
+        fully_expanded_params: Dict[str, Any] | None = None,
 
-        logger: logging.Logger = None,
+        logger: logging.Logger = None
     ) -> None:
 
         self.game = game
@@ -36,6 +37,7 @@ class SinglePlayerMCTS(abc.ABC):
         self.selection_policy = selection_policy
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
+        self.fully_expanded_params = fully_expanded_params
         self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.G)
         if logger:
             self.logger = logger
@@ -53,6 +55,7 @@ class SinglePlayerMCTS(abc.ABC):
             expansion_policy_cls=self.expansion_policy,
             simulation_policy_cls=self.simulation_policy,
             node_factory=self.node_factory,
+            fully_expanded_params=self.fully_expanded_params
         )
 
     def run(
@@ -71,7 +74,7 @@ class SinglePlayerMCTS(abc.ABC):
             path.append(node)
         return path
 
-    def draw_tree(self, out_path: str, plot: bool = False, *args) -> None:
+    def draw_tree(self, out_path: str | None = None, plot: bool = False, *args) -> None:
         self.tree.draw_tree(out_name=out_path, plot=plot, *args)
 
     def shut_down(

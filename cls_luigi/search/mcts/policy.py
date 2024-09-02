@@ -20,29 +20,24 @@ class UCT(SelectionPolicy):
         super().__init__(node, logger, **kwargs)
         self.exploration_param = exploration_param
 
-    def select(
-        self
-    ) -> Type[NodeBase]:
-
-        best_child = None
-        best_score = float("-inf")
-
-        for child in self.node.children:
-            score = self.get_score(child)
-            if score > best_score:
-                best_child = child
-                best_score = score
-
-        return best_child
-
     def get_score(
         self,
         child: NodeBase
     ) -> float:
         exploitation = child.reward / child.visits
-        exploration = sqrt(math.log(child.parent.visits) / child.visits)
+        # exploration = sqrt(math.log(child.parent.visits) / child.visits)
+        exploration = sqrt(child.parent.visits / child.visits)
+        score = exploitation + self.exploration_param * exploration
 
-        return exploitation + self.exploration_param * exploration
+        explanation = {
+            "exploitation": exploitation,
+            "exploration": exploration,
+            "exploration_param": self.exploration_param,
+            "score": score
+        }
+
+
+        return score, explanation
 
 
 class RandomExpansion(ExpansionPolicy):
