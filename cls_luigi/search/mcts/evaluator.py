@@ -9,7 +9,7 @@ class Evaluator:
     def __init__(
         self,
         pipelines: List[luigi.Task],
-        logger: logging.logger = None
+        logger: logging.Logger = None
     ) -> None:
         if logger:
             self.logger = logger
