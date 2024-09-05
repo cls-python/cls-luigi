@@ -6,7 +6,7 @@ import luigi
 import networkx as nx
 
 from cls_luigi.search.core.game import OnePlayerGame
-from cls_luigi.search.mcts.evaluator import Evaluator
+from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from luigi.task import flatten
 
 
@@ -14,7 +14,7 @@ class HyperGraphGame(OnePlayerGame):
     def __init__(
         self,
         g: nx.DiGraph,
-        evaluator: Evaluator | None = None,
+        evaluator: LuigiPipelineEvaluator | None = None,
         minimization_problem: bool = False,
         logger=None,
         *args,
@@ -25,7 +25,6 @@ class HyperGraphGame(OnePlayerGame):
         self.G = g
         self.evaluator = evaluator
         self.minimization_problem = minimization_problem
-
 
     def get_initial_state(
         self
@@ -83,7 +82,18 @@ class HyperGraphGame(OnePlayerGame):
         path: List[Tuple[str]]
     ) -> float:
         if self.evaluator:
-            return self.evaluator.evaluate(path) if not self.minimization_problem else -self.evaluator.evaluate(path)
+            reward = self.evaluator.evaluate(path)
+            if reward == float("inf"):
+                if self.minimization_problem:
+                    return reward
+                elif not self.minimization_problem:
+                    return -reward
+
+            else:
+                if self.minimization_problem:
+                    return -reward
+                elif not self.minimization_problem:
+                    return reward
         return random.random()
 
     def is_final_state(
@@ -96,7 +106,7 @@ class HyperGraphGame(OnePlayerGame):
         self,
         path: List[Tuple[str]]
     ) -> luigi.Task:
-        return self.evaluator.get_luigi_pipeline(path)
+        return self.evaluator._get_luigi_pipeline(path)
 
 
 if __name__ == "__main__":

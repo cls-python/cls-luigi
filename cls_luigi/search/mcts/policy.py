@@ -24,7 +24,7 @@ class UCT(SelectionPolicy):
         self,
         child: NodeBase
     ) -> float:
-        exploitation = child.reward / child.visits
+        exploitation = child.sum_rewards / child.visits
         # exploration = sqrt(math.log(child.parent.visits) / child.visits)
         exploration = sqrt(child.parent.visits / child.visits)
         score = exploitation + self.exploration_param * exploration
@@ -35,7 +35,6 @@ class UCT(SelectionPolicy):
             "exploration_param": self.exploration_param,
             "score": score
         }
-
 
         return score, explanation
 
@@ -52,7 +51,6 @@ class RandomExpansion(ExpansionPolicy):
     def get_action(
         self
     ) -> Type[NodeBase] | None:
-
         if len(self.node.expandable_actions) == 0:
             return None
         sampled = random.choice(self.node.expandable_actions)
@@ -75,7 +73,6 @@ class RandomSimulation(SimulationPolicy):
         self,
         state: NodeBase
     ) -> Type[NodeBase] | None:
-
         valid_moves = self.game.get_valid_actions(state)
         if len(valid_moves) == 0:
             self.logger.debug(f"========= no valid actions for: {state}")

@@ -17,7 +17,7 @@ import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LinearRegression, LassoLars
 
-from cls_luigi.search.mcts.evaluator import Evaluator
+from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
 from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
@@ -261,8 +261,8 @@ if __name__ == "__main__":
         "exploration_param": 0.5,
         "num_simulations": 1,
     }
-    evaluator = Evaluator(pipelines=results)
-    evaluator.populate_pipeline_map()
+    evaluator = LuigiPipelineEvaluator(pipelines=results)
+    evaluator._populate_pipeline_map()
     game = HyperGraphGame(hypergraph, evaluator=evaluator)
 
     mcts = PureSinglePlayerMCTS(

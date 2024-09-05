@@ -3,6 +3,8 @@ import pickle
 
 import luigi
 import networkx as nx
+import sklearn
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
@@ -17,12 +19,12 @@ from sklearn.datasets import load_diabetes
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from sklearn.linear_model import LinearRegression, LassoLars
+from sklearn.linear_model import LinearRegression
 
-from cls_luigi.search.mcts.evaluator import Evaluator
+from cls_luigi.search.helpers import set_seed
+from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
-from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
@@ -177,7 +179,7 @@ class LR(Reg):
             pickle.dump(reg, outfile)
 
 
-class LL(Reg):
+class RF(Reg):
     abstract = False
 
     def output(self):
@@ -188,7 +190,7 @@ class LL(Reg):
         scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
         y_train = pd.read_pickle(self.input()["splitted_data"]["y_train"].path)
 
-        reg = LassoLars()
+        reg = RandomForestRegressor()
         reg.fit(scaled_x_train, y_train)
 
         with open(self.output()["model"].path, "wb") as outfile:
@@ -229,10 +231,8 @@ class Evaluate(Eval):
         y_test = pd.read_pickle(self.input()["splitted_data"]["y_test"].path)
         y_pred = pd.DataFrame()
         y_pred["y_pred"] = reg.predict(scaled_x_test).ravel()
-        rmse = float(mean_squared_error(y_test, y_pred, squared=False))
-
-        print(self._get_variant_label())
-        print("RMSE: {:0.2f}".format(rmse))
+        # rmse = float(mean_squared_error(y_test, y_pred, squared=False))
+        rmse = sklearn.metrics.explained_variance_score(y_test, y_pred)
 
         y_pred.to_pickle(self.output()["y_pred"].path)
         with open(self.output()["score"].path, "wb") as outfile:
@@ -241,6 +241,7 @@ class Evaluate(Eval):
 
 if __name__ == "__main__":
     import os
+    set_seed(7864)
 
     os.makedirs(RESULTUS_DIR, exist_ok=True)
 
@@ -255,7 +256,7 @@ if __name__ == "__main__":
     rules = inhabitation_result.rules
 
     print("Enumerating results...")
-    max_tasks_when_infinite = 10
+    max_tasks_when_infinite = 200
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
     if actual > 0:
@@ -263,13 +264,15 @@ if __name__ == "__main__":
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     print(len(results))
-    luigi.build(results, local_scheduler=True)
+
+    # validator = UniqueTaskPipelineValidator([Scale])
+    # results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+    # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
 
     paths = nx.all_simple_paths(hypergraph, source=hypergraph_dict["start"], target="Diabetes")
     for path in paths:
@@ -277,12 +280,12 @@ if __name__ == "__main__":
         print("====================================\n")
 
     params = {
-        "num_iterations": 123,
+        "num_iterations": 1000,
         "exploration_param": 4,
-        "num_simulations": 2,
+        # "num_simulations": 1,
     }
-    evaluator = Evaluator(pipelines=results)
-    evaluator.populate_pipeline_map()
+    evaluator = LuigiPipelineEvaluator(pipelines=results, punishment_value=-999999)
+    evaluator._populate_pipeline_map()
     game = HyperGraphGame(hypergraph, evaluator=evaluator, minimization_problem=False)
 
     mcts = RecursiveSinglePlayerMCTS(
@@ -290,11 +293,14 @@ if __name__ == "__main__":
         parameters=params,
         selection_policy=UCT,
     )
-    best_pipeline = mcts.run()
+    incumbent = mcts.run()
     print()
-    print("Best pipeline")
-    print(best_pipeline)
+    print("Incumbent")
+    print(incumbent)
 
 
     mcts.draw_tree("nx_di_graph.png", plot=True)
+
+
+
     # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

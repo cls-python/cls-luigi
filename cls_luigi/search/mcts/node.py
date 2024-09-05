@@ -133,9 +133,14 @@ class Node(NodeBase):
         self
     ) -> Type[NodeBase]:
         best_child = None
-        best_score = float("-inf")
+        best_score = None
 
         for child in self.children:
+            if not best_child:
+                best_child = child
+                best_score, _ = self.selection_policy.get_score(child)
+                continue
+
             score, explanation = self.selection_policy.get_score(child)
             child.explanations.append(explanation)
 
@@ -210,7 +215,8 @@ class Node(NodeBase):
         self.logger.debug(f"========= backpropagating: {self.name}")
 
         self.visits += 1
-        self.reward += reward
+        self.sum_rewards += reward
 
         if self.parent:
             self.parent.backprop(reward)
+

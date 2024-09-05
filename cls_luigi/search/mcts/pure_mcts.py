@@ -75,7 +75,7 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
             node.backprop(reward)
             self.draw_tree(plot=True)
 
-        return self.get_best_path()
+        return self.get_incumbent()
 
 
 if __name__ == "__main__":

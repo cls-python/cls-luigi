@@ -4,6 +4,8 @@ import logging
 
 class OnePlayerGame(abc.ABC):
 
+    minimization_problem = None
+
     def __init__(self, logger, *args, **kwargs):
         if logger is None:
             self.logger = logging.getLogger(__name__)

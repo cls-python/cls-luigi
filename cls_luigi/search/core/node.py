@@ -21,7 +21,7 @@ class NodeBase(abc.ABC):
 
         self.children = []
         self.visits = 0
-        self.reward = 0
+        self.sum_rewards = 0
         self.name = name
         self.explanations = []
 

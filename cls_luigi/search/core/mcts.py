@@ -44,6 +44,8 @@ class SinglePlayerMCTS(abc.ABC):
         else:
             self.logger = logging.getLogger(self.__class__.__name__)
 
+        self.current_incumbent_and_score = None
+
     def get_root_node(
         self
     ) -> Type[NodeBase]:
@@ -61,21 +63,31 @@ class SinglePlayerMCTS(abc.ABC):
     def run(
         self
     ) -> List[NodeBase]:
-        return self.get_best_path()
+        return self.get_incumbent()
 
-    def get_best_path(
+    def get_incumbent(
         self
     ) -> List[NodeBase]:
+        return self.current_incumbent_and_score[0]
 
-        node = self.tree.get_root()
-        path = [node]
-        while len(node.children) > 0:
-            node = node.select()
-            path.append(node)
-        return path
+    def _update_incumbent(
+        self,
+        path: List[NodeBase],
+        reward
+    ) -> None:
+        if (self.current_incumbent_and_score is None) and (reward != float("inf") or reward != float("-inf")):
+            self.current_incumbent_and_score = (path, reward)
+        else:
+            if reward > self.current_incumbent_and_score[1]:
+                self.current_incumbent_and_score = (path, reward)
+
+            elif reward == self.current_incumbent_and_score[1]:
+                if len(path) < len(self.current_incumbent_and_score[0]):
+                    self.current_incumbent_and_score = (path, reward)
 
     def draw_tree(self, out_path: str | None = None, plot: bool = False, *args) -> None:
-        self.tree.draw_tree(out_name=out_path, plot=plot, *args)
+        best_path = self.get_incumbent()
+        self.tree.draw_tree(out_name=out_path, plot=plot, node_size=1500, best_path=best_path, *args)
 
     def shut_down(
         self,
