@@ -14,17 +14,16 @@ class HyperGraphGame(OnePlayerGame):
     def __init__(
         self,
         g: nx.DiGraph,
+        minimization_problem: bool,
         evaluator: LuigiPipelineEvaluator | None = None,
-        minimization_problem: bool = False,
         logger=None,
         *args,
         **kwargs
     ) -> None:
 
-        super().__init__(logger, *args, **kwargs)
+        super().__init__(minimization_problem, logger, *args, **kwargs)
         self.G = g
         self.evaluator = evaluator
-        self.minimization_problem = minimization_problem
 
     def get_initial_state(
         self
@@ -60,6 +59,7 @@ class HyperGraphGame(OnePlayerGame):
                 else:
                     valid_actions = list(itertools.product(*successors))
 
+        self.logger.debug(f"Got valid actions for state {state}:\n{valid_actions}")
         return valid_actions
 
     def is_terminal_term(
@@ -94,6 +94,8 @@ class HyperGraphGame(OnePlayerGame):
                     return -reward
                 elif not self.minimization_problem:
                     return reward
+
+        self.logger.warning(f"No Evaluator found! Returning random reward for now.")
         return random.random()
 
     def is_final_state(

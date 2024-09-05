@@ -6,9 +6,18 @@ class OnePlayerGame(abc.ABC):
 
     minimization_problem = None
 
-    def __init__(self, logger, *args, **kwargs):
+    def __init__(
+        self,
+        minimization_problem: bool,
+        logger,
+        *args,
+        **kwargs
+    ) -> None:
+        self.minimization_problem = minimization_problem
         if logger is None:
             self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
 
     def get_initial_state(self):
         return NotImplementedError

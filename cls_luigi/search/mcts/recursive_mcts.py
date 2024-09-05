@@ -46,20 +46,22 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
 
         for iter_ix in range(self.parameters["num_iterations"]):
             path = []
-            logging.debug("======== Iteration: {}".format(iter_ix))
+            logging.debug("Iteration: {}".format(iter_ix))
             node = self.tree.get_root()
             path.append(node)
 
             while node.is_fully_expanded() and not self.game.is_final_state(node.name):
-                self.logger.debug(f"========= fully expanded: {node.name}")
+                self.logger.debug(f"fully expanded: {node.name}")
                 node = node.select()
                 if node:
                     path.append(node)
-                    self.logger.debug(f"========= selected new node: {node.name}")
+                    self.logger.debug(f"selected new node: {node.name}")
                 else:
+                    self.logger.debug(f"Breaking selection loop. Node is None.")
                     break
             if node:
                 while not self.game.is_final_state(node.name):
+                    self.logger.debug(f"Expanding {node.name}")
                     node = node.expand()
                     self.tree.add_node(node)
                     path.append(node)
@@ -67,7 +69,8 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                 reward = self.game.get_reward(path)
                 self._update_incumbent(path, reward)
                 node.backprop(reward)
-                self.logger.debug(f"==================================\n\n")
+                self.logger.debug(f"==================================\n==================================\n\n\n")
+
                 # self.draw_tree(f"/home/hadi/Documents/cls-luigi/examples/ml_blood_sugar_level/mcts_imgs/nx_di_graph_iter{iter_ix}.png", plot=False)
 
         print("N evaluated pipelines (unique):", len(self.game.evaluator.evaluated))

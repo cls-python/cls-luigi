@@ -25,6 +25,7 @@ from cls_luigi.search.helpers import set_seed
 from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
+from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
@@ -231,8 +232,8 @@ class Evaluate(Eval):
         y_test = pd.read_pickle(self.input()["splitted_data"]["y_test"].path)
         y_pred = pd.DataFrame()
         y_pred["y_pred"] = reg.predict(scaled_x_test).ravel()
-        # rmse = float(mean_squared_error(y_test, y_pred, squared=False))
-        rmse = sklearn.metrics.explained_variance_score(y_test, y_pred)
+        rmse = float(mean_squared_error(y_test, y_pred, squared=False))
+        # rmse = sklearn.metrics.explained_variance_score(y_test, y_pred)
 
         y_pred.to_pickle(self.output()["y_pred"].path)
         with open(self.output()["score"].path, "wb") as outfile:
@@ -265,8 +266,8 @@ if __name__ == "__main__":
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     print(len(results))
 
-    # validator = UniqueTaskPipelineValidator([Scale])
-    # results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    validator = UniqueTaskPipelineValidator([Scale])
+    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
 
@@ -279,28 +280,38 @@ if __name__ == "__main__":
         print(path)
         print("====================================\n")
 
-    params = {
-        "num_iterations": 1000,
-        "exploration_param": 4,
-        # "num_simulations": 1,
-    }
-    evaluator = LuigiPipelineEvaluator(pipelines=results, punishment_value=-999999)
+    evaluator = LuigiPipelineEvaluator(pipelines=results, punishment_value=1)
     evaluator._populate_pipeline_map()
-    game = HyperGraphGame(hypergraph, evaluator=evaluator, minimization_problem=False)
+    game = HyperGraphGame(hypergraph, evaluator=evaluator, minimization_problem=True)
 
+    # params = {
+    #     "num_iterations": 20000,
+    #     "exploration_param": 2,
+    #     "num_simulations": 2,
+    # }
+    # mcts = PureSinglePlayerMCTS(
+    #     game=game,
+    #     parameters=params,
+    #     selection_policy=UCT,
+    # )
+
+
+    params = {
+        "num_iterations": 3000,
+        "exploration_param": 5,
+        # "num_simulations": 2,
+    }
     mcts = RecursiveSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,
     )
     incumbent = mcts.run()
+
     print()
     print("Incumbent")
     print(incumbent)
 
 
     mcts.draw_tree("nx_di_graph.png", plot=True)
-
-
-
-    # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
+    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

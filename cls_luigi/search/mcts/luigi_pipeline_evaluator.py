@@ -67,9 +67,10 @@ class LuigiPipelineEvaluator(Evaluator):
                 with open(score_pkl_path, "rb") as in_file:
                     return pickle.load(in_file)
 
-            except FileNotFoundError:
+            except Exception as e:
                 self.failed[path] = luigi_pipeline
                 self.logger.debug("Pipeline evaluation failed!")
+                self.logger.debug(f"Returned Exception: {e}")
                 return self.punishment_value
 
         if path not in self.not_found_paths:

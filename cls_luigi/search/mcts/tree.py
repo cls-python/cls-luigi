@@ -63,10 +63,11 @@ class MCTSTreeWithGrammar(TreeBase):
         return self.G.nodes[node_id]["value"]
 
     def get_root(
-        self
+        self,
+        node_id: int = 0
     ) -> NodeBase:
-
-        return self.get_node(0)
+        self.logger.debug("Returning root node")
+        return self.get_node(node_id)
 
     @staticmethod
     def _scale_figure_size(num_nodes, base_size=20, scale_factor=0.6):
@@ -261,3 +262,5 @@ class MCTSTreeWithGrammar(TreeBase):
         # Save the graph to a JSON file
         with open(path, 'wb') as f:
             pickle.dump(self.G, f)
+        self.logger.debug(f"Saved MCTS tree (Networkx Graph) as pickle file to {path}")
+

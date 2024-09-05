@@ -31,6 +31,9 @@ class SelectionPolicy(abc.ABC):
     ) -> float:
         ...
 
+    def _regularization(self):
+        return None
+
 
 class ExpansionPolicy(abc.ABC):
     def __init__(

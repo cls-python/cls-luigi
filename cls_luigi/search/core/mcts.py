@@ -63,7 +63,7 @@ class SinglePlayerMCTS(abc.ABC):
     def run(
         self
     ) -> List[NodeBase]:
-        return self.get_incumbent()
+        return NotImplementedError("Method not implemented")
 
     def get_incumbent(
         self
@@ -76,6 +76,7 @@ class SinglePlayerMCTS(abc.ABC):
         reward
     ) -> None:
         if (self.current_incumbent_and_score is None) and (reward != float("inf") or reward != float("-inf")):
+            self.logger.debug(f"Setting incumbent for the first time")
             self.current_incumbent_and_score = (path, reward)
         else:
             if reward > self.current_incumbent_and_score[1]:
@@ -84,6 +85,8 @@ class SinglePlayerMCTS(abc.ABC):
             elif reward == self.current_incumbent_and_score[1]:
                 if len(path) < len(self.current_incumbent_and_score[0]):
                     self.current_incumbent_and_score = (path, reward)
+            else:
+                self.logger.warning(f"Can't update incumbent {path} with reward: {reward}. Something is wrong!")
 
     def draw_tree(self, out_path: str | None = None, plot: bool = False, *args) -> None:
         best_path = self.get_incumbent()
@@ -99,5 +102,6 @@ class SinglePlayerMCTS(abc.ABC):
         if mcts_path:
             with open(mcts_path, "wb") as f:
                 pickle.dump(self, f)
+        self.logger.debug(f"Saved MCTS object as pickle file to {mcts_path}")
         if tree_path:
             self.tree.save(tree_path)

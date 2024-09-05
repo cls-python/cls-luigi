@@ -87,6 +87,7 @@ class Node(NodeBase):
         self.fully_expanded_params = fully_expanded_params
 
     def _set_expandable_actions(self):
+        self.logger.debug(f"Setting expandable actions for node: {self.name}")
         self.expandable_actions = self.game.get_valid_actions(self.name)
 
     def __repr__(self):
@@ -98,6 +99,7 @@ class Node(NodeBase):
         if not self.fully_expanded_params:
             return self._is_fully_expanded_default()
         else:
+            self.logger.debug(f"progressive widening is activated")
             return self.is_fully_expanded_progressive_widening()
 
     def _is_fully_expanded_default(self):
@@ -153,8 +155,9 @@ class Node(NodeBase):
     def expand(
         self
     ) -> 'Node':
-        self.logger.debug(f"========= expanding: {self.name}")
         sampled_action = self.expansion_policy.get_action()
+        self.logger.debug(f"Sampled child action {sampled_action} for node {self.name}")
+
         if isinstance(sampled_action, str):
             sampled_action = (sampled_action,)
 
@@ -171,18 +174,19 @@ class Node(NodeBase):
 
         )
         self.children.append(child)
+        self.logger.debug(f"Created child action {child.name} for node {self.name}")
         return child
 
     def simulate(self, path) -> float:
         sum_rewards = 0
-        self.logger.debug(f"========= simulating {self.params['num_simulations']} times: {self.name}")
+        self.logger.debug(f"Simulating{self.params['num_simulations']} times: {self.name}")
 
-        for _ in range(self.params["num_simulations"]):
+        for ix_sim in range(self.params["num_simulations"]):
             self.sim_path = path.copy()
-            self.logger.debug(f"========= simulation {_}")
+            self.logger.debug(f"Simulation {ix_sim}")
             self._simulate(rollout_state=self)
             sum_rewards += self.game.get_reward(self.sim_path)
-            self.logger.debug(f"========= simulated path: {self.sim_path}")
+            self.logger.debug(f"Simulated path: {self.sim_path}")
             self.sim_path = None
 
         return sum_rewards / self.params["num_simulations"]
@@ -212,7 +216,7 @@ class Node(NodeBase):
         self,
         reward: float
     ) -> None:
-        self.logger.debug(f"========= backpropagating: {self.name}")
+        self.logger.debug(f"Backpropagating: {self.name} with reward {reward}")
 
         self.visits += 1
         self.sum_rewards += reward

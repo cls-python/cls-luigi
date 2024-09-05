@@ -71,9 +71,10 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
                 if path not in paths:
                     paths.append(path)
                 reward = self.game.get_reward(path)
-
+            if self.game.is_final_state(node.name):
+                self._update_incumbent(path, reward)
             node.backprop(reward)
-            self.draw_tree(plot=True)
+            # self.draw_tree(plot=True)
 
         return self.get_incumbent()
 

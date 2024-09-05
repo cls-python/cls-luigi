@@ -2,7 +2,7 @@ import logging
 import math
 import random
 from math import sqrt
-from typing import Type
+from typing import Type, Tuple, Dict, Any
 
 from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
@@ -23,18 +23,21 @@ class UCT(SelectionPolicy):
     def get_score(
         self,
         child: NodeBase
-    ) -> float:
+    ) -> tuple[float | Any, dict[str, float | None | Any]]:
         exploitation = child.sum_rewards / child.visits
-        # exploration = sqrt(math.log(child.parent.visits) / child.visits)
-        exploration = sqrt(child.parent.visits / child.visits)
+        exploration = sqrt(math.log(child.parent.visits) / child.visits)
+        # exploration = sqrt(child.parent.visits / child.visits)
         score = exploitation + self.exploration_param * exploration
+        if self._regularization() is not None:
+            score *= self._regularization()
 
         explanation = {
             "exploitation": exploitation,
             "exploration": exploration,
             "exploration_param": self.exploration_param,
-            "score": score
+            "score": score,
         }
+
 
         return score, explanation
 
