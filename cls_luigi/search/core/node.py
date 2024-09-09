@@ -1,13 +1,16 @@
+from __future__ import annotations
 import abc
 import logging
-from typing import Type, Tuple
+from typing import Tuple, Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
 
 
 class NodeBase(abc.ABC):
     def __init__(
         self,
         name: str | Tuple[str],
-        logger: logging.Logger = None,
+        logger: Optional[logging.Logger] = None,
         **kwargs,
 
     ) -> None:
@@ -27,12 +30,12 @@ class NodeBase(abc.ABC):
 
     def select(
         self
-    ) -> Type['NodeBase']:
+    ) -> Node:
         ...
 
     def expand(
         self
-    ) -> Type['NodeBase']:
+    ) -> Node:
         ...
 
     def simulate(
@@ -41,7 +44,7 @@ class NodeBase(abc.ABC):
     ) -> float:
         ...
 
-    def backpropagate(
+    def backprop(
         self,
         reward: float
     ) -> None:

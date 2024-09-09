@@ -1,15 +1,23 @@
-import abc
-import logging
-import pickle
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 from typing import Dict, List, Type, Any
 
-from cls_luigi.search.core.node import NodeBase
-from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
-from cls_luigi.search.core.tree import TreeBase
-from cls_luigi.search.mcts.game import OnePlayerGame
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+    from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
+    from cls_luigi.search.core.tree import TreeBase
+    from cls_luigi.search.mcts.game import OnePlayerGame
+
+    from cls_luigi.search.mcts.game import OnePlayerGame
+
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
 from cls_luigi.search.mcts.node import NodeFactory
 from cls_luigi.search.mcts.policy import UCT, RandomExpansion
+
+import abc
+import logging
+import pickle
+
 
 
 class SinglePlayerMCTS(abc.ABC):
@@ -18,14 +26,13 @@ class SinglePlayerMCTS(abc.ABC):
     def __init__(
         self,
         parameters: Dict[str, Any],
-        game: Type[OnePlayerGame],
+        game: OnePlayerGame,
         selection_policy: Type[SelectionPolicy] = UCT,
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
-
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
-        node_factory_cls: NodeFactory = NodeFactory,
-        simulation_policy: Type[SimulationPolicy] = None,
-        fully_expanded_params: Dict[str, Any] | None = None,
+        node_factory_cls: Type[NodeFactory] = NodeFactory,
+        simulation_policy: Optional[Type[SimulationPolicy]] = None,
+        fully_expanded_params: Optional[Dict[str, Any]] = None,
 
         logger: logging.Logger = None
     ) -> None:
@@ -48,7 +55,7 @@ class SinglePlayerMCTS(abc.ABC):
 
     def get_root_node(
         self
-    ) -> Type[NodeBase]:
+    ) -> Node:
 
         return self.node_factory.create_node(
             params=self.parameters,
@@ -62,19 +69,19 @@ class SinglePlayerMCTS(abc.ABC):
 
     def run(
         self
-    ) -> List[NodeBase]:
-        return NotImplementedError("Method not implemented")
+    ) -> List[Node]:
+        ...
 
     def get_incumbent(
         self
-    ) -> List[NodeBase]:
+    ) -> List[Node]:
         if self.current_incumbent_and_score is not None:
             return self.current_incumbent_and_score[0]
         return []
 
     def _update_incumbent(
         self,
-        path: List[NodeBase],
+        path: List[Node],
         reward
     ) -> None:
         if (self.current_incumbent_and_score is None) and (reward != float("inf") or reward != float("-inf")):
@@ -90,16 +97,21 @@ class SinglePlayerMCTS(abc.ABC):
                     self.logger.debug(f"Updating incumbent {path} with same reward: {reward} but shorter path")
                     self.current_incumbent_and_score = (path, reward)
             else:
-                self.logger.debug(f"Current incumbent {self.current_incumbent_and_score[0]} with reward: {self.current_incumbent_and_score[1]} remains unchanged")
+                self.logger.debug(
+                    f"Current incumbent {self.current_incumbent_and_score[0]} with reward: {self.current_incumbent_and_score[1]} remains unchanged")
 
-    def draw_tree(self, out_path: str | None = None, plot: bool = False, *args) -> None:
+    def draw_tree(
+        self,
+        out_path: Optional[str] = None,
+        plot: bool = False,
+        *args) -> None:
         best_path = self.get_incumbent()
         self.tree.draw_tree(out_name=out_path, plot=plot, node_size=1500, best_path=best_path, *args)
 
     def shut_down(
         self,
-        mcts_path: str = None,
-        tree_path: str = None
+        mcts_path: Optional[str] = None,
+        tree_path: Optional[str] = None
     ) -> None:
 
         self.logger.debug("Shutting down SP-MCTS")

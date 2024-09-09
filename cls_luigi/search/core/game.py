@@ -1,15 +1,15 @@
 import abc
 import logging
+from typing import Optional
 
 
 class OnePlayerGame(abc.ABC):
-
     minimization_problem = None
 
     def __init__(
         self,
         minimization_problem: bool,
-        logger,
+        logger: Optional[logging.Logger] = None,
         *args,
         **kwargs
     ) -> None:
@@ -20,16 +20,19 @@ class OnePlayerGame(abc.ABC):
             self.logger = logger
 
     def get_initial_state(self):
-        return NotImplementedError
+        ...
 
     def get_valid_actions(self, state):
-        return NotImplementedError
+        ...
 
     def is_terminal_term(self, state):
-        return NotImplementedError
+        ...
 
     def get_reward(self, path):
-        return NotImplementedError
+        ...
 
     def is_final_state(self, state):
+        ...
+
+    def is_start(self, Optional):
         pass

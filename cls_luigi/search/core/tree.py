@@ -1,24 +1,27 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+
 import abc
 import logging
-from typing import Type
-
-from cls_luigi.search.core.node import NodeBase
 
 
 class TreeBase(abc.ABC):
     def __init__(
         self,
-        root: Type[NodeBase],
-        logger: logging.Logger = None,
-        ** kwargs
+        root: Node,
+        logger: Optional[logging.Logger] = None,
+        **kwargs
     ) -> None:
 
-            if logger:
-                self.logger = logger
-            else:
-                self.logger = logging.getLogger(self.__class__.__name__)
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(self.__class__.__name__)
 
-            self.root = root
+        self.root = root
 
     def draw_tree(self, *args, **kwargs):
         ...

@@ -1,13 +1,19 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from typing import Tuple, List, Optional
+
+if TYPE_CHECKING:
+    from cls_luigi.search.core.filter import ActionFilter
+    from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
+
 import itertools
+import logging
 import random
-from typing import Tuple, List
 
 import luigi
 import networkx as nx
 
-from cls_luigi.search.core.filter import ActionFilter
 from cls_luigi.search.core.game import OnePlayerGame
-from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from luigi.task import flatten
 
 
@@ -16,9 +22,9 @@ class HyperGraphGame(OnePlayerGame):
         self,
         hypergraph: nx.DiGraph,
         minimization_problem: bool,
-        evaluator: LuigiPipelineEvaluator | None = None,
-        filters: List | None = None,
-        logger=None,
+        evaluator: LuigiPipelineEvaluator = None,
+        filters: Optional[ActionFilter] = None,
+        logger: Optional[logging.Logger] = None,
         *args,
         **kwargs
     ) -> None:
@@ -111,7 +117,7 @@ class HyperGraphGame(OnePlayerGame):
                 elif not self.minimization_problem:
                     return reward
 
-        self.logger.warning(f"No Evaluator found! Returning random reward for now.")
+        self.logger.warning(f"No Evaluator found! Returning random reward for now!\n This should be only temporary!")
         return random.random()
 
     def is_final_state(

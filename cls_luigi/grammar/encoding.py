@@ -1,4 +1,4 @@
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Union, Any, Optional, Literal
 import cls.fcl
 from cls_luigi.grammar.helpers import remove_module_names  # returns a string with the module names removed
 
@@ -21,7 +21,7 @@ class ApplicativeTreeGrammarEncoder:
 
     def encode_into_tree_grammar(
         self
-    ) -> Dict[str, str | List[str] | Dict[str, List[str]]]:
+    ) -> Union[Dict[str, str], Dict[str, list[Any]]]:
 
         for rule in self.applicative_tree_grammar:
             if not isinstance(rule.target, cls.fcl.Arrow):
@@ -92,9 +92,9 @@ class ApplicativeTreeGrammarEncoder:
     def _safe_update_rules(
         self,
         target: str,
-        combinators: List[str | None],
-        combinator_args: List[str | None],
-        rules_key: str = "rules"
+        combinators: List[Optional[str]],
+        combinator_args: List[Optional[str]],
+        rules_key: Literal["rules"] = "rules"
     ) -> None:
 
         if target not in self.tree_grammar[rules_key]:
@@ -110,7 +110,7 @@ class ApplicativeTreeGrammarEncoder:
     def _filter_applicative_tree_grammar(
         self,
         function_type: cls.fcl.Type
-    ) -> set[cls.fcl.Rule]:
+    ) -> Set[cls.fcl.Rule]:
         return set(filter(lambda rule: rule.target == function_type, self.applicative_tree_grammar))
 
     def _safe_update_terms(
@@ -125,4 +125,3 @@ class ApplicativeTreeGrammarEncoder:
         for terminal in terminals:
             if terminal not in self.tree_grammar["terminals"]:
                 self.tree_grammar["terminals"].append(terminal)
-

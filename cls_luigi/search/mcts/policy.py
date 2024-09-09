@@ -1,18 +1,23 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+from typing import Any
+
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+    from cls_luigi.search.mcts.game import OnePlayerGame
+
+from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
+
 import logging
 import math
 import random
 from math import sqrt
-from typing import Type, Tuple, Dict, Any
-
-from cls_luigi.search.core.node import NodeBase
-from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
-from cls_luigi.search.mcts.game import OnePlayerGame
 
 
 class UCT(SelectionPolicy):
     def __init__(
         self,
-        node: NodeBase,
+        node: Node,
         exploration_param: float,
         logger: logging.Logger = None,
         **kwargs
@@ -22,7 +27,7 @@ class UCT(SelectionPolicy):
 
     def get_score(
         self,
-        child: NodeBase
+        child: Node
     ) -> tuple[float | Any, dict[str, float | None | Any]]:
         exploitation = child.sum_rewards / child.visits
         exploration = sqrt(math.log(child.parent.visits) / child.visits)
@@ -38,14 +43,13 @@ class UCT(SelectionPolicy):
             "score": score,
         }
 
-
         return score, explanation
 
 
 class RandomExpansion(ExpansionPolicy):
     def __init__(
         self,
-        node: NodeBase,
+        node: Node,
         logger: logging.Logger = None,
         **kwargs
     ) -> None:
@@ -53,7 +57,7 @@ class RandomExpansion(ExpansionPolicy):
 
     def get_action(
         self
-    ) -> Type[NodeBase] | None:
+    ) -> Optional[Node]:
         if len(self.node.expandable_actions) == 0:
             return None
         sampled = random.choice(self.node.expandable_actions)
@@ -66,7 +70,7 @@ class RandomExpansion(ExpansionPolicy):
 class RandomSimulation(SimulationPolicy):
     def __init__(
         self,
-        game: Type[OnePlayerGame],
+        game: OnePlayerGame,
         logger: logging.Logger = None,
         **kwargs
     ) -> None:
@@ -74,8 +78,8 @@ class RandomSimulation(SimulationPolicy):
 
     def get_action(
         self,
-        state: NodeBase
-    ) -> Type[NodeBase] | None:
+        state: Node
+    ) -> Optional[Node]:
         valid_actions = self.game.get_valid_actions(state)
         if len(valid_actions) == 0:
             self.logger.debug(f"========= no valid actions for: {state}")

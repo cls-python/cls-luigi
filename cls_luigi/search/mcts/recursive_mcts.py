@@ -1,14 +1,18 @@
-import logging
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 from typing import Dict, Type, Any, List
 
-from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
-    build_hypergraph
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+    from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
+    from cls_luigi.search.core.tree import TreeBase
+    from cls_luigi.search.mcts.game import OnePlayerGame
+
+import logging
+
+
+
 from cls_luigi.search.core.mcts import SinglePlayerMCTS
-from cls_luigi.search.core.node import NodeBase
-from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
-from cls_luigi.search.core.tree import TreeBase
-from cls_luigi.search.helpers import set_seed
-from cls_luigi.search.mcts.game import HyperGraphGame, OnePlayerGame
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
 from cls_luigi.search.mcts.node import NodeFactory
 from cls_luigi.search.mcts.policy import UCT, RandomExpansion, RandomSimulation
@@ -20,13 +24,13 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
     def __init__(
         self,
         parameters: Dict[str, Any],
-        game: Type[OnePlayerGame],
+        game: OnePlayerGame,
         selection_policy: Type[SelectionPolicy] = UCT,
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: NodeFactory = NodeFactory,
-        fully_expanded_params: Dict[str, Any] | None = None,
-        logger: logging.Logger = None,
+        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        logger: Optional[logging.Logger] = None,
     ) -> None:
 
         super().__init__(
@@ -41,7 +45,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
 
     def run(
         self
-    ) -> List[NodeBase]:
+    ) -> List[Node]:
         self.logger.debug("Running SP-MCTS for {} iterations".format(self.parameters["num_iterations"]))
 
         for iter_ix in range(self.parameters["num_iterations"]):
@@ -80,6 +84,11 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
 
 
 if __name__ == "__main__":
+    from cls_luigi.search.helpers import set_seed
+    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
+        build_hypergraph
+    from cls_luigi.search.mcts.game import HyperGraphGame
+
     logging.basicConfig(level=logging.DEBUG)
     set_seed(250)
     tree_grammar = {
@@ -169,7 +178,7 @@ if __name__ == "__main__":
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    plot_hypergraph_components(hypergraph, "hypergraph.png", start_node=tree_grammar["start"], node_size=5000,
+    plot_hypergraph_components(hypergraph, "hypergraph.png", node_size=5000,
                                node_font_size=11)
 
     params = {
@@ -178,7 +187,6 @@ if __name__ == "__main__":
         # "num_simulations": 2,
     }
 
-    # evaluator = Evaluator()
     game = HyperGraphGame(hypergraph, minimization_problem=True)
 
     # progressive_widening_params = {

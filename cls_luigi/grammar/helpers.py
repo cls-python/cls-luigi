@@ -1,10 +1,12 @@
+from typing import Union
+
 import cls.fcl
 import cls.types
 from cls_luigi.inhabitation_task import RepoMeta
 
 
 def remove_module_names(
-    term: cls.types.Type | object
+    term: Union[cls.types.Type, object]
 ) -> str:
     if isinstance(term, cls.fcl.Arrow):
         return remove_module_name_from_arrow(term)
@@ -26,6 +28,6 @@ def remove_module_name_from_arrow(
 
 
 def remove_module_name_from_constructor_or_wrapped_task(
-    term: cls.types.Constructor | RepoMeta.WrappedTask
+    term: Union[cls.types.Constructor, RepoMeta.WrappedTask]
 ) -> str:
     return str(term).split(".")[-1]

@@ -1,35 +1,17 @@
-import logging
 import pickle
-
 import luigi
 import networkx as nx
-import sklearn
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
-from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
-from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, build_hypergraph, \
-    plot_hypergraph_components
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
-from cls.fcl import FiniteCombinatoryLogic
-from cls.subtypes import Subtypes
 from sklearn.datasets import load_diabetes
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LinearRegression
-
-from cls_luigi.search.helpers import set_seed
-from cls_luigi.search.mcts.filters import UniqueActionFilter, ForbiddenActionFilter
-from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
-from cls_luigi.search.mcts.game import HyperGraphGame
-from cls_luigi.search.mcts.policy import UCT
-from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
-from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
-# from cls_luigi.search.mcts.filters import UniquePipelineTaskFilter
-from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
 
@@ -244,6 +226,19 @@ class Evaluate(Eval):
 
 if __name__ == "__main__":
     import os
+    from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
+    from cls_luigi.search.helpers import set_seed
+    from cls_luigi.search.mcts.filters import UniqueActionFilter, ForbiddenActionFilter
+    from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
+    from cls_luigi.search.mcts.game import HyperGraphGame
+    from cls_luigi.search.mcts.policy import UCT
+    from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
+    from cls.fcl import FiniteCombinatoryLogic
+    from cls.subtypes import Subtypes
+    from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
+    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, build_hypergraph, \
+        plot_hypergraph_components
+    import logging
 
     set_seed(7864)
 
@@ -268,7 +263,7 @@ if __name__ == "__main__":
 
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     print(len(results))
-
+    from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
     # validator = UniqueTaskPipelineValidator([Scale])
     # results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
@@ -276,7 +271,7 @@ if __name__ == "__main__":
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+    plot_hypergraph_components(hypergraph, "binary_clf.png", node_size=5000, node_font_size=11)
 
     paths = nx.all_simple_paths(hypergraph, source=hypergraph_dict["start"], target="Diabetes")
     for path in paths:

@@ -1,9 +1,14 @@
-import logging
-from typing import Type, Dict, Any, Tuple
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from typing import Type, Dict, Any, Tuple, List, Optional
 
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
+    from cls_luigi.search.mcts.game import OnePlayerGame
+
+
+import logging
 from cls_luigi.search.core.node import NodeBase
-from cls_luigi.search.mcts.game import OnePlayerGame
-from cls_luigi.search.mcts.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
 
 
 class NodeFactory:
@@ -14,13 +19,13 @@ class NodeFactory:
         self,
         name: Tuple[str],
         params: Dict[str, Any],
-        node_factory: Type['NodeFactory'],
+        node_factory: NodeFactory,
         selection_policy_cls: Type[SelectionPolicy],
         expansion_policy_cls: Type[ExpansionPolicy],
-        simulation_policy_cls: Type[SimulationPolicy] = None,
-        parent: Type['Node'] = None,
-        action_taken: str = None,
-        fully_expanded_params: Dict[str, Any] = None,
+        simulation_policy_cls: Optional[Type[SimulationPolicy]] = None,
+        parent: Optional[Node] = None,
+        action_taken: Optional[str] = None,
+        fully_expanded_params: Optional[Dict[str, Any]] = None,
 
     ):
         return Node(
@@ -48,12 +53,12 @@ class Node(NodeBase):
         name: Tuple[str],
         selection_policy_cls: Type[SelectionPolicy],
         expansion_policy_cls: Type[ExpansionPolicy],
-        simulation_policy_cls: Type[SimulationPolicy] = None,
-        node_id: int = None,
-        parent: Type[NodeBase] = None,
-        action_taken: str = None,
-        logger: logging.Logger = None,
-        fully_expanded_params: Dict[str, Any] | None = None,
+        simulation_policy_cls: Optional[Type[SimulationPolicy]] = None,
+        node_id: Optional[int] = None,
+        parent: Optional[Node] = None,
+        action_taken: Optional[str] = None,
+        logger: Optional[logging.Logger] = None,
+        fully_expanded_params: Optional[Dict[str, Any]] = None,
         **kwargs
     ) -> None:
 
@@ -85,11 +90,11 @@ class Node(NodeBase):
         self.node_factory = node_factory
         self.fully_expanded_params = fully_expanded_params
 
-    def _set_expandable_actions(self):
+    def _set_expandable_actions(self) -> None:
         self.logger.debug(f"Setting expandable actions for node: {self.name}")
         self.expandable_actions = self.game.get_valid_actions(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Node: {self.name}"
 
     def is_fully_expanded(
@@ -101,13 +106,13 @@ class Node(NodeBase):
             self.logger.debug(f"progressive widening is activated")
             return self.is_fully_expanded_progressive_widening()
 
-    def _is_fully_expanded_default(self):
+    def _is_fully_expanded_default(self) -> bool:
         """
         default check if the node is fully expanded. activated when no fully_expanded_params are provided.
         """
         return len(self.expandable_actions) == 0 and len(self.children) > 0
 
-    def is_fully_expanded_progressive_widening(self):
+    def is_fully_expanded_progressive_widening(self) -> bool:
         """
         This method is used to determine if a node is fully expanded based on the progressive widening strategy.
 
@@ -132,7 +137,7 @@ class Node(NodeBase):
 
     def select(
         self
-    ) -> Type[NodeBase]:
+    ) -> Node:
         best_child = None
         best_score = None
 
@@ -153,7 +158,7 @@ class Node(NodeBase):
 
     def expand(
         self
-    ) -> 'Node':
+    ) -> Node:
         sampled_action = self.expansion_policy.get_action()
         self.logger.debug(f"Sampled child action {sampled_action} for node {self.name}")
 
@@ -175,7 +180,7 @@ class Node(NodeBase):
         self.logger.debug(f"Created child action {child.name} for node {self.name}")
         return child
 
-    def simulate(self, path) -> float:
+    def simulate(self, path: List[Node]) -> float:
         sum_rewards = 0
         self.logger.debug(f"Simulating{self.params['num_simulations']} times: {self.name}")
 
@@ -191,7 +196,7 @@ class Node(NodeBase):
 
     def _simulate(
         self,
-        rollout_state,
+        rollout_state: Node,
     ) -> None:
 
         if not self.game.is_final_state(rollout_state):
@@ -221,4 +226,3 @@ class Node(NodeBase):
 
         if self.parent:
             self.parent.backprop(reward)
-

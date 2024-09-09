@@ -1,16 +1,19 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.game import OnePlayerGame
+    from cls_luigi.search.mcts.node import Node
+
 import abc
 import logging
-from typing import Type
-
-from cls_luigi.search.core.game import OnePlayerGame
-from cls_luigi.search.core.node import NodeBase
 
 
 class SelectionPolicy(abc.ABC):
     def __init__(
         self,
-        node: NodeBase,
-        logger: logging.Logger = None,
+        node: Node,
+        logger: Optional[logging.Logger] = None,
         **kwargs
     ) -> None:
 
@@ -22,12 +25,12 @@ class SelectionPolicy(abc.ABC):
 
     def select(
         self
-    ) -> Type[NodeBase]:
+    ) -> Node:
         ...
 
     def get_score(
         self,
-        node: Type[NodeBase]
+        node: Node
     ) -> float:
         ...
 
@@ -38,8 +41,8 @@ class SelectionPolicy(abc.ABC):
 class ExpansionPolicy(abc.ABC):
     def __init__(
         self,
-        node: NodeBase,
-        logger: logging.Logger = None,
+        node: Node,
+        logger: Optional[logging.Logger] = None,
         **kwargs
     ) -> None:
         self.node = node
@@ -50,15 +53,15 @@ class ExpansionPolicy(abc.ABC):
 
     def get_action(
         self
-    ) -> Type[NodeBase]:
+    ) -> Node:
         ...
 
 
 class SimulationPolicy(abc.ABC):
     def __init__(
         self,
-        game: Type[OnePlayerGame],
-        logger: logging.Logger = None,
+        game: OnePlayerGame,
+        logger: Optional[logging.Logger] = None,
         **kwargs
     ) -> None:
         self.game = game

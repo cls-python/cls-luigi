@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Literal
+from typing import Dict, List, Tuple, Literal, Union
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -7,8 +7,8 @@ from matplotlib.patches import Patch
 
 
 def get_hypergraph_dict_from_tree_grammar(
-    tree_grammar: Dict[str, str | Dict[str, List[str]]]
-) -> Dict[str, List[str | Tuple[str, str]]]:
+    tree_grammar: Union[Dict[str, str], Dict[str, List[str]]]
+) -> Union[Dict[str, Union[str, List[str], List[Tuple[str, str]]]]]:
     hypergraph = {
         "start": tree_grammar["start"],
         "choice_edges": [],
@@ -25,7 +25,10 @@ def get_hypergraph_dict_from_tree_grammar(
     return hypergraph
 
 
-def build_hypergraph(hyper_graph_dict: Dict[str, List[str | Tuple[str, str]]]):
+def build_hypergraph(
+    hyper_graph_dict: Union[Dict[str, Union[str, List[str], List[Tuple[str, str]]]]]
+) -> nx.MultiDiGraph:
+
     g = nx.MultiDiGraph()
     g.add_nodes_from(hyper_graph_dict["non_terminal_nodes"], terminal_node=False, start_node=False)
     g.add_nodes_from(hyper_graph_dict["terminal_nodes"], terminal_node=True, start_node=False)
@@ -41,7 +44,6 @@ def build_hypergraph(hyper_graph_dict: Dict[str, List[str | Tuple[str, str]]]):
 def plot_hypergraph_components(
     g: nx.DiGraph,
     out_name: str,
-    start_node: str,
     node_font_size: int = 5,
     node_size: int = 5000,
     figsize: Tuple[int, int] = (13, 8),

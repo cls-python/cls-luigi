@@ -1,14 +1,16 @@
-import logging
-import math
-import pickle
-from typing import Tuple, Literal, Type
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional, List
+from typing import Tuple, Literal
 
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+
+import logging
+import pickle
 import networkx as nx
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-
-from cls_luigi.search.core.node import NodeBase
 from cls_luigi.search.core.tree import TreeBase
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
@@ -17,21 +19,21 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 class MCTSTreeWithGrammar(TreeBase):
     def __init__(
         self,
-        root: Type[NodeBase],
+        root: Node,
         hypergraph: nx.Graph,
-        logger: logging.Logger = None,
+        logger: Optional[logging.Logger] = None,
         **kwargs
     ) -> None:
         super().__init__(root, logger, **kwargs)
 
         self.G = nx.DiGraph()
         self.hypergraph = hypergraph
-        self.id_count = -1
+        self.id_count = -1  # To start from 0
         self.add_root(self.root)
 
     def add_root(
         self,
-        node: Type[NodeBase]
+        node: Node
     ) -> None:
 
         self.id_count += 1
@@ -44,7 +46,7 @@ class MCTSTreeWithGrammar(TreeBase):
 
     def add_node(
         self,
-        node: NodeBase
+        node: Node
     ) -> None:
 
         self.id_count += 1
@@ -58,14 +60,14 @@ class MCTSTreeWithGrammar(TreeBase):
     def get_node(
         self,
         node_id: int
-    ) -> NodeBase:
+    ) -> Node:
 
         return self.G.nodes[node_id]["value"]
 
     def get_root(
         self,
         node_id: int = 0
-    ) -> NodeBase:
+    ) -> Node:
         self.logger.debug("Returning root node")
         return self.get_node(node_id)
 
@@ -73,7 +75,7 @@ class MCTSTreeWithGrammar(TreeBase):
     def _scale_figure_size(num_nodes, base_size=20, scale_factor=0.6):
 
         scaled_size = base_size + scale_factor * num_nodes ** 0.5
-        return (scaled_size, scaled_size / 1.61)
+        return scaled_size, scaled_size / 1.61
 
     def _get_structured_node_labels(
         self,
@@ -103,12 +105,12 @@ class MCTSTreeWithGrammar(TreeBase):
 
     def draw_tree(
         self,
-        best_path: list[NodeBase] = None,
-        out_name: str = None,
+        best_path: Optional[List[Node]] = None,
+        out_name: Optional[str] = None,
         start_node_id: int = 0,
         node_font_size: int = 10,
         node_size: int = 800,
-        figsize: Tuple[int, int] = None,
+        figsize: Optional[Tuple[int, int]] = None,
         facecolor: str = "White",
         non_terminal_nodes_color: str = "#003049",
         terminal_nodes_color: str = "#b87012",
@@ -237,7 +239,7 @@ class MCTSTreeWithGrammar(TreeBase):
             Line2D([0], [0], marker=terminal_node_shape, color=leaf_node_color,
                    label='Leaf', markerfacecolor=leaf_node_color, markersize=14, linewidth=0),
         ]
-        plot_title+="\n(Incumbent path is highlighted in red)"
+        plot_title += "\n(Incumbent path is highlighted in red)"
         axs.set_title(plot_title, fontsize=title_fontsize, fontweight=title_font_weight, loc=title_loc)
 
         axs.legend(handles=legend_elements, loc=legend_loc)
@@ -263,4 +265,3 @@ class MCTSTreeWithGrammar(TreeBase):
         with open(path, 'wb') as f:
             pickle.dump(self.G, f)
         self.logger.debug(f"Saved MCTS tree (Networkx Graph) as pickle file to {path}")
-

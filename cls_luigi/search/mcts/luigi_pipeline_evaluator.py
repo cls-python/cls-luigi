@@ -1,8 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from typing import List, Optional
+
+if TYPE_CHECKING:
+    from cls_luigi.search.mcts.node import Node
+    from luigi.task import Task as LuigiTask
+
 import logging
 import pickle
-from typing import List
-import luigi
 from luigi.task import flatten
+from luigi import build
 
 from cls_luigi.search.core.evaluator import Evaluator
 
@@ -10,9 +17,9 @@ from cls_luigi.search.core.evaluator import Evaluator
 class LuigiPipelineEvaluator(Evaluator):
     def __init__(
         self,
-        pipelines: List[luigi.Task],
+        pipelines: List[LuigiTask],
         punishment_value: int | float,
-        logger: logging.Logger = None
+        logger: Optional[logging.Logger] = None
     ) -> None:
         super().__init__(punishment_value, logger)
 
@@ -30,7 +37,7 @@ class LuigiPipelineEvaluator(Evaluator):
             self._pipeline_map[self._temp_pipeline_key] = luigi_pipeline
             self._temp_pipeline_key = None
 
-    def _build_pipeline_key(self, task: luigi.task, level: int = 0) -> None:
+    def _build_pipeline_key(self, task: LuigiTask, level: int = 0) -> None:
         children = tuple(flatten(task.requires()))
 
         if level == 0:
@@ -45,14 +52,14 @@ class LuigiPipelineEvaluator(Evaluator):
             for index, child in enumerate(children):
                 self._build_pipeline_key(task=child, level=level)
 
-    def _get_luigi_pipeline(self, path):
+    def _get_luigi_pipeline(self, path: List[Node]):
         path = list(filter(lambda x: x.is_terminal_term, path))
         path = tuple(map(lambda x: x.name, path))
         return self._pipeline_map.get(path)
 
     def evaluate(
         self,
-        path: List["NodeBase"]
+        path: List[Node]
     ) -> float | int:
 
         luigi_pipeline = self._get_luigi_pipeline(path)
@@ -62,7 +69,7 @@ class LuigiPipelineEvaluator(Evaluator):
             try:
                 score_pkl_path = luigi_pipeline.output()["score"].path
 
-                luigi.build([luigi_pipeline], local_scheduler=True)
+                build([luigi_pipeline], local_scheduler=True)
 
                 with open(score_pkl_path, "rb") as in_file:
                     return pickle.load(in_file)
