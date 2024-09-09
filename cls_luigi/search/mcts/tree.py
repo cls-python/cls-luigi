@@ -37,7 +37,7 @@ class MCTSTreeWithGrammar(TreeBase):
         self.id_count += 1
         node.node_id = self.id_count
         self.G.add_node(node.node_id, value=node,
-                        leaf_node=node.game.is_final_state(node.name),
+                        leaf_node=node.game.is_final_state(node),
                         start_node=node.game.is_start(node.name[0])
                         )
         self.logger.debug(f"Added root node {node.name}")
@@ -50,7 +50,7 @@ class MCTSTreeWithGrammar(TreeBase):
         self.id_count += 1
         node.node_id = self.id_count
         self.G.add_node(node.node_id, value=node,
-                        leaf_node=node.game.is_final_state(node.name),
+                        leaf_node=node.game.is_final_state(node),
                         start_node=node.game.is_start(node.name[0]))
         self.G.add_edge(node.parent.node_id, node.node_id)
         self.logger.debug(f"Added node {node.name} and an edge from {node.parent.name}")

@@ -76,12 +76,12 @@ class RandomSimulation(SimulationPolicy):
         self,
         state: NodeBase
     ) -> Type[NodeBase] | None:
-        valid_moves = self.game.get_valid_actions(state)
-        if len(valid_moves) == 0:
+        valid_actions = self.game.get_valid_actions(state)
+        if len(valid_actions) == 0:
             self.logger.debug(f"========= no valid actions for: {state}")
 
             return None
-        action = random.choice(valid_moves)
+        action = random.choice(valid_actions)
         self.logger.debug(f"========= simulated action: {action}")
 
         return action

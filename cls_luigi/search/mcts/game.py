@@ -5,6 +5,7 @@ from typing import Tuple, List
 import luigi
 import networkx as nx
 
+from cls_luigi.search.core.filter import ActionFilter
 from cls_luigi.search.core.game import OnePlayerGame
 from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from luigi.task import flatten
@@ -13,23 +14,25 @@ from luigi.task import flatten
 class HyperGraphGame(OnePlayerGame):
     def __init__(
         self,
-        g: nx.DiGraph,
+        hypergraph: nx.DiGraph,
         minimization_problem: bool,
         evaluator: LuigiPipelineEvaluator | None = None,
+        filters: List | None = None,
         logger=None,
         *args,
         **kwargs
     ) -> None:
 
         super().__init__(minimization_problem, logger, *args, **kwargs)
-        self.G = g
+        self.hypergraph = hypergraph
         self.evaluator = evaluator
+        self.filters = filters
 
     def get_initial_state(
         self
     ) -> Tuple[str]:
         start_state = [
-            node for node, data in self.G.nodes(data=True)
+            node for node, data in self.hypergraph.nodes(data=True)
             if data.get("start_node") is True
         ]
         assert len(start_state) == 1, "There should be only one start node!"
@@ -41,41 +44,54 @@ class HyperGraphGame(OnePlayerGame):
     ) -> List[str]:
 
         successors = []
-        valid_actions = []
+        possible_actions = []
 
-        for s in state:
-            _successors = list(self.G.successors(s))
-            if _successors:
-                successors.append(_successors)
+        for s in state.name:
+            temp_successors = list(self.hypergraph.successors(s))
+            if temp_successors:
+                successors.append(temp_successors)
 
         if successors:
             if self.is_terminal_term(state):
-                valid_actions.append(tuple(flatten(successors)))
+                possible_actions.append(tuple(flatten(successors)))
 
             else:
                 if len(successors) == 1:
                     for s in successors[0]:
-                        valid_actions.append((s,))
+                        possible_actions.append((s,))
                 else:
-                    valid_actions = list(itertools.product(*successors))
+                    possible_actions = list(itertools.product(*successors))
 
-        self.logger.debug(f"Got valid actions for state {state}:\n{valid_actions}")
-        return valid_actions
+        self.logger.debug(f"Got valid actions for state {state.name}:\n{possible_actions}")
+
+        # if temp_successors and self.validator.is_valid(s, temp_successors):
+
+        # if (not self.is_terminal_term(state)) and (state.parent is not None):
+        #     pass
+        if self.filters:
+            for f in self.filters:
+                possible_actions = f.return_valid_actions(state, possible_actions)
+
+        return possible_actions
 
     def is_terminal_term(
         self,
         state: Tuple[str]
     ) -> bool:
-        if isinstance(state, tuple):
-            state = state[0]
-        return self.G.nodes(data=True)[state].get("terminal_node")
+        """Check if the term is terminal. Terminals here refer to elementary symbols in formal grammar, and doesn't
+        last or final node/state/stage in MCTS (see is_final_state()).
+        """
+        for s in state.name:
+            if not self.hypergraph.nodes(data=True)[s].get("terminal_node"):
+                return False
+        return True
 
     def is_start(
         self,
         state: Tuple[str]
     ) -> bool:
 
-        return self.G.nodes(data=True)[state].get("start_node")
+        return self.hypergraph.nodes(data=True)[state].get("start_node")
 
     def get_reward(
         self,

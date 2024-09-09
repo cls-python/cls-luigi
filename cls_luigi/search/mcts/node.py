@@ -20,7 +20,7 @@ class NodeFactory:
         simulation_policy_cls: Type[SimulationPolicy] = None,
         parent: Type['Node'] = None,
         action_taken: str = None,
-        fully_expanded_params: Dict[str, Any] = None
+        fully_expanded_params: Dict[str, Any] = None,
 
     ):
         return Node(
@@ -33,8 +33,7 @@ class NodeFactory:
             simulation_policy_cls=simulation_policy_cls,
             parent=parent,
             action_taken=action_taken,
-            fully_expanded_params=fully_expanded_params
-
+            fully_expanded_params=fully_expanded_params,
         )
 
 
@@ -65,7 +64,7 @@ class Node(NodeBase):
         self.params = params
         self.parent = parent
         self.action_taken = action_taken
-        self.is_terminal_term = self.game.is_terminal_term(self.name)
+        self.is_terminal_term = self.game.is_terminal_term(self)
 
         self.selection_policy_cls = selection_policy_cls
         self.expansion_policy_cls = expansion_policy_cls
@@ -88,7 +87,7 @@ class Node(NodeBase):
 
     def _set_expandable_actions(self):
         self.logger.debug(f"Setting expandable actions for node: {self.name}")
-        self.expandable_actions = self.game.get_valid_actions(self.name)
+        self.expandable_actions = self.game.get_valid_actions(self)
 
     def __repr__(self):
         return f"Node: {self.name}"
@@ -171,7 +170,6 @@ class Node(NodeBase):
             selection_policy_cls=self.selection_policy_cls,
             node_factory=self.node_factory,
             fully_expanded_params=self.fully_expanded_params
-
         )
         self.children.append(child)
         self.logger.debug(f"Created child action {child.name} for node {self.name}")
@@ -196,8 +194,8 @@ class Node(NodeBase):
         rollout_state,
     ) -> None:
 
-        if not self.game.is_final_state(rollout_state.name):
-            action = self.simulation_policy.get_action(state=rollout_state.name)
+        if not self.game.is_final_state(rollout_state):
+            action = self.simulation_policy.get_action(state=rollout_state)
             action_node = self.node_factory.create_node(
                 params=self.params,
                 name=action,

@@ -22,11 +22,13 @@ from pathlib import Path
 from sklearn.linear_model import LinearRegression
 
 from cls_luigi.search.helpers import set_seed
+from cls_luigi.search.mcts.filters import UniqueActionFilter, ForbiddenActionFilter
 from cls_luigi.search.mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
 from cls_luigi.search.mcts.game import HyperGraphGame
 from cls_luigi.search.mcts.policy import UCT
 from cls_luigi.search.mcts.pure_mcts import PureSinglePlayerMCTS
 from cls_luigi.search.mcts.recursive_mcts import RecursiveSinglePlayerMCTS
+# from cls_luigi.search.mcts.filters import UniquePipelineTaskFilter
 from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
@@ -242,6 +244,7 @@ class Evaluate(Eval):
 
 if __name__ == "__main__":
     import os
+
     set_seed(7864)
 
     os.makedirs(RESULTUS_DIR, exist_ok=True)
@@ -266,8 +269,8 @@ if __name__ == "__main__":
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
     print(len(results))
 
-    validator = UniqueTaskPipelineValidator([Scale])
-    results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
+    # validator = UniqueTaskPipelineValidator([Scale])
+    # results = [t() for t in inhabitation_result.evaluated[0:max_results] if validator.validate(t())]
 
     tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
 
@@ -282,12 +285,15 @@ if __name__ == "__main__":
 
     evaluator = LuigiPipelineEvaluator(pipelines=results, punishment_value=1)
     evaluator._populate_pipeline_map()
-    game = HyperGraphGame(hypergraph, evaluator=evaluator, minimization_problem=True)
+    ua_filter = UniqueActionFilter(hypergraph, set(task.__name__ for task in [Scale, Reg]))
+    fa_filter = ForbiddenActionFilter([{"LR", "MinMax"}])
+    game = HyperGraphGame(hypergraph, True, evaluator, [fa_filter, ua_filter])
+    # game = HyperGraphGame(hypergraph, True, evaluator, None)
 
     # params = {
     #     "num_iterations": 20000,
     #     "exploration_param": 2,
-    #     "num_simulations": 2,
+    #     "num_simulations": 2,is_valid
     # }
     # mcts = PureSinglePlayerMCTS(
     #     game=game,
@@ -295,10 +301,9 @@ if __name__ == "__main__":
     #     selection_policy=UCT,
     # )
 
-
     params = {
-        "num_iterations": 3000,
-        "exploration_param": 5,
+        "num_iterations": 1000,
+        "exploration_param": 200,
         # "num_simulations": 2,
     }
     mcts = RecursiveSinglePlayerMCTS(
@@ -312,6 +317,5 @@ if __name__ == "__main__":
     print("Incumbent")
     print(incumbent)
 
-
     mcts.draw_tree("nx_di_graph.png", plot=True)
-    mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
+    # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")

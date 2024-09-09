@@ -52,13 +52,13 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
             node = self.tree.get_root()
             path.append(node)
 
-            while node.is_fully_expanded() and not self.game.is_final_state(node.name):
+            while node.is_fully_expanded() and not self.game.is_final_state(node):
                 self.logger.debug(f"========= fully expanded: {node.name}")
                 node = node.select()
                 path.append(node)
                 self.logger.debug(f"========= selected new node: {node.name}")
 
-            if not self.game.is_final_state(node.name):
+            if not self.game.is_final_state(node):
                 self.logger.debug(f"========= not terminal: {node.name}")
                 node = node.expand()
                 self.tree.add_node(node)
@@ -71,7 +71,7 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
                 if path not in paths:
                     paths.append(path)
                 reward = self.game.get_reward(path)
-            if self.game.is_final_state(node.name):
+            if self.game.is_final_state(node):
                 self._update_incumbent(path, reward)
             node.backprop(reward)
             # self.draw_tree(plot=True)
@@ -181,13 +181,13 @@ if __name__ == "__main__":
                                node_font_size=11)
 
     params = {
-        "num_iterations": 200,
+        "num_iterations": 5,
         "exploration_param": 0.5,
         "num_simulations": 2,
     }
 
     # evaluator = Evaluator()
-    game = HyperGraphGame(hypergraph)
+    game = HyperGraphGame(hypergraph, minimization_problem=True)
 
     mcts = PureSinglePlayerMCTS(
         game=game,
@@ -199,11 +199,3 @@ if __name__ == "__main__":
     mcts.draw_tree("nx_di_graph.png", plot=True)
     mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
 
-    print("start", tree_grammar["start"])
-    print("non_terminals", tree_grammar["non_terminals"])
-    print("terminals", tree_grammar["terminals"])
-    print("rules")
-    for k, v in tree_grammar["rules"].items():
-        print(k)
-        print(v)
-        print()

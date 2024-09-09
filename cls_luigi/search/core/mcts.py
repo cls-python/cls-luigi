@@ -38,7 +38,7 @@ class SinglePlayerMCTS(abc.ABC):
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
         self.fully_expanded_params = fully_expanded_params
-        self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.G)
+        self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.hypergraph)
         if logger:
             self.logger = logger
         else:
@@ -68,7 +68,9 @@ class SinglePlayerMCTS(abc.ABC):
     def get_incumbent(
         self
     ) -> List[NodeBase]:
-        return self.current_incumbent_and_score[0]
+        if self.current_incumbent_and_score is not None:
+            return self.current_incumbent_and_score[0]
+        return []
 
     def _update_incumbent(
         self,
@@ -80,13 +82,15 @@ class SinglePlayerMCTS(abc.ABC):
             self.current_incumbent_and_score = (path, reward)
         else:
             if reward > self.current_incumbent_and_score[1]:
+                self.logger.debug(f"Updating incumbent {path} with higher reward: {reward}")
                 self.current_incumbent_and_score = (path, reward)
 
             elif reward == self.current_incumbent_and_score[1]:
                 if len(path) < len(self.current_incumbent_and_score[0]):
+                    self.logger.debug(f"Updating incumbent {path} with same reward: {reward} but shorter path")
                     self.current_incumbent_and_score = (path, reward)
             else:
-                self.logger.warning(f"Can't update incumbent {path} with reward: {reward}. Something is wrong!")
+                self.logger.debug(f"Current incumbent {self.current_incumbent_and_score[0]} with reward: {self.current_incumbent_and_score[1]} remains unchanged")
 
     def draw_tree(self, out_path: str | None = None, plot: bool = False, *args) -> None:
         best_path = self.get_incumbent()
