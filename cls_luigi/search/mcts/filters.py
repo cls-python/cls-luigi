@@ -6,13 +6,17 @@ if TYPE_CHECKING:
 
 
 import logging
-
 import networkx as nx
-
 from cls_luigi.search.core.filter import ActionFilter
 
 
 class UniqueActionFilter(ActionFilter):
+    """
+    Filter out actions that result in paths that include two different concreate implementations of the same abstract
+    class. For example, for an abstract class Scaler is specialized by two concrete classes MinMaxScaler
+    and RobustScaler, the filter will remove actions that result in paths that include both MinMaxScaler
+    and RobustScaler.
+    """
     def __init__(
         self,
         hypergraph: nx.DiGraph,
@@ -24,9 +28,9 @@ class UniqueActionFilter(ActionFilter):
         self.hypergraph = hypergraph
         self.abs_classes = abs_classes
         self.abs_classes_mapping = {}
-        self._map_abs_classes()
+        self._map_abstract_classes()
 
-    def _map_abs_classes(
+    def _map_abstract_classes(
         self
     ) -> None:
         for abs_class in self.abs_classes:
@@ -62,6 +66,10 @@ class UniqueActionFilter(ActionFilter):
 
 
 class ForbiddenActionFilter(ActionFilter):
+    """
+    Filter out actions that result in paths that include a forbidden action. forbidden actions are sets of concrete
+    implementations that should not be included in the same path.
+    """
     def __init__(
         self,
         forbidden_actions: List[Set[str]],

@@ -13,8 +13,7 @@ import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LinearRegression
 
-RESULTUS_DIR = "results"
-
+RESULTS_PATH = "results"
 
 class Dataset(luigi.Task, LuigiCombinator):
     abstract = True
@@ -24,7 +23,7 @@ class Diabetes(Dataset):
     abstract = False
 
     def output(self):
-        return {"diabetes_data": luigi.LocalTarget(RESULTUS_DIR + "/" + "diabetes.pkl")}
+        return {"diabetes_data": luigi.LocalTarget(RESULTS_PATH + "/" + "diabetes.pkl")}
 
     def run(self):
         diabetes = load_diabetes()
@@ -44,10 +43,10 @@ class TT(Split):
 
     def output(self):
         return {
-            "x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_train.pkl"),
-            "x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "x_test.pkl"),
-            "y_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_train.pkl"),
-            "y_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_test.pkl"),
+            "x_train": luigi.LocalTarget(RESULTS_PATH + "/" + "x_train.pkl"),
+            "x_test": luigi.LocalTarget(RESULTS_PATH + "/" + "x_test.pkl"),
+            "y_train": luigi.LocalTarget(RESULTS_PATH + "/" + "y_train.pkl"),
+            "y_test": luigi.LocalTarget(RESULTS_PATH + "/" + "y_test.pkl"),
         }
 
     def requires(self):
@@ -78,9 +77,9 @@ class MinMax(Scale):
 
     def output(self):
         return {
-            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_train.pkl"),
-            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaled_x_test.pkl"),
-            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "minmax_scaler.pkl")
+            "scaled_x_train": luigi.LocalTarget(RESULTS_PATH + "/" + "minmax_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTS_PATH + "/" + "minmax_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTS_PATH + "/" + "minmax_scaler.pkl")
         }
 
     def run(self):
@@ -108,9 +107,9 @@ class Robust(Scale):
 
     def output(self):
         return {
-            "scaled_x_train": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_train.pkl"),
-            "scaled_x_test": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaled_x_test.pkl"),
-            "scaler": luigi.LocalTarget(RESULTUS_DIR + "/" + "robust_scaler.pkl")
+            "scaled_x_train": luigi.LocalTarget(RESULTS_PATH + "/" + "robust_scaled_x_train.pkl"),
+            "scaled_x_test": luigi.LocalTarget(RESULTS_PATH + "/" + "robust_scaled_x_test.pkl"),
+            "scaler": luigi.LocalTarget(RESULTS_PATH + "/" + "robust_scaler.pkl")
         }
 
     def run(self):
@@ -151,7 +150,7 @@ class LR(Reg):
 
     def output(self):
         return {
-            "model": luigi.LocalTarget(RESULTUS_DIR + "/" + "linear_reg" + "-" + self._get_variant_label() + ".pkl")}
+            "model": luigi.LocalTarget(RESULTS_PATH + "/" + "linear_reg" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
         scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
@@ -169,7 +168,7 @@ class RF(Reg):
 
     def output(self):
         return {
-            "model": luigi.LocalTarget(RESULTUS_DIR + "/" + "lasso_lars" + "-" + self._get_variant_label() + ".pkl")}
+            "model": luigi.LocalTarget(RESULTS_PATH + "/" + "lasso_lars" + "-" + self._get_variant_label() + ".pkl")}
 
     def run(self):
         scaled_x_train = pd.read_pickle(self.input()["scaled_feats"]["scaled_x_train"].path)
@@ -204,8 +203,8 @@ class Evaluate(Eval):
 
     def output(self):
         return {
-            "y_pred": luigi.LocalTarget(RESULTUS_DIR + "/" + "y_pred" + "-" + self._get_variant_label() + ".pkl"),
-            "score": luigi.LocalTarget(RESULTUS_DIR + "/" + "score" + "-" + self._get_variant_label() + ".pkl")
+            "y_pred": luigi.LocalTarget(RESULTS_PATH + "/" + "y_pred" + "-" + self._get_variant_label() + ".pkl"),
+            "score": luigi.LocalTarget(RESULTS_PATH + "/" + "score" + "-" + self._get_variant_label() + ".pkl")
         }
 
     def run(self):
@@ -242,7 +241,7 @@ if __name__ == "__main__":
 
     set_seed(7864)
 
-    os.makedirs(RESULTUS_DIR, exist_ok=True)
+    os.makedirs(RESULTS_PATH, exist_ok=True)
 
     logging.basicConfig(level=logging.DEBUG)
     target_class = Eval
