@@ -4,7 +4,7 @@ import random
 
 def set_seed(
     seed: Optional[int],
-    radom_seed_interval: Tuple[int, int]
+    random_seed_interval: Tuple[int, int] = (0, 1000000)
 ) -> Optional[int]:
     """
     Sets seed for reproducibility. If no seed in provided, it selects a random seed between the interval provided
@@ -14,7 +14,7 @@ def set_seed(
     ----------
     seed: Optional[int]
         The seed to be set. If None, it will select a random seed.
-    radom_seed_interval: Tuple[int, int]
+    random_seed_interval: Tuple[int, int]
         The interval from which the seed will be selected if seed is None.
 
     Returns
@@ -26,7 +26,7 @@ def set_seed(
 
     if seed is None:
         return_seed = True
-        seed = random.randint(*sorted(radom_seed_interval, reverse=False))
+        seed = random.randint(*sorted(random_seed_interval, reverse=False))
 
     random.seed(seed)
 
