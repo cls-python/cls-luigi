@@ -1,3 +1,2 @@
 from .encoding import ApplicativeTreeGrammarEncoder
-from .meta_pipeline import MetaPipelineEnumerator
-from .topological_sorting import sort_topologically
+from .hypergraph import get_hypergraph_dict_from_tree_grammar, build_hypergraph, plot_hypergraph_components
