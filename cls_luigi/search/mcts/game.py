@@ -132,6 +132,9 @@ class HyperGraphGame(OnePlayerGame):
     ) -> luigi.Task:
         return self.evaluator._get_luigi_pipeline(path)
 
+    def reset(self):
+        self.game.reset()
+
 
 if __name__ == "__main__":
     tree_grammar = {

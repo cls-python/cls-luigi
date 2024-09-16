@@ -84,3 +84,9 @@ class LuigiPipelineEvaluator(Evaluator):
             self.not_found_paths.append(path)
         self.logger.debug("Pipeline doesn't exists!")
         return self.punishment_value
+
+    def reset(self):
+        self.evaluated = []
+        self.failed = {}
+        self.not_found_paths = []
+        self._temp_pipeline_key = None

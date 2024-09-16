@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import time
 from typing import TYPE_CHECKING, Optional
 from typing import Dict, Type, Any, List
 
@@ -9,8 +11,6 @@ if TYPE_CHECKING:
     from cls_luigi.search.mcts.game import OnePlayerGame
 
 import logging
-
-
 
 from cls_luigi.search.core.mcts import SinglePlayerMCTS
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
@@ -43,14 +43,18 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             fully_expanded_params=fully_expanded_params,
             logger=logger)
 
+        self.iter_counter = 0
+
     def run(
         self
     ) -> List[Node]:
-        self.logger.debug("Running SP-MCTS for {} iterations".format(self.parameters["num_iterations"]))
+        self.logger.debug("Running SP-MCTS for {} seconds".format(self.parameters["max_seconds"]))
 
-        for iter_ix in range(self.parameters["num_iterations"]):
+        start_time = time.time()
+        while time.time() - start_time < self.parameters["max_seconds"]:
+
             path = []
-            logging.debug("Iteration: {}".format(iter_ix))
+            logging.debug("Iteration: {}".format(self.iter_counter))
             node = self.tree.get_root()
             path.append(node)
 
@@ -73,6 +77,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                 reward = self.game.get_reward(path)
                 self._update_incumbent(path, reward)
                 node.backprop(reward)
+                self.iter_counter += 1
                 self.logger.debug(f"==================================\n==================================\n\n\n")
 
                 # self.draw_tree(f"/home/hadi/Documents/cls-luigi/examples/ml_blood_sugar_level/mcts_imgs/nx_di_graph_iter{iter_ix}.png", plot=False)
@@ -184,6 +189,7 @@ if __name__ == "__main__":
     params = {
         "num_iterations": 50,
         "exploration_param": 0.5,
+        "max_seconds": 10,
         # "num_simulations": 2,
     }
 
