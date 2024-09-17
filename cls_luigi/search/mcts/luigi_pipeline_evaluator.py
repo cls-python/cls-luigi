@@ -31,7 +31,7 @@ class LuigiPipelineEvaluator(Evaluator):
         self._populate_pipeline_map()
         self._temp_pipeline_key = None
         self.not_found_paths = []
-        if self.pipeline_timeout:
+        if self.component_timeout:
             self._set_luigi_worker_configs()
 
     def _populate_pipeline_map(self) -> None:
