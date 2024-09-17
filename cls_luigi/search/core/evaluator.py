@@ -13,11 +13,11 @@ class Evaluator:
             self,
             metric: Literal[MLMAXIMIZATIONMETRICS.metrics, MLMINIMIZATIONMETRICS.metrics],
             punishment_value: int | float,
-            pipeline_timeout: Optional[int] = None,
+            component_timeout: Optional[int] = None,
             logger: Optional[logging.Logger] = None
     ) -> None:
         self.metric = metric
-        self.pipeline_timeout = pipeline_timeout
+        self.component_timeout = component_timeout
         self.punishment_value = punishment_value
         self.evaluated = []
         self.failed = {}

@@ -21,10 +21,10 @@ class LuigiPipelineEvaluator(Evaluator):
             pipelines: List[LuigiTask],
             metric: Literal[MLMAXIMIZATIONMETRICS.metrics, MLMINIMIZATIONMETRICS.metrics],
             punishment_value: int | float,
-            pipeline_timeout: Optional[int] = None,
+            component_timeout: Optional[int] = None,
             logger: Optional[logging.Logger] = None
     ) -> None:
-        super().__init__(metric, punishment_value, pipeline_timeout, logger)
+        super().__init__(metric, punishment_value, component_timeout, logger)
 
         self.pipelines = pipelines
         self._pipeline_map = {}
