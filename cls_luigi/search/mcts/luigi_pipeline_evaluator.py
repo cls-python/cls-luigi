@@ -31,6 +31,8 @@ class LuigiPipelineEvaluator(Evaluator):
         self._populate_pipeline_map()
         self._temp_pipeline_key = None
         self.not_found_paths = []
+        if self.pipeline_timeout:
+            self._set_luigi_worker_configs()
 
     def _populate_pipeline_map(self) -> None:
         for luigi_pipeline in self.pipelines:
@@ -90,7 +92,7 @@ class LuigiPipelineEvaluator(Evaluator):
         self.logger.debug("Pipeline doesn't exists!")
         return self.punishment_value
 
-    def set_luigi_worker_configs(self):
+    def _set_luigi_worker_configs(self):
         if self.pipeline_timeout:
             luigi.configuration.get_config().remove_section("worker")
             luigi.configuration.get_config().set('worker', 'timeout', str(self.pipeline_timeout))
