@@ -1,6 +1,7 @@
 import abc
 import logging
-from typing import Optional
+from typing import Optional, Literal
+from cls_luigi.tools.constants import MINIMIZE, MAXIMIZE
 
 
 class OnePlayerGame(abc.ABC):
@@ -8,12 +9,12 @@ class OnePlayerGame(abc.ABC):
 
     def __init__(
         self,
-        minimization_problem: bool,
+        sense: Literal[MINIMIZE, MAXIMIZE] = MINIMIZE,
         logger: Optional[logging.Logger] = None,
         *args,
         **kwargs
     ) -> None:
-        self.minimization_problem = minimization_problem
+        self.sense = sense
         if logger is None:
             self.logger = logging.getLogger(__name__)
         else:

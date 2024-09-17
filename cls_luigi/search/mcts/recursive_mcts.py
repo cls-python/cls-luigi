@@ -94,6 +94,8 @@ if __name__ == "__main__":
         build_hypergraph
     from cls_luigi.search.mcts.game import HyperGraphGame
 
+    from cls_luigi.tools.constants import MINIMIZE, MAXIMIZE
+
     logging.basicConfig(level=logging.DEBUG)
     set_seed(250)
     tree_grammar = {
@@ -193,7 +195,7 @@ if __name__ == "__main__":
         # "num_simulations": 2,
     }
 
-    game = HyperGraphGame(hypergraph, minimization_problem=True)
+    game = HyperGraphGame(hypergraph, sense=MAXIMIZE)
 
     # progressive_widening_params = {
     #     "threshold": 2,

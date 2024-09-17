@@ -1,6 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from cls_luigi.search.core.filter import ActionFilter
@@ -13,15 +12,20 @@ import random
 import luigi
 import networkx as nx
 
+
+from cls_luigi.tools.constants import MAXIMIZE, MINIMIZE
+
+
 from cls_luigi.search.core.game import OnePlayerGame
 from luigi.task import flatten
+
 
 
 class HyperGraphGame(OnePlayerGame):
     def __init__(
         self,
         hypergraph: nx.DiGraph,
-        minimization_problem: bool,
+        sense: Literal[MAXIMIZE, MINIMIZE] = MAXIMIZE,
         evaluator: LuigiPipelineEvaluator = None,
         filters: Optional[ActionFilter] = None,
         logger: Optional[logging.Logger] = None,
@@ -29,7 +33,7 @@ class HyperGraphGame(OnePlayerGame):
         **kwargs
     ) -> None:
 
-        super().__init__(minimization_problem, logger, *args, **kwargs)
+        super().__init__(sense, logger, *args, **kwargs)
         self.hypergraph = hypergraph
         self.evaluator = evaluator
         self.filters = filters
@@ -106,15 +110,15 @@ class HyperGraphGame(OnePlayerGame):
         if self.evaluator:
             reward = self.evaluator.evaluate(path)
             if reward == float("inf"):
-                if self.minimization_problem:
+                if self.sense == MINIMIZE:
                     return reward
-                elif not self.minimization_problem:
-                    return -reward
+                elif self.sense == MAXIMIZE:
+                        return -reward
 
             else:
-                if self.minimization_problem:
+                if self.sense == MINIMIZE:
                     return -reward
-                elif not self.minimization_problem:
+                elif self.sense == MAXIMIZE:
                     return reward
 
         self.logger.warning(f"No Evaluator found! Returning random reward for now!\n This should be only temporary!")
