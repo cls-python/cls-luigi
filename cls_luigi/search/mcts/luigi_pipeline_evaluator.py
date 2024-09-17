@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from cls_luigi.tools.constants import MLMAXIMIZATIONMETRICS, MLMINIMIZATIONMETRICS
 
 import logging
-import pickle
+import luigi
 from luigi.task import flatten
 from luigi import build
 
@@ -21,9 +21,10 @@ class LuigiPipelineEvaluator(Evaluator):
             pipelines: List[LuigiTask],
             metric: Literal[MLMAXIMIZATIONMETRICS.metrics, MLMINIMIZATIONMETRICS.metrics],
             punishment_value: int | float,
+            pipeline_timeout: Optional[int] = None,
             logger: Optional[logging.Logger] = None
     ) -> None:
-        super().__init__(metric, punishment_value, logger)
+        super().__init__(metric, punishment_value, pipeline_timeout, logger)
 
         self.pipelines = pipelines
         self._pipeline_map = {}
@@ -89,8 +90,14 @@ class LuigiPipelineEvaluator(Evaluator):
         self.logger.debug("Pipeline doesn't exists!")
         return self.punishment_value
 
+    def set_luigi_worker_configs(self):
+        if self.pipeline_timeout:
+            luigi.configuration.get_config().remove_section("worker")
+            luigi.configuration.get_config().set('worker', 'timeout', str(self.pipeline_timeout))
+
     def reset(self):
         self.evaluated = []
         self.failed = {}
         self.not_found_paths = []
         self._temp_pipeline_key = None
+        self.pipeline_timeout = None
