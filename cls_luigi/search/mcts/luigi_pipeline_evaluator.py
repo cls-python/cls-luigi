@@ -93,13 +93,13 @@ class LuigiPipelineEvaluator(Evaluator):
         return self.punishment_value
 
     def _set_luigi_worker_configs(self):
-        if self.pipeline_timeout:
+        if self.component_timeout:
             luigi.configuration.get_config().remove_section("worker")
-            luigi.configuration.get_config().set('worker', 'timeout', str(self.pipeline_timeout))
+            luigi.configuration.get_config().set('worker', 'timeout', str(self.component_timeout))
 
     def reset(self):
         self.evaluated = []
         self.failed = {}
         self.not_found_paths = []
         self._temp_pipeline_key = None
-        self.pipeline_timeout = None
+        self.component_timeout = None
