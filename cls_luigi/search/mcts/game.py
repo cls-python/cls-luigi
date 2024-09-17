@@ -137,7 +137,7 @@ class HyperGraphGame(OnePlayerGame):
         return self.evaluator._get_luigi_pipeline(path)
 
     def reset(self):
-        self.game.reset()
+        self.evaluator.reset()
 
 
 if __name__ == "__main__":
