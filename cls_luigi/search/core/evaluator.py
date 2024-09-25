@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional, TYPE_CHECKING, Literal
+from typing import List, Optional, TYPE_CHECKING, Literal, Union
 
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
@@ -11,16 +11,21 @@ import logging
 class Evaluator:
     def __init__(
             self,
-            metric: Literal[MLMAXIMIZATIONMETRICS.metrics, MLMINIMIZATIONMETRICS.metrics],
+            metric: Literal[MLMAXIMIZATIONMETRICS, MLMINIMIZATIONMETRICS],
             punishment_value: int | float,
-            component_timeout: Optional[int] = None,
+            pipeline_timeout: Optional[int] = None,
+            task_timeout: Optional[Union[int, float]] = None,
             logger: Optional[logging.Logger] = None
     ) -> None:
         self.metric = metric
-        self.component_timeout = component_timeout
+        self.component_timeout = task_timeout
+        self.pipeline_timeout = pipeline_timeout if pipeline_timeout is not None else float("inf")
         self.punishment_value = punishment_value
-        self.evaluated = []
+        self.evaluated = {}
         self.failed = {}
+        self.timed_out = {}
+        self.missing_score = {}
+        self.not_found = []
 
         if logger:
             self.logger = logger
@@ -31,4 +36,4 @@ class Evaluator:
             self,
             path: List[Node]
     ) -> float | int:
-        raise NotImplementedError("Method evaluate not implemented")
+        raise NotImplementedError(f"Method {self.__class__.__name__}.evaluate() not implemented")

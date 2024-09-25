@@ -2,16 +2,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List
 from typing import Tuple, Literal
 
+from cls_luigi.tools.io_functions import dump_pickle
+
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
 
 import logging
-import pickle
 import networkx as nx
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from cls_luigi.search.core.tree import TreeBase
+from os.path import join as pjoin
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
@@ -103,10 +105,10 @@ class MCTSTreeWithGrammar(TreeBase):
             edge_labels[(source, target)] = f"Q={q}\nV={self.get_node(target).visits}"
         return edge_labels
 
-    def draw_tree(
+    def render(
         self,
-        best_path: Optional[List[Node]] = None,
-        out_name: Optional[str] = None,
+        best_mcts_path: Optional[List[Node]] = None,
+        out_path: Optional[str] = None,
         start_node_id: int = 0,
         node_font_size: int = 10,
         node_size: int = 800,
@@ -125,7 +127,7 @@ class MCTSTreeWithGrammar(TreeBase):
         min_target_margin: int = 25,
         legend_loc: str = 'best',
         out_dpi: int = 300,
-        plot: bool = False,
+        show: bool = False,
         plot_title: str = "MCTS Tree",
         non_terminal_node_shape: str = 's',
         terminal_node_shape: str = 'o',
@@ -145,7 +147,7 @@ class MCTSTreeWithGrammar(TreeBase):
 
         pos = nx.bfs_layout(self.G, start=start_node_id)
 
-        incumbent_node_ids = [node.node_id for node in best_path]
+        incumbent_node_ids = [node.node_id for node in best_mcts_path]
 
         terminal_nodes = []
         terminal_node_sizes = []
@@ -245,23 +247,16 @@ class MCTSTreeWithGrammar(TreeBase):
         axs.legend(handles=legend_elements, loc=legend_loc)
 
         plt.tight_layout()
-        if out_name:
-            plt.savefig(out_name, dpi=out_dpi)
+        if out_path:
+            plt.savefig(out_path, dpi=out_dpi)
 
-        if plot:
+        if show:
             plt.show()
 
         plt.close()
 
     def save(
         self,
-        path: str
-    ):
-        if not path.endswith(".pkl"):
-            self.logger.debug("Appending .pkl to the path")
-            path = path + ".pkl"
-
-        # Save the graph to a JSON file
-        with open(path, 'wb') as f:
-            pickle.dump(self.G, f)
-        self.logger.debug(f"Saved MCTS tree (Networkx Graph) as pickle file to {path}")
+        out_path: str,
+    ) -> None:
+        dump_pickle(self.G, out_path)

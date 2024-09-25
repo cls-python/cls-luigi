@@ -23,7 +23,7 @@ class TreeBase(abc.ABC):
 
         self.root = root
 
-    def draw_tree(self, *args, **kwargs):
+    def render(self, *args, **kwargs):
         ...
 
     def save(self, *args, **kwargs):

@@ -29,7 +29,7 @@ class OnePlayerGame(abc.ABC):
     def is_terminal_term(self, state):
         ...
 
-    def get_reward(self, path):
+    def evaluate(self, path):
         ...
 
     def is_final_state(self, state):

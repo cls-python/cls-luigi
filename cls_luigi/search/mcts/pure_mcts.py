@@ -72,7 +72,7 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
                 self.logger.debug(f"========= terminal:{node.name}")
                 if path not in paths:
                     paths.append(path)
-                reward = self.game.get_reward(path)
+                reward = self.game.evaluate(path)
             if self.game.is_final_state(node):
                 self._update_incumbent(path, reward)
             node.backprop(reward)
@@ -83,7 +83,7 @@ class PureSinglePlayerMCTS(SinglePlayerMCTS):
 
 if __name__ == "__main__":
     from cls_luigi.search.helpers import set_seed
-    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
+    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, render_hypergraph_components, \
         build_hypergraph
     from cls_luigi.search.mcts.game import HyperGraphGame
 
@@ -186,8 +186,8 @@ if __name__ == "__main__":
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    plot_hypergraph_components(hypergraph, "hypergraph.png", node_size=5000,
-                               node_font_size=11)
+    render_hypergraph_components(hypergraph, "hypergraph.png", node_size=5000,
+                                 node_font_size=11)
 
     params = {
         "num_iterations": 5,

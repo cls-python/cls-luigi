@@ -188,7 +188,7 @@ class Node(NodeBase):
             self.sim_path = path.copy()
             self.logger.debug(f"Simulation {ix_sim}")
             self._simulate(rollout_state=self)
-            sum_rewards += self.game.get_reward(self.sim_path)
+            sum_rewards += self.game.evaluate(self.sim_path)
             self.logger.debug(f"Simulated path: {self.sim_path}")
             self.sim_path = None
 

@@ -103,23 +103,26 @@ class HyperGraphGame(OnePlayerGame):
 
         return self.hypergraph.nodes(data=True)[state].get("start_node")
 
-    def get_reward(
+    def evaluate(
         self,
         path: List[Tuple[str]]
     ) -> float:
         if self.evaluator:
-            reward = self.evaluator.evaluate(path)
+            task_id, status, reward = self.evaluator.evaluate(path)
+
             if reward == float("inf"):
-                if self.sense == MINIMIZE:
-                    return reward
-                elif self.sense == MAXIMIZE:
-                        return -reward
+                # if self.sense == MINIMIZE:
+                #     return reward
+                if self.sense == MAXIMIZE:
+                        reward = -reward
 
             else:
                 if self.sense == MINIMIZE:
-                    return -reward
-                elif self.sense == MAXIMIZE:
-                    return reward
+                    reward = -reward
+                # elif self.sense == MAXIMIZE:
+                #     return reward
+
+            return task_id, status, reward
 
         self.logger.warning(f"No Evaluator found! Returning random reward for now!\n This should be only temporary!")
         return random.random()
@@ -134,7 +137,7 @@ class HyperGraphGame(OnePlayerGame):
         self,
         path: List[Tuple[str]]
     ) -> luigi.Task:
-        return self.evaluator._get_luigi_pipeline(path)
+        return self.evaluator._get_luigi_task(path)
 
     def reset(self):
         self.evaluator.reset()

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Dict
 from typing import Dict, Type, Any, List
+
+import pandas as pd
+
+from cls_luigi.tools.io_functions import dump_json
 
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
@@ -16,6 +20,7 @@ from cls_luigi.search.core.mcts import SinglePlayerMCTS
 from cls_luigi.search.mcts.tree import MCTSTreeWithGrammar
 from cls_luigi.search.mcts.node import NodeFactory
 from cls_luigi.search.mcts.policy import UCT, RandomExpansion, RandomSimulation
+from os.path import join as pjoin
 
 
 class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
@@ -43,11 +48,9 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             fully_expanded_params=fully_expanded_params,
             logger=logger)
 
-        self.iter_counter = 0
-
     def run(
         self
-    ) -> List[Node]:
+    ) -> dict[str, Any]:
         self.logger.debug("Running SP-MCTS for {} seconds".format(self.parameters["max_seconds"]))
 
         start_time = time.time()
@@ -74,8 +77,9 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                     self.tree.add_node(node)
                     path.append(node)
 
-                reward = self.game.get_reward(path)
-                self._update_incumbent(path, reward)
+                task_id, status, reward = self.game.evaluate(path)
+                self._update_incumbent(path, task_id, reward)
+                self._update_run_history(task_id, path, status, reward)
                 node.backprop(reward)
                 self.iter_counter += 1
                 self.logger.debug(f"==================================\n==================================\n\n\n")
@@ -85,12 +89,37 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
         # print("N evaluated pipelines (unique):", len(self.game.evaluator.evaluated))
         # print("N failed (unique):", len(self.game.evaluator.failed))
         # print("N not found paths (unique):", len(self.game.evaluator.not_found_paths))
-        return self.get_incumbent()
+        return {
+            "mcts_path": self.incumbent[0],
+            "luigi_task_id": self.incumbent[1],
+            "score": self.incumbent[2]
+        }
+
+    def save_results(self, out_path: str) -> None:
+        self.tree.save(pjoin(out_path, "monte_carlo_tree_nx.pkl"))
+        self.tree.render(out_path=pjoin(out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0], show=False)
+        self.run_history.to_csv(pjoin(out_path, "run_history.csv"), index=False)
+        incumbent, task_id, score = self.incumbent
+        if incumbent and score:
+            inc_info = {
+                "mcts_path": [node.name for node in incumbent],
+                "luigi_pipeline_id": task_id,
+                "score": score
+            }
+            dump_json(pjoin(out_path, "incumbent.json"), inc_info)
+
+    def _update_run_history(self, task_id, path, status, reward):
+        col_names = list(self.run_history.columns)
+        raw_row = [self.iter_counter, task_id, path, status, reward]
+        new_row = pd.DataFrame({
+            col: [raw_row[ix]] for ix, col in enumerate(col_names)
+        })
+        self.run_history = pd.concat([self.run_history, new_row], ignore_index=True)
 
 
 if __name__ == "__main__":
     from cls_luigi.search.helpers import set_seed
-    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
+    from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, render_hypergraph_components, \
         build_hypergraph
     from cls_luigi.search.mcts.game import HyperGraphGame
 
@@ -185,8 +214,8 @@ if __name__ == "__main__":
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    plot_hypergraph_components(hypergraph, "hypergraph.png", node_size=5000,
-                               node_font_size=11)
+    render_hypergraph_components(hypergraph, "hypergraph.png", node_size=5000,
+                                 node_font_size=11)
 
     params = {
         "num_iterations": 50,

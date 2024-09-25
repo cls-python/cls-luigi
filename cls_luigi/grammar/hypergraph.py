@@ -41,9 +41,9 @@ def build_hypergraph(
     return g
 
 
-def plot_hypergraph_components(
+def render_hypergraph_components(
     g: nx.DiGraph,
-    out_name: str,
+    out_path: str,
     node_font_size: int = 5,
     node_size: int = 5000,
     figsize: Tuple[int, int] = (13, 8),
@@ -68,6 +68,7 @@ def plot_hypergraph_components(
     title_fontsize: int = 15,
     title_font_weight: str = 'bold',
     title_loc: Literal["center", "left", "right"] = 'center',
+    show: bool = False
 
 ) -> None:
     fig, axs = plt.subplots(1, 1, figsize=figsize)
@@ -118,5 +119,7 @@ def plot_hypergraph_components(
     axs.legend(handles=legend_elements, loc=legend_loc)
 
     plt.tight_layout()
-    plt.savefig(out_name, dpi=out_dpi)
-    plt.show()
+    if out_path:
+        plt.savefig(out_path, dpi=out_dpi)
+    if show:
+        plt.show()

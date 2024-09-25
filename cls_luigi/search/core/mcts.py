@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from typing import Dict, List, Type, Any
 
+import pandas as pd
+
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
     from cls_luigi.search.core.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
@@ -17,7 +19,6 @@ from cls_luigi.search.mcts.policy import UCT, RandomExpansion
 import abc
 import logging
 import pickle
-
 
 
 class SinglePlayerMCTS(abc.ABC):
@@ -51,7 +52,29 @@ class SinglePlayerMCTS(abc.ABC):
         else:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.current_incumbent_and_score = None
+        self.incumbent = (None, None, None)
+        self.run_history = pd.DataFrame(columns=["iteration", "luigi_id", "mcts_path", "status", "score"])
+        # self.mcts_scenario = {
+        #     "type": self.__class__.__name__,
+        #     "parameters": self.parameters,
+        #     "policies": {
+        #         "selection": self.selection_policy.__name__,
+        #         "expansion": self.expansion_policy.__name__,
+        #         "simulation": self.simulation_policy.__name__
+        #     },
+        #     "component_timeout": 123,
+        #     "pipeline_timeout": "accuracy",
+        #     "punishment_value": 0.0,
+        #
+        #     # "pipeline_metric": None
+        #     # "filters:": [],
+        #     # "sense": "maximize"
+        # }
+
+        self.iter_counter = 0
+
+
+        self.logger.debug(f"Initialized {self.__class__.__name__} with parameters: {self.parameters}")
 
     def get_root_node(
         self
@@ -72,41 +95,41 @@ class SinglePlayerMCTS(abc.ABC):
     ) -> List[Node]:
         ...
 
-    def get_incumbent(
-        self
-    ) -> List[Node]:
-        if self.current_incumbent_and_score is not None:
-            return self.current_incumbent_and_score[0]
-        return []
+
 
     def _update_incumbent(
         self,
         path: List[Node],
+        task_id: str,
         reward
     ) -> None:
-        if (self.current_incumbent_and_score is None) and (reward != float("inf") or reward != float("-inf")):
-            self.logger.debug(f"Setting incumbent for the first time")
-            self.current_incumbent_and_score = (path, reward)
-        else:
-            if reward > self.current_incumbent_and_score[1]:
-                self.logger.debug(f"Updating incumbent {path} with higher reward: {reward}")
-                self.current_incumbent_and_score = (path, reward)
+        curr_path, curr_task_id, curr_reward = self.incumbent
 
-            elif reward == self.current_incumbent_and_score[1]:
-                if len(path) < len(self.current_incumbent_and_score[0]):
+        if (curr_path is None) and (reward != float("inf") or reward != float("-inf")):
+            self.logger.debug(f"Setting incumbent for the first time")
+            self.incumbent = (path, task_id, reward)
+        else:
+            if reward > curr_reward:
+                self.logger.debug(f"Updating incumbent {path} with higher reward: {reward}")
+                self.incumbent = (path, task_id, reward)
+
+            elif reward == curr_reward:
+                if len(path) < len(curr_path):
                     self.logger.debug(f"Updating incumbent {path} with same reward: {reward} but shorter path")
-                    self.current_incumbent_and_score = (path, reward)
+                    self.incumbent = (path, task_id, reward)
             else:
                 self.logger.debug(
-                    f"Current incumbent {self.current_incumbent_and_score[0]} with reward: {self.current_incumbent_and_score[1]} remains unchanged")
+                    f"Current incumbent {curr_path} with reward: {curr_reward} remains unchanged")
 
     def draw_tree(
         self,
         out_path: Optional[str] = None,
         plot: bool = False,
-        *args) -> None:
-        best_path = self.get_incumbent()
-        self.tree.draw_tree(out_name=out_path, plot=plot, node_size=1500, best_path=best_path, *args)
+        *args
+    ) -> None:
+
+        best_path = self.incumbent[0]
+        self.tree.render(out_name=out_path, plot=plot, node_size=1500, best_path=best_path, *args)
 
     def shut_down(
         self,
