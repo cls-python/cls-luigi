@@ -25,7 +25,7 @@ class NodeFactory:
         simulation_policy_cls: Optional[Type[SimulationPolicy]] = None,
         parent: Optional[Node] = None,
         action_taken: Optional[str] = None,
-        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        prog_widening_params: Optional[Dict[str, Any]] = None,
 
     ):
         return Node(
@@ -38,7 +38,7 @@ class NodeFactory:
             simulation_policy_cls=simulation_policy_cls,
             parent=parent,
             action_taken=action_taken,
-            fully_expanded_params=fully_expanded_params,
+            prog_widening_params=prog_widening_params,
         )
 
 
@@ -58,7 +58,7 @@ class Node(NodeBase):
         parent: Optional[Node] = None,
         action_taken: Optional[str] = None,
         logger: Optional[logging.Logger] = None,
-        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        prog_widening_params: Optional[Dict[str, Any]] = None,
         **kwargs
     ) -> None:
 
@@ -88,7 +88,7 @@ class Node(NodeBase):
         self.expandable_actions = None
         self._set_expandable_actions()
         self.node_factory = node_factory
-        self.fully_expanded_params = fully_expanded_params
+        self.prog_widening_params = prog_widening_params
 
     def _set_expandable_actions(self) -> None:
         self.logger.debug(f"Setting expandable actions for node: {self.name}")
@@ -100,7 +100,7 @@ class Node(NodeBase):
     def is_fully_expanded(
         self,
     ) -> bool:
-        if not self.fully_expanded_params:
+        if not self.prog_widening_params:
             return self._is_fully_expanded_default()
         else:
             self.logger.debug(f"progressive widening is activated")
@@ -129,9 +129,9 @@ class Node(NodeBase):
         if not self.expandable_actions:
             return True
 
-        threshold_value = self.fully_expanded_params["threshold"] * (
-            self.visits ** self.fully_expanded_params["progressiv_widening_coeff"])
-        if len(self.children) < min(threshold_value, self.fully_expanded_params["max_children"]):
+        threshold_value = self.prog_widening_params["threshold"] * (
+            self.visits ** self.prog_widening_params["progressiv_widening_coeff"])
+        if len(self.children) < min(threshold_value, self.prog_widening_params["max_children"]):
             return False
         return True
 
@@ -174,7 +174,7 @@ class Node(NodeBase):
             simulation_policy_cls=self.simulation_policy_cls,
             selection_policy_cls=self.selection_policy_cls,
             node_factory=self.node_factory,
-            fully_expanded_params=self.fully_expanded_params
+            prog_widening_params=self.prog_widening_params
         )
         self.children.append(child)
         self.logger.debug(f"Created child action {child.name} for node {self.name}")
@@ -210,7 +210,7 @@ class Node(NodeBase):
                 simulation_policy_cls=self.simulation_policy_cls,
                 selection_policy_cls=self.selection_policy_cls,
                 node_factory=self.node_factory,
-                fully_expanded_params=self.fully_expanded_params)
+                prog_widening_params=self.prog_widening_params)
             self.sim_path.append(action_node)
 
             self._simulate(rollout_state=action_node)

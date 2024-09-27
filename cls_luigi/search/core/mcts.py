@@ -33,7 +33,7 @@ class SinglePlayerMCTS(abc.ABC):
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: Type[NodeFactory] = NodeFactory,
         simulation_policy: Optional[Type[SimulationPolicy]] = None,
-        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        prog_widening_params: Optional[Dict[str, Any]] = None,
 
         logger: logging.Logger = None
     ) -> None:
@@ -45,7 +45,7 @@ class SinglePlayerMCTS(abc.ABC):
         self.selection_policy = selection_policy
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
-        self.fully_expanded_params = fully_expanded_params
+        self.prog_widening_params = prog_widening_params
         self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.hypergraph)
         if logger:
             self.logger = logger
@@ -87,7 +87,7 @@ class SinglePlayerMCTS(abc.ABC):
             expansion_policy_cls=self.expansion_policy,
             simulation_policy_cls=self.simulation_policy,
             node_factory=self.node_factory,
-            fully_expanded_params=self.fully_expanded_params
+            prog_widening_params=self.prog_widening_params
         )
 
     def run(

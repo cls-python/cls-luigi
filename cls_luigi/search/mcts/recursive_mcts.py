@@ -34,7 +34,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
         expansion_policy: Type[ExpansionPolicy] = RandomExpansion,
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: NodeFactory = NodeFactory,
-        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        prog_widening_params: Optional[Dict[str, Any]] = None,
         logger: Optional[logging.Logger] = None,
     ) -> None:
 
@@ -45,7 +45,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             expansion_policy=expansion_policy,
             tree_cls=tree_cls,
             node_factory_cls=node_factory_cls,
-            fully_expanded_params=fully_expanded_params,
+            prog_widening_params=prog_widening_params,
             logger=logger)
 
     def run(
@@ -226,28 +226,20 @@ if __name__ == "__main__":
 
     game = HyperGraphGame(hypergraph, sense=MAXIMIZE)
 
-    # progressive_widening_params = {
-    #     "threshold": 2,
-    #     "progressiv_widening_coeff": 0.5,
-    #     "max_children": 10
-    # }
+    progressive_widening_params = {
+        "threshold": 2,
+        "progressiv_widening_coeff": 0.5,
+        "max_children": 4
+    }
 
     mcts = RecursiveSinglePlayerMCTS(
         game=game,
         parameters=params,
         selection_policy=UCT,
-        # fully_expanded_params=progressive_widening_params,
+        prog_widening_params=progressive_widening_params,
     )
     best_path = mcts.run()
+    import os
+    os.makedirs("mcts_output", exist_ok=True)
 
-    mcts.draw_tree("nx_di_graph.png", plot=True)
-    # mcts.shut_down("mcts.pkl", "nx_di_graph.pkl")
-
-    print("start", tree_grammar["start"])
-    print("non_terminals", tree_grammar["non_terminals"])
-    print("terminals", tree_grammar["terminals"])
-    print("rules")
-    for k, v in tree_grammar["rules"].items():
-        print(k)
-        print(v)
-        print()
+    mcts.save_results("mcts_output")

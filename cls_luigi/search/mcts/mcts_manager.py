@@ -57,7 +57,7 @@ class MCTSManager:
         simulation_policy: Optional[Type[SimulationPolicy]] = None,
         pipeline_filters: Optional[List[ActionFilter]] = None,
 
-        fully_expanded_params: Optional[Dict[str, Any]] = None,
+        prog_widening_params: Optional[Dict[str, Any]] = None,
         component_timeout: Optional[int] = None,
         pipeline_timeout: Optional[int] = None,
 
@@ -82,7 +82,7 @@ class MCTSManager:
         self.expansion_policy = expansion_policy
         self.simulation_policy = simulation_policy
         self.pipeline_filters = pipeline_filters
-        self.fully_expanded_params = fully_expanded_params
+        self.prog_widening_params = prog_widening_params
         self.component_timeout = component_timeout
         self.pipeline_timeout = pipeline_timeout
         if logger:
@@ -96,7 +96,6 @@ class MCTSManager:
         self._init_game()
         self.mcts = None
         self._init_mcts()
-
         self._write_mcts_scenario()
 
     def _write_mcts_scenario(
@@ -108,18 +107,18 @@ class MCTSManager:
         scenario = {
             "type": self.mcts_cls.__name__,
             "mcts_parameters": self.mcts_params,
+            "program_widening_params": self.prog_widening_params,
             "policies": {
                 "selection": self.selection_policy.__name__,
                 "expansion": self.expansion_policy.__name__,
                 "simulation": self.simulation_policy.__name__ if self.mcts_cls.__class__.__name__ == \
-                                                                 "PureSinglePlayerMCTS" else None
-            },
+                                                                 "PureSinglePlayerMCTS" else None},
             "filters": [action_filter.__class__.__name__ for action_filter in
                         self.pipeline_filters] if self.pipeline_filters else [],
             "sense": "MINIMIZE" if self.game_sense == MINIMIZE else "MAXIMIZE" if self.game_sense == MAXIMIZE else "Undefined",
             "pipeline_metric": self.pipeline_metric,
             "component_timeout": self.component_timeout,
-            "pipeline_timeout": self.pipeline_timeout
+            "pipeline_timeout": self.pipeline_timeout,
         }
 
         if not out_path:
@@ -169,7 +168,7 @@ class MCTSManager:
             "expansion_policy": self.expansion_policy,
             "tree_cls": self.tree_cls,
             "node_factory_cls": self.node_factory_cls,
-            "fully_expanded_params": self.fully_expanded_params,
+            "fully_expanded_params": self.prog_widening_params,
             "logger": self.logger
         }
 

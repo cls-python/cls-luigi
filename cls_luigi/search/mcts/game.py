@@ -111,21 +111,17 @@ class HyperGraphGame(OnePlayerGame):
             task_id, status, reward = self.evaluator.evaluate(path)
 
             if reward == float("inf"):
-                # if self.sense == MINIMIZE:
-                #     return reward
                 if self.sense == MAXIMIZE:
                         reward = -reward
 
             else:
                 if self.sense == MINIMIZE:
                     reward = -reward
-                # elif self.sense == MAXIMIZE:
-                #     return reward
 
             return task_id, status, reward
 
-        self.logger.warning(f"No Evaluator found! Returning random reward for now!\n This should be only temporary!")
-        return random.random()
+        self.logger.warning(f"No Evaluator found! Returning random reward for now!\nThis is only for debugging!")
+        return None, "NOEVALUATOR", random.random()
 
     def is_final_state(
         self,
