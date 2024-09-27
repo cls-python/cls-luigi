@@ -15,12 +15,14 @@ class Evaluator:
             punishment_value: int | float,
             pipeline_timeout: Optional[int] = None,
             task_timeout: Optional[Union[int, float]] = None,
+            debugging_mode: bool = False,
             logger: Optional[logging.Logger] = None
     ) -> None:
         self.metric = metric
         self.component_timeout = task_timeout
         self.pipeline_timeout = pipeline_timeout if pipeline_timeout is not None else float("inf")
         self.punishment_value = punishment_value
+        self.debugging_mode = debugging_mode
         self.evaluated = {}
         self.failed = {}
         self.timed_out = {}

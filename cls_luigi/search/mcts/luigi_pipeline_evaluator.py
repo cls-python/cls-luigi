@@ -3,7 +3,7 @@ from __future__ import annotations
 import multiprocessing
 import signal
 import sys
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Tuple
 from typing import List, Optional, Literal
 
 from pynisher import TimeoutException
@@ -31,6 +31,7 @@ class LuigiPipelineEvaluator(Evaluator):
         punishment_value: int | float,
         task_timeout: Optional[int] = None,
         pipeline_timeout: Optional[int] = None,
+        debugging_mode: bool = False,
         logger: Optional[logging.Logger] = None
     ) -> None:
         super().__init__(
@@ -38,6 +39,7 @@ class LuigiPipelineEvaluator(Evaluator):
             punishment_value=punishment_value,
             pipeline_timeout=pipeline_timeout,
             task_timeout=task_timeout,
+            debugging_mode=debugging_mode,
             logger=logger
         )
 
@@ -47,6 +49,8 @@ class LuigiPipelineEvaluator(Evaluator):
         self._temp_task_key = None
         if self.component_timeout:
             self._set_luigi_worker_configs()
+
+        self.use_local_scheduler = self.debugging_mode
 
     def populate_pipeline_map(self) -> None:
         for task in self.tasks:
@@ -80,7 +84,7 @@ class LuigiPipelineEvaluator(Evaluator):
         self,
         path: List[Node],
         task: luigi.Task,
-    ) -> Union[float, int]:
+    ) -> Tuple[str, str, Union[int, float]]:
         path = tuple(path)
         if path not in self.timed_out:
             self.timed_out[path] = task
@@ -91,7 +95,7 @@ class LuigiPipelineEvaluator(Evaluator):
         self,
         path: List[Node],
         task: luigi.Task
-    ) -> Union[float, int]:
+    ) -> Tuple[str, str, Union[int, float]]:
         path = tuple(path)
         if path not in self.failed:
             self.failed[path] = task
@@ -100,20 +104,19 @@ class LuigiPipelineEvaluator(Evaluator):
     def _handle_not_found_pipelines(
         self,
         path: List[Node],
-    ) -> Union[float, int]:
+    ) -> Tuple[Optional[str], str, Union[int, float]]:
         if path not in self.not_found:
             self.not_found.append(path)
         return None, NOTFOUND, self.punishment_value
 
-    @staticmethod
-    def _schedule_and_run_pipeline(task) -> None:
-            luigi.build([task], local_scheduler=True)
+    def _schedule_and_run_pipeline(self, task) -> None:
+        luigi.build([task], local_scheduler=self.use_local_scheduler)
 
     def evaluate(
         self,
         path: List[Node],
         return_test_score: bool = True
-    ) -> Union[float, int]:
+    ) -> Tuple[Optional[str], str, Union[int, float]]:
 
         task = self._get_luigi_task(path)
         if task:
