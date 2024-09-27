@@ -171,6 +171,7 @@ class MCTSManager:
             "tree_cls": self.tree_cls,
             "node_factory_cls": self.node_factory_cls,
             "prog_widening_params": self.prog_widening_params,
+            "out_path": self.mcts_output_dir,
             "logger": self.logger
         }
 

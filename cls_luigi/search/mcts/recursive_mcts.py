@@ -35,6 +35,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
         tree_cls: Type[TreeBase] = MCTSTreeWithGrammar,
         node_factory_cls: NodeFactory = NodeFactory,
         prog_widening_params: Optional[Dict[str, Any]] = None,
+        out_path: Optional[str] = None,
         logger: Optional[logging.Logger] = None,
     ) -> None:
 
@@ -46,6 +47,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             tree_cls=tree_cls,
             node_factory_cls=node_factory_cls,
             prog_widening_params=prog_widening_params,
+            out_path=out_path,
             logger=logger)
 
     def run(
@@ -95,10 +97,9 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             "validation_score": self.incumbent[2]
         }
 
-    def save_results(self, out_path: str) -> None:
-        self.tree.save(pjoin(out_path, "monte_carlo_tree_nx.pkl"))
-        self.tree.render(out_path=pjoin(out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0], show=False)
-        self.run_history.to_csv(pjoin(out_path, "run_history.csv"), index=False)
+    def save_results(self) -> None:
+        self.tree.save(pjoin(self.out_path, "monte_carlo_tree_nx.pkl"))
+        self.tree.render(out_path=pjoin(self.out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0], show=False)
         path, task_id, score = self.incumbent
         if path and score:
             inc_info = {
@@ -106,7 +107,7 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                 "luigi_pipeline_id": task_id,
                 "validation_score": score
             }
-            dump_json(pjoin(out_path, "incumbent.json"), inc_info)
+            dump_json(pjoin(self.out_path, "incumbent.json"), inc_info)
 
     def _update_run_history(self, task_id, path, status, reward):
         col_names = list(self.run_history.columns)
@@ -115,6 +116,8 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             col: [raw_row[ix]] for ix, col in enumerate(col_names)
         })
         self.run_history = pd.concat([self.run_history, new_row], ignore_index=True)
+        self.run_history.to_csv(pjoin(self.out_path, "run_history.csv"), index=False)
+
 
 
 if __name__ == "__main__":
@@ -237,9 +240,11 @@ if __name__ == "__main__":
         parameters=params,
         selection_policy=UCT,
         prog_widening_params=progressive_widening_params,
+        out_path="mcts_output"
     )
-    best_path = mcts.run()
     import os
     os.makedirs("mcts_output", exist_ok=True)
 
-    mcts.save_results("mcts_output")
+    best_path = mcts.run()
+
+    mcts.save_results()

@@ -34,6 +34,7 @@ class SinglePlayerMCTS(abc.ABC):
         node_factory_cls: Type[NodeFactory] = NodeFactory,
         simulation_policy: Optional[Type[SimulationPolicy]] = None,
         prog_widening_params: Optional[Dict[str, Any]] = None,
+        out_path: Optional[str] = None,
 
         logger: logging.Logger = None
     ) -> None:
@@ -47,6 +48,7 @@ class SinglePlayerMCTS(abc.ABC):
         self.simulation_policy = simulation_policy
         self.prog_widening_params = prog_widening_params
         self.tree = tree_cls(root=self.get_root_node(), hypergraph=self.game.hypergraph)
+        self.out_path = out_path
         if logger:
             self.logger = logger
         else:
