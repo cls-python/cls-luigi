@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import List, Set, Tuple, Optional
+
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
-
 
 import logging
 import networkx as nx
@@ -70,6 +70,7 @@ class ForbiddenActionFilter(ActionFilter):
     Filter out actions that result in paths that include a forbidden action. forbidden actions are sets of concrete
     implementations that should not be included in the same path.
     """
+
     def __init__(
         self,
         forbidden_actions: List[Set[str]],
@@ -85,6 +86,7 @@ class ForbiddenActionFilter(ActionFilter):
         possible_actions: List[Tuple[str]]
     ) -> List[Tuple[str]]:
 
+        allowed_possible_actions = []
         path = self._get_path(state)
         unique_pipeline_components = set()
         for state in path:
@@ -93,9 +95,12 @@ class ForbiddenActionFilter(ActionFilter):
         for pa in possible_actions:
             components = unique_pipeline_components.copy()
             components.update(pa)
+            is_allowed = True
             for fa in self.forbidden_actions:
                 if fa.issubset(components):
-                    possible_actions.remove(pa)
+                    is_allowed = False
                     break
+            if is_allowed:
+                allowed_possible_actions.append(pa)
 
-        return possible_actions
+        return allowed_possible_actions
