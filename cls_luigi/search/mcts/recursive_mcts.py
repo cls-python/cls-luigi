@@ -92,19 +92,19 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
         return {
             "mcts_path": self.incumbent[0],
             "luigi_task_id": self.incumbent[1],
-            "score": self.incumbent[2]
+            "validation_score": self.incumbent[2]
         }
 
     def save_results(self, out_path: str) -> None:
         self.tree.save(pjoin(out_path, "monte_carlo_tree_nx.pkl"))
         self.tree.render(out_path=pjoin(out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0], show=False)
         self.run_history.to_csv(pjoin(out_path, "run_history.csv"), index=False)
-        incumbent, task_id, score = self.incumbent
-        if incumbent and score:
+        path, task_id, score = self.incumbent
+        if path and score:
             inc_info = {
-                "mcts_path": [node.name for node in incumbent],
+                "mcts_path": [node.name for node in path],
                 "luigi_pipeline_id": task_id,
-                "score": score
+                "validation_score": score
             }
             dump_json(pjoin(out_path, "incumbent.json"), inc_info)
 
