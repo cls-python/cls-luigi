@@ -144,7 +144,7 @@ class MCTSManager:
             task_timeout=self.component_timeout,
             pipeline_timeout=self.pipeline_timeout,
             punishment_value=self.evaluator_punishment_value,
-            debbuging_mode=self.debugging_mode,
+            debugging_mode=self.debugging_mode,
             logger=self.logger
         )
 

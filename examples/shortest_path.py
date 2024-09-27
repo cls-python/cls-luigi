@@ -3,7 +3,7 @@ import logging
 import luigi
 
 from cls_luigi.grammar import MetaPipelineEnumerator, sort_topologically
-from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, plot_hypergraph_components, \
+from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, render_hypergraph_components, \
     build_hypergraph
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 from cls.fcl import FiniteCombinatoryLogic
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
-    plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
+    render_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
 
     print(tree_grammar)
 
