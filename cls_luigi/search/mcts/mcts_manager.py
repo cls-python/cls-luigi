@@ -26,7 +26,6 @@ from cls_luigi.search import (
 
 from cls_luigi.tools.io_functions import dump_json
 
-
 from cls_luigi.tools.constants import MINIMIZE, MAXIMIZE
 
 
@@ -60,7 +59,7 @@ class MCTSManager:
         prog_widening_params: Optional[Dict[str, Any]] = None,
         component_timeout: Optional[int] = None,
         pipeline_timeout: Optional[int] = None,
-
+        debugging_mode: bool = False,
         logger: Optional[logging.Logger] = None,
     ) -> None:
 
@@ -89,6 +88,8 @@ class MCTSManager:
             self.logger = logger
         else:
             self.logger = logging.getLogger(self.__class__.__name__)
+
+        self.debugging_mode = debugging_mode
 
         self.evaluator = None
         self._init_evaluator()
@@ -143,6 +144,7 @@ class MCTSManager:
             task_timeout=self.component_timeout,
             pipeline_timeout=self.pipeline_timeout,
             punishment_value=self.evaluator_punishment_value,
+            debbuging_mode=self.debugging_mode,
             logger=self.logger
         )
 
