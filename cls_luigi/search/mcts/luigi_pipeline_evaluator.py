@@ -1,18 +1,14 @@
 from __future__ import annotations
-
-import multiprocessing
-import signal
-import sys
 from typing import TYPE_CHECKING, Union, Tuple
 from typing import List, Optional, Literal
-
-from pynisher import TimeoutException
 
 if TYPE_CHECKING:
     from cls_luigi.search.mcts.node import Node
     from luigi.task import Task as LuigiTask
     from cls_luigi.tools.constants import MLMAXIMIZATIONMETRICS, MLMINIMIZATIONMETRICS
 
+from pynisher import TimeoutException
+from cls_luigi.tools.luigi_daemon import LinuxLuigiDaemonHandler
 import logging
 import luigi
 from luigi.task import flatten
@@ -49,8 +45,6 @@ class LuigiPipelineEvaluator(Evaluator):
         self._temp_task_key = None
         if self.component_timeout:
             self._set_luigi_worker_configs()
-
-        self.use_local_scheduler = self.debugging_mode
 
     def populate_pipeline_map(self) -> None:
         for task in self.tasks:
@@ -110,7 +104,11 @@ class LuigiPipelineEvaluator(Evaluator):
         return None, NOTFOUND, self.punishment_value
 
     def _schedule_and_run_pipeline(self, task) -> None:
-        luigi.build([task], local_scheduler=self.use_local_scheduler)
+        if not self.debugging_mode:
+            with LinuxLuigiDaemonHandler():
+                luigi.build([task], local_scheduler=False)
+        else:
+            luigi.build([task], local_scheduler=True)
 
     def evaluate(
         self,
