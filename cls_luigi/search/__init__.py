@@ -1,6 +1,6 @@
 from .mcts.game import HyperGraphGame
 from .mcts.luigi_pipeline_evaluator import LuigiPipelineEvaluator
-from .mcts.filters import *
+from .mcts.filter import *
 from .mcts.node import *
 from .mcts.tree import MCTSTreeWithGrammar
 from .mcts.pure_mcts import SinglePlayerMCTS
