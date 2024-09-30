@@ -188,7 +188,7 @@ class MCTSManager:
             return inc
 
     def save_results(self):
-        self.mcts.save_results(self.mcts_output_dir)
+        self.mcts.save_results()
 
         eval_summary = self.evaluator.get_json_ready_summary()
         dump_json(
