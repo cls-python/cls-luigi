@@ -19,19 +19,23 @@ class LinuxLuigiDaemonHandler:
         else:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-    def __enter__(self):
+    def start_luigi_server(self):
         try:
             self.luigi_process = subprocess.Popen(["luigid", "--background", "--logdir", self.logdir])
             self.luigi_process.wait()
             sleep(0.5)  # just waiting till system stabilizes
+            self.logger.warning("Started Luigi daemon")
+
         except Exception as e:
             self.logger.warning("Could not kill Luigi daemon: {e}")
             raise e
 
-    def __exit__(self, *args):
+    def shutdown_luigi_server(self):
         try:
             self.luigi_process = subprocess.Popen(["pkill", "-f", "luigid"])
             self.luigi_process.wait()
             sleep(0.5)  # just waiting till system stabilizes
+            self.logger.warning("Killed Luigi daemon")
+
         except Exception as e:
             raise e

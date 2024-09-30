@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, Tuple
+from typing import TYPE_CHECKING, Union, Tuple, Type
 from typing import List, Optional, Literal
 
 if TYPE_CHECKING:
@@ -28,6 +28,7 @@ class LuigiPipelineEvaluator(Evaluator):
         task_timeout: Optional[int] = None,
         pipeline_timeout: Optional[int] = None,
         debugging_mode: bool = False,
+        luigi_daemon_handler_cls: Type[LinuxLuigiDaemonHandler] = LinuxLuigiDaemonHandler,
         logger: Optional[logging.Logger] = None
     ) -> None:
         super().__init__(
@@ -45,6 +46,14 @@ class LuigiPipelineEvaluator(Evaluator):
         self._temp_task_key = None
         if self.component_timeout:
             self._set_luigi_worker_configs()
+        self.luigi_daemon_handler = luigi_daemon_handler_cls(logger=self.logger)
+
+        self.use_local_scheduler = True
+
+        if not self.debugging_mode:
+            self.luigi_daemon_handler.start_luigi_server()
+            self.use_local_scheduler = False
+
 
     def populate_pipeline_map(self) -> None:
         for task in self.tasks:
@@ -103,12 +112,12 @@ class LuigiPipelineEvaluator(Evaluator):
             self.not_found.append(path)
         return None, NOTFOUND, self.punishment_value
 
-    def _schedule_and_run_pipeline(self, task) -> None:
-        if not self.debugging_mode:
-            with LinuxLuigiDaemonHandler():
-                luigi.build([task], local_scheduler=False)
-        else:
-            luigi.build([task], local_scheduler=True)
+    def _schedule_and_run_pipeline(
+        self,
+        task: luigi.Task,
+        detailed_summary: bool = False
+    ) -> None:
+        luigi.build([task], local_scheduler=self.use_local_scheduler, detailed_summary=detailed_summary)
 
     def evaluate(
         self,
@@ -190,3 +199,6 @@ class LuigiPipelineEvaluator(Evaluator):
 
         self.add_evaluated_failed_timed_out(summary_dict)
         return summary_dict
+
+    def __del__(self):
+        self.luigi_daemon_handler.shutdown_luigi_server()

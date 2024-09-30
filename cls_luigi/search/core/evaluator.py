@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import abc
 from typing import List, Optional, TYPE_CHECKING, Literal, Union
 
 if TYPE_CHECKING:
@@ -8,7 +10,7 @@ if TYPE_CHECKING:
 import logging
 
 
-class Evaluator:
+class Evaluator(abc.ABC):
     def __init__(
             self,
             metric: Literal[MLMAXIMIZATIONMETRICS, MLMINIMIZATIONMETRICS],
@@ -39,3 +41,5 @@ class Evaluator:
             path: List[Node]
     ) -> float | int:
         raise NotImplementedError(f"Method {self.__class__.__name__}.evaluate() not implemented")
+
+
