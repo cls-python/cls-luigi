@@ -72,7 +72,8 @@ class HyperGraphGame(OnePlayerGame):
                 else:
                     possible_actions = list(itertools.product(*successors))
 
-        self.logger.debug(f"Got valid actions for state {state.name}:\n{possible_actions}")
+        if possible_actions:
+            self.logger.debug(f"Got valid actions for state {state.name}:\n{possible_actions}")
 
         # if temp_successors and self.validator.is_valid(s, temp_successors):
 

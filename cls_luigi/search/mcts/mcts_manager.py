@@ -27,6 +27,7 @@ from cls_luigi.search import (
 from cls_luigi.tools.io_functions import dump_json
 
 from cls_luigi.tools.constants import MINIMIZE, MAXIMIZE
+from cls_luigi.tools.luigi_daemon import LinuxLuigiDaemonHandler
 
 
 class MCTSManager:
@@ -90,6 +91,7 @@ class MCTSManager:
             self.logger = logging.getLogger(self.__class__.__name__)
 
         self.debugging_mode = debugging_mode
+        self.luigi_daemon_handler = LinuxLuigiDaemonHandler(logger=self.logger)
 
         self.evaluator = None
         self._init_evaluator()
@@ -144,7 +146,7 @@ class MCTSManager:
             task_timeout=self.component_timeout,
             pipeline_timeout=self.pipeline_timeout,
             punishment_value=self.evaluator_punishment_value,
-            debugging_mode=self.debugging_mode,
+            use_local_scheduler=self.debugging_mode,
             logger=self.logger
         )
 
@@ -183,11 +185,19 @@ class MCTSManager:
     def run_mcts(
         self
     ) -> Optional[List[Node]]:
+
+
+        if not self.debugging_mode:
+            self.luigi_daemon_handler.start_luigi_server()
+
+
         inc = self.mcts.run()
         if inc:
             return inc
 
-    def save_results(self):
+    def save_results(
+            self
+    ) -> None:
         self.mcts.save_results()
 
         eval_summary = self.evaluator.get_json_ready_summary()
@@ -195,3 +205,9 @@ class MCTSManager:
             path=pjoin(self.mcts_output_dir, "evaluator_summary.json"),
             obj=eval_summary
         )
+
+    def shut_down(
+            self
+    ) -> None:
+        self.luigi_daemon_handler.shutdown_luigi_server()
+

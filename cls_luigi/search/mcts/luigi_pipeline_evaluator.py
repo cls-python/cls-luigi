@@ -27,8 +27,7 @@ class LuigiPipelineEvaluator(Evaluator):
         punishment_value: int | float,
         task_timeout: Optional[int] = None,
         pipeline_timeout: Optional[int] = None,
-        debugging_mode: bool = False,
-        luigi_daemon_handler_cls: Type[LinuxLuigiDaemonHandler] = LinuxLuigiDaemonHandler,
+        use_local_scheduler: bool = False,
         logger: Optional[logging.Logger] = None
     ) -> None:
         super().__init__(
@@ -36,7 +35,6 @@ class LuigiPipelineEvaluator(Evaluator):
             punishment_value=punishment_value,
             pipeline_timeout=pipeline_timeout,
             task_timeout=task_timeout,
-            debugging_mode=debugging_mode,
             logger=logger
         )
 
@@ -46,14 +44,7 @@ class LuigiPipelineEvaluator(Evaluator):
         self._temp_task_key = None
         if self.component_timeout:
             self._set_luigi_worker_configs()
-        self.luigi_daemon_handler = luigi_daemon_handler_cls(logger=self.logger)
-
-        self.use_local_scheduler = True
-
-        if not self.debugging_mode:
-            self.luigi_daemon_handler.start_luigi_server()
-            self.use_local_scheduler = False
-
+        self.use_local_scheduler = use_local_scheduler
 
     def populate_pipeline_map(self) -> None:
         for task in self.tasks:
@@ -199,6 +190,3 @@ class LuigiPipelineEvaluator(Evaluator):
 
         self.add_evaluated_failed_timed_out(summary_dict)
         return summary_dict
-
-    def __del__(self):
-        self.luigi_daemon_handler.shutdown_luigi_server()
