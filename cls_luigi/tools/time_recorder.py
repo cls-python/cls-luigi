@@ -2,7 +2,7 @@ from time import time
 from time import sleep
 import os
 
-from io_functions import load_json, dump_json
+from .io_functions import load_json, dump_json
 
 
 class TimeRecorder(object):
@@ -34,7 +34,7 @@ class TimeRecorder(object):
             existing_json = load_json(self.out_file_path)
             output_dict.update(existing_json)
 
-        dump_json(output_dict, self.out_file_path)
+        dump_json(obj=output_dict, path=self.out_file_path)
 
 
 

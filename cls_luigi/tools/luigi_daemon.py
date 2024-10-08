@@ -45,3 +45,10 @@ class LinuxLuigiDaemonHandler:
                 raise e
         else:
             self.logger.warning("No Luigi daemon to kill")
+
+    def __enter__(self):
+        self.start_luigi_server()
+        return self
+
+    def __exit__(self, *args):
+        self.shutdown_luigi_server()
