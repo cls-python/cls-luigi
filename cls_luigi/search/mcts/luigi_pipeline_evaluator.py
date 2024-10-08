@@ -17,6 +17,7 @@ from cls_luigi.search.core.evaluator import Evaluator
 
 from cls_luigi.tools.constants import SUCCESS, FAILED, TIMEOUT, NOTFOUND, NOSCORE
 import pynisher
+from time import sleep
 
 
 class LuigiPipelineEvaluator(Evaluator):
@@ -106,9 +107,13 @@ class LuigiPipelineEvaluator(Evaluator):
     def _schedule_and_run_pipeline(
         self,
         task: luigi.Task,
-        detailed_summary: bool = False
+        detailed_summary: bool = False,
+        sleep_seconds: float = 0.5
     ) -> None:
         luigi.build([task], local_scheduler=self.use_local_scheduler, detailed_summary=detailed_summary)
+        sleep(sleep_seconds)
+        # If we don't sleep, we end up with a OSError about too many open files
+        # todo: for now we sleep to let the system stabilize. But we need to find a better way to handle this.
 
     def evaluate(
         self,
