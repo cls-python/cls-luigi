@@ -26,6 +26,7 @@ class LinuxLuigiDaemonHandler:
             self.luigi_process = subprocess.Popen(["luigid", "--background", "--logdir", self.logdir])
             self.server_started = True
             self.luigi_process.wait()
+            sleep(1)
             self.logger.warning("Started Luigi daemon")
 
 
@@ -39,6 +40,7 @@ class LinuxLuigiDaemonHandler:
             try:
                 self.luigi_process = subprocess.Popen(["pkill", "-f", "luigid"])
                 self.luigi_process.wait()
+                sleep(1)
                 self.logger.warning("Killed Luigi daemon")
 
             except Exception as e:
