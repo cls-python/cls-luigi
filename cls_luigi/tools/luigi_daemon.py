@@ -29,7 +29,6 @@ class LinuxLuigiDaemonHandler:
             sleep(1)
             self.logger.warning("Started Luigi daemon")
 
-
         except Exception as e:
             self.logger.warning("Could not kill Luigi daemon: {e}")
             raise e

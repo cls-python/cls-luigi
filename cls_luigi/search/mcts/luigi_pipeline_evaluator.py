@@ -7,8 +7,6 @@ if TYPE_CHECKING:
     from luigi.task import Task as LuigiTask
     from cls_luigi.tools.constants import MLMAXIMIZATIONMETRICS, MLMINIMIZATIONMETRICS
 
-from pynisher import TimeoutException
-from cls_luigi.tools.luigi_daemon import LinuxLuigiDaemonHandler
 import logging
 import luigi
 from luigi.task import flatten
@@ -16,8 +14,6 @@ from luigi.task import flatten
 from cls_luigi.search.core.evaluator import Evaluator
 
 from cls_luigi.tools.constants import SUCCESS, FAILED, TIMEOUT, NOTFOUND, NOSCORE
-import pynisher
-from time import sleep
 
 
 class LuigiPipelineEvaluator(Evaluator):
@@ -111,7 +107,7 @@ class LuigiPipelineEvaluator(Evaluator):
         sleep_seconds: float = 0.5
     ) -> None:
         luigi.build([task], local_scheduler=self.use_local_scheduler, detailed_summary=detailed_summary)
-        sleep(sleep_seconds)
+        # sleep(sleep_seconds)
         # If we don't sleep, we end up with a OSError about too many open files
         # todo: for now we sleep to let the system stabilize. But we need to find a better way to handle this.
 
@@ -124,17 +120,19 @@ class LuigiPipelineEvaluator(Evaluator):
         task = self._get_luigi_task(path)
         if task:
             try:
-                with pynisher.limit(self._schedule_and_run_pipeline, wall_time=self.pipeline_timeout) as running_task:
-                    running_task(task)
-                    scores = task.get_score(self.metric)
+                self._schedule_and_run_pipeline(task)
+                scores = task.get_score(self.metric)
 
-            except TimeoutException as e:
-                self.logger.debug(f"Pipeline Evaluation timed out:\n{e}")
-                return self._handle_timeout(path, task)
+            # except TimeoutException as e:
+            #     self.logger.debug(f"Pipeline Evaluation timed out:\n{e}")
+            #     return self._handle_timeout(path, task)
 
-            except (FileNotFoundError, Exception) as e:
+            except FileNotFoundError as e:
                 self.logger.debug(f"Pipeline Evaluation Failed with the Exception:\n{e}")
                 return self._handle_failed(path, task)
+
+            except Exception as e:
+                return task.task_id, f"Error: {e}", self.punishment_value
 
             if task not in self.evaluated:
                 self.evaluated[tuple(path)] = task
