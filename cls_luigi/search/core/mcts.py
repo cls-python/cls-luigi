@@ -55,27 +55,10 @@ class SinglePlayerMCTS(abc.ABC):
             self.logger = logging.getLogger(self.__class__.__name__)
 
         self.incumbent = (None, None, None)
-        self.run_history = pd.DataFrame(columns=["iteration", "luigi_id", "mcts_path", "status", "score"])
-        # self.mcts_scenario = {
-        #     "type": self.__class__.__name__,
-        #     "parameters": self.parameters,
-        #     "policies": {
-        #         "selection": self.selection_policy.__name__,
-        #         "expansion": self.expansion_policy.__name__,
-        #         "simulation": self.simulation_policy.__name__
-        #     },
-        #     "component_timeout": 123,
-        #     "pipeline_timeout": "accuracy",
-        #     "punishment_value": 0.0,
-        #
-        #     # "pipeline_metric": None
-        #     # "filters:": [],
-        #     # "sense": "maximize"
-        # }
+        self.run_history = pd.DataFrame(
+            columns=["iteration", "luigi_id", "mcts_path", "status", "score", "cum_elapsed_seconds"])
 
         self.iter_counter = 0
-
-
         self.logger.debug(f"Initialized {self.__class__.__name__} with parameters: {self.parameters}")
 
     def get_root_node(
@@ -96,8 +79,6 @@ class SinglePlayerMCTS(abc.ABC):
         self
     ) -> List[Node]:
         ...
-
-
 
     def _update_incumbent(
         self,

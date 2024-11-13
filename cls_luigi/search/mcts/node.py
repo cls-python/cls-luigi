@@ -6,7 +6,6 @@ if TYPE_CHECKING:
     from cls_luigi.search.mcts.policy import SelectionPolicy, ExpansionPolicy, SimulationPolicy
     from cls_luigi.search.mcts.game import OnePlayerGame
 
-
 import logging
 from cls_luigi.search.core.node import NodeBase
 import pandas as pd
@@ -157,53 +156,49 @@ class Node(NodeBase):
 
     #     return best_child
 
-    
     def select(
         self
     ) -> Node:
-        childreen_scores = {
+        children_scores = {
             "child": [],
             "score": []
         }
-        
+
         for child in self.children:
             illegal_child = self.all_subseq_paths_traversed(child)
-            
+
             if illegal_child:
                 continue
-            
-            score, explanation = self.selection_policy.get_score(child)
-            
-            child.explanations.append(explanation)
-            childreen_scores["child"].append(child)
-            childreen_scores["score"].append(score)
 
-        children_df = pd.DataFrame.from_dict(childreen_scores)
-        
+            score, explanation = self.selection_policy.get_score(child)
+
+            child.explanations.append(explanation)
+            children_scores["child"].append(child)
+            children_scores["score"].append(score)
+
+        children_df = pd.DataFrame.from_dict(children_scores)
+
         if children_df.empty:
             return None
-        
+
         children_df.sort_values(by="score", ascending=False, inplace=True)
         children_df.reset_index(drop=True, inplace=True)
-        
+
         return children_df.iloc[0]["child"]
-    
-    
-    
+
     def all_subseq_paths_traversed(self, node):
         if (not node.children) and (self.game.is_final_state(node)):
             return True
-        
+
         if node.expandable_actions:
             return False
         else:
             for child in node.children:
                 if not self.all_subseq_paths_traversed(child):
                     return False
-        
-        return True        
-        
-        
+
+        return True
+
     def expand(
         self
     ) -> Node:

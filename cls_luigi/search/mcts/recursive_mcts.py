@@ -48,16 +48,15 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             node_factory_cls=node_factory_cls,
             prog_widening_params=prog_widening_params,
             out_path=out_path,
-            logger=logger)     
+            logger=logger)
 
     def run(
         self
     ) -> dict[str, Any]:
         self.logger.debug("Running SP-MCTS for {} seconds".format(self.parameters["max_seconds"]))
-        
-        #from cls_luigi.tools.seed import set_seed
-        #set_seed(0)
-        
+
+        # from cls_luigi.tools.seed import set_seed
+        # set_seed(0)
 
         start_time = time.time()
         while time.time() - start_time < self.parameters["max_seconds"]:
@@ -82,8 +81,6 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                     node = node.expand()
                     self.tree.add_node(node)
                     path.append(node)
-                
-    
 
                 task_id, status, reward = self.game.evaluate(path)
                 elapsed = time.time() - start_time
@@ -93,7 +90,8 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                 self.iter_counter += 1
                 self.logger.debug(f"==================================\n==================================\n\n\n")
             else:
-                self.logger.debug(f"Early breaking after {time.time() - start_time} seocnds...\nAll nodes are fully expanded.")
+                self.logger.debug(
+                    f"Early breaking after {time.time() - start_time} seocnds...\nAll nodes are fully expanded.")
                 for _ in range(10):
                     self.logger.debug(f"====================================================================")
                 break
@@ -111,7 +109,8 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
 
     def save_results(self) -> None:
         self.tree.save(pjoin(self.out_path, "monte_carlo_tree_nx.pkl"))
-        self.tree.render(out_path=pjoin(self.out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0], show=False)
+        self.tree.render(out_path=pjoin(self.out_path, "monte_carlo_tree.png"), best_mcts_path=self.incumbent[0],
+                         show=False)
         path, task_id, score = self.incumbent
         if path and score:
             inc_info = {
@@ -131,7 +130,6 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
         self.run_history.to_csv(pjoin(self.out_path, "run_history.csv"), index=False)
 
 
-
 if __name__ == "__main__":
     from cls_luigi.search.helpers import set_seed
     from cls_luigi.grammar.hypergraph import get_hypergraph_dict_from_tree_grammar, render_hypergraph_components, \
@@ -139,6 +137,8 @@ if __name__ == "__main__":
     from cls_luigi.search.mcts.game import HyperGraphGame
 
     from cls_luigi.tools.constants import MINIMIZE, MAXIMIZE
+    import os
+
 
     logging.basicConfig(level=logging.DEBUG)
     set_seed(250)
@@ -254,9 +254,7 @@ if __name__ == "__main__":
         prog_widening_params=progressive_widening_params,
         out_path="mcts_output"
     )
-    import os
+
     os.makedirs("mcts_output", exist_ok=True)
-
     best_path = mcts.run()
-
     mcts.save_results()
