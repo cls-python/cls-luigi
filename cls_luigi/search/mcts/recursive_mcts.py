@@ -48,12 +48,16 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             node_factory_cls=node_factory_cls,
             prog_widening_params=prog_widening_params,
             out_path=out_path,
-            logger=logger)
+            logger=logger)     
 
     def run(
         self
     ) -> dict[str, Any]:
         self.logger.debug("Running SP-MCTS for {} seconds".format(self.parameters["max_seconds"]))
+        
+        #from cls_luigi.tools.seed import set_seed
+        #set_seed(0)
+        
 
         start_time = time.time()
         while time.time() - start_time < self.parameters["max_seconds"]:
@@ -78,13 +82,21 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
                     node = node.expand()
                     self.tree.add_node(node)
                     path.append(node)
+                
+    
 
                 task_id, status, reward = self.game.evaluate(path)
+                elapsed = time.time() - start_time
                 self._update_incumbent(path, task_id, reward)
-                self._update_run_history(task_id, path, status, reward)
+                self._update_run_history(task_id, path, status, reward, cum_elapsed_seconds=elapsed)
                 node.backprop(reward)
                 self.iter_counter += 1
                 self.logger.debug(f"==================================\n==================================\n\n\n")
+            else:
+                self.logger.debug(f"Early breaking after {time.time() - start_time} seocnds...\nAll nodes are fully expanded.")
+                for _ in range(10):
+                    self.logger.debug(f"====================================================================")
+                break
 
                 # self.draw_tree(f"/home/hadi/Documents/cls-luigi/examples/ml_blood_sugar_level/mcts_imgs/nx_di_graph_iter{iter_ix}.png", plot=False)
 
@@ -109,9 +121,9 @@ class RecursiveSinglePlayerMCTS(SinglePlayerMCTS):
             }
             dump_json(pjoin(self.out_path, "incumbent.json"), inc_info)
 
-    def _update_run_history(self, task_id, path, status, reward):
+    def _update_run_history(self, task_id, path, status, reward, cum_elapsed_seconds):
         col_names = list(self.run_history.columns)
-        raw_row = [self.iter_counter, task_id, path, status, reward]
+        raw_row = [self.iter_counter, task_id, path, status, reward, cum_elapsed_seconds]
         new_row = pd.DataFrame({
             col: [raw_row[ix]] for ix, col in enumerate(col_names)
         })

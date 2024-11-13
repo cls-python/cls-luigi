@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 import logging
 from cls_luigi.search.core.node import NodeBase
+import pandas as pd
 
 
 class NodeFactory:
@@ -135,27 +136,74 @@ class Node(NodeBase):
             return False
         return True
 
+    # def select(
+    #     self
+    # ) -> Node:
+    #     best_child = None
+    #     best_score = None
+
+    #     for child in self.children:
+    #         if not best_child:
+    #             best_child = child
+    #             best_score, _ = self.selection_policy.get_score(child)
+    #             continue
+
+    #         score, explanation = self.selection_policy.get_score(child)
+    #         child.explanations.append(explanation)
+
+    #         if score > best_score:
+    #             best_child = child
+    #             best_score = score
+
+    #     return best_child
+
+    
     def select(
         self
     ) -> Node:
-        best_child = None
-        best_score = None
-
+        childreen_scores = {
+            "child": [],
+            "score": []
+        }
+        
         for child in self.children:
-            if not best_child:
-                best_child = child
-                best_score, _ = self.selection_policy.get_score(child)
+            illegal_child = self.all_subseq_paths_traversed(child)
+            
+            if illegal_child:
                 continue
-
+            
             score, explanation = self.selection_policy.get_score(child)
+            
             child.explanations.append(explanation)
+            childreen_scores["child"].append(child)
+            childreen_scores["score"].append(score)
 
-            if score > best_score:
-                best_child = child
-                best_score = score
-
-        return best_child
-
+        children_df = pd.DataFrame.from_dict(childreen_scores)
+        
+        if children_df.empty:
+            return None
+        
+        children_df.sort_values(by="score", ascending=False, inplace=True)
+        children_df.reset_index(drop=True, inplace=True)
+        
+        return children_df.iloc[0]["child"]
+    
+    
+    
+    def all_subseq_paths_traversed(self, node):
+        if (not node.children) and (self.game.is_final_state(node)):
+            return True
+        
+        if node.expandable_actions:
+            return False
+        else:
+            for child in node.children:
+                if not self.all_subseq_paths_traversed(child):
+                    return False
+        
+        return True        
+        
+        
     def expand(
         self
     ) -> Node:
