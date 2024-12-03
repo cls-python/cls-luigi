@@ -37,22 +37,19 @@ def _inspect_generator_tasks(task: Any, visited: set) -> set:
             run_method = task.run
             if hasattr(run_method, '__code__'):
                 code = run_method.__code__
-                # Look for task classes in code names
-                for name in code.co_names:
-                    if name.endswith('Task'):
-                        # Look in the module globals first
-                        module = inspect.getmodule(task)
-                        if module and hasattr(module, name):
-                            task_class = getattr(module, name)
-                            if isinstance(task_class, type) and issubclass(task_class, luigi.Task):
-                                try:
-                                    task_instance = task_class()
-                                    found_tasks.add(task_instance)
-                                    # Recursively check if this task also has generator run method
-                                    if _is_generator_task(task_instance):
-                                        found_tasks.update(_inspect_generator_tasks(task_instance, visited))
-                                except Exception:
-                                    pass
+                # Look for task classes in code objects
+                for obj_name, obj in inspect.getmembers(inspect.getmodule(task)):
+                    if (inspect.isclass(obj) and 
+                        issubclass(obj, luigi.Task) and 
+                        obj is not luigi.Task):
+                        try:
+                            task_instance = obj()
+                            found_tasks.add(task_instance)
+                            # Recursively check if this task also has generator run method
+                            if _is_generator_task(task_instance):
+                                found_tasks.update(_inspect_generator_tasks(task_instance, visited))
+                        except Exception:
+                            pass
                                     
                 # Also look in closure variables
                 if hasattr(run_method, '__closure__') and run_method.__closure__:

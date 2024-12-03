@@ -74,7 +74,7 @@ from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 
 
-@dataclass
+@dataclass(frozen=True)
 class TaskState(object):
     fcl: FiniteCombinatoryLogic = field(init=True)
     target: Type = field(init=True)
@@ -932,7 +932,11 @@ class LuigiCombinator(Generic[ConfigIndex], metaclass=RepoMeta):
     config_index = luigi.OptionalParameter(positional=False, default="")
     config_domain: set[ConfigIndex] | None = None
     abstract: bool = False
+    _visible_in_registry = True
 
+    @classmethod
+    def get_task_family(cls):
+        return cls.__name__
 
     @classmethod
     def return_type(cls, idx: ConfigIndex = None) -> Type:
@@ -940,4 +944,3 @@ class LuigiCombinator(Generic[ConfigIndex], metaclass=RepoMeta):
             return Constructor(RepoMeta.TaskCtor(cls))
         else:
             return Constructor(RepoMeta.TaskCtor(cls), Constructor(RepoMeta.ClassIndex(cls, idx)))
-
