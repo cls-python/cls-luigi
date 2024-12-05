@@ -10,6 +10,12 @@ from pathlib import Path
 import numpy as np
 import psutil
 
+from lot_optimizers.groff_heuristic import GroffHeuristic
+from lot_optimizers.wagner_whitin import WagnerWhitin
+from lot_optimizers.silver_meal_heuristic import SilverMeal
+from lot_optimizers.least_unit_cost_method import LeastUnitCostMethod
+from lot_optimizers.part_period_heuristic import PartPeriod
+
 # Optional wandb import
 try:
     import wandb
@@ -19,7 +25,7 @@ except ImportError:
     WANDB_AVAILABLE = False
 
 
-class WandbTask(luigi.Task):
+class WandbTask(luigi.Task, LuigiCombinator):
     """Base class for tasks that use wandb logging."""
 
     enable_wandb = luigi.BoolParameter(default=False)
@@ -344,7 +350,7 @@ class OptimizeLotsByGroff(OptimizeLots):
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByGroff: run_optimizer")
-        optimizer = Groff()
+        optimizer = GroffHeuristic()
         orders = optimizer.run(cost, demand)
         
         metrics = {
@@ -473,14 +479,14 @@ class OptimizeLotsByLeastUnitCost(OptimizeLots):
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByLeastUnitCost: run_optimizer")
-        optimizer = LeastUnitCost()
+        optimizer = LeastUnitCostMethod()
         orders = optimizer.run(cost, demand)
         
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
             "variable_costs": sum(orders),
-            "cost_per_unit": metrics["total_cost"] / sum(demand) if sum(demand) > 0 else 0,
+            "cost_per_unit": self.metrics["total_cost"] / sum(demand) if sum(demand) > 0 else 0,
         }
         self.track_experiment(orders, metrics, demand, cost)
 
@@ -546,12 +552,9 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
 
 
 if __name__ == "__main__":
-    from cls_luigi.repo_visualizer.static_json_repo import StaticJSONRepo
-    from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
 
     target = OptimizeLots.return_type()
     repository = RepoMeta.repository
-    StaticJSONRepo(RepoMeta).dump_static_repo_json()
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     print(deep_str(inhabitation_result.rules))
@@ -564,7 +567,6 @@ if __name__ == "__main__":
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
 
     if results:
-        DynamicJSONRepo(results).dump_dynamic_pipeline_json()
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
