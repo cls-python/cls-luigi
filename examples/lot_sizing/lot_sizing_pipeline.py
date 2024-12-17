@@ -1,9 +1,13 @@
 import luigi
+from luigi import configuration
 import os
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
+
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
+
+
 import pandas as pd
 import json
 from pathlib import Path
@@ -34,6 +38,13 @@ class WandbTask(luigi.Task, LuigiCombinator):
     prediction_horizon = luigi.IntParameter(default=8)
     project_name = luigi.Parameter(default="lot_sizing")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        config = luigi.configuration.get_config()
+        self.enable_wandb = config.getboolean('WandbTask', 'enable_wandb', self.enable_wandb)
+        self.prediction_horizon = config.getint('WandbTask', 'prediction_horizon', self.prediction_horizon)
+        self.project_name = config.get('WandbTask', 'project_name', self.project_name)
+
     def run(self):
         """Override this method in derived classes to implement task logic"""
         raise NotImplementedError()
@@ -42,7 +53,6 @@ class WandbTask(luigi.Task, LuigiCombinator):
     def wandb_init(cls, run_name=None):
         if not hasattr(cls, "wandb_instance"):
             cls.wandb_instance = wandb.init(project=cls.project_name, name=run_name)
-
 
     def plot_line_series(self, xs, ys, keys, title, xname="Period", yname="Value"):
         """Create a line plot in wandb."""
@@ -155,8 +165,10 @@ class WandbTask(luigi.Task, LuigiCombinator):
             inventory_levels.append(current_inventory)
         return inventory_levels
 
+
 class InitializeWandb(WandbTask):
     """Task to initialize wandb for the entire pipeline."""
+
     def output(self):
         return luigi.LocalTarget("data/wandb_initialized.txt")
 
@@ -183,8 +195,10 @@ class InitializeWandb(WandbTask):
             with self.output()[0].open("w") as f:
                 json.dump({"wandb_enabled": False}, f)
 
+
 class FinalizeWandb(WandbTask):
     """Task to finalize wandb logging."""
+
     def output(self):
         return luigi.LocalTarget("data/wandb_finalized.txt")
 
@@ -193,6 +207,7 @@ class FinalizeWandb(WandbTask):
             wandb.finish()
             with self.output().open("w") as f:
                 f.write("WandB run finalized.")
+
 
 class GetCost(WandbTask):
     abstract = False
@@ -353,9 +368,11 @@ class OptimizeLotsByGroff(OptimizeLots):
     abstract = False
 
     def output(self):
-        return [luigi.LocalTarget(
-            "data/" + self._get_variant_label() + "-" + "optimize_lots_by_groff.txt"
-        )]
+        return [
+            luigi.LocalTarget(
+                "data/" + self._get_variant_label() + "-" + "optimize_lots_by_groff.txt"
+            )
+        ]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByGroff: run_optimizer")
@@ -393,12 +410,14 @@ class OptimizeLotsByWagnerWhitin(OptimizeLots):
     abstract = False
 
     def output(self):
-        return [luigi.LocalTarget(
-            "data/"
-            + self._get_variant_label()
-            + "-"
-            + "optimize_lots_by_wagner_within.txt"
-        )]
+        return [
+            luigi.LocalTarget(
+                "data/"
+                + self._get_variant_label()
+                + "-"
+                + "optimize_lots_by_wagner_within.txt"
+            )
+        ]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByWagnerWhitin: run_optimizer")
@@ -436,12 +455,14 @@ class OptimizeLotsBySilverMeal(OptimizeLots):
     abstract = False
 
     def output(self):
-        return [luigi.LocalTarget(
-            "data/"
-            + self._get_variant_label()
-            + "-"
-            + "optimize_lots_by_silver_meal.txt"
-        )]
+        return [
+            luigi.LocalTarget(
+                "data/"
+                + self._get_variant_label()
+                + "-"
+                + "optimize_lots_by_silver_meal.txt"
+            )
+        ]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsBySilverMeal: run_optimizer")
@@ -479,12 +500,14 @@ class OptimizeLotsByLeastUnitCost(OptimizeLots):
     abstract = False
 
     def output(self):
-        return [luigi.LocalTarget(
-            "data/"
-            + self._get_variant_label()
-            + "-"
-            + "optimize_lots_by_least_unit_cost.txt"
-        )]
+        return [
+            luigi.LocalTarget(
+                "data/"
+                + self._get_variant_label()
+                + "-"
+                + "optimize_lots_by_least_unit_cost.txt"
+            )
+        ]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByLeastUnitCost: run_optimizer")
@@ -522,12 +545,14 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
     abstract = False
 
     def output(self):
-        return [luigi.LocalTarget(
-            "data/"
-            + self._get_variant_label()
-            + "-"
-            + "optimize_lots_by_part_period.txt"
-        )]
+        return [
+            luigi.LocalTarget(
+                "data/"
+                + self._get_variant_label()
+                + "-"
+                + "optimize_lots_by_part_period.txt"
+            )
+        ]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByPartPeriod: run_optimizer")
@@ -564,8 +589,16 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
 
 
 if __name__ == "__main__":
+
+    # Set global configuration for all tasks
+    config = configuration.get_config()
+    config.set("WandbTask", "enable_wandb", "False")
+    config.set("WandbTask", "prediction_horizon", "5")
+    config.set("WandbTask", "project_name", "TestProject")
+
     target = OptimizeLots.return_type()
-    repository = RepoMeta.repository
+    repo_meta = RepoMeta
+    repository = repo_meta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     print(deep_str(inhabitation_result.rules))
@@ -582,6 +615,10 @@ if __name__ == "__main__":
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         for r in results:
-            luigi.build([InitializeWandb()] + r + [FinalizeWandb()], local_scheduler=True, detailed_summary=True)
+            pipeline = [InitializeWandb()] + [r] + [FinalizeWandb()]
+            print("==============")
+            print(pipeline)
+            print("\n")
+            # luigi.build([InitializeWandb()] + r + [FinalizeWandb()], local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")
