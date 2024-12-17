@@ -9,20 +9,22 @@ import json
 from pathlib import Path
 import numpy as np
 import psutil
+import time
 
 from lot_optimizers.groff_heuristic import GroffHeuristic
 from lot_optimizers.wagner_whitin import WagnerWhitin
 from lot_optimizers.silver_meal_heuristic import SilverMeal
 from lot_optimizers.least_unit_cost_method import LeastUnitCostMethod
 from lot_optimizers.part_period_heuristic import PartPeriod
+import wandb
 
 # Optional wandb import
 try:
     import wandb
 
-    WANDB_AVAILABLE = True
+    WANDB_IMPORTED = True
 except ImportError:
-    WANDB_AVAILABLE = False
+    WANDB_IMPORTED = False
 
 
 class WandbTask(luigi.Task, LuigiCombinator):
@@ -32,37 +34,15 @@ class WandbTask(luigi.Task, LuigiCombinator):
     prediction_horizon = luigi.IntParameter(default=8)
     project_name = luigi.Parameter(default="lot_sizing")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.wandb_run = None
-
-    def initialize_wandb(self):
-        """Initialize wandb if not already initialized."""
-        if self.enable_wandb and self.wandb_run is None:
-            self.wandb_run = wandb.init(
-                project=self.project_name,
-                name=self.__class__.__name__,
-                config={
-                    "prediction_horizon": self.prediction_horizon,
-                    "task_type": self.__class__.__name__
-                },
-                reinit=True
-            )
-
     def run(self):
-        """Initialize wandb before running the task."""
-        self.initialize_wandb()
-        return self._run()
-
-    def _run(self):
         """Override this method in derived classes to implement task logic"""
         raise NotImplementedError()
 
-    def get_historic_demand(self):
-        """Get historic demand data."""
-        with self.input()["historic_demand"].open("r") as infile:
-            text = infile.read()
-            return [int(t) for t in text.split(",")]
+    @classmethod
+    def wandb_init(cls, run_name=None):
+        if not hasattr(cls, "wandb_instance"):
+            cls.wandb_instance = wandb.init(project=cls.project_name, name=run_name)
+
 
     def plot_line_series(self, xs, ys, keys, title, xname="Period", yname="Value"):
         """Create a line plot in wandb."""
@@ -175,21 +155,19 @@ class WandbTask(luigi.Task, LuigiCombinator):
             inventory_levels.append(current_inventory)
         return inventory_levels
 
-
 class InitializeWandb(WandbTask):
-    """Task to initialize wandb. Other tasks can depend on this to ensure wandb is initialized."""
-
+    """Task to initialize wandb for the entire pipeline."""
     def output(self):
         return luigi.LocalTarget("data/wandb_initialized.txt")
 
-    def _run(self):
-        if self.enable_wandb and WANDB_AVAILABLE:
+    def run(self):
+        if self.enable_wandb and WANDB_IMPORTED:
             if not wandb.run:
-                wandb.init(project="lot-sizing-optimization", entity=None, tags=[])
+                WandbTask.wandb_init(run_name=f"pipeline_run_{int(time.time())}")
 
             # Save initialization info
             Path("data").mkdir(exist_ok=True)
-            with self.output().open("w") as f:
+            with self.output()[0].open("w") as f:
                 json.dump(
                     {
                         "project": "lot-sizing-optimization",
@@ -202,41 +180,52 @@ class InitializeWandb(WandbTask):
         else:
             # Create marker file even if wandb is disabled
             Path("data").mkdir(exist_ok=True)
-            with self.output().open("w") as f:
+            with self.output()[0].open("w") as f:
                 json.dump({"wandb_enabled": False}, f)
 
+class FinalizeWandb(WandbTask):
+    """Task to finalize wandb logging."""
+    def output(self):
+        return luigi.LocalTarget("data/wandb_finalized.txt")
+
+    def run(self):
+        if self.enable_wandb:
+            wandb.finish()
+            with self.output().open("w") as f:
+                f.write("WandB run finalized.")
 
 class GetCost(WandbTask):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/cost.json')
+        return [luigi.LocalTarget("data/cost.json")]
 
-    def _run(self):
+    def run(self):
         d = {
-            "fixedCost" : 400,  # Bestellkosten
-            "varCost" : 1,  # Lagerhaltungssatz
+            "fixedCost": 400,  # Bestellkosten
+            "varCost": 1,  # Lagerhaltungssatz
         }
         os.makedirs("data", exist_ok=True)
-        with open(self.output().path, 'w') as f:
+        with open(self.output()[0].path, "w") as f:
             json.dump(d, f, indent=4)
-        
+
         # if self.enable_wandb:
         #     self.log_config(d)
         #     self.log_artifact(self.output().path, "cost_parameters", "parameters")
 
 
 class GetHistoricDemand(WandbTask):
-
     def output(self):
         print("GetHistoricDemand: output")
-        return luigi.LocalTarget("data/historic_demand.csv")
+        return [luigi.LocalTarget("data/historic_demand.csv")]
 
-    def _run(self):
+    def run(self):
         print("====== GetHistoricDemand: run")
-        with self.output().open('w') as f:
-            f.write("1, 5, 7, 8, 9, 10, 14, 16, 19, 21, 19, 23, 24, 26, 26, "
-                    "26, 28, 26, 28, 30")
+        with self.output()[0].open("w") as f:
+            f.write(
+                "1, 5, 7, 8, 9, 10, 14, 16, 19, 21, 19, 23, 24, 26, 26, "
+                "26, 28, 26, 28, 30"
+            )
 
 
 class PredictDemand(WandbTask):
@@ -246,7 +235,7 @@ class PredictDemand(WandbTask):
     def requires(self):
         return {"historic_demand": self.get_historic_demand()}
 
-    def _run(self):
+    def run(self):
         raise NotImplementedError()
 
 
@@ -254,15 +243,14 @@ class PredictDemandByLinearRegression(PredictDemand):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget(
-            'data/predicted_demand_by_linear_regression.pkl')
+        return [luigi.LocalTarget("data/predicted_demand_by_linear_regression.pkl")]
 
-    def _run(self):
+    def run(self):
         print("============= PredictDemandByLinearRegression: run")
         with self.input()["historic_demand"].open() as infile:
             print("I'm just a mock for Linear Regression!!!")
             predicted = [10 + i for i in range(self.prediction_horizon)]
-            data = {'predicted_demand': predicted}
+            data = {"predicted_demand": predicted}
             df_predicted = pd.DataFrame(data)
 
             # Log metrics and plots
@@ -282,23 +270,23 @@ class PredictDemandByLinearRegression(PredictDemand):
                 title="Predicted Demand over Time",
             )
 
-            df_predicted.to_pickle(self.output().path)
+            df_predicted.to_pickle(self.output()[0].path)
 
 
 class PredictDemandByAverage(PredictDemand):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget('data/predicted_demand_by_average.pkl')
+        return [luigi.LocalTarget("data/predicted_demand_by_average.pkl")]
 
-    def _run(self):
+    def run(self):
         print("============= PredictDemandByAverage: run")
-        with self.input()["historic_demand"].open() as infile:
+        with self.input()["historic_demand"][0].open() as infile:
             text = infile.read()
             l = [int(t) for t in text.split(",")]
             avg = int(sum(l) / len(l) + 0.5)
             predicted = [avg for i in range(self.prediction_horizon)]
-            data = {'predicted_demand': predicted}
+            data = {"predicted_demand": predicted}
             df_predicted = pd.DataFrame(data)
 
             # Log metrics and plots
@@ -318,49 +306,46 @@ class PredictDemandByAverage(PredictDemand):
                 title="Predicted Demand over Time",
             )
 
-            df_predicted.to_pickle(self.output().path)
+            df_predicted.to_pickle(self.output()[0].path)
 
 
 class OptimizeLots(WandbTask):
     """Base class for lot-sizing optimization tasks."""
+
     abstract = True
     predicted_demand = ClsParameter(tpe=PredictDemand.return_type())
     get_cost = ClsParameter(tpe=GetCost.return_type())
 
     def requires(self):
-        return {
-            "cost": self.get_cost(),
-            "demand": self.predicted_demand()
-        }
+        return {"cost": self.get_cost(), "demand": self.predicted_demand()}
 
     def _get_cost(self):
-        with open(self.input()["cost"].path, 'rb') as f:
+        with open(self.input()["cost"][0].path, "rb") as f:
             cost = json.load(f)
         return cost
 
     def _get_demand(self):
-        demand_df = pd.read_pickle(self.input()["demand"].path)
-        return list(demand_df['predicted_demand'])
+        demand_df = pd.read_pickle(self.input()["demand"][0].path)
+        return list(demand_df["predicted_demand"])
 
-    def _run(self):
+    def run(self):
         print(f"============= {self.__class__.__name__}: run")
         cost = self._get_cost()
         demand = self._get_demand()
-
 
         # Run optimizer
         orders, metrics = self.run_optimizer(cost, demand)
         self.track_experiment(orders, metrics, demand, cost)
 
-        with self.output().open('w') as f:
+        with self.output()[0].open("w") as f:
             f.write(str(list(orders)))
 
     def run_optimizer(self, cost, demand):
         return NotImplementedError()
 
     def _get_variant_label(self):
-        if isinstance(self.input()["demand"], luigi.LocalTarget):
-            label = self.input()["demand"].path
+        if isinstance(self.input()["demand"][0], luigi.LocalTarget):
+            label = self.input()["demand"][0].path
             return Path(label).stem
 
 
@@ -368,14 +353,15 @@ class OptimizeLotsByGroff(OptimizeLots):
     abstract = False
 
     def output(self):
-            return luigi.LocalTarget('data/' + self._get_variant_label() + "-" + 'optimize_lots_by_groff.txt')
-
+        return [luigi.LocalTarget(
+            "data/" + self._get_variant_label() + "-" + "optimize_lots_by_groff.txt"
+        )]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByGroff: run_optimizer")
         optimizer = GroffHeuristic()
         orders = optimizer.run(cost, demand)
-        
+
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
@@ -407,18 +393,18 @@ class OptimizeLotsByWagnerWhitin(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget(
+        return [luigi.LocalTarget(
             "data/"
             + self._get_variant_label()
             + "-"
             + "optimize_lots_by_wagner_within.txt"
-        )
+        )]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByWagnerWhitin: run_optimizer")
         optimizer = WagnerWhitin()
         orders = optimizer.run(cost, demand)
-        
+
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
@@ -450,18 +436,18 @@ class OptimizeLotsBySilverMeal(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget(
+        return [luigi.LocalTarget(
             "data/"
             + self._get_variant_label()
             + "-"
             + "optimize_lots_by_silver_meal.txt"
-        )
+        )]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsBySilverMeal: run_optimizer")
         optimizer = SilverMeal()
         orders = optimizer.run(cost, demand)
-        
+
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
@@ -493,23 +479,23 @@ class OptimizeLotsByLeastUnitCost(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget(
+        return [luigi.LocalTarget(
             "data/"
             + self._get_variant_label()
             + "-"
             + "optimize_lots_by_least_unit_cost.txt"
-        )
+        )]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByLeastUnitCost: run_optimizer")
         optimizer = LeastUnitCostMethod()
         orders = optimizer.run(cost, demand)
-        
+
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
             "variable_costs": sum(orders),
-            "cost_per_unit":0 / sum(demand) if sum(demand) > 0 else 0,
+            "cost_per_unit": 0 / sum(demand) if sum(demand) > 0 else 0,
         }
         self.track_experiment(orders, metrics, demand, cost)
 
@@ -536,18 +522,18 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
     abstract = False
 
     def output(self):
-        return luigi.LocalTarget(
+        return [luigi.LocalTarget(
             "data/"
             + self._get_variant_label()
             + "-"
             + "optimize_lots_by_part_period.txt"
-        )
+        )]
 
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByPartPeriod: run_optimizer")
         optimizer = PartPeriod()
         orders = optimizer.run(cost, demand)
-        
+
         metrics = {
             "total_cost": sum(orders),
             "fixed_costs": 0,
@@ -566,7 +552,10 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
         # Plot fixed and variable costs over time
         self.plot_line_series(
             xs=[[i for i in range(len(orders))]],
-            ys=[[metrics["fixed_costs"] for _ in range(len(orders))], [metrics["variable_costs"] for _ in range(len(orders))]],
+            ys=[
+                [metrics["fixed_costs"] for _ in range(len(orders))],
+                [metrics["variable_costs"] for _ in range(len(orders))],
+            ],
             keys=["Fixed Costs", "Variable Costs"],
             title="Fixed and Variable Costs Over Time",
         )
@@ -575,7 +564,6 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
 
 
 if __name__ == "__main__":
-
     target = OptimizeLots.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
@@ -593,6 +581,7 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        luigi.build(results, local_scheduler=True, detailed_summary=True)
+        for r in results:
+            luigi.build([InitializeWandb()] + r + [FinalizeWandb()], local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")
