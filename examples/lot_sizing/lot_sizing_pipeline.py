@@ -191,30 +191,12 @@ class InitializeWandb(WandbTask):
     abstract = False
     pipeline_name = luigi.Parameter(default="none")
 
-    def output(self):
-        return luigi.LocalTarget("data/wandb_initialized.txt")
+    def complete(self):
+        return True
 
     def run(self):
         if self.enable_wandb and WANDB_IMPORTED:
             self.wandb_init(run_name=self.pipeline_name + "_" + time.strftime("%Y%m%d-%H%M%S"))
-
-            # Save initialization info
-            Path("data").mkdir(exist_ok=True)
-            with self.output().open("w") as f:
-                json.dump(
-                    {
-                        "project": "lot-sizing-optimization",
-                        "entity": None,
-                        "tags": [],
-                        "run_id": wandb.run.id if wandb.run else None,
-                    },
-                    f,
-                )
-        else:
-            # Create marker file even if wandb is disabled
-            Path("data").mkdir(exist_ok=True)
-            with self.output().open("w") as f:
-                json.dump({"wandb_enabled": False}, f)
 
 
 class GetCost(WandbTask):
@@ -613,14 +595,12 @@ class FinalizeWandb(WandbTask):
     def requires(self):
         return self.target_task()
 
-    def output(self):
-        return luigi.LocalTarget("data/wandb_finalized.txt")
+    def complete(self):
+        return True
 
     def run(self):
         if self.enable_wandb:
             wandb.finish()
-            with self.output().open("w") as f:
-                f.write("WandB run finalized.")
 
 
 def extract_task_classes(input_str):
