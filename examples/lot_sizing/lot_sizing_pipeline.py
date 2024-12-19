@@ -9,6 +9,8 @@ from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 
 
 import pandas as pd
+import statistics
+
 import json
 from pathlib import Path
 import numpy as np
@@ -21,6 +23,8 @@ from lot_optimizers.silver_meal_heuristic import SilverMeal
 from lot_optimizers.least_unit_cost_method import LeastUnitCostMethod
 from lot_optimizers.part_period_heuristic import PartPeriod
 import wandb
+
+import re
 
 # Optional wandb import
 try:
@@ -41,18 +45,23 @@ class WandbTask(luigi.Task, LuigiCombinator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         config = luigi.configuration.get_config()
-        self.enable_wandb = config.getboolean('WandbTask', 'enable_wandb', self.enable_wandb)
-        self.prediction_horizon = config.getint('WandbTask', 'prediction_horizon', self.prediction_horizon)
-        self.project_name = config.get('WandbTask', 'project_name', self.project_name)
+        self.enable_wandb = config.getboolean(
+            "WandbTask", "enable_wandb", self.enable_wandb
+        )
+        self.prediction_horizon = config.getint(
+            "WandbTask", "prediction_horizon", self.prediction_horizon
+        )
+        self.project_name = config.get("WandbTask", "project_name", self.project_name)
 
     def run(self):
         """Override this method in derived classes to implement task logic"""
         raise NotImplementedError()
 
     @classmethod
-    def wandb_init(cls, run_name=None):
+    def wandb_init(cls, run_name=""):
         if not hasattr(cls, "wandb_instance"):
-            cls.wandb_instance = wandb.init(project=cls.project_name, name=run_name)
+            instance = cls()
+            cls.wandb_instance = wandb.init(project=str(instance.project_name), name=run_name)
 
     def plot_line_series(self, xs, ys, keys, title, xname="Period", yname="Value"):
         """Create a line plot in wandb."""
@@ -133,6 +142,16 @@ class WandbTask(luigi.Task, LuigiCombinator):
         # Log metrics
         self.log_metrics(metrics)
 
+        df = pd.read_csv(demand.path, header=None)
+
+        demands = list(map(int, df.iloc[0, 0].split(',')))
+        total_demand = sum(demands) if demands else 0
+        avg_demand = total_demand / len(demands) if demands else 0
+        std_demand = statistics.stdev(demands) if len(demands) > 1 else 0
+        max_demand = max(demands) if demands else 0
+        min_demand = min(demands) if demands else 0
+        demand_length = len(demands) if demands else 0
+
         # Log hyperparameters
         self.log_hyperparameters(
             {
@@ -140,12 +159,12 @@ class WandbTask(luigi.Task, LuigiCombinator):
                 "variable_cost": cost.get("varCost", 0),
                 "prediction_horizon": self.prediction_horizon,
                 "optimizer": self.__class__.__name__,
-                "total_demand": sum(demand) if demand else 0,
-                "avg_demand": np.mean(demand) if demand else 0,
-                "std_demand": np.std(demand) if demand else 0,
-                "max_demand": max(demand) if demand else 0,
-                "min_demand": min(demand) if demand else 0,
-                "demand_length": len(demand) if demand else 0,
+                "total_demand": total_demand,
+                "avg_demand": avg_demand,
+                "std_demand": std_demand,
+                "max_demand": max_demand,
+                "min_demand": min_demand,
+                "demand_length": demand_length,
             }
         )
 
@@ -169,17 +188,19 @@ class WandbTask(luigi.Task, LuigiCombinator):
 class InitializeWandb(WandbTask):
     """Task to initialize wandb for the entire pipeline."""
 
+    abstract = False
+    pipeline_name = luigi.Parameter(default="none")
+
     def output(self):
         return luigi.LocalTarget("data/wandb_initialized.txt")
 
     def run(self):
         if self.enable_wandb and WANDB_IMPORTED:
-            if not wandb.run:
-                WandbTask.wandb_init(run_name=f"pipeline_run_{int(time.time())}")
+            self.wandb_init(run_name=self.pipeline_name + "_" + time.strftime("%Y%m%d-%H%M%S"))
 
             # Save initialization info
             Path("data").mkdir(exist_ok=True)
-            with self.output()[0].open("w") as f:
+            with self.output().open("w") as f:
                 json.dump(
                     {
                         "project": "lot-sizing-optimization",
@@ -192,25 +213,15 @@ class InitializeWandb(WandbTask):
         else:
             # Create marker file even if wandb is disabled
             Path("data").mkdir(exist_ok=True)
-            with self.output()[0].open("w") as f:
-                json.dump({"wandb_enabled": False}, f)
-
-
-class FinalizeWandb(WandbTask):
-    """Task to finalize wandb logging."""
-
-    def output(self):
-        return luigi.LocalTarget("data/wandb_finalized.txt")
-
-    def run(self):
-        if self.enable_wandb:
-            wandb.finish()
             with self.output().open("w") as f:
-                f.write("WandB run finalized.")
+                json.dump({"wandb_enabled": False}, f)
 
 
 class GetCost(WandbTask):
     abstract = False
+
+    def requires(self):
+        return InitializeWandb()
 
     def output(self):
         return [luigi.LocalTarget("data/cost.json")]
@@ -230,13 +241,18 @@ class GetCost(WandbTask):
 
 
 class GetHistoricDemand(WandbTask):
+    abstract = False
+
+    def requires(self):
+        return InitializeWandb()
+
     def output(self):
         print("GetHistoricDemand: output")
-        return [luigi.LocalTarget("data/historic_demand.csv")]
+        return luigi.LocalTarget("data/historic_demand.csv")
 
     def run(self):
         print("====== GetHistoricDemand: run")
-        with self.output()[0].open("w") as f:
+        with self.output().open("w") as f:
             f.write(
                 "1, 5, 7, 8, 9, 10, 14, 16, 19, 21, 19, 23, 24, 26, 26, "
                 "26, 28, 26, 28, 30"
@@ -276,7 +292,7 @@ class PredictDemandByLinearRegression(PredictDemand):
                 "min_predicted_demand": min(predicted),
                 "max_predicted_demand": max(predicted),
             }
-            self.track_experiment(predicted, metrics, self.get_historic_demand(), {})
+            self.track_experiment(predicted, metrics, self.input()["historic_demand"].path, {})
 
             self.plot_line_series(
                 xs=[[i for i in range(len(predicted))]],
@@ -296,7 +312,7 @@ class PredictDemandByAverage(PredictDemand):
 
     def run(self):
         print("============= PredictDemandByAverage: run")
-        with self.input()["historic_demand"][0].open() as infile:
+        with self.input()["historic_demand"].open() as infile:
             text = infile.read()
             l = [int(t) for t in text.split(",")]
             avg = int(sum(l) / len(l) + 0.5)
@@ -312,7 +328,7 @@ class PredictDemandByAverage(PredictDemand):
                 "min_predicted_demand": min(predicted),
                 "max_predicted_demand": max(predicted),
             }
-            self.track_experiment(predicted, metrics, self.get_historic_demand(), {})
+            self.track_experiment(predicted, metrics, predicted, {})
 
             self.plot_line_series(
                 xs=[[i for i in range(len(predicted))]],
@@ -588,21 +604,52 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
         return orders, metrics
 
 
+class FinalizeWandb(WandbTask):
+    """Task to finalize wandb logging."""
+
+    abstract = False
+    target_task = ClsParameter(tpe=OptimizeLots.return_type())
+
+    def requires(self):
+        return self.target_task()
+
+    def output(self):
+        return luigi.LocalTarget("data/wandb_finalized.txt")
+
+    def run(self):
+        if self.enable_wandb:
+            wandb.finish()
+            with self.output().open("w") as f:
+                f.write("WandB run finalized.")
+
+
+def extract_task_classes(input_str):
+    task_classes = []
+
+    main_class_pattern = r"(\w+)\("
+    main_class_match = re.search(main_class_pattern, input_str)
+    if main_class_match:
+        task_classes.append(main_class_match.group(1))  # Get the class name
+    pattern = r'"task_class":\s*"([^"]+)"'
+    matches = re.findall(pattern, input_str)
+    task_classes.extend(matches)
+    return "_".join(task_classes)
+
+
 if __name__ == "__main__":
 
     # Set global configuration for all tasks
     config = configuration.get_config()
-    config.set("WandbTask", "enable_wandb", "False")
+    config.set("WandbTask", "enable_wandb", "True")
     config.set("WandbTask", "prediction_horizon", "5")
     config.set("WandbTask", "project_name", "TestProject")
 
-    target = OptimizeLots.return_type()
-    repo_meta = RepoMeta
-    repository = repo_meta.repository
+    target = FinalizeWandb.return_type()
+    repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
     print(deep_str(inhabitation_result.rules))
-    max_tasks_when_infinite = 10
+    max_tasks_when_infinite = 50
     actual = inhabitation_result.size()
     max_results = max_tasks_when_infinite
 
@@ -615,10 +662,14 @@ if __name__ == "__main__":
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         for r in results:
-            pipeline = [InitializeWandb()] + [r] + [FinalizeWandb()]
+            config.set(
+                "InitializeWandb", "pipeline_name", f"{extract_task_classes(str (r))}"
+            )
+            pipeline = r
+            print(type(pipeline))
             print("==============")
             print(pipeline)
             print("\n")
-            # luigi.build([InitializeWandb()] + r + [FinalizeWandb()], local_scheduler=True, detailed_summary=True)
+            #luigi.build([r], local_scheduler=True, detailed_summary=True)
     else:
         print("No results!")
