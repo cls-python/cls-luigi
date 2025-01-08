@@ -3,6 +3,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy
+import lot_optimizers.metric_helper as metric_helper
+
 class GroffHeuristic():
     def __init__(self):
         pass
@@ -50,8 +52,21 @@ class GroffHeuristic():
         print("total cost: " + str(total_c))
         print(sum(orders))
         output = numpy.array(orders)
-        return output
-
+        metrics = {
+            "fix" : fix,
+            "var" : cost_v,
+            "total_c" : total_c,
+            "orders" : orders,
+            "sum" : sum(orders),
+            "demand" : demand,
+            "number_of_orders" : len(orders),
+            "average_order_quantity" : numpy.mean(orders) if orders else 0,
+            "order_fulfillment_rate" : metric_helper.calculate_fulfillment_rate(demand, orders),
+            "inventory_levels" :metric_helper.calculate_inventory_levels(orders),
+            "service_level" : metric_helper.calculate_service_level(demand, orders),
+            "lead_time" : metric_helper.calculate_lead_time(),
+            }
+        return output, metrics
 
 if __name__ == "__main__":
     # statisches Test dictionary

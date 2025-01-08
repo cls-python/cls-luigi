@@ -1,6 +1,4 @@
 import luigi
-from luigi import configuration
-
 import os
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
@@ -9,7 +7,6 @@ from cls.subtypes import Subtypes
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
 
 import pandas as pd
-import statistics
 
 import json
 from pathlib import Path
@@ -46,6 +43,9 @@ try:
 except ImportError:
     WANDB_IMPORTED = False
 
+PIPELINE_NAME = "None"
+PROJECT_NAME = "lot_sizing"
+
 class ConfigTask(luigi.Task):
     enable_wandb = luigi.BoolParameter(default=True)
     prediction_horizon = luigi.IntParameter(default=8)
@@ -77,10 +77,9 @@ class WandbTask(ConfigTask, LuigiCombinator):
                 print(f"Logged {artifact_type} artifact to run: {artifact_name}")
             else:
                 # Log to the project without associating with a run
-                api = wandb.Api()
-                artifact = wandb.Artifact(name=artifact_name, type=artifact_type, metadata={"project": str(self.project_name)})
+                artifact = wandb.Artifact(name=artifact_name, type=artifact_type, metadata={"project": PROJECT_NAME})
                 artifact.add_file(file_path)
-                api.artifacts.create(artifact)
+                wandb.log_artifact(artifact)
                 print(f"Logged {artifact_type} artifact to project: {artifact_name}")
 
     def log_if_enabled(self, log_function, *args, **kwargs):
@@ -96,8 +95,9 @@ class WandbTask(ConfigTask, LuigiCombinator):
         """Log hyperparameters to wandb."""
         self.log_if_enabled(wandb.config.update, params)
 
-    def log_prediction_metrics(mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand):
+    def log_prediction_metrics(self, prediction_method, mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand):
         wandb.log({
+            "Prediction_Method": prediction_method,
             "MAE": mae,
             "MSE": mse,
             "RMSE": rmse,
@@ -108,67 +108,64 @@ class WandbTask(ConfigTask, LuigiCombinator):
             "Max Predicted Demand": max_predicted_demand,
         })
 
-    def log_prediction_plots(actual, predicted):
-        # Log Actual vs Predicted
-        wandb.log({
-            "Actual vs Predicted": wandb.plot.line(
-                x=list(range(len(actual))), 
-                y=actual, 
-                title="Actual Demand",
-                xname="Time",
-                yname="Demand"
-            )
-        })
+    def log_prediction_plots(self, prediction_method, actual, predicted):
+        # Prepare the prediction horizon
+        prediction_horizon = list(range(len(actual)))  # Assuming actual and predicted have the same length
+
+        # Prepare data for logging
+        data = [[x, a, p] for x, a, p in zip(prediction_horizon, actual, predicted)]
         
+        # Create a table for logging actual and predicted demands
+        demand_table = wandb.Table(data=data, columns=["Prediction Horizon", "Actual Demand", "Predicted Demand"])
+        
+        # Calculate residuals
+        residuals = [a - p for a, p in zip(actual, predicted)]
+        residuals_data = [[x, res] for x, res in zip(prediction_horizon, residuals)]
+        
+        # Create a table for logging residuals
+        residuals_table = wandb.Table(data=residuals_data, columns=["Prediction Horizon", "Residuals"])
+        
+        # Log Predicted Demand
         wandb.log({
-            "Predicted vs Actual": wandb.plot.line(
-                x=list(range(len(predicted))), 
-                y=predicted, 
-                title="Predicted Demand",
-                xname="Time",
-                yname="Demand"
+             "Predicted Demand for " + str(prediction_method): wandb.plot.line(
+                demand_table, "Prediction Horizon", "Predicted Demand", title="Predicted Demand for " + str(prediction_method)
             )
         })
+
+        # Log Actual Demand 
+        wandb.log({
+            "Actual Demand for " + str(prediction_method) : wandb.plot.line(
+                demand_table, "Prediction Horizon", "Actual Demand", title="Actual Demand for " + str(prediction_method)
+            )
+        })
+
+        # Log Actual and Predicted Demand in One Plot using line_series
+        wandb.log({
+            "Actual and Predicted Demand for " + str(prediction_method): wandb.plot.line_series(
+                xs = prediction_horizon,
+                ys =[list(actual), list(predicted)],
+                keys=["Actual Demand", "Predicted Demand"],
+                title="Actual and Predicted Demand for " + str(prediction_method),
+                xname="Prediction Horizon"
+            )
+        })
+
 
         # Log Residuals
-        residuals = actual - predicted
         wandb.log({
-            "Residuals": wandb.plot.scatter(
-                x=predicted, 
-                y=residuals, 
-                title="Residual Plot",
-                xname="Predicted Demand",
-                yname="Residuals"
+            "Residuals for " + str(prediction_method): wandb.plot.scatter(
+                residuals_table, "Prediction Horizon", "Residuals", title="Residuals for " + str(prediction_method)
             )
         })
 
-        # Demand over Time
-        wandb.log({
-            "Demand Over Time": wandb.plot.line(
-                x=list(range(len(actual))), 
-                y=actual, 
-                title="Demand Over Time",
-                xname="Time",
-                yname="Demand"
-            )
-        })
-
-        # Predicted Demand over Time
-        wandb.log({
-            "Predicted Demand Over Time": wandb.plot.line(
-                x=list(range(len(predicted))), 
-                y=predicted, 
-                title="Predicted Demand Over Time",
-                xname="Time",
-                yname="Demand"
-            )
-        })
-
-    def track_prediction(self, prediction_method, actual, predicted):
+    def track_prediction(self, prediction_method, actual, predicted, prediction_horizon=None):
         if not self.enable_wandb:
             return
 
         # Log metrics
+        actual = np.array(actual)
+        predicted = np.array(predicted)
+
         mae = np.mean(np.abs(actual - predicted))
         mse = np.mean((actual - predicted) ** 2)
         rmse = np.sqrt(mse)
@@ -181,46 +178,28 @@ class WandbTask(ConfigTask, LuigiCombinator):
         min_predicted_demand = np.min(predicted)
         max_predicted_demand = np.max(predicted)
 
-        self.log_prediction_metrics(mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand)
-        self.log_prediction_plots(actual, predicted)
+        self.log_prediction_metrics(prediction_method, mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand)
+        self.log_prediction_plots(prediction_method, actual, predicted)
+        if prediction_horizon:
+            # Log hyperparameters
+            wandb.config.prediction_horizon = int(self.prediction_horizon)
    
-    def track_experiment(self, orders, metrics, demand, cost):
-        """Handles logging and tracking for wandb."""
+    def track_optimization(self, cost, metrics):
         if not self.enable_wandb:
             return
 
+        # Log Hyperparameters
+        # planing_period
+        wandb.config.planning_period = int(self.prediction_horizon)
+        # fixed_cost
+        wandb.config.fixed_cost = cost["fixedCost"]
+        # variable_cost
+        wandb.config.variable_cost = cost["varCost"]
+
         # Log metrics
-        self.log_metrics(metrics)
+        wandb.log(metrics)
 
-        df = pd.read_csv(demand.path, header=None)
 
-        demands = list(map(int, df.iloc[0, 0].split(',')))
-        total_demand = sum(demands) if demands else 0
-        avg_demand = total_demand / len(demands) if demands else 0
-        std_demand = statistics.stdev(demands) if len(demands) > 1 else 0
-        max_demand = max(demands) if demands else 0
-        min_demand = min(demands) if demands else 0
-        demand_length = len(demands) if demands else 0
-
-        # Log hyperparameters
-        self.log_hyperparameters(
-            {
-                "fixed_cost": cost.get("fixedCost", 0),
-                "variable_cost": cost.get("varCost", 0),
-                "prediction_horizon": self.prediction_horizon,
-                "optimizer": self.__class__.__name__,
-                "total_demand": total_demand,
-                "avg_demand": avg_demand,
-                "std_demand": std_demand,
-                "max_demand": max_demand,
-                "min_demand": min_demand,
-                "demand_length": demand_length,
-            }
-        )
-
-        # Log plots and additional metrics
-        if orders and demand:
-            self.log_metrics_and_plots(orders, metrics, demand)
 
 class GetCost(WandbTask):
     abstract = False
@@ -274,7 +253,7 @@ class PredictDemand(WandbTask):
     get_historic_demand = ClsParameter(tpe=GetHistoricDemand.return_type())
 
     def requires(self):
-        return {"historic_demand": self.get_historic_demand(), "actual_demand": self.get_actual_demand()}
+        return {"historic_demand": self.get_historic_demand()}
 
     def get_actual_demand(self):
         # just dummy values
@@ -298,8 +277,8 @@ class PredictDemandByLinearRegression(PredictDemand):
             data = {"predicted_demand": predicted}
             df_predicted = pd.DataFrame(data)
 
-            # Log metrics and plots
-            self.track_prediction("linear regression", self.get_actual_demand(), predicted)
+            # Log metrics, hyperparameters and plots
+            self.track_prediction("linear regression", self.get_actual_demand()[:int(self.prediction_horizon)], predicted, int(self.prediction_horizon))
 
             df_predicted.to_pickle(self.output()[0].path)
 
@@ -320,8 +299,8 @@ class PredictDemandByAverage(PredictDemand):
             data = {"predicted_demand": predicted}
             df_predicted = pd.DataFrame(data)
 
-            # Log metrics and plots
-            self.track_prediction("average", self.get_actual_demand(), predicted)
+            # Log metrics, hyperparameters and plots
+            self.track_prediction("average", self.get_actual_demand()[:int(self.prediction_horizon)], predicted, int(self.prediction_horizon))
 
             df_predicted.to_pickle(self.output()[0].path)
 
@@ -352,7 +331,9 @@ class OptimizeLots(WandbTask):
 
         # Run optimizer
         orders, metrics = self.run_optimizer(cost, demand)
-        self.track_experiment(orders, metrics, demand, cost)
+        
+        self.track_optimization(cost, metrics)
+        
 
         with self.output()[0].open("w") as f:
             f.write(str(list(orders)))
@@ -379,31 +360,7 @@ class OptimizeLotsByGroff(OptimizeLots):
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByGroff: run_optimizer")
         optimizer = GroffHeuristic()
-        orders = optimizer.run(cost, demand)
-
-        metrics = {
-            "total_cost": sum(orders),
-            "fixed_costs": 0,
-            "variable_costs": sum(orders),
-            "criterion_value": (2 * cost["fixedCost"]) / cost["varCost"],
-        }
-        self.track_experiment(orders, metrics, demand, cost)
-
-        # Plot order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities Over Time",
-        )
-
-        # Plot total cost over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[[metrics["total_cost"] for _ in range(len(orders))]],
-            keys=["Total Cost"],
-            title="Total Cost Over Time",
-        )
+        orders, metrics = optimizer.run(cost, demand)
 
         return orders, metrics
 
@@ -424,31 +381,7 @@ class OptimizeLotsByWagnerWhitin(OptimizeLots):
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByWagnerWhitin: run_optimizer")
         optimizer = WagnerWhitin()
-        orders = optimizer.run(cost, demand)
-
-        metrics = {
-            "total_cost": sum(orders),
-            "fixed_costs": 0,
-            "variable_costs": sum(orders),
-            "num_orders": len(orders),
-        }
-        self.track_experiment(orders, metrics, demand, cost)
-
-        # Plot order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities Over Time",
-        )
-
-        # Plot total cost over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[[metrics["total_cost"] for _ in range(len(orders))]],
-            keys=["Total Cost"],
-            title="Total Cost Over Time",
-        )
+        orders, metrics = optimizer.run(cost, demand)
 
         return orders, metrics
 
@@ -469,31 +402,7 @@ class OptimizeLotsBySilverMeal(OptimizeLots):
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsBySilverMeal: run_optimizer")
         optimizer = SilverMeal()
-        orders = optimizer.run(cost, demand)
-
-        metrics = {
-            "total_cost": sum(orders),
-            "fixed_costs": 0,
-            "variable_costs": sum(orders),
-            "avg_order_quantity": np.mean(orders),
-        }
-        self.track_experiment(orders, metrics, demand, cost)
-
-        # Plot order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities Over Time",
-        )
-
-        # Plot average order quantity over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[[metrics["avg_order_quantity"] for _ in range(len(orders))]],
-            keys=["Average Order Quantity"],
-            title="Average Order Quantity Over Time",
-        )
+        orders, metrics = optimizer.run(cost, demand)
 
         return orders, metrics
 
@@ -514,31 +423,7 @@ class OptimizeLotsByLeastUnitCost(OptimizeLots):
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByLeastUnitCost: run_optimizer")
         optimizer = LeastUnitCostMethod()
-        orders = optimizer.run(cost, demand)
-
-        metrics = {
-            "total_cost": sum(orders),
-            "fixed_costs": 0,
-            "variable_costs": sum(orders),
-            "cost_per_unit": 0 / sum(demand) if sum(demand) > 0 else 0,
-        }
-        self.track_experiment(orders, metrics, demand, cost)
-
-        # Plot order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities Over Time",
-        )
-
-        # Plot cost per unit over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[[metrics["cost_per_unit"] for _ in range(len(orders))]],
-            keys=["Cost per Unit"],
-            title="Cost per Unit Over Time",
-        )
+        orders, metrics = optimizer.run(cost, demand)
 
         return orders, metrics
 
@@ -559,33 +444,7 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
     def run_optimizer(self, cost, demand):
         print("============= OptimizeLotsByPartPeriod: run_optimizer")
         optimizer = PartPeriod()
-        orders = optimizer.run(cost, demand)
-
-        metrics = {
-            "total_cost": sum(orders),
-            "fixed_costs": 0,
-            "variable_costs": sum(orders),
-        }
-        self.track_experiment(orders, metrics, demand, cost)
-
-        # Plot order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities Over Time",
-        )
-
-        # Plot fixed and variable costs over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[
-                [metrics["fixed_costs"] for _ in range(len(orders))],
-                [metrics["variable_costs"] for _ in range(len(orders))],
-            ],
-            keys=["Fixed Costs", "Variable Costs"],
-            title="Fixed and Variable Costs Over Time",
-        )
+        orders, metrics = optimizer.run(cost, demand)
 
         return orders, metrics
 
@@ -596,25 +455,21 @@ def reset_stop_event():
     global stop_event
     stop_event = threading.Event()  # Create a new event, which is unset (False)
 
-def get_nvidia_usage():
-    """Get GPU usage for NVIDIA and AMD GPUs."""
+def get_nvidia_metrics():
+    """Get GPU metrics for NVIDIA GPUs."""
     gpu_usage = {}
-
-    # Check for NVIDIA GPUs
-    nvidia_gpus = GPUtil.getGPUs()
-    if nvidia_gpus:
-        gpu_usage['NVIDIA'] = [gpu.load * 100 for gpu in nvidia_gpus]
+    #TODO
+    gpu_usage['NVIDIA'] = [0]
 
     return gpu_usage
 
-def get_amd_usage():
-    """Get GPU usage for AMD GPUs."""
-    try:
-        amd_gpus = pyamdgpuinfo.get_all_gpus()  # Get information about all AMD GPUs
-        return [gpu['usage'] for gpu in amd_gpus]  # Extract usage percentage for each GPU
-    except Exception as e:
-        print(f"Error getting AMD GPU usage: {e}")
-        return []
+def get_amd_metrics():
+    """Get GPU metrics for AMD GPUs."""
+    gpu_usage = {}
+    #TODO
+    gpu_usage['AMD'] = [0]
+
+    return gpu_usage
 
 def log_system_metrics(process):
     """Log CPU, memory, and GPU usage for the current process and its children."""
@@ -627,21 +482,21 @@ def log_system_metrics(process):
         memory_usage = memory_info.rss / psutil.virtual_memory().total * 100  # RSS as a percentage of total memory
 
         # Get GPU usage if applicable
-        gpu_usage = {}
+        gpu_metrics = {}
         if NVIDIAGPU_IMPORTED:
-            gpu_usage['NVIDIA'] = get_nvidia_usage()
+            gpu_metrics['NVIDIA'] = get_nvidia_metrics()
         if AMDGPU_IMPORTED:
-            gpu_usage['AMD'] = get_amd_usage()
+            gpu_metrics['AMD'] = get_amd_metrics()
 
         # Log the metrics to WandB
         wandb.log({
             "cpu_usage": cpu_usage,
             "memory_usage": memory_usage,
-            "gpu_usage": gpu_usage  # Log GPU usage if available
+            "gpu_metrics": gpu_metrics  # Log GPU metrics if available
         })
 
         # Optional: Print to console for real-time monitoring
-        print(f"CPU Usage: {cpu_usage}, Memory Usage: {memory_usage}, GPU Usage: {gpu_usage}")
+        print(f"CPU Usage: {cpu_usage}, Memory Usage: {memory_usage}, GPU Metrics: {gpu_metrics}")
         time.sleep(1)  # Adjust the sleep time as needed
 
 def start_logging_metrics():
@@ -663,6 +518,13 @@ def extract_task_classes(input_str):
     task_classes.extend(matches)
     return "_".join(task_classes)
 
+def modify_global_pipeline_name(pipeline_name):
+    global PIPELINE_NAME
+    PIPELINE_NAME = pipeline_name
+
+def modify_global_project_name(project_name):
+    global PROJECT_NAME
+    PROJECT_NAME = project_name
 
 if __name__ == "__main__":
     
@@ -689,7 +551,8 @@ if __name__ == "__main__":
         for pipeline in results:
 
             if USE_WANDB:
-                wandb.init(project="lot_sizing", name=str(extract_task_classes(str (pipeline))) + "_" + time.strftime("%Y%m%d-%H%M%S"))
+                modify_global_pipeline_name(str(extract_task_classes(str (pipeline))) + "_" + time.strftime("%Y%m%d-%H%M%S"))
+                wandb.init(project=PROJECT_NAME, name=PIPELINE_NAME)
                 log_thread = start_logging_metrics()
 
 
@@ -697,7 +560,7 @@ if __name__ == "__main__":
             print("==============")
             print(deep_str(pipeline))
             print("\n")
-            #luigi.build([r], local_scheduler=True, detailed_summary=True)
+            luigi.build([pipeline], local_scheduler=True, detailed_summary=True)
             print("\n")
             print("===============")
 

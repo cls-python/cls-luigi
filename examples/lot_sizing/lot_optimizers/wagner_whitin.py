@@ -2,7 +2,9 @@
 #!/usr/bin/env  python
 # -*- coding: utf-8 -*-
 
+from types import MethodDescriptorType
 import numpy as np
+import lot_optimizers.metric_helper as metric_helper
 
 class WagnerWhitin():
     def __init__(self):
@@ -83,7 +85,22 @@ class WagnerWhitin():
             #          "minimale Kosten": minKosten}
           #  print("Minimale Kosten: " + str(minKosten))
             output = np.array(bestellteMenge)
-        return output
+
+        metrics = {
+            "fix" : fixKosten,
+            "var" : varKosten,
+            "total_c" : minKosten,
+            "orders" : bestellteMenge,
+            "sum" : sum(bestellteMenge),
+            "demand" : demand,
+            "number_of_orders" : len(bestellteMenge),
+            "average_order_quantity" : np.mean(bestellteMenge) if bestellteMenge else 0,
+            "order_fulfillment_rate" : metric_helper.calculate_fulfillment_rate(demand, bestellteMenge),
+            "inventory_levels" :metric_helper.calculate_inventory_levels(bestellteMenge),
+            "service_level" : metric_helper.calculate_service_level(demand, bestellteMenge),
+            "lead_time" : metric_helper.calculate_lead_time()
+        }
+        return output, metrics
 
 
 if __name__ == "__main__":
