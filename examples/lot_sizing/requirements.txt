@@ -2,3 +2,5 @@ cls-luigi
 pandas
 numpy
 wandb>=0.15.0
+gputil
+pyamdgpuinfo

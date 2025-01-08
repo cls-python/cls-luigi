@@ -586,3 +586,5 @@ $RECYCLE.BIN/
 *.lnk
 *.pkl
 
+wandb/*
+data/*

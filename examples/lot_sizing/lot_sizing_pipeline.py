@@ -1,12 +1,12 @@
 import luigi
 from luigi import configuration
+
 import os
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
 
 from cls_luigi.inhabitation_task import RepoMeta, LuigiCombinator, ClsParameter
-
 
 import pandas as pd
 import statistics
@@ -16,67 +16,72 @@ from pathlib import Path
 import numpy as np
 import psutil
 import time
+import threading
+import re
 
 from lot_optimizers.groff_heuristic import GroffHeuristic
 from lot_optimizers.wagner_whitin import WagnerWhitin
 from lot_optimizers.silver_meal_heuristic import SilverMeal
 from lot_optimizers.least_unit_cost_method import LeastUnitCostMethod
 from lot_optimizers.part_period_heuristic import PartPeriod
-import wandb
 
-import re
+# Optional GPUtil for nvidia gpu usage
+try:
+    import GPUtil
+    NVIDIAGPU_IMPORTED = True
+except ImportError:
+    NVIDIAGPU_IMPORTED = False
+
+# Optional pyamdgpuinfo for amd gpu usage
+try:
+    import pyamdgpuinfo
+    AMDGPU_IMPORTED = True
+except ImportError:
+    AMDGPU_IMPORTED = False
 
 # Optional wandb import
 try:
     import wandb
-
     WANDB_IMPORTED = True
 except ImportError:
     WANDB_IMPORTED = False
 
+class ConfigTask(luigi.Task):
+    enable_wandb = luigi.BoolParameter(default=True)
+    prediction_horizon = luigi.IntParameter(default=8)
 
-class WandbTask(luigi.Task, LuigiCombinator):
+class WandbTask(ConfigTask, LuigiCombinator):
     """Base class for tasks that use wandb logging."""
 
-    enable_wandb = luigi.BoolParameter(default=False)
-    prediction_horizon = luigi.IntParameter(default=8)
-    project_name = luigi.Parameter(default="lot_sizing")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        config = luigi.configuration.get_config()
-        self.enable_wandb = config.getboolean(
-            "WandbTask", "enable_wandb", self.enable_wandb
-        )
-        self.prediction_horizon = config.getint(
-            "WandbTask", "prediction_horizon", self.prediction_horizon
-        )
-        self.project_name = config.get("WandbTask", "project_name", self.project_name)
+    abstract = True
 
     def run(self):
         """Override this method in derived classes to implement task logic"""
         raise NotImplementedError()
 
-    @classmethod
-    def wandb_init(cls, run_name=""):
-        if not hasattr(cls, "wandb_instance"):
-            instance = cls()
-            cls.wandb_instance = wandb.init(project=str(instance.project_name), name=run_name)
+    def on_failure(self, exception):
+        if self.enable_wandb:
+            if wandb.run is not None:
+                wandb.log({"status": "failed", "error": str(exception)})
+                wandb.finish()
+        return super().on_failure(exception)
 
-    def plot_line_series(self, xs, ys, keys, title, xname="Period", yname="Value"):
-        """Create a line plot in wandb."""
-        if not self.enable_wandb:
-            return
-
-        data = []
-        for x, y, key in zip(xs, ys, keys):
-            for i, (xi, yi) in enumerate(zip(x, y)):
-                data.append([xi, yi, key])
-
-        table = wandb.Table(data=data, columns=[xname, yname, "Series"])
-        wandb.log(
-            {title: wandb.plot.line(table, xname, yname, title=title, stroke="Series")}
-        )
+    def log_artifact(self, file_path, artifact_name, artifact_type='dataset', log_to_run=True):
+        """Log an artifact to WandB, either to a specific run or to the project."""
+        if self.enable_wandb:
+            if log_to_run and wandb.run is not None:
+                # Log to the current run
+                artifact = wandb.Artifact(name=artifact_name, type=artifact_type)
+                artifact.add_file(file_path)
+                wandb.log_artifact(artifact)
+                print(f"Logged {artifact_type} artifact to run: {artifact_name}")
+            else:
+                # Log to the project without associating with a run
+                api = wandb.Api()
+                artifact = wandb.Artifact(name=artifact_name, type=artifact_type, metadata={"project": str(self.project_name)})
+                artifact.add_file(file_path)
+                api.artifacts.create(artifact)
+                print(f"Logged {artifact_type} artifact to project: {artifact_name}")
 
     def log_if_enabled(self, log_function, *args, **kwargs):
         """Generalized logging method that checks if wandb is enabled."""
@@ -91,49 +96,94 @@ class WandbTask(luigi.Task, LuigiCombinator):
         """Log hyperparameters to wandb."""
         self.log_if_enabled(wandb.config.update, params)
 
-    def log_system_metrics(self):
-        """Log system metrics to wandb."""
+    def log_prediction_metrics(mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand):
+        wandb.log({
+            "MAE": mae,
+            "MSE": mse,
+            "RMSE": rmse,
+            "R-squared": r2,
+            "Mean Predicted Demand": mean_predicted_demand,
+            "Std Predicted Demand": std_predicted_demand,
+            "Min Predicted Demand": min_predicted_demand,
+            "Max Predicted Demand": max_predicted_demand,
+        })
+
+    def log_prediction_plots(actual, predicted):
+        # Log Actual vs Predicted
+        wandb.log({
+            "Actual vs Predicted": wandb.plot.line(
+                x=list(range(len(actual))), 
+                y=actual, 
+                title="Actual Demand",
+                xname="Time",
+                yname="Demand"
+            )
+        })
+        
+        wandb.log({
+            "Predicted vs Actual": wandb.plot.line(
+                x=list(range(len(predicted))), 
+                y=predicted, 
+                title="Predicted Demand",
+                xname="Time",
+                yname="Demand"
+            )
+        })
+
+        # Log Residuals
+        residuals = actual - predicted
+        wandb.log({
+            "Residuals": wandb.plot.scatter(
+                x=predicted, 
+                y=residuals, 
+                title="Residual Plot",
+                xname="Predicted Demand",
+                yname="Residuals"
+            )
+        })
+
+        # Demand over Time
+        wandb.log({
+            "Demand Over Time": wandb.plot.line(
+                x=list(range(len(actual))), 
+                y=actual, 
+                title="Demand Over Time",
+                xname="Time",
+                yname="Demand"
+            )
+        })
+
+        # Predicted Demand over Time
+        wandb.log({
+            "Predicted Demand Over Time": wandb.plot.line(
+                x=list(range(len(predicted))), 
+                y=predicted, 
+                title="Predicted Demand Over Time",
+                xname="Time",
+                yname="Demand"
+            )
+        })
+
+    def track_prediction(self, prediction_method, actual, predicted):
         if not self.enable_wandb:
             return
 
-        metrics = {
-            "cpu_percent": psutil.cpu_percent(),
-            "memory_percent": psutil.virtual_memory().percent,
-            "memory_available": psutil.virtual_memory().available,
-            "memory_used": psutil.virtual_memory().used,
-        }
-        self.log_metrics(metrics)
+        # Log metrics
+        mae = np.mean(np.abs(actual - predicted))
+        mse = np.mean((actual - predicted) ** 2)
+        rmse = np.sqrt(mse)
+        ss_res = np.sum((actual - predicted) ** 2)
+        ss_tot = np.sum((actual - np.mean(actual)) ** 2)
+        r2 = 1 - (ss_res / ss_tot)
 
-    def log_metrics_and_plots(self, orders, metrics, demand):
-        """Log metrics and create plots."""
-        if not self.enable_wandb:
-            return
+        mean_predicted_demand = np.mean(predicted)
+        std_predicted_demand = np.std(predicted)
+        min_predicted_demand = np.min(predicted)
+        max_predicted_demand = np.max(predicted)
 
-        # Log order quantities over time
-        self.plot_line_series(
-            xs=[[i for i in range(len(orders))]],
-            ys=[orders],
-            keys=["Order Quantities"],
-            title="Order Quantities over Time",
-        )
-
-        # Calculate and plot inventory levels
-        inventory = self.calculate_inventory_levels(orders, demand)
-        self.plot_line_series(
-            xs=[[i for i in range(len(inventory))]],
-            ys=[inventory],
-            keys=["Inventory Levels"],
-            title="Inventory Levels over Time",
-        )
-
-        # Plot demand vs orders
-        self.plot_line_series(
-            xs=[[i for i in range(len(demand))], [i for i in range(len(orders))]],
-            ys=[demand, orders],
-            keys=["Demand", "Orders"],
-            title="Demand vs Orders over Time",
-        )
-
+        self.log_prediction_metrics(mae, mse, rmse, r2, mean_predicted_demand, std_predicted_demand, min_predicted_demand, max_predicted_demand)
+        self.log_prediction_plots(actual, predicted)
+   
     def track_experiment(self, orders, metrics, demand, cost):
         """Handles logging and tracking for wandb."""
         if not self.enable_wandb:
@@ -168,42 +218,12 @@ class WandbTask(luigi.Task, LuigiCombinator):
             }
         )
 
-        # Log system metrics
-        self.log_system_metrics()
-
         # Log plots and additional metrics
         if orders and demand:
             self.log_metrics_and_plots(orders, metrics, demand)
 
-    def calculate_inventory_levels(self, orders, demand):
-        """Calculate inventory levels based on orders and demand"""
-        inventory_levels = []
-        current_inventory = 0
-        for order, dem in zip(orders, demand):
-            current_inventory += order - dem
-            inventory_levels.append(current_inventory)
-        return inventory_levels
-
-
-class InitializeWandb(WandbTask):
-    """Task to initialize wandb for the entire pipeline."""
-
-    abstract = False
-    pipeline_name = luigi.Parameter(default="none")
-
-    def complete(self):
-        return True
-
-    def run(self):
-        if self.enable_wandb and WANDB_IMPORTED:
-            self.wandb_init(run_name=self.pipeline_name + "_" + time.strftime("%Y%m%d-%H%M%S"))
-
-
 class GetCost(WandbTask):
     abstract = False
-
-    def requires(self):
-        return InitializeWandb()
 
     def output(self):
         return [luigi.LocalTarget("data/cost.json")]
@@ -217,16 +237,17 @@ class GetCost(WandbTask):
         with open(self.output()[0].path, "w") as f:
             json.dump(d, f, indent=4)
 
-        # if self.enable_wandb:
-        #     self.log_config(d)
-        #     self.log_artifact(self.output().path, "cost_parameters", "parameters")
+        if self.enable_wandb:
+            self.log_artifact(
+                self.output()[0].path,
+                artifact_name="cost",
+                artifact_type="dataset",
+                log_to_run=False,
+            )
 
 
 class GetHistoricDemand(WandbTask):
     abstract = False
-
-    def requires(self):
-        return InitializeWandb()
 
     def output(self):
         print("GetHistoricDemand: output")
@@ -239,6 +260,13 @@ class GetHistoricDemand(WandbTask):
                 "1, 5, 7, 8, 9, 10, 14, 16, 19, 21, 19, 23, 24, 26, 26, "
                 "26, 28, 26, 28, 30"
             )
+        if self.enable_wandb:
+            self.log_artifact(
+                self.output().path,
+                artifact_name="historic_demand",
+                artifact_type="dataset",
+                log_to_run=False,
+            )
 
 
 class PredictDemand(WandbTask):
@@ -246,7 +274,11 @@ class PredictDemand(WandbTask):
     get_historic_demand = ClsParameter(tpe=GetHistoricDemand.return_type())
 
     def requires(self):
-        return {"historic_demand": self.get_historic_demand()}
+        return {"historic_demand": self.get_historic_demand(), "actual_demand": self.get_actual_demand()}
+
+    def get_actual_demand(self):
+        # just dummy values
+        return [26, 28, 26, 28, 30, 31, 32, 33, 34, 35 , 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]
 
     def run(self):
         raise NotImplementedError()
@@ -267,21 +299,7 @@ class PredictDemandByLinearRegression(PredictDemand):
             df_predicted = pd.DataFrame(data)
 
             # Log metrics and plots
-            metrics = {
-                "prediction_method": "linear_regression",
-                "mean_predicted_demand": np.mean(predicted),
-                "std_predicted_demand": np.std(predicted),
-                "min_predicted_demand": min(predicted),
-                "max_predicted_demand": max(predicted),
-            }
-            self.track_experiment(predicted, metrics, self.input()["historic_demand"].path, {})
-
-            self.plot_line_series(
-                xs=[[i for i in range(len(predicted))]],
-                ys=[predicted],
-                keys=["Predicted Demand"],
-                title="Predicted Demand over Time",
-            )
+            self.track_prediction("linear regression", self.get_actual_demand(), predicted)
 
             df_predicted.to_pickle(self.output()[0].path)
 
@@ -303,21 +321,7 @@ class PredictDemandByAverage(PredictDemand):
             df_predicted = pd.DataFrame(data)
 
             # Log metrics and plots
-            metrics = {
-                "prediction_method": "average",
-                "mean_predicted_demand": np.mean(predicted),
-                "std_predicted_demand": np.std(predicted),
-                "min_predicted_demand": min(predicted),
-                "max_predicted_demand": max(predicted),
-            }
-            self.track_experiment(predicted, metrics, predicted, {})
-
-            self.plot_line_series(
-                xs=[[i for i in range(len(predicted))]],
-                ys=[predicted],
-                keys=["Predicted Demand"],
-                title="Predicted Demand over Time",
-            )
+            self.track_prediction("average", self.get_actual_demand(), predicted)
 
             df_predicted.to_pickle(self.output()[0].path)
 
@@ -585,23 +589,67 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
 
         return orders, metrics
 
+# Create a global event to control the logging thread
+stop_event = threading.Event()
 
-class FinalizeWandb(WandbTask):
-    """Task to finalize wandb logging."""
+def reset_stop_event():
+    global stop_event
+    stop_event = threading.Event()  # Create a new event, which is unset (False)
 
-    abstract = False
-    target_task = ClsParameter(tpe=OptimizeLots.return_type())
+def get_nvidia_usage():
+    """Get GPU usage for NVIDIA and AMD GPUs."""
+    gpu_usage = {}
 
-    def requires(self):
-        return self.target_task()
+    # Check for NVIDIA GPUs
+    nvidia_gpus = GPUtil.getGPUs()
+    if nvidia_gpus:
+        gpu_usage['NVIDIA'] = [gpu.load * 100 for gpu in nvidia_gpus]
 
-    def complete(self):
-        return True
+    return gpu_usage
 
-    def run(self):
-        if self.enable_wandb:
-            wandb.finish()
+def get_amd_usage():
+    """Get GPU usage for AMD GPUs."""
+    try:
+        amd_gpus = pyamdgpuinfo.get_all_gpus()  # Get information about all AMD GPUs
+        return [gpu['usage'] for gpu in amd_gpus]  # Extract usage percentage for each GPU
+    except Exception as e:
+        print(f"Error getting AMD GPU usage: {e}")
+        return []
 
+def log_system_metrics(process):
+    """Log CPU, memory, and GPU usage for the current process and its children."""
+    while not stop_event.is_set():  # Check if the stop event is set
+        # CPU usage
+        cpu_usage = process.cpu_percent(interval=1)  # Total CPU usage including children
+        
+        # Memory usage
+        memory_info = process.memory_info()
+        memory_usage = memory_info.rss / psutil.virtual_memory().total * 100  # RSS as a percentage of total memory
+
+        # Get GPU usage if applicable
+        gpu_usage = {}
+        if NVIDIAGPU_IMPORTED:
+            gpu_usage['NVIDIA'] = get_nvidia_usage()
+        if AMDGPU_IMPORTED:
+            gpu_usage['AMD'] = get_amd_usage()
+
+        # Log the metrics to WandB
+        wandb.log({
+            "cpu_usage": cpu_usage,
+            "memory_usage": memory_usage,
+            "gpu_usage": gpu_usage  # Log GPU usage if available
+        })
+
+        # Optional: Print to console for real-time monitoring
+        print(f"CPU Usage: {cpu_usage}, Memory Usage: {memory_usage}, GPU Usage: {gpu_usage}")
+        time.sleep(1)  # Adjust the sleep time as needed
+
+def start_logging_metrics():
+    """Start logging system metrics in a separate thread."""
+    process = psutil.Process()
+    log_thread = threading.Thread(target=log_system_metrics, args=(process,), daemon=True)
+    log_thread.start()
+    return log_thread  # Return the thread for later use
 
 def extract_task_classes(input_str):
     task_classes = []
@@ -617,14 +665,11 @@ def extract_task_classes(input_str):
 
 
 if __name__ == "__main__":
+    
+    config = luigi.configuration.get_config()
+    USE_WANDB = WANDB_IMPORTED
 
-    # Set global configuration for all tasks
-    config = configuration.get_config()
-    config.set("WandbTask", "enable_wandb", "True")
-    config.set("WandbTask", "prediction_horizon", "5")
-    config.set("WandbTask", "project_name", "TestProject")
-
-    target = FinalizeWandb.return_type()
+    target = OptimizeLots.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
     inhabitation_result = fcl.inhabit(target)
@@ -641,15 +686,25 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        for r in results:
-            config.set(
-                "InitializeWandb", "pipeline_name", f"{extract_task_classes(str (r))}"
-            )
-            pipeline = r
-            print(type(pipeline))
+        for pipeline in results:
+
+            if USE_WANDB:
+                wandb.init(project="lot_sizing", name=str(extract_task_classes(str (pipeline))) + "_" + time.strftime("%Y%m%d-%H%M%S"))
+                log_thread = start_logging_metrics()
+
+
+
             print("==============")
-            print(pipeline)
+            print(deep_str(pipeline))
             print("\n")
             #luigi.build([r], local_scheduler=True, detailed_summary=True)
+            print("\n")
+            print("===============")
+
+            if USE_WANDB:
+                stop_event.set()  
+                log_thread.join()
+                wandb.finish()
+                reset_stop_event()
     else:
         print("No results!")
