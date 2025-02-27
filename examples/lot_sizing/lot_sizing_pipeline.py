@@ -1,15 +1,13 @@
 import json
 import os
-import re
-import threading
-import time
 from pathlib import Path
+import wandb
 
 
 import luigi
-import numpy as np
 import pandas as pd
-import psutil
+import numpy as np
+import plotly.graph_objs as go
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -20,7 +18,18 @@ from lot_optimizers.silver_meal_heuristic import SilverMeal
 from lot_optimizers.wagner_whitin import WagnerWhitin
 
 from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
-from cls_luigi.utils.wandb import WandbTask, wandb_log
+from cls_luigi.utils.wandb import (
+    WandbTask,
+    run_wandb_pipeline,
+    wandb_log,
+    log_output,
+    wandb_log_table,
+    wandb_log_plot,
+)
+
+
+class ConfigTask():
+    prediction_horizon = luigi.IntParameter(default=8)
 
 
 class GetCost(WandbTask):
@@ -38,16 +47,26 @@ class GetCost(WandbTask):
         with open(self.output()[0].path, "w") as f:
             json.dump(d, f, indent=4)
 
-        
-
-        if self.enable_wandb:
-            self.log_artifact()
-            self.log_artifact(
-                self.output()[0].path,
-                artifact_name="cost",
-                artifact_type="dataset",
-                log_to_run=False,
-            )
+        wandb_log(
+            {
+                "cost": {
+                    "path": self.output()[0].path,
+                    "type": "dataset",
+                    "metadata": {
+                        "file_count": 1,
+                        "file_size": os.path.getsize(self.output()[0].path),
+                    },
+                },
+                "Wurst": {
+                    "path": self.output()[0].path,
+                    "type": "dataset",
+                    "metadata": {
+                        "file_count": 1,
+                        "file_size": os.path.getsize(self.output()[0].path),
+                    },
+                },
+            }
+        )
 
 
 class GetHistoricDemand(WandbTask):
@@ -57,6 +76,7 @@ class GetHistoricDemand(WandbTask):
         print("GetHistoricDemand: output")
         return luigi.LocalTarget("data/historic_demand.csv")
 
+    @log_output("dataset")
     def run(self):
         print("====== GetHistoricDemand: run")
         with self.output().open("w") as f:
@@ -64,27 +84,183 @@ class GetHistoricDemand(WandbTask):
                 "1, 5, 7, 8, 9, 10, 14, 16, 19, 21, 19, 23, 24, 26, 26, "
                 "26, 28, 26, 28, 30"
             )
-        if self.enable_wandb:
-            self.log_artifact(
-                self.output().path,
-                artifact_name="historic_demand",
-                artifact_type="dataset",
-                log_to_run=False,
-            )
 
 
-class PredictDemand(WandbTask):
+class PredictDemand(WandbTask, ConfigTask):
     abstract = True
     get_historic_demand = ClsParameter(tpe=GetHistoricDemand.return_type())
 
     def requires(self):
         return {"historic_demand": self.get_historic_demand()}
 
+    def _log_prediction_metrics(
+        self,
+        prediction_method,
+        mae,
+        mse,
+        rmse,
+        r2,
+        mean_predicted_demand,
+        std_predicted_demand,
+        min_predicted_demand,
+        max_predicted_demand,
+    ):
+        # Prepare metrics dictionary
+        metrics = {
+            f"{prediction_method}_mae": mae,
+            f"{prediction_method}_mse": mse,
+            f"{prediction_method}_rmse": rmse,
+            f"{prediction_method}_r2": r2,
+            f"{prediction_method}_mean_predicted_demand": mean_predicted_demand,
+            f"{prediction_method}_std_predicted_demand": std_predicted_demand,
+            f"{prediction_method}_min_predicted_demand": min_predicted_demand,
+            f"{prediction_method}_max_predicted_demand": max_predicted_demand,
+        }
+
+        # Log metrics using wandb_log
+        wandb_log(metrics, data_type="metrics")
+
+    def _log_prediction_plots(self, prediction_method, actual, predicted):
+        # Prepare the prediction horizon
+        prediction_horizon = list(
+            range(len(actual))
+        )  # Assuming actual and predicted have the same length
+
+        # Prepare data for logging
+        data = [[x, a, p] for x, a, p in zip(prediction_horizon, actual, predicted)]
+
+        # Create a table for logging actual and predicted demands
+        demand_table = wandb.Table(
+            data=data,
+            columns=["Prediction Horizon", "Actual Demand", "Predicted Demand"],
+        )
+
+        # Calculate residuals
+        residuals = [a - p for a, p in zip(actual, predicted)]
+        residuals_data = [[x, res] for x, res in zip(prediction_horizon, residuals)]
+
+        # Create a table for logging residuals
+        residuals_table = wandb.Table(
+            data=residuals_data, columns=["Prediction Horizon", "Residuals"]
+        )
+
+        # Log tables using wandb_log_table
+        wandb_log_table(demand_table, name=f"Demand Table for {prediction_method}")
+        wandb_log_table(
+            residuals_table, name=f"Residuals Table for {prediction_method}"
+        )
+
+        # Log plots using wandb_log_plot
+        # Predicted Demand
+        wandb_log_plot(
+            wandb.plot.line(
+                demand_table,
+                "Prediction Horizon",
+                "Predicted Demand",
+                title=f"Predicted Demand for {prediction_method}",
+            )
+        )
+
+        # Actual Demand
+        wandb_log_plot(
+            wandb.plot.line(
+                demand_table,
+                "Prediction Horizon",
+                "Actual Demand",
+                title=f"Actual Demand for {prediction_method}",
+            )
+        )
+
+        # Actual and Predicted Demand in One Plot
+        wandb_log_plot(
+            wandb.plot.line_series(
+                xs=prediction_horizon,
+                ys=[list(actual), list(predicted)],
+                keys=["Actual Demand", "Predicted Demand"],
+                title=f"Actual and Predicted Demand for {prediction_method}",
+                xname="Prediction Horizon",
+            )
+        )
+
+        # Residuals
+        wandb_log_plot(
+            wandb.plot.scatter(
+                residuals_table,
+                "Prediction Horizon",
+                "Residuals",
+                title=f"Residuals for {prediction_method}",
+            )
+        )
+
+        # Generate random data
+        np.random.seed(42)
+        n = 500
+        x = np.random.randn(n)
+        y = np.random.randn(n)
+        
+        # Create a scatter plot with color and size variations
+        fig = go.Figure(data=go.Scatter(
+            x=x, 
+            y=y, 
+            mode='markers',
+            marker=dict(
+                size=10,
+                color=x,  # set color to an array/list of desired values
+                colorscale='Viridis',  # choose a colorscale
+                showscale=True
+            ),
+            text=[f'Point {i}' for i in range(n)],  # hover text
+            hoverinfo='text'
+        ))
+
+        # Customize layout
+        fig.update_layout(
+            title='Random Scatter Plot',
+            xaxis_title='X Values',
+            yaxis_title='Y Values',
+            template='plotly_white'
+        )
+
+        # Log the plot
+        wandb_log_plot(fig, name='Random Scatter Visualization using Plotly')
+
+    def track_prediction(
+        self, prediction_method, actual, predicted, prediction_horizon=None
+    ):
+        # Log metrics
+        actual = np.array(actual)
+        predicted = np.array(predicted)
+
+        mae = np.mean(np.abs(actual - predicted))
+        mse = np.mean((actual - predicted) ** 2)
+        rmse = np.sqrt(mse)
+        ss_res = np.sum((actual - predicted) ** 2)
+        ss_tot = np.sum((actual - np.mean(actual)) ** 2)
+        r2 = 1 - (ss_res / ss_tot)
+
+        mean_predicted_demand = np.mean(predicted)
+        std_predicted_demand = np.std(predicted)
+        min_predicted_demand = np.min(predicted)
+        max_predicted_demand = np.max(predicted)
+
+        self._log_prediction_metrics(
+            prediction_method,
+            mae,
+            mse,
+            rmse,
+            r2,
+            mean_predicted_demand,
+            std_predicted_demand,
+            min_predicted_demand,
+            max_predicted_demand,
+        )
+        self._log_prediction_plots(prediction_method, actual, predicted)
+        if prediction_horizon:
+            wandb_log({"prediction_horizon": prediction_horizon}, data_type="params")
+
     def get_actual_demand(self):
         # just dummy values
         return [
-            26,
-            28,
             26,
             28,
             30,
@@ -115,6 +291,16 @@ class PredictDemandByLinearRegression(PredictDemand):
     def output(self):
         return [luigi.LocalTarget("data/predicted_demand_by_linear_regression.pkl")]
 
+    @log_output(
+        lambda self: {
+            "type": "model",
+            "metadata": {
+                "description": "Predicted demand DataFrame",
+                "model_type": "linear_regression",
+                "prediction_horizon": self.prediction_horizon,
+            },
+        }
+    )
     def run(self):
         print("============= PredictDemandByLinearRegression: run")
         with self.input()["historic_demand"].open() as infile:
@@ -140,6 +326,16 @@ class PredictDemandByAverage(PredictDemand):
     def output(self):
         return [luigi.LocalTarget("data/predicted_demand_by_average.pkl")]
 
+    @log_output(
+        lambda self: {
+            "type": "model",
+            "metadata": {
+                "description": "Predicted demand by average",
+                "model_type": "simple_average",
+                "prediction_horizon": self.prediction_horizon,
+            },
+        }
+    )
     def run(self):
         print("============= PredictDemandByAverage: run")
         with self.input()["historic_demand"].open() as infile:
@@ -161,7 +357,7 @@ class PredictDemandByAverage(PredictDemand):
             df_predicted.to_pickle(self.output()[0].path)
 
 
-class OptimizeLots(WandbTask):
+class OptimizeLots(WandbTask, ConfigTask):
     """Base class for lot-sizing optimization tasks."""
 
     abstract = True
@@ -170,6 +366,23 @@ class OptimizeLots(WandbTask):
 
     def requires(self):
         return {"cost": self.get_cost(), "demand": self.predicted_demand()}
+
+    def track_optimization(self, cost, metrics):
+        self.optimization_cost = cost
+        self.optimization_metrics = metrics
+
+        # Log Hyperparameters using wandb_log
+        wandb_log(
+            {
+                "planning_period": int(self.prediction_horizon),
+                "fixed_cost": cost["fixedCost"],
+                "variable_cost": cost["varCost"]
+            }, 
+            data_type="params"
+        )
+
+        # Log metrics using wandb_log
+        wandb_log(metrics, data_type="metrics")
 
     def _get_cost(self):
         with open(self.input()["cost"][0].path, "rb") as f:
@@ -180,6 +393,17 @@ class OptimizeLots(WandbTask):
         demand_df = pd.read_pickle(self.input()["demand"][0].path)
         return list(demand_df["predicted_demand"])
 
+    @log_output(
+        lambda self: {
+            "type": "file",
+            "metadata": {
+                "description": "Lot optimization results",
+                "optimizer": self.__class__.__name__,
+                "demand_variant": self._get_variant_label(),
+                "optimization_metrics": self.optimization_metrics,
+            },
+        }
+    )
     def run(self):
         print(f"============= {self.__class__.__name__}: run")
         cost = self._get_cost()
@@ -304,68 +528,6 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
         return orders, metrics
 
 
-# Create a global event to control the logging thread
-stop_event = threading.Event()
-
-
-def reset_stop_event():
-    global stop_event
-    stop_event = threading.Event()  # Create a new event, which is unset (False)
-
-
-def log_system_metrics(process):
-    """Log CPU and memory usage for the current process and its children."""
-    while not stop_event.is_set():  # Check if the stop event is set
-        # CPU usage
-        cpu_usage = process.cpu_percent(
-            interval=1
-        )  # Total CPU usage including children
-
-        # Memory usage
-        memory_info = process.memory_info()
-        memory_usage = (
-            memory_info.rss / psutil.virtual_memory().total * 100
-        )  # RSS as a percentage of total memory
-
-        # Log the metrics to WandB
-        wandb.log(
-            {
-                "cpu_usage": cpu_usage,
-                "memory_usage": memory_usage
-            }
-        )
-
-        # Optional: Print to console for real-time monitoring
-        print(
-            f"CPU Usage: {cpu_usage}, Memory Usage: {memory_usage}"
-        )
-        time.sleep(1)  # Adjust the sleep time as needed
-
-
-def start_logging_metrics():
-    """Start logging system metrics in a separate thread."""
-    process = psutil.Process()
-    log_thread = threading.Thread(
-        target=log_system_metrics, args=(process,), daemon=True
-    )
-    log_thread.start()
-    return log_thread  # Return the thread for later use
-
-
-def extract_task_classes(input_str):
-    task_classes = []
-
-    main_class_pattern = r"(\w+)\("
-    main_class_match = re.search(main_class_pattern, input_str)
-    if main_class_match:
-        task_classes.append(main_class_match.group(1))  # Get the class name
-    pattern = r'"task_class":\s*"([^"]+)"'
-    matches = re.findall(pattern, input_str)
-    task_classes.extend(matches)
-    return "_".join(task_classes)
-
-
-
 if __name__ == "__main__":
     config = luigi.configuration.get_config()
 
@@ -386,22 +548,8 @@ if __name__ == "__main__":
         print("Number of results", max_results)
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
-        for pipeline in results:
+        for pipeline in results[:1]:
+            run_wandb_pipeline(pipeline, "lot_sizing", config=config)
 
-            # wandb.init(project=PROJECT_NAME, name=PIPELINE_NAME)
-            log_thread = start_logging_metrics()
-
-            print("==============")
-            print(deep_str(pipeline))
-            print("\n")
-            luigi.build([pipeline], local_scheduler=True, detailed_summary=True)
-            print("\n")
-            print("===============")
-
-            
-            stop_event.set()
-            log_thread.join()
-            # TODO finish wandb
-            reset_stop_event()
     else:
         print("No results!")
