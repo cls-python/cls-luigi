@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional, Type
 import wandb
-from .core import _validate_initialization
+from cls_luigi.utils.wandb.core import _check_initialized
 
 # Optional Pydantic imports with fallback
 try:
@@ -17,7 +17,7 @@ def update_config(config: Dict[str, Any]) -> None:
     Args:
         config: Dictionary of configuration parameters to update
     """
-    _validate_initialization()
+    _check_initialized()
     wandb.config.update(config)
 
 def validate_config(
