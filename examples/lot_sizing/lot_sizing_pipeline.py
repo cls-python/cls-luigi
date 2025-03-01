@@ -20,13 +20,14 @@ from lot_optimizers.wagner_whitin import WagnerWhitin
 from cls_luigi.inhabitation_task import ClsParameter, RepoMeta
 from cls_luigi.utils.wandb import (
     WandbTask,
-    run_wandb_pipeline,
+    run_luigi_pipeline_with_wandb,
     wandb_log,
     log_output,
     wandb_log_table,
     wandb_log_plot,
 )
 
+from cls_luigi.utils.wandb.config import 
 
 class ConfigTask():
     prediction_horizon = luigi.IntParameter(default=8)
@@ -47,17 +48,13 @@ class GetCost(WandbTask):
         with open(self.output()[0].path, "w") as f:
             json.dump(d, f, indent=4)
 
+
+        wandb.log({"cost": d})
+        wandb_log({"cost": d})
+
         wandb_log(
             {
                 "cost": {
-                    "path": self.output()[0].path,
-                    "type": "dataset",
-                    "metadata": {
-                        "file_count": 1,
-                        "file_size": os.path.getsize(self.output()[0].path),
-                    },
-                },
-                "Wurst": {
                     "path": self.output()[0].path,
                     "type": "dataset",
                     "metadata": {
@@ -118,7 +115,7 @@ class PredictDemand(WandbTask, ConfigTask):
         }
 
         # Log metrics using wandb_log
-        wandb_log(metrics, data_type="metrics")
+        wandb_log(metrics, data_type="metric")
 
     def _log_prediction_plots(self, prediction_method, actual, predicted):
         # Prepare the prediction horizon
@@ -549,7 +546,7 @@ if __name__ == "__main__":
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         for pipeline in results[:1]:
-            run_wandb_pipeline(pipeline, "lot_sizing", config=config)
+            run_luigi_pipeline_with_wandb(pipeline, "lot_sizing", config=config)
 
     else:
         print("No results!")

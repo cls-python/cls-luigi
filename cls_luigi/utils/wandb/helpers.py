@@ -36,7 +36,7 @@ def _extract_task_classes(input_str):
     return "_".join(task_classes)
 
 
-def run_wandb_pipeline(pipeline, project_name: str, config: Optional[Dict[str, Any]] = None, debug_print=False, **kwargs) -> None:
+def run_luigi_pipeline_with_wandb(pipeline, project_name: str, config: Optional[Dict[str, Any]] = None, debug_print=False, **kwargs) -> None:
     pipeline_name = str(_extract_task_classes(str (pipeline))) + "_" + time.strftime("%Y%m%d-%H%M%S")
     wandb_init(project_name, pipeline_name, config, **kwargs)
     log_thread = start_logging_metrics()

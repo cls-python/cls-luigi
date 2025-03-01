@@ -105,4 +105,97 @@ def log_output(output_config=None):
 
         return wrapper
 
+    if output_config is not None:
+        return decorator(output_config)
+    return decorator
+
+
+def after_output_written(func=None, callback=None):
+    """
+    Decorator for Luigi Task.output method that executes a callback 
+    only after the output has been written.
+    
+    The callback will be called with the output target(s) as argument.
+    
+    Usage:
+    
+    @after_output_written
+    def output(self):
+        return luigi.LocalTarget("myfile.txt")
+        
+    # Or with a custom callback
+    @after_output_written(callback=lambda target: print(f"Output written to {target.path}"))
+    def output(self):
+        return luigi.LocalTarget("myfile.txt")
+    """
+    def decorator(output_method):
+        @functools.wraps(output_method)
+        def wrapper(self, *args, **kwargs):
+            # Get the output target(s)
+            targets = output_method(self, *args, **kwargs)
+            
+            # Store the original targets in task instance for later use
+            if not hasattr(self, '_output_targets'):
+                self._output_targets = targets
+            
+            # Patch the run method if not already patched
+            if not hasattr(self, '_run_patched'):
+                original_run = self.run
+                
+                @functools.wraps(original_run)
+                def patched_run(*run_args, **run_kwargs):
+                    # Call the original run method
+                    result = original_run(*run_args, **run_kwargs)
+                    
+                    # After run completes, check if outputs exist
+                    outputs = self._output_targets
+                    
+                    # Function to check if a target exists
+                    def target_exists(target):
+                        try:
+                            return target.exists()
+                        except AttributeError:
+                            # For targets that don't support exists(), check if path exists
+                            try:
+                                return os.path.exists(target.path)
+                            except (AttributeError, TypeError):
+                                return False
+                    
+                    # Check all outputs
+                    all_exist = False
+                    if isinstance(outputs, dict):
+                        all_exist = all(target_exists(target) for target in outputs.values())
+                    elif isinstance(outputs, list):
+                        all_exist = all(target_exists(target) for target in outputs)
+                    else:
+                        all_exist = target_exists(outputs)
+                    
+                    # If all outputs exist, call the callback
+                    if all_exist:
+                        if callback:
+                            callback(outputs)
+                        else:
+                            # Default callback - can be customized
+                            if isinstance(outputs, dict):
+                                for key, target in outputs.items():
+                                    print(f"Output '{key}' written to {target.path}")
+                            elif isinstance(outputs, list):
+                                for i, target in enumerate(outputs):
+                                    print(f"Output {i} written to {target.path}")
+                            else:
+                                print(f"Output written to {outputs.path}")
+                    
+                    return result
+                
+                # Replace the run method
+                self.run = patched_run
+                self._run_patched = True
+            
+            return targets
+        
+        return wrapper
+    
+    # Handle both @after_output_written and @after_output_written()
+    if func is not None:
+        return decorator(func)
     return decorator

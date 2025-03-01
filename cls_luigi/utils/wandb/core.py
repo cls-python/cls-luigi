@@ -196,7 +196,7 @@ def wandb_log(
                 _log_video({name: data_dict}, step=step, commit=commit, sync=sync)
                 # TODO
 
-            elif dtype == "audio":
+            elif dtype =wandb_log_artifact= "audio":
                 # For audio, ensure they're properly wrapped in wandb.Audio if needed
                 # if not isinstance(data_dict, wandb.Audio):
                 #     if isinstance(data_dict, str) and os.path.isfile(data_dict):
@@ -226,6 +226,8 @@ def wandb_log(
         except Exception as e:
             warnings.warn(f"Error logging {name} with type {dtype}: {str(e)}")
 
+
+def wandb_log_artifact(artifact_data: Dict[str, Any],)
 
 def wandb_log_model(
     model: Any, name: str, framework: str = "auto", metadata: Optional[Dict] = None
@@ -290,50 +292,50 @@ def wandb_log_plot(figure: Any, name: str = "plot") -> None:
     _log_media(processed)
 
 
-def wandb_log_table(table: Any, name: str = "table") -> None:
-    """Safe table logging with pandas check"""
-    _check_initialized()
+# def wandb_log_table(table: Any, name: str = "table") -> None:
+#     """Safe table logging with pandas check"""
+#     _check_initialized()
 
-    # Prepare the table for logging
-    if pd and isinstance(table, pd.DataFrame):
-        # If it's a DataFrame, convert it to a wandb Table
-        wandb_table = wandb.Table(dataframe=table)
-        _log_table({name: wandb_table})
-    elif isinstance(table, wandb.Table):
-        # If it's already a wandb Table, log it directly
-        _log_table({name: table})
-    elif isinstance(table, dict):
-        # If it's a dictionary, pass it directly to _log_table
-        _log_table({name: table})
-    elif isinstance(table, list) and all(isinstance(item, dict) for item in table):
-        # If it's a list of dictionaries, create a wandb Table
-        wandb_table = wandb.Table(data=table)
-        _log_table({name: wandb_table})
-    else:
-        raise ValueError(
-            "Input must be a Pandas DataFrame, a wandb.Table, a dictionary, or a list of dictionaries."
-        )
+#     # Prepare the table for logging
+#     if pd and isinstance(table, pd.DataFrame):
+#         # If it's a DataFrame, convert it to a wandb Table
+#         wandb_table = wandb.Table(dataframe=table)
+#         _log_table({name: wandb_table})
+#     elif isinstance(table, wandb.Table):
+#         # If it's already a wandb Table, log it directly
+#         _log_table({name: table})
+#     elif isinstance(table, dict):
+#         # If it's a dictionary, pass it directly to _log_table
+#         _log_table({name: table})
+#     elif isinstance(table, list) and all(isinstance(item, dict) for item in table):
+#         # If it's a list of dictionaries, create a wandb Table
+#         wandb_table = wandb.Table(data=table)
+#         _log_table({name: wandb_table})
+#     else:
+#         raise ValueError(
+#             "Input must be a Pandas DataFrame, a wandb.Table, a dictionary, or a list of dictionaries."
+#         )
 
 
-def wandb_log_histogram(data: Any, name: str = "histogram") -> None:
-    _check_initialized()
+# def wandb_log_histogram(data: Any, name: str = "histogram") -> None:
+#     _check_initialized()
 
-    # Prepare the histogram data
-    if isinstance(data, wandb.Histogram):
-        # If it's already a wandb Histogram, log it directly
-        _log_histogram({name: data})
-    elif isinstance(data, list) and all(
-        isinstance(item, (int, float)) for item in data
-    ):
-        # If it's a list containing only numeric values, pass it to _log_histogram
-        _log_histogram({name: data})
-    elif isinstance(data, np.ndarray) and np.issubdtype(data.dtype, np.number):
-        # If it's a NumPy array containing numeric values, pass it to _log_histogram
-        _log_histogram({name: data})
-    else:
-        raise ValueError(
-            "Input must be a wandb.Histogram, a list of numeric values, or a numpy array of numeric values."
-        )
+#     # Prepare the histogram data
+#     if isinstance(data, wandb.Histogram):
+#         # If it's already a wandb Histogram, log it directly
+#         _log_histogram({name: data})
+#     elif isinstance(data, list) and all(
+#         isinstance(item, (int, float)) for item in data
+#     ):
+#         # If it's a list containing only numeric values, pass it to _log_histogram
+#         _log_histogram({name: data})
+#     elif isinstance(data, np.ndarray) and np.issubdtype(data.dtype, np.number):
+#         # If it's a NumPy array containing numeric values, pass it to _log_histogram
+#         _log_histogram({name: data})
+#     else:
+#         raise ValueError(
+#             "Input must be a wandb.Histogram, a list of numeric values, or a numpy array of numeric values."
+#         )
 
 
 def wandb_finish() -> None:
@@ -539,6 +541,11 @@ def _log_video(
 ) -> None:
     processed = {}
 
+def _log_audio(audio_data: Dict[str, Any], step: Optional[int] = None, commit: bool = True, sync: bool = True) -> None:
+    processed = {}
+
+def _log_html(html_data: Dict[str, Any], step: Optional[int] = None, commit: bool = True, sync: bool = True) -> None:
+    processed = {}
 
 def _log_media(
     media_data: Dict[str, Any],
@@ -571,10 +578,7 @@ def _log_media(
 
 
 def _log_artifact(
-    artifact_data: Dict[str, Any],
-    step: Optional[int] = None,
-    commit: bool = True,
-    sync: bool = True,
+    artifact_data: Dict[str, Any]
 ) -> None:
     for name, details in artifact_data.items():
         path = details["path"]
@@ -602,10 +606,7 @@ def _log_artifact(
 
 
 def _log_model(
-    model_data: Dict[str, Any],
-    step: Optional[int] = None,
-    commit: bool = True,
-    sync: bool = True,
+    model_data: Dict[str, Any]
 ) -> None:
     model = model_data["model"]
     name = model_data["name"]

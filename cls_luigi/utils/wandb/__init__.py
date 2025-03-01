@@ -15,7 +15,7 @@ from .core import (
     wandb_get_status,
 )
 
-from .helpers import WandbTask, run_wandb_pipeline
+from .helpers import WandbTask, run_luigi_pipeline_with_wandb
 from .config import update_config, validate_config
 from .decorators import log_output
 
@@ -31,6 +31,6 @@ __all__ = [
     'WandbTask',
     'update_config',
     'validate_config',
-    'run_wandb_pipeline',
+    'run_luigi_pipeline_with_wandb',
     'log_output',
 ]
