@@ -113,12 +113,12 @@ def wandb_log(
         sync: Whether to sync the data with the W&B server immediately.
 
     Supported data types:
-        - metric: Numerical values or dictionaries with a "value" key containing numbers/strings
-        - image: W&B Image objects or dictionaries with a "value" key containing:
+        - metric: Numerical values or dictionaries with a "data" key containing numbers/strings
+        - image: W&B Image objects or dictionaries with a "data" key containing:
             - matplotlib figures
             - numpy arrays (2D or 3D)
             - file paths to image files (.png, .jpg, .jpeg)
-        - object3d: W&B Object3D objects or dictionaries with a "value" key containing:
+        - object3d: W&B Object3D objects or dictionaries with a "data" key containing:
             - 3D numpy arrays with shape[2]=3
             - file paths to 3D model files (.obj, .gltf, .glb, .stl, .ply)
         - video: W&B Video objects or file paths to video files
@@ -132,23 +132,23 @@ def wandb_log(
         wandb_log({"loss": 0.5})
 
         # Log a metric with a dictionary configuration
-        wandb_log({"accuracy": {"value": 0.95, "type": "metric"}})
+        wandb_log({"accuracy": {"data": 0.95, "type": "metric"}})
 
         # Log an image directly
         wandb_log({"image": wandb.Image("path/to/image.jpg")})
 
         # Log an image with a dictionary configuration
-        wandb_log({"image": {"value": plt.figure(), "type": "image"}})
+        wandb_log({"image": {"data": plt.figure(), "type": "image"}})
 
         # Log a 3D object
-        wandb_log({"model": {"value": "path/to/model.obj", "type": "image"}})
+        wandb_log({"model": {"data": "path/to/model.obj", "type": "image"}})
 
         # Log multiple items at once
         wandb_log({
             "loss": 0.5,
             "accuracy": 0.95,
             "confusion_matrix": wandb.Image(confusion_matrix_fig),
-            "embeddings": {"value": embedding_array, "type": "histogram"}
+            "embeddings": {"data": embedding_array, "type": "histogram"}
         })
 
     Raises:
@@ -188,20 +188,9 @@ def wandb_log(
                 _log_image({name: data_dict}, step=step, commit=commit, sync=sync)
 
             elif dtype == "video":
-                # For videos, ensure they're properly wrapped in wandb.Video if needed
-                # if not isinstance(data_dict, wandb.Video):
-                #     if isinstance(data_dict, str) and os.path.isfile(data_dict):
-                #         data_dict = wandb.Video(data_dict)
-                # wandb.log({name: data_dict}, step=step, commit=commit)
                 _log_video({name: data_dict}, step=step, commit=commit, sync=sync)
-                # TODO
 
-            elif dtype =wandb_log_artifact= "audio":
-                # For audio, ensure they're properly wrapped in wandb.Audio if needed
-                # if not isinstance(data_dict, wandb.Audio):
-                #     if isinstance(data_dict, str) and os.path.isfile(data_dict):
-                #         data_dict = wandb.Audio(data_dict)
-                # wandb.log({name: data_dict}, step=step, commit=commit, sync=sync)
+            elif dtype == "audio":
                 _log_audio({name: data_dict}, step=step, commit=commit, sync=sync)
 
             elif dtype == "histogram":
@@ -317,27 +306,6 @@ def wandb_log_plot(figure: Any, name: str = "plot") -> None:
 #         )
 
 
-# def wandb_log_histogram(data: Any, name: str = "histogram") -> None:
-#     _check_initialized()
-
-#     # Prepare the histogram data
-#     if isinstance(data, wandb.Histogram):
-#         # If it's already a wandb Histogram, log it directly
-#         _log_histogram({name: data})
-#     elif isinstance(data, list) and all(
-#         isinstance(item, (int, float)) for item in data
-#     ):
-#         # If it's a list containing only numeric values, pass it to _log_histogram
-#         _log_histogram({name: data})
-#     elif isinstance(data, np.ndarray) and np.issubdtype(data.dtype, np.number):
-#         # If it's a NumPy array containing numeric values, pass it to _log_histogram
-#         _log_histogram({name: data})
-#     else:
-#         raise ValueError(
-#             "Input must be a wandb.Histogram, a list of numeric values, or a numpy array of numeric values."
-#         )
-
-
 def wandb_finish() -> None:
     """Finalize W&B run"""
     global _initialized
@@ -380,13 +348,13 @@ def _log_metric(
     for name, metric_data in metric.items():
         if "metadata" in metric_data:
             wandb.log(
-                {name: metric_data["value"], **metric_data["metadata"]},
+                {name: metric_data["data"], **metric_data["metadata"]},
                 step=step,
                 commit=commit,
                 sync=sync,
             )
         else:
-            wandb.log({name: metric_data["value"]}, step=step, commit=commit, sync=sync)
+            wandb.log({name: metric_data["data"]}, step=step, commit=commit, sync=sync)
 
 
 def _log_histogram(
@@ -400,19 +368,26 @@ def _log_histogram(
     for key, value in histogram_data.items():
         if isinstance(value, wandb.Histogram):
             processed[key] = value
-        elif isinstance(value, list) and all(
-            isinstance(item, (int, float)) for item in value
-        ):
-            # Create a wandb Histogram from the list of numeric values
-            processed[key] = wandb.Histogram(value)
-        elif isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number):
-            # Create a wandb Histogram from the NumPy array
-            processed[key] = wandb.Histogram(value.tolist())  # Convert to list
-        else:
-            raise ValueError("Unsupported histogram format.")
+            continue
+
+        # If value is a dictionary with a "data" key, process the inner value
+        if isinstance(value, dict) and "data" in value:
+            inner_value = value["data"]
+            histogram_kwargs = {k: v for k, v in value.items() if k != "data"}
+
+            if isinstance(inner_value, list) and all(
+                isinstance(item, (int, float)) for item in inner_value
+            ):
+                # Create a wandb Histogram from the list of numeric values
+                processed[key] = wandb.Histogram(inner_value)
+            elif isinstance(inner_value, np.ndarray) and np.issubdtype(inner_value.dtype, np.number):
+                # Create a wandb Histogram from the NumPy array
+                processed[key] = wandb.Histogram(inner_value)
+            else:
+                raise ValueError("Unsupported histogram format.")
 
     # Log the processed histograms
-    wandb.log(processed)
+    wandb.log(processed, step=step, commit=commit, sync=sync)
 
 
 def _log_table(
@@ -423,6 +398,10 @@ def _log_table(
 ) -> None:
     processed = {}
     for key, value in table.items():
+
+        # TODO hier weiter machen
+
+
         if pd and isinstance(value, pd.DataFrame):
             processed[key] = wandb.Table(dataframe=value)
         elif isinstance(value, wandb.Table):
@@ -435,8 +414,28 @@ def _log_table(
         else:
             raise ValueError("Unsupported table format.")
 
+
+                # Check for pandas DataFrame (if pandas is available)
+    if pd and any(isinstance(v, pd.DataFrame) for v in data.values()):
+        return "table"
+
+    # Check for table data (list of dictionaries)
+    if any(
+        isinstance(v, list) and all(isinstance(item, dict) for item in v)
+        for v in data.values()
+    ):
+        return "table"
+
+    # Check for table data (list of lists)
+    if any(
+        isinstance(v, list) and all(isinstance(row, list) for row in v)
+        for v in data.values()
+    ):
+        return "table"
+
+
     # Log the processed tables
-    wandb.log(processed)
+    wandb.log(processed, step=step, commit=commit, sync=sync)
 
 
 def _log_image(
@@ -455,11 +454,11 @@ def _log_image(
 
     Examples:
         _log_image({"image": wandb.Image("path/to/image.jpg")})
-        _log_image({"image": {"value": plt.figure()}})
-        _log_image({"image": {"value": np.zeros((100, 100))}})
-        _log_image({"image": {"value": "path/to/image.jpg"}})
-        _log_image({"3d_object": {"value": np.zeros((100, 100, 3))}})
-        _log_image({"image": {"value": plt.figure(), "caption": "My figure", "metadata": {"key": "value"}}})
+        _log_image({"image": {"data": plt.figure()}})
+        _log_image({"image": {"data": np.zeros((100, 100))}})
+        _log_image({"image": {"data": "path/to/image.jpg"}})
+        _log_image({"3d_object": {"data": np.zeros((100, 100, 3))}})
+        _log_image({"image": {"data": plt.figure(), "caption": "My figure", "metadata": {"key": "data"}}})
     """
     processed = {}
 
@@ -469,9 +468,9 @@ def _log_image(
             processed[key] = value
             continue
 
-        # If value is a dictionary with a "value" key, process the inner value
-        if isinstance(value, dict) and "value" in value:
-            inner_value = value["value"]
+        # If value is a dictionary with a "data" key, process the inner value
+        if isinstance(value, dict) and "data" in value:
+            inner_value = value["data"]
 
             # Extract optional caption and metadata if present
             caption = value.get("caption")
@@ -539,10 +538,86 @@ def _log_video(
     commit: bool = True,
     sync: bool = True,
 ) -> None:
+    """
+    Log video data to wandb
+
+    Args:
+        video_data: Dictionary mapping names to video data
+        step: Optional step for logging
+        commit: Whether to commit the log immediately
+        sync: Whether to sync with wandb server immediately
+
+    Examples:
+        _log_video({"video": wandb.Video("path/to/video.mp4")})
+        _log_video({"video": {"data": "path/to/video.mp4", "fps": 30, "caption": "My video"}})
+    """
     processed = {}
+
+    for key, value in video_data.items():
+        # If value is already a wandb.Video, use it directly
+        if isinstance(value, wandb.Video):
+            processed[key] = value
+            continue
+
+        # If value is a dictionary with a "data" key, process the inner value
+        if isinstance(value, dict) and "data" in value:
+            inner_value = value["data"]
+            video_kwargs = {k: v for k, v in value.items() if k != "data"}
+            # If inner_value is already a wandb.Video, use it directly
+            if isinstance(inner_value, wandb.Video):
+                processed[key] = inner_value
+                continue
+
+            # handle numpy array as video
+            if isinstance(inner_value, np.ndarray):
+                processed[key] = wandb.Video(inner_value, **video_kwargs)
+                continue
+                
+            # Handle file path
+            if isinstance(inner_value, (str, Path)):
+                path = Path(inner_value)
+                if path.exists() and path.suffix.lower() in [".mp4", ".gif"]:
+                    # Extract video-specific parameters
+                    processed[key] = wandb.Video(str(path), **video_kwargs)
+                else:
+                    warnings.warn(f"Unsupported or non-existent video file for key {key}: {path}. Skipping.")
+            else:
+                warnings.warn(f"Unsupported video data type for key {key}: {type(inner_value)}. Skipping.")
+        else:
+            warnings.warn(f"Missing 'data' key in video configuration for key {key}. Skipping.")
+
+    if processed:
+        wandb.log(processed, step=step, commit=commit, sync=sync)
+
 
 def _log_audio(audio_data: Dict[str, Any], step: Optional[int] = None, commit: bool = True, sync: bool = True) -> None:
     processed = {}
+    for key, value in audio_data.items():
+        if isinstance(value, wandb.Audio):
+            processed[key] = value
+            continue
+
+        if isinstance(value, dict) and "data" in value:
+            inner_value = value["data"]
+            audio_kwargs = {k: v for k, v in value.items() if k != "data"}
+
+
+            # handle numpy array as audio
+            if isinstance(inner_value, np.ndarray):
+                processed[key] = wandb.Audio(inner_value, **audio_kwargs)
+                continue
+
+            if isinstance(inner_value, (str, Path)):
+                path = Path(inner_value)
+                if path.exists() and path.suffix.lower() in [".wav", ".mp3"]:
+                    processed[key] = wandb.Audio(str(path), **audio_kwargs)
+            else:
+                warnings.warn(f"Unsupported or non-existent audio file for key {key}: {path}. Skipping.")
+        else:
+            warnings.warn(f"Unsupported audio data type for key {key}: {type(value)}. Skipping.")
+
+    if processed:
+        wandb.log(processed, step=step, commit=commit, sync=sync)
 
 def _log_html(html_data: Dict[str, Any], step: Optional[int] = None, commit: bool = True, sync: bool = True) -> None:
     processed = {}
@@ -730,9 +805,9 @@ def _infer_data_type(data: Dict[str, Any]) -> str:
     if any(isinstance(v, wandb.Image) for v in data.values()):
         return "image"
 
-    # Check for image data in the "value" key
-    if "value" in data:
-        value = data["value"]
+    # Check for image data in the "data" key
+    if "data" in data:
+        value = data["data"]
         # Check if it's a matplotlib figure
         if plt and isinstance(value, plt.Figure):
             return "image"
@@ -748,6 +823,13 @@ def _infer_data_type(data: Dict[str, Any]) -> str:
 
     if any(isinstance(v, wandb.Video) for v in data.values()):
         return "video"
+
+    if "data" in data:
+        value = data["data"]
+        if isinstance(value, (str, Path)):
+            path = Path(value)
+            if path.exists() and path.suffix.lower() in [".mp4", ".gif"]:
+                return "video"
 
     if any(isinstance(v, wandb.Audio) for v in data.values()):
         return "audio"
@@ -780,13 +862,20 @@ def _infer_data_type(data: Dict[str, Any]) -> str:
     ):
         return "table"
 
+    # Check for table data (list of lists)
+    if any(
+        isinstance(v, list) and all(isinstance(row, list) for row in v)
+        for v in data.values()
+    ):
+        return "table"
+
     # Default to metric for any other type
     return (
         "metric"
-        if "value" in data.values()
+        if "data" in data.values()
         and (
-            isinstance(data["value"], (numbers.Number, str))
-            or (np and isinstance(data["value"], np.number))
+            isinstance(data["data"], (numbers.Number, str))
+            or (np and isinstance(data["data"], np.number))
         )
         else "none"
     )
