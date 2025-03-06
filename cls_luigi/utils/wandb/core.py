@@ -81,39 +81,41 @@ def wandb_init(
     **kwargs,
 ) -> None:
     """Initialize a Weights & Biases run with project and pipeline context.
-    
+
     This function initializes a new W&B run and sets global variables to track
     the initialization state. It automatically adds the pipeline name to the
     configuration and handles the W&B initialization process.
-    
+
     Args:
         project_name: Name of the W&B project to log to
         pipeline_name: Name of the current pipeline/run
         config: Optional dictionary of configuration parameters to log
         **kwargs: Additional keyword arguments passed directly to wandb.init()
-        
+
     Raises:
         RuntimeError: If W&B is already initialized
         ImportError: If wandb package is not installed
-        
+
     Examples:
-        Basic initialization:
-        >>> wandb_init("my-project", "training-pipeline")
-        
-        With configuration:
-        >>> wandb_init(
-        ...     "my-project", 
-        ...     "training-pipeline", 
-        ...     config={"learning_rate": 0.001, "batch_size": 32}
-        ... )
-        
-        With additional W&B parameters:
-        >>> wandb_init(
-        ...     "my-project",
-        ...     "training-pipeline",
-        ...     tags=["experiment-1", "resnet"],
-        ...     notes="Testing improved model architecture"
-        ... )
+        ```python
+        # Basic initialization
+        wandb_init("my-project", "training-pipeline")
+
+        # With configuration
+        wandb_init(
+            "my-project",
+            "training-pipeline",
+            config={"learning_rate": 0.001, "batch_size": 32}
+        )
+
+        # With additional W&B parameters
+        wandb_init(
+            "my-project",
+            "training-pipeline",
+            tags=["experiment-1", "resnet"],
+            notes="Testing improved model architecture"
+        )
+        ```
     """
     global _initialized, _project, _pipeline_name
 
@@ -130,7 +132,7 @@ def wandb_init(
         raise ValueError("pipeline_name must be a non-empty string")
     if config is not None and not isinstance(config, dict):
         raise TypeError("config must be a dictionary or None")
-        
+
     # Store global state
     _project = project_name
     _pipeline_name = pipeline_name
@@ -142,7 +144,9 @@ def wandb_init(
 
     # Initialize wandb
     try:
-        wandb.init(project=project_name, name=pipeline_name, config=full_config, **kwargs)
+        wandb.init(
+            project=project_name, name=pipeline_name, config=full_config, **kwargs
+        )
         _initialized = True
     except Exception as e:
         # Reset global state on failure
@@ -186,6 +190,7 @@ def wandb_log(
         - html: W&B HTML objects or HTML strings
 
     Examples:
+        ```python
         # Log a simple metric
         wandb_log({"loss": 0.5})
 
@@ -199,7 +204,7 @@ def wandb_log(
         wandb_log({"image": {"data": plt.figure(), "type": "image"}})
 
         # Log a 3D object
-        wandb_log({"model": {"data": "path/to/model.obj", "type": "image"}})
+        wandb_log({"model": {"data": "path/to/model.obj", "type": "object3d"}})
 
         # Log multiple items at once
         wandb_log({
@@ -208,6 +213,7 @@ def wandb_log(
             "confusion_matrix": wandb.Image(confusion_matrix_fig),
             "embeddings": {"data": embedding_array, "type": "histogram"}
         })
+        ```
 
     Raises:
         RuntimeError: If W&B is not initialized before calling this function.
@@ -271,104 +277,713 @@ def wandb_log(
             warnings.warn(f"Error logging {name} with type {dtype}: {str(e)}")
 
 
-def wandb_log_plot(
-    figure: Any,
-    name: str = "plot",
-    step: Optional[int] = None,
-    commit: bool = True,
-    sync: bool = True,
+def wandb_log_artifact(
+    data: Union[Dict[str, Any], Any],
+    name: Optional[str] = None,
+    aliases: Optional[List[str]] = None,
+    tags: Optional[List[str]] = None,
+    incremental: bool = False,
+    use_as: Optional[str] = None,
 ) -> None:
-    """Safely log a matplotlib or plotly figure to Weights & Biases.
-    
-    This function handles different types of plot figures (matplotlib, plotly) and
-    converts them to a format that can be logged to W&B. It includes error handling
-    to prevent crashes if the figure cannot be processed.
-    
+    """Log artifacts to Weights & Biases with flexible input formats.
+
+    This function provides a flexible interface for logging artifacts to W&B.
+    It supports both the standard W&B artifact API format and a more flexible
+    dictionary-based format similar to wandb_log.
+
     Args:
-        figure: The figure to log, can be matplotlib.figure.Figure, plotly.graph_objs.Figure,
-               or a plotly figure in dict format
-        name: Name to use for the logged figure in W&B
-        step: Optional step number for the logged figure
-        commit: Whether to commit the figure immediately
-        sync: Whether to sync with wandb server immediately
-        
+        data: Either:
+            - A single artifact configuration dictionary with required fields
+            - A dictionary mapping names to artifact configurations
+        name: Name to use when logging a single artifact (ignored if data is a dictionary with multiple items)
+        aliases: Optional list of aliases to apply to the artifact(s)
+        tags: Optional list of tags to apply to the artifact(s)
+        incremental: If True, only files that have changed since the last version will be saved
+        use_as: Optional string to specify how this artifact should be used (e.g., 'model', 'dataset')
+
+    Artifact configuration dictionary format:
+        - Standard W&B format (direct artifact API):
+        ```python
+        {
+            'name': str,              # Required: Name of the artifact
+            'type': str,              # Required: Type of artifact (e.g., 'model', 'dataset')
+            'path': str,              # Required: Path to the file or directory
+            'description': str,       # Optional: Description of the artifact
+            'metadata': dict,         # Optional: Additional metadata
+            'aliases': List[str],     # Optional: Aliases to apply to the artifact
+            'tags': List[str],        # Optional: Tags to apply to the artifact
+            'incremental': bool,      # Optional: Only save files that have changed since last version
+            'use_as': str             # Optional: How this artifact should be used
+        }
+        ```
+
+        - Flexible format (similar to wandb_log):
+        ```python
+        {
+            'path': str,              # Required: Path to the file or directory
+            'type': str,              # Optional: Type of artifact (default: 'file')
+            'metadata': dict,         # Optional: Additional metadata
+            'description': str,       # Optional: Description of the artifact
+            'aliases': List[str],     # Optional: Aliases to apply to the artifact
+            'tags': List[str],        # Optional: Tags to apply to the artifact
+            'incremental': bool,      # Optional: Only save files that have changed since last version
+            'use_as': str             # Optional: How this artifact should be used
+        }
+        ```
+
     Examples:
-        With matplotlib:
-        >>> import matplotlib.pyplot as plt
-        >>> fig, ax = plt.subplots()
-        >>> ax.plot([1, 2, 3, 4])
-        >>> wandb_log_plot(fig, name="training_loss")
-        
-        With plotly:
-        >>> import plotly.express as px
-        >>> fig = px.line(x=[0, 1, 2, 3], y=[0, 1, 4, 9])
-        >>> wandb_log_plot(fig, name="accuracy_curve", step=10)
+        ```python
+        # Standard W&B format
+        wandb_log_artifact({
+            'name': 'resnet50_model',
+            'type': 'model',
+            'description': 'ResNet-50 model trained on ImageNet',
+            'path': 'models/resnet50.pth',
+            'metadata': {'accuracy': 0.76, 'parameters': 25.6e6},
+            'aliases': ['best', 'v1']
+        })
+
+        # Flexible format with a single artifact
+        wandb_log_artifact({
+            'resnet50_model': {
+                'path': 'models/resnet50.pth',
+                'type': 'model',
+                'metadata': {'accuracy': 0.76}
+            }
+        })
+
+        # Multiple artifacts with the flexible format
+        wandb_log_artifact({
+            'model_weights': {
+                'path': 'models/weights.pth',
+                'type': 'model',
+                'metadata': {'accuracy': 0.76}
+            },
+            'training_data': {
+                'path': 'data/processed/',
+                'type': 'dataset'
+            }
+        })
+
+        # Using with Luigi targets
+        wandb_log_artifact({
+            'model_output': luigi_target,  # Will use target.path
+            'evaluation': {
+                'path': evaluation_target.path,
+                'type': 'metrics'
+            }
+        })
+        ```
     """
     _check_initialized()
 
-    try:
-        processed = {}
+    # Handle the case where data is a single artifact configuration
+    if not isinstance(data, dict) or (
+        isinstance(data, dict)
+        and "path" in data
+        and not any(isinstance(v, dict) for v in data.values())
+    ):
+        # Single artifact case
+        _log_single_artifact(
+            data, 
+            name=name, 
+            aliases=aliases,
+            tags=tags,
+            incremental=incremental, 
+            use_as=use_as
+        )
+        return
 
-        if isinstance(figure, wandb.plot.CustomChart):
-            wandb.log({name: figure})
-            return
-
-        # Check if the figure is a Matplotlib figure
-        if plt and isinstance(figure, plt.Figure):
-            processed[name] = figure  # Store the Matplotlib figure directly
-            plt.close(figure)  # Close the figure after logging
-
-        # Check if the figure is a Plotly Figure object
-        elif pio and Figure and isinstance(figure, Figure):
-            img_data = pio.to_image(figure, format="png")
-            processed[name] = img_data
-
-        # Check if the figure is a Plotly figure in dict format
-        elif pio and isinstance(
-            figure, dict
-        ):  # Assuming Plotly figure is in dict format
-            img_data = pio.to_image(figure, format="png")
-            processed[name] = img_data
-
-        # Check if the figure is a JSON string
-        elif pio and isinstance(figure, str):
-            try:
-                # Attempt to parse the JSON string to a Plotly figure
-                figure_dict = pio.from_json(figure)
-                img_data = pio.to_image(figure_dict, format="png")
-                processed[name] = img_data
-            except Exception as e:
-                raise ValueError("Invalid JSON string for Plotly figure.") from e
-
-        else:
-            raise ValueError(
-                "The figure must be a Matplotlib figure, a Plotly Figure object, or a Plotly figure in dict or JSON format."
+    # Handle dictionary of artifacts
+    for key, value in data.items():
+        if isinstance(value, dict) and ("path" in value or hasattr(value, "path")):
+            # This is an artifact configuration
+            # Pass through parameters if not specified in the config
+            artifact_incremental = value.get("incremental", incremental)
+            artifact_use_as = value.get("use_as", use_as)
+            artifact_aliases = value.get("aliases", aliases)
+            artifact_tags = value.get("tags", tags)
+            
+            _log_single_artifact(
+                value, 
+                name=key, 
+                aliases=artifact_aliases,
+                tags=artifact_tags,
+                incremental=artifact_incremental, 
+                use_as=artifact_use_as
             )
+        elif hasattr(value, "path"):
+            # This is a Luigi target or similar object with a path attribute
+            _log_single_artifact(
+                {"path": value.path}, 
+                name=key, 
+                aliases=aliases,
+                tags=tags,
+                incremental=incremental, 
+                use_as=use_as
+            )
+        else:
+            # Not a recognized artifact format
+            warnings.warn(f"Skipping '{key}': not a valid artifact configuration")
 
-        # Log the processed media using the _log_image function
-        _log_image(processed, step=step, commit=commit, sync=sync)
+    # No need for commit/sync as wandb.log_artifact handles this
 
-    except Exception as e:
-        warnings.warn(f"Error logging {name} with type {type(figure)}: {str(e)}")
+
+def _log_single_artifact(
+    artifact_data: Dict[str, Any],
+    name: Optional[str] = None,
+    aliases: Optional[List[str]] = None,
+    tags: Optional[List[str]] = None,
+    incremental: bool = False,
+    use_as: Optional[str] = None,
+) -> None:
+    """Helper function to log a single artifact to W&B.
+
+    Args:
+        artifact_data: Artifact configuration dictionary
+        name: Optional name for the artifact (used with the flexible format)
+        aliases: Optional list of aliases to apply to the artifact
+        tags: Optional list of tags to apply to the artifact
+        incremental: If True, only files that have changed since the last version will be saved
+        use_as: Optional string to specify how this artifact should be used
+    """
+    # Ensure we have a dictionary or an object with a path attribute
+    if not isinstance(artifact_data, dict):
+        if hasattr(artifact_data, "path"):
+            # Handle Luigi targets or similar objects with a path attribute
+            artifact_data = {"path": artifact_data.path}
+        else:
+            # Neither a dict nor an object with a path attribute
+            raise ValueError(
+                f"Expected dict or object with 'path' attribute, got {type(artifact_data)}"
+            )
+    
+    # Ensure we have a path
+    if "path" not in artifact_data:
+        raise ValueError("Artifact data must contain a 'path' key")
+        
+    # Determine if we're using standard W&B format or flexible format
+    using_standard_format = "name" in artifact_data and "type" in artifact_data
+    
+    # Set up artifact name and type
+    if using_standard_format:
+        # Standard W&B format
+        artifact_name = artifact_data["name"]
+        artifact_type = artifact_data["type"]
+    else:
+        # Flexible format - construct the artifact name if not provided
+        if name is None:
+            # Use the basename of the path as a fallback name
+            name = Path(artifact_data["path"]).stem
+        artifact_name = name
+        # Get artifact type (default to 'output')
+        artifact_type = artifact_data.get("type", "output")
+    
+    # Create the artifact
+    artifact = wandb.Artifact(
+        name=artifact_name,
+        type=artifact_type,
+        description=artifact_data.get("description", ""),
+        metadata=artifact_data.get("metadata", {}),
+        incremental=artifact_data.get("incremental", incremental),
+        use_as=artifact_data.get("use_as", use_as),
+    )
+    
+    # Get aliases and tags
+    artifact_aliases = artifact_data.get("aliases", aliases or [])
+    artifact_tags = artifact_data.get("tags", tags or [])
+    
+    # Add the file or directory to the artifact
+    path = Path(artifact_data["path"])
+    if path.is_dir():
+        artifact.add_dir(str(path))
+    else:
+        artifact.add_file(str(path))
+    
+    # Apply aliases if provided
+    if artifact_aliases:
+        for alias in artifact_aliases:
+            artifact.aliases.append(alias)
+            
+    # Apply tags if provided
+    if artifact_tags:
+        for tag in artifact_tags:
+            artifact.add_tag(tag)
+    
+    # Log the artifact
+    wandb.log_artifact(artifact, aliases=artifact_aliases)
+
+
+def wandb_log_model(
+    data: Union[Dict[str, Any], str],
+    name: Optional[str] = None,
+    aliases: Optional[List[str]] = None,
+) -> None:
+    """Log machine learning models to Weights & Biases.
+
+    This function provides a flexible interface for logging models to W&B.
+    It uses the native wandb.log_model method when possible, and falls back
+    to our artifact-based approach for more complex configurations.
+
+    Args:
+        data: Either a path to a model file/directory, or a dictionary mapping names to model configurations.
+            - For a direct path string, it is logged directly using wandb.log_model.
+            - For dictionary values, they are processed based on their configuration.
+        name: Optional name for the model artifact when using a direct path string.
+            If not provided, W&B will generate a name based on the path.
+        aliases: Optional list of aliases to apply to the artifact when using a direct path.
+
+    Configuration dictionary format:
+        ```python
+        {"model_name": {"path": "path/to/model", ...}}
+        ```
+
+        Each model configuration can include:
+        ```python
+        {
+            "path": str,              # Required: Path to the model file or directory
+            "name": str,             # Optional: Name for the model (defaults to the key in the data dict)
+            "aliases": List[str],    # Optional: Aliases to apply to the artifact
+            "tags": List[str],       # Optional: Tags to apply to the artifact
+            "metadata": dict,        # Optional: Additional metadata to associate with the model
+            "description": str,      # Optional: Description of the model
+            "incremental": bool,     # Optional: Whether to save only files that have changed
+            "use_as": str           # Optional: How this artifact should be used (typically "model")
+        }
+        ```
+
+    Examples:
+        ```python
+        # Log a model directly with a path
+        wandb_log_model("models/resnet50.pth", name="resnet_model", aliases=["latest", "best"])
+
+        # Log a model with minimal configuration
+        wandb_log_model({"resnet50": {"path": "models/resnet50.pth"}})
+
+        # Log a model with full configuration
+        wandb_log_model({
+            "bert_model": {
+                "path": "models/bert/",
+                "aliases": ["best", "v1.0"],
+                "tags": ["transformer", "nlp"],
+                "metadata": {"accuracy": 0.92, "f1": 0.89, "epochs": 5},
+                "description": "Fine-tuned BERT model for text classification",
+                "incremental": True,
+                "use_as": "model"
+            }
+        })
+
+        # Log multiple models at once
+        wandb_log_model({
+            "encoder": {"path": "models/encoder.pt"},
+            "decoder": {"path": "models/decoder.pt"}
+        })
+        ```
+
+    Raises:
+        RuntimeError: If W&B is not initialized before calling this function.
+        ValueError: If required fields are missing from the configuration.
+    """
+    _check_initialized()
+
+    # Handle direct path string (use native wandb.log_model)
+    if isinstance(data, str):
+        wandb.log_model(path=data, name=name, aliases=aliases)
+        return
+
+    # Handle dictionary of model configurations
+    for name, model_data in data.items():
+        try:
+            # Simple string path case
+            if isinstance(model_data, str):
+                wandb.run.log_model(path=model_data, name=name, aliases=aliases)
+                continue
+
+            # Dictionary configuration case
+            if isinstance(model_data, dict):
+                # Ensure path is provided
+                if "path" not in model_data:
+                    raise ValueError(f"'path' is required for model artifact: {name}")
+
+                # If it's a simple configuration with just path and maybe aliases,
+                # use the native log_model method
+                simple_keys = {"path", "aliases"}
+                if set(model_data.keys()).issubset(simple_keys):
+                    model_aliases = model_data.get("aliases", aliases)
+                    wandb.log_model(
+                        path=model_data["path"],
+                        name=name,
+                        aliases=model_aliases
+                    )
+                    continue
+
+                # For more complex configurations, use our artifact-based approach
+                artifact_config = {
+                    name: {
+                        "path": model_data["path"],
+                        "type": "model",
+                        "metadata": model_data.get("metadata", {}),
+                        "description": model_data.get("description", ""),
+                        "aliases": model_data.get("aliases", aliases or ["latest"]),
+                        "tags": model_data.get("tags", []),
+                        "incremental": model_data.get("incremental", False),
+                        "use_as": model_data.get("use_as", "model")
+                    }
+                }
+                wandb_log_artifact(artifact_config)
+            else:
+                # For direct model objects (future support)
+                warnings.warn(
+                    f"Direct model objects not yet supported. Please use a path string or configuration dictionary for {name}"
+                )
+        except Exception as e:
+            warnings.warn(f"Error logging model {name}: {str(e)}")
+
+def wandb_log_plot(
+    data: Union[Dict[str, Any], Any],
+    name: Optional[str] = None,
+    step: Optional[int] = None,
+    commit: bool = True,
+    sync: bool = True,
+    format: Optional[str] = None,
+    dpi: Optional[int] = None,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+) -> None:
+    """Safely log plots and visualizations to Weights & Biases.
+
+    This function provides a flexible interface for logging various types of plots to W&B.
+    It follows the same pattern as wandb_log, supporting both direct figure objects
+    and dictionary configurations with special processing. It handles matplotlib figures,
+    plotly figures, and built-in wandb plot types.
+
+    Args:
+        data: Either:
+            - A single figure object (matplotlib, plotly, or wandb plot) to log with the given name
+            - A dictionary mapping names to figure objects or configuration dictionaries
+        name: Name to use when logging a single figure (ignored if data is a dictionary)
+        step: Optional step number for the logged figure(s)
+        commit: Whether to commit immediately
+        sync: Whether to sync with wandb server immediately
+        format: Image format for saving plots ("png", "jpeg", "svg", "pdf")
+        dpi: Resolution for rasterized formats
+        width: Optional width for the figure in pixels
+        height: Optional height for the figure in pixels
+
+    Configuration dictionary format:
+        {
+            "data": Any,              # Required: The figure object (matplotlib, plotly, vega-lite spec, etc.)
+            "type": str,             # Optional: Type identifier (defaults to "plot")
+            "format": str,           # Optional: Image format ("png", "jpeg", "svg", "pdf")
+            "dpi": int,              # Optional: Resolution for the image
+            "width": int,            # Optional: Width in pixels
+            "height": int,           # Optional: Height in pixels
+            "caption": str,          # Optional: Caption for the plot
+            "metadata": dict,        # Optional: Additional metadata to associate with the plot
+            "interactive": bool,     # Optional: For Plotly figures, whether to preserve interactivity (default: False)
+            "data_table": pd.DataFrame # Optional: For Vega-Lite, the data table to use with the spec
+        }
+
+    Examples:
+        # Direct logging of a single figure
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots()
+        ax.plot([1, 2, 3, 4])
+        wandb_log_plot(fig, name="training_loss")
+
+        # Logging with the dictionary format (like wandb_log)
+        wandb_log_plot({
+            "training_loss": fig,
+            "accuracy": px.line(x=[0, 1, 2, 3], y=[0.5, 0.7, 0.8, 0.9])
+        })
+
+        # Logging with configuration dictionaries
+        wandb_log_plot({
+            "training_loss": {
+                "data": fig,
+                "format": "svg",
+                "dpi": 300,
+                "caption": "Training loss over time",
+                "metadata": {"epoch": 10, "batch_size": 64}
+            },
+            "interactive_plot": {
+                "data": px.line(x=[0, 1, 2, 3], y=[0.5, 0.7, 0.8, 0.9]),
+                "interactive": True,  # This preserves the interactive Plotly functionality
+                "caption": "Interactive accuracy plot"
+            },
+            "vega_chart": {
+                "data": {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                    "data": {"values": [{"x": i, "y": i**2} for i in range(10)]},
+                    "mark": "line",
+                    "encoding": {
+                        "x": {"field": "x", "type": "quantitative"},
+                        "y": {"field": "y", "type": "quantitative"}
+                    }
+                },
+                "metadata": {"dataset": "synthetic", "model": "quadratic"}
+            },
+            "confusion_matrix": wandb.plot.confusion_matrix(
+                probs=None,
+                y_true=[0, 1, 2, 2, 1],
+                preds=[0, 1, 2, 1, 0],
+                class_names=["class_1", "class_2", "class_3"]
+            )
+        })
+
+        # Logging built-in wandb plot types
+        wandb_log_plot({
+            "pr_curve": wandb.plot.pr_curve(
+                y_true=[0, 0, 1, 1],
+                y_probas=[0.1, 0.4, 0.35, 0.8],
+                labels=["class_0", "class_1"]
+            )
+        })
+    """
+    _check_initialized()
+
+    # Handle the case where data is a single figure object
+    if not isinstance(data, dict):
+        if name is None:
+            name = "plot"  # Default name if not provided
+
+        # Create a dictionary with the single figure
+        plot_data = {name: data}
+    else:
+        # Use the provided dictionary
+        plot_data = data
+
+    # Separate direct logging items and items that need processing
+    direct_log = {}
+    processed_images = {}
+
+    for plot_name, plot_value in plot_data.items():
+        try:
+            # Handle wandb built-in plot types directly
+            if isinstance(plot_value, wandb.plot.CustomChart):
+                direct_log[plot_name] = plot_value
+                continue
+
+            # Process configuration dictionaries
+            if isinstance(plot_value, dict) and "data" in plot_value:
+                # Extract configuration options
+                figure = plot_value["data"]
+                plot_format = plot_value.get("format", format)
+                plot_dpi = plot_value.get("dpi", dpi)
+                plot_width = plot_value.get("width", width)
+                plot_height = plot_value.get("height", height)
+                caption = plot_value.get("caption", None)
+                metadata = plot_value.get("metadata", {})
+            else:
+                # Use the figure directly with default options
+                figure = plot_value
+                plot_format = format  # Will be None if not specified
+                plot_dpi = dpi
+                plot_width = width
+                plot_height = height
+                caption = None
+                metadata = {}
+
+            # Process different figure types
+
+            # Handle Matplotlib figures
+            if plt and isinstance(figure, plt.Figure):
+                # Save the original DPI to restore it later
+                original_dpi = figure.dpi
+
+                # Set the DPI if explicitly specified
+                if plot_dpi is not None:
+                    figure.dpi = plot_dpi
+
+                # Create a wandb.Image with the figure
+                if caption or metadata:
+                    processed_images[plot_name] = wandb.Image(
+                        figure, caption=caption, metadata=metadata
+                    )
+                else:
+                    processed_images[plot_name] = figure
+
+                # Restore original DPI
+                figure.dpi = original_dpi
+
+                # Close the figure to prevent memory leaks
+                plt.close(figure)
+
+            # Handle Plotly figures
+            elif pio and (
+                (Figure and isinstance(figure, Figure))
+                or (isinstance(figure, dict) and "data" in figure)
+            ):
+                # Check if we should preserve interactivity
+                preserve_interactive = (
+                    plot_value.get("interactive", False)
+                    if isinstance(plot_value, dict)
+                    else False
+                )
+
+                if preserve_interactive:
+                    # Log the Plotly figure with wandb.Plotly to preserve interactivity and attach metadata
+                    if caption or metadata:
+                        direct_log[plot_name] = wandb.Plotly(
+                            figure, caption=caption, metadata=metadata
+                        )
+                    else:
+                        direct_log[plot_name] = figure
+                else:
+                    # Convert to static image data
+                    to_image_kwargs = {}
+                    if plot_format is not None:
+                        to_image_kwargs["format"] = plot_format
+                    if plot_width is not None:
+                        to_image_kwargs["width"] = plot_width
+                    if plot_height is not None:
+                        to_image_kwargs["height"] = plot_height
+
+                    img_bytes = pio.to_image(figure, **to_image_kwargs)
+
+                    # Create a wandb.Image with the bytes
+                    if caption or metadata:
+                        processed_images[plot_name] = wandb.Image(
+                            img_bytes, caption=caption, metadata=metadata
+                        )
+                    else:
+                        processed_images[plot_name] = wandb.Image(img_bytes)
+
+            # Handle JSON strings for Plotly
+            elif pio and isinstance(figure, str):
+                try:
+                    # Attempt to parse as JSON
+                    figure_dict = pio.from_json(figure)
+
+                    # Check if we should preserve interactivity
+                    preserve_interactive = (
+                        plot_value.get("interactive", False)
+                        if isinstance(plot_value, dict)
+                        else False
+                    )
+
+                    if preserve_interactive:
+                        # Log the Plotly figure with wandb.Plotly to preserve interactivity and attach metadata
+                        if caption or metadata:
+                            direct_log[plot_name] = wandb.Plotly(
+                                figure_dict, caption=caption, metadata=metadata
+                            )
+                        else:
+                            direct_log[plot_name] = figure_dict
+                    else:
+                        # Build kwargs dictionary with only specified parameters
+                        to_image_kwargs = {}
+                        if plot_format is not None:
+                            to_image_kwargs["format"] = plot_format
+                        if plot_width is not None:
+                            to_image_kwargs["width"] = plot_width
+                        if plot_height is not None:
+                            to_image_kwargs["height"] = plot_height
+
+                        img_bytes = pio.to_image(figure_dict, **to_image_kwargs)
+
+                        # Create a wandb.Image with the bytes
+                        if caption or metadata:
+                            processed_images[plot_name] = wandb.Image(
+                                img_bytes, caption=caption, metadata=metadata
+                            )
+                        else:
+                            processed_images[plot_name] = wandb.Image(img_bytes)
+                except Exception as e:
+                    raise ValueError("Invalid JSON string for Plotly figure.") from e
+
+            # Handle numpy arrays as images
+            elif isinstance(figure, np.ndarray):
+                if caption or metadata:
+                    processed_images[plot_name] = wandb.Image(
+                        figure, caption=caption, metadata=metadata
+                    )
+                else:
+                    processed_images[plot_name] = wandb.Image(figure)
+
+            # Handle file paths
+            elif isinstance(figure, (str, Path)) and Path(figure).is_file():
+                if caption or metadata:
+                    processed_images[plot_name] = wandb.Image(
+                        str(figure), caption=caption, metadata=metadata
+                    )
+                else:
+                    processed_images[plot_name] = wandb.Image(str(figure))
+
+            # Handle Vega-Lite specifications
+            elif isinstance(figure, dict) and (
+                "$schema" in figure
+                or figure.get("type") == "vega-lite"
+                or "mark" in figure
+                or "layer" in figure
+                or "hconcat" in figure
+                or "vconcat" in figure
+            ):
+                # Extract data table if provided
+                data_table = (
+                    plot_value.get("data_table", None)
+                    if isinstance(plot_value, dict)
+                    else None
+                )
+
+                # Log the Vega-Lite chart
+                if metadata:
+                    direct_log[plot_name] = wandb.plots.VegaLite(
+                        figure, data_table=data_table, metadata=metadata
+                    )
+                else:
+                    direct_log[plot_name] = wandb.plots.VegaLite(
+                        figure, data_table=data_table
+                    )
+
+            else:
+                raise ValueError(
+                    f"Unsupported figure type for {plot_name}: {type(figure)}. "
+                    "Supported types include matplotlib.figure.Figure, plotly.graph_objs.Figure, "
+                    "numpy arrays, file paths, Vega-Lite specifications, or wandb plot objects."
+                )
+
+        except Exception as e:
+            warnings.warn(f"Error processing plot {plot_name}: {str(e)}")
+
+    # Log direct items if there are any
+    if direct_log:
+        wandb.log(direct_log, step=step, commit=False, sync=False)
+
+    # Log processed images if there are any
+    if processed_images:
+        wandb.log(processed_images, step=step, commit=commit, sync=sync)
+    # If nothing was logged but commit is True, log an empty dict to trigger the commit
+    elif commit and not direct_log:
+        wandb.log({}, step=step, commit=True, sync=sync)
 
 
 def wandb_finish() -> None:
     """Finalize the current Weights & Biases run.
-    
+
     This function safely finalizes the current W&B run if one exists and resets
     the global initialization state. It should be called at the end of your
     pipeline or experiment to properly close the W&B session.
-    
+
     Note that this function does nothing if W&B has not been initialized.
-    
+
     Examples:
-        >>> # After initializing and logging data
-        >>> wandb_init("my-project", "training-pipeline")
-        >>> # ... perform logging operations ...
-        >>> wandb_finish()  # Properly close the W&B run
+        ```python
+        # After initializing and logging data
+        wandb_init("my-project", "training-pipeline")
+        
+        # ... perform logging operations ...
+        wandb_log({"loss": 0.5, "accuracy": 0.95})
+        
+        # Log a model artifact
+        wandb_log_model("path/to/model.pth", name="final_model")
+        
+        # Properly close the W&B run
+        wandb_finish()
+        ```
     """
     global _initialized, _project, _pipeline_name
-    
+
     if _initialized:
         try:
             # Attempt to finish the wandb run
@@ -384,17 +999,17 @@ def wandb_finish() -> None:
 
 def wandb_get_status() -> Dict[str, Any]:
     """Get the current status of the Weights & Biases run.
-    
+
     This function returns information about the current W&B run, including
     whether it's initialized, the project name, pipeline name, and the run URL.
-    
+
     Returns:
         Dict[str, Any]: Dictionary containing status information with the following keys:
             - 'initialized': Boolean indicating if W&B is initialized
             - 'project': Name of the current project (if initialized)
             - 'pipeline_name': Name of the current pipeline (if initialized)
             - 'run_url': URL to the W&B run (if initialized)
-    
+
     Examples:
         >>> status = wandb_get_status()
         >>> print(f"W&B initialized: {status['initialized']}")
@@ -433,10 +1048,10 @@ def _log_metric(
     sync: bool = True,
 ) -> None:
     """Log metrics to Weights & Biases.
-    
+
     This function logs scalar metrics to W&B. It handles both simple scalar values
     and metrics wrapped in a dictionary with a 'data' key.
-    
+
     Args:
         metric: Dictionary mapping metric names to values, which can be:
             - Scalar values (int, float)
@@ -444,14 +1059,14 @@ def _log_metric(
         step: Optional step number for the logged metrics
         commit: Whether to commit the metrics immediately
         sync: Whether to sync with wandb server immediately
-        
+
     Examples:
         # Simple scalar metrics
         >>> _log_metric({"accuracy": 0.95, "loss": 0.05})
-        
+
         # With step number
         >>> _log_metric({"accuracy": 0.97, "loss": 0.03}, step=100)
-        
+
         # Using data dictionary format
         >>> _log_metric({
         ...     "validation_metrics": {
@@ -482,11 +1097,11 @@ def _log_histogram(
     sync: bool = True,
 ) -> None:
     """Log histogram data to Weights & Biases.
-    
+
     This function handles different types of histogram data and converts them to
     wandb.Histogram objects for logging. It supports lists of values, NumPy arrays,
     and pre-computed histograms.
-    
+
     Args:
         histogram_data: Dictionary mapping names to histogram data, which can be:
             - wandb.Histogram objects
@@ -497,15 +1112,15 @@ def _log_histogram(
         step: Optional step number for the logged histograms
         commit: Whether to commit the histograms immediately
         sync: Whether to sync with wandb server immediately
-        
+
     Examples:
         # With a list of values
         >>> _log_histogram({"scores": {"data": [65, 72, 84, 91, 95]}})
-        
+
         # With a numpy array
         >>> import numpy as np
         >>> _log_histogram({"weights": {"data": np.random.normal(0, 1, 1000)}})
-        
+
         # With a pre-computed histogram
         >>> hist, bin_edges = np.histogram(data, bins=20)
         >>> _log_histogram({"distribution": {"data": (hist, bin_edges)}})
@@ -559,11 +1174,11 @@ def _log_table(
     sync: bool = True,
 ) -> None:
     """Log tabular data to Weights & Biases.
-    
+
     This function handles various formats of tabular data and converts them to
     wandb.Table objects for logging. It supports pandas DataFrames, dictionaries,
     lists of lists, lists of dictionaries, and numpy arrays.
-    
+
     Args:
         table: Dictionary mapping names to table data, which can be:
             - wandb.Table objects
@@ -576,21 +1191,21 @@ def _log_table(
         step: Optional step number for the logged tables
         commit: Whether to commit the tables immediately
         sync: Whether to sync with wandb server immediately
-        
+
     Examples:
         # With a pandas DataFrame
         >>> import pandas as pd
         >>> df = pd.DataFrame({'col1': [1, 2, 3], 'col2': ['a', 'b', 'c']})
         >>> _log_table({"my_table": df})
-        
+
         # With a list of dictionaries
         >>> data = [{"x": 1, "y": 2}, {"x": 3, "y": 4}]
         >>> _log_table({"points": data})
-        
+
         # With a list of lists and columns
         >>> data = {"matrix": {"data": [[1, 2], [3, 4]], "columns": ["a", "b"]}}
         >>> _log_table(data)
-        
+
         # With a numpy array and columns
         >>> import numpy as np
         >>> arr = np.array([[1, 2], [3, 4]])
@@ -669,11 +1284,11 @@ def _log_image(
     sync: bool = True,
 ) -> None:
     """Log image data to Weights & Biases.
-    
+
     This function handles various image formats and converts them to a format
     that can be logged to W&B. It supports PIL images, NumPy arrays, file paths,
     and 3D objects.
-    
+
     Args:
         image_data: Dictionary mapping names to image data, which can be:
             - wandb.Image objects
@@ -684,21 +1299,21 @@ def _log_image(
         step: Optional step number for the logged images
         commit: Whether to commit the images immediately
         sync: Whether to sync with wandb server immediately
-        
+
     Examples:
         # With a PIL image
         >>> from PIL import Image
         >>> img = Image.open('sample.jpg')
         >>> _log_image({"sample_image": img})
-        
+
         # With a numpy array
         >>> import numpy as np
         >>> array = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
         >>> _log_image({"random_image": array})
-        
+
         # With a file path
         >>> _log_image({"external_image": {"data": "path/to/image.png"}})
-        
+
         # With a 3D object (for 3D visualization)
         >>> vertices = np.random.rand(100, 3)
         >>> _log_image({"point_cloud": {"data": vertices, "type": "3d"}})
@@ -860,6 +1475,36 @@ def _log_audio(
     commit: bool = True,
     sync: bool = True,
 ) -> None:
+    """Log audio data to Weights & Biases.
+
+    This function handles various audio formats and converts them to a format
+    that can be logged to W&B. It supports numpy arrays with audio signals,
+    file paths to audio files, and wandb.Audio objects.
+
+    Args:
+        audio_data: Dictionary mapping names to audio data, which can be:
+            - wandb.Audio objects
+            - NumPy arrays containing audio signals
+            - File paths to audio files (.wav, .mp3)
+            - Dictionaries with a 'data' key containing any of the above
+        step: Optional step number for the logged audio
+        commit: Whether to commit the audio immediately
+        sync: Whether to sync with wandb server immediately
+
+    Examples:
+        ```python
+        # With a file path
+        _log_audio({"sample_audio": {"data": "path/to/audio.wav"}})
+
+        # With a numpy array (assuming sample_rate=16000)
+        import numpy as np
+        audio_array = np.random.uniform(-1, 1, 16000)
+        _log_audio({"generated_audio": {"data": audio_array, "sample_rate": 16000}})
+
+        # With a wandb.Audio object
+        _log_audio({"voice_sample": wandb.Audio("recording.mp3", caption="Voice recording")})
+        ```
+    """
     try:
         processed = {}
         for key, value in audio_data.items():
@@ -961,26 +1606,26 @@ def _detect_framework(model: Any) -> str:
 
 def _infer_data_type(data: Dict[str, Any]) -> str:
     """Infer the type of data to be logged to Weights & Biases.
-    
+
     This function examines the provided data dictionary and determines the most
     appropriate logging method based on the content types. It can detect various
     data types including metrics, histograms, images, videos, audio, HTML, and tables.
-    
+
     Args:
         data: Dictionary of data to be logged
-        
+
     Returns:
-        str: The inferred data type, one of: 'metric', 'histogram', 'image', 
+        str: The inferred data type, one of: 'metric', 'histogram', 'image',
              'video', 'audio', 'html', 'table', or 'unknown'
-             
+
     Examples:
         >>> _infer_data_type({"loss": 0.5, "accuracy": 0.95})
         'metric'
-        
+
         >>> import numpy as np
         >>> _infer_data_type({"weights": np.random.normal(0, 1, 1000)})
         'histogram'
-        
+
         >>> from PIL import Image
         >>> _infer_data_type({"sample": Image.new('RGB', (100, 100))})
         'image'
@@ -1124,87 +1769,24 @@ def _infer_data_type(data: Dict[str, Any]) -> str:
     )
 
 
-def wandb_log_artifact(artifact_data: Dict[str, Any]) -> None:
-    """Log an artifact to Weights & Biases.
-    
-    This function logs artifacts (models, datasets, etc.) to W&B for versioning
-    and tracking. It handles different types of artifacts and provides a consistent
-    interface for logging them.
-    
-    Args:
-        artifact_data: Dictionary containing artifact information with the following keys:
-            - 'name': Name of the artifact (required)
-            - 'type': Type of artifact (e.g., 'model', 'dataset') (required)
-            - 'description': Optional description of the artifact
-            - 'metadata': Optional dictionary of metadata to associate with the artifact
-            - 'path': Path to the artifact file or directory (required)
-            - 'aliases': Optional list of aliases to apply to the artifact
-    
-    Examples:
-        >>> # Log a model artifact
-        >>> wandb_log_artifact({
-        ...     'name': 'resnet50_model',
-        ...     'type': 'model',
-        ...     'description': 'ResNet-50 model trained on ImageNet',
-        ...     'path': 'models/resnet50.pth',
-        ...     'metadata': {'accuracy': 0.76, 'parameters': 25.6e6},
-        ...     'aliases': ['best', 'v1']
-        ... })
-        
-        >>> # Log a dataset artifact
-        >>> wandb_log_artifact({
-        ...     'name': 'processed_dataset',
-        ...     'type': 'dataset',
-        ...     'path': 'data/processed/',
-        ...     'metadata': {'num_samples': 10000, 'classes': 10}
-        ... })
-    """
-    _check_initialized()
-    
-    # Validate required fields
-    required_fields = ['name', 'type', 'path']
-    for field in required_fields:
-        if field not in artifact_data:
-            raise ValueError(f"Required field '{field}' missing from artifact_data")
-    
-    # Create the artifact
-    artifact = wandb.Artifact(
-        name=artifact_data['name'],
-        type=artifact_data['type'],
-        description=artifact_data.get('description', ''),
-        metadata=artifact_data.get('metadata', {})
-    )
-    
-    # Add the file or directory to the artifact
-    path = Path(artifact_data['path'])
-    if path.is_dir():
-        artifact.add_dir(str(path))
-    else:
-        artifact.add_file(str(path))
-    
-    # Log the artifact
-    aliases = artifact_data.get('aliases', [])
-    wandb.log_artifact(artifact, aliases=aliases)
-
-
 def _check_initialized() -> None:
     """Check if Weights & Biases has been initialized.
-    
+
     This utility function verifies that W&B has been properly initialized
     before attempting to log data. It's used internally by the logging
     functions to ensure proper usage order.
-    
+
     Raises:
         RuntimeError: If W&B has not been initialized with wandb_init()
     """
     global _initialized
-    
+
     # First check if wandb.run exists (in case wandb was initialized outside this module)
     if wandb.run is None and not _initialized:
         raise RuntimeError(
             "W&B not initialized. Call wandb_init() first before attempting to log data."
         )
-    
+
     # If we get here but our internal flag is not set, update it to match reality
     if wandb.run is not None and not _initialized:
         global _project, _pipeline_name
