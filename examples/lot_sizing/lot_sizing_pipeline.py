@@ -7,7 +7,6 @@ import wandb
 import luigi
 import pandas as pd
 import numpy as np
-import plotly.graph_objs as go
 from cls.debug_util import deep_str
 from cls.fcl import FiniteCombinatoryLogic
 from cls.subtypes import Subtypes
@@ -24,11 +23,12 @@ from cls_luigi.utils.wandb import (
     wandb_log,
     log_output,
     wandb_log_plot,
+    update_config,
+    wandb_log_artifact,
 )
 
-from cls_luigi.utils.wandb.config import 
 
-class ConfigTask():
+class ConfigTask:
     prediction_horizon = luigi.IntParameter(default=8)
 
 
@@ -47,11 +47,7 @@ class GetCost(WandbTask):
         with open(self.output()[0].path, "w") as f:
             json.dump(d, f, indent=4)
 
-
-        wandb.log({"cost": d})
-        wandb_log({"cost": d})
-
-        wandb_log(
+        wandb_log_artifact(
             {
                 "cost": {
                     "path": self.output()[0].path,
@@ -68,16 +64,18 @@ class GetCost(WandbTask):
 class GetHistoricDemand(WandbTask):
     abstract = False
 
-    @log_output({
-        "type": "dataset",
-        "metadata": {
-            "description": "Historic demand data",
-        },
-        "aliases": ["latest", "raw-demand"],
-        "tags": ["input-data", "demand"],
-        "incremental": False,
-        "use_as": "dataset"
-    })
+    @log_output(
+        {
+            "type": "dataset",
+            "metadata": {
+                "description": "Historic demand data",
+            },
+            "aliases": ["latest", "raw-demand"],
+            "tags": ["input-data", "demand"],
+            "incremental": False,
+            "use_as": "dataset",
+        }
+    )
     def output(self):
         print("GetHistoricDemand: output")
         return luigi.LocalTarget("data/historic_demand.csv")
@@ -123,7 +121,7 @@ class PredictDemand(WandbTask, ConfigTask):
         }
 
         # Log metrics using wandb_log
-        wandb_log(metrics, data_type="metric")
+        wandb_log(metrics)
 
     def _log_prediction_plots(self, prediction_method, actual, predicted):
         # Prepare the prediction horizon
@@ -149,10 +147,12 @@ class PredictDemand(WandbTask, ConfigTask):
             data=residuals_data, columns=["Prediction Horizon", "Residuals"]
         )
 
-        # Log tables using wandb_log_table
-        wandb_log_table(demand_table, name=f"Demand Table for {prediction_method}")
-        wandb_log_table(
-            residuals_table, name=f"Residuals Table for {prediction_method}"
+        # Log tables using wandb_log
+        wandb_log(
+            {
+                f"Demand Table for {prediction_method}": demand_table,
+                f"Residuals Table for {prediction_method}": residuals_table,
+            }
         )
 
         # Log plots using wandb_log_plot with enhanced metadata
@@ -170,10 +170,9 @@ class PredictDemand(WandbTask, ConfigTask):
                     "prediction_method": prediction_method,
                     "data_points": len(predicted),
                     "mean": np.mean(predicted),
-                    "std": np.std(predicted)
-                }
+                    "std": np.std(predicted),
+                },
             },
-            
             f"actual_demand_{prediction_method}": {
                 "data": wandb.plot.line(
                     demand_table,
@@ -185,10 +184,9 @@ class PredictDemand(WandbTask, ConfigTask):
                 "metadata": {
                     "data_points": len(actual),
                     "mean": np.mean(actual),
-                    "std": np.std(actual)
-                }
+                    "std": np.std(actual),
+                },
             },
-            
             f"comparison_{prediction_method}": {
                 "data": wandb.plot.line_series(
                     xs=prediction_horizon,
@@ -200,11 +198,14 @@ class PredictDemand(WandbTask, ConfigTask):
                 "caption": f"Comparison between actual and predicted demand using {prediction_method}",
                 "metadata": {
                     "prediction_method": prediction_method,
-                    "mean_absolute_error": np.mean(np.abs(np.array(actual) - np.array(predicted))),
-                    "mean_squared_error": np.mean((np.array(actual) - np.array(predicted))**2)
-                }
+                    "mean_absolute_error": np.mean(
+                        np.abs(np.array(actual) - np.array(predicted))
+                    ),
+                    "mean_squared_error": np.mean(
+                        (np.array(actual) - np.array(predicted)) ** 2
+                    ),
+                },
             },
-            
             f"residuals_{prediction_method}": {
                 "data": wandb.plot.scatter(
                     residuals_table,
@@ -216,59 +217,57 @@ class PredictDemand(WandbTask, ConfigTask):
                 "metadata": {
                     "prediction_method": prediction_method,
                     "mean_residual": np.mean(residuals),
-                    "std_residual": np.std(residuals)
-                }
-            }
+                    "std_residual": np.std(residuals),
+                },
+            },
         }
-        
+
         # Log all plots with their metadata
         wandb_log_plot(plots_to_log)
 
-        # Generate random data
-        np.random.seed(42)
-        n = 500
-        x = np.random.randn(n)
-        y = np.random.randn(n)
-        
-        # Create a scatter plot with color and size variations
-        fig = go.Figure(data=go.Scatter(
-            x=x, 
-            y=y, 
-            mode='markers',
-            marker=dict(
-                size=10,
-                color=x,  # set color to an array/list of desired values
-                colorscale='Viridis',  # choose a colorscale
-                showscale=True
-            ),
-            text=[f'Point {i}' for i in range(n)],  # hover text
-            hoverinfo='text'
-        ))
+        # Create a scatter plot using the Iris dataset with Plotly Express
+        import plotly.express as px
+
+        df = px.data.iris()
+        fig = px.scatter(
+            df,
+            x="sepal_width",
+            y="sepal_length",
+            color="species",
+            size="petal_length",
+            hover_data=["petal_width"],
+        )
 
         # Customize layout
         fig.update_layout(
-            title='Random Scatter Plot',
-            xaxis_title='X Values',
-            yaxis_title='Y Values',
-            template='plotly_white'
+            title="Iris Dataset Scatter Plot",
+            xaxis_title="Sepal Width",
+            yaxis_title="Sepal Length",
+            template="plotly_white",
         )
 
         # Log the plot with interactive mode and metadata
-        wandb_log_plot({
-            'interactive_scatter': {
-                'data': fig,
-                'interactive': True,  # Enable interactive features
-                'caption': 'Interactive scatter plot with hover information',
-                'metadata': {
-                    'prediction_method': prediction_method,
-                    'points': n,
-                    'x_mean': float(np.mean(x)),
-                    'y_mean': float(np.mean(y)),
-                    'x_std': float(np.std(x)),
-                    'y_std': float(np.std(y))
+        wandb_log_plot(
+            {
+                "iris_scatter": {
+                    "data": fig,
+                    "interactive": True,  # Enable interactive features
+                    "caption": "Interactive Iris dataset scatter plot showing sepal width vs length",
+                    "metadata": {
+                        "prediction_method": prediction_method,
+                        "dataset": "iris",
+                        "features": [
+                            "sepal_width",
+                            "sepal_length",
+                            "species",
+                            "petal_length",
+                            "petal_width",
+                        ],
+                        "num_samples": len(df),
+                    },
                 }
             }
-        })
+        )
 
     def track_prediction(
         self, prediction_method, actual, predicted, prediction_horizon=None
@@ -302,7 +301,7 @@ class PredictDemand(WandbTask, ConfigTask):
         )
         self._log_prediction_plots(prediction_method, actual, predicted)
         if prediction_horizon:
-            wandb_log({"prediction_horizon": prediction_horizon}, data_type="params")
+            wandb_log({"prediction_horizon": prediction_horizon})
 
     def get_actual_demand(self):
         # just dummy values
@@ -334,18 +333,20 @@ class PredictDemand(WandbTask, ConfigTask):
 class PredictDemandByLinearRegression(PredictDemand):
     abstract = False
 
-    @log_output({
-        "type": "model",
-        "metadata": {
-            "description": "Predicted demand DataFrame",
-            "model_type": "linear_regression",
-            "prediction_horizon": lambda self: self.prediction_horizon,
-        },
-        "aliases": ["latest", "linear-model"],
-        "tags": ["prediction", "linear-regression"],
-        "incremental": False,
-        "use_as": "model"
-    })
+    @log_output(
+        {
+            "type": "model",
+            "metadata": {
+                "description": "Predicted demand DataFrame",
+                "model_type": "linear_regression",
+                "prediction_horizon": lambda self: self.prediction_horizon,
+            },
+            "aliases": ["latest", "linear-model"],
+            "tags": ["prediction", "linear-regression"],
+            "incremental": False,
+            "use_as": "model",
+        }
+    )
     def output(self):
         return [luigi.LocalTarget("data/predicted_demand_by_linear_regression.pkl")]
 
@@ -371,18 +372,20 @@ class PredictDemandByLinearRegression(PredictDemand):
 class PredictDemandByAverage(PredictDemand):
     abstract = False
 
-    @log_output({
-        "type": "model",
-        "metadata": {
-            "description": "Predicted demand by average",
-            "model_type": "simple_average",
-            "prediction_horizon": lambda self: self.prediction_horizon,
-        },
-        "aliases": ["latest", "average-model"],
-        "tags": ["prediction", "average"],
-        "incremental": False,
-        "use_as": "model"
-    })
+    @log_output(
+        {
+            "type": "model",
+            "metadata": {
+                "description": "Predicted demand by average",
+                "model_type": "simple_average",
+                "prediction_horizon": lambda self: self.prediction_horizon,
+            },
+            "aliases": ["latest", "average-model"],
+            "tags": ["prediction", "average"],
+            "incremental": False,
+            "use_as": "model",
+        }
+    )
     def output(self):
         return [luigi.LocalTarget("data/predicted_demand_by_average.pkl")]
 
@@ -422,17 +425,16 @@ class OptimizeLots(WandbTask, ConfigTask):
         self.optimization_metrics = metrics
 
         # Log Hyperparameters using wandb_log
-        wandb_log(
+        update_config(
             {
                 "planning_period": int(self.prediction_horizon),
                 "fixed_cost": cost["fixedCost"],
-                "variable_cost": cost["varCost"]
-            }, 
-            data_type="params"
+                "variable_cost": cost["varCost"],
+            }
         )
 
         # Log metrics using wandb_log
-        wandb_log(metrics, data_type="metrics")
+        wandb_log(metrics)
 
     def _get_cost(self):
         with open(self.input()["cost"][0].path, "rb") as f:
@@ -468,19 +470,21 @@ class OptimizeLots(WandbTask, ConfigTask):
 class OptimizeLotsByGroff(OptimizeLots):
     abstract = False
 
-    @log_output({
-        "type": "output",
-        "metadata": {
-            "description": "Lot optimization results",
-            "optimizer": lambda self: self.__class__.__name__,
-            "demand_variant": lambda self: self._get_variant_label(),
-            "optimization_metrics": lambda self: self.optimization_metrics,
-        },
-        "aliases": ["latest", "groff-result"],
-        "tags": ["optimization-result", "groff"],
-        "incremental": False,
-        "use_as": None
-    })
+    @log_output(
+        {
+            "type": "output",
+            "metadata": {
+                "description": "Lot optimization results",
+                "optimizer": lambda self: self.__class__.__name__,
+                "demand_variant": lambda self: self._get_variant_label(),
+                "optimization_metrics": lambda self: self.optimization_metrics,
+            },
+            "aliases": ["latest", "groff-result"],
+            "tags": ["optimization-result", "groff"],
+            "incremental": False,
+            "use_as": None,
+        }
+    )
     def output(self):
         return [
             luigi.LocalTarget(
@@ -499,19 +503,21 @@ class OptimizeLotsByGroff(OptimizeLots):
 class OptimizeLotsByWagnerWhitin(OptimizeLots):
     abstract = False
 
-    @log_output({
-        "type": "output",
-        "metadata": {
-            "description": "Lot optimization results",
-            "optimizer": lambda self: self.__class__.__name__,
-            "demand_variant": lambda self: self._get_variant_label(),
-            "optimization_metrics": lambda self: self.optimization_metrics,
-        },
-        "aliases": ["latest", "wagner-whitin-result"],
-        "tags": ["optimization-result", "wagner-whitin"],
-        "incremental": False,
-        "use_as": None
-    })
+    @log_output(
+        {
+            "type": "output",
+            "metadata": {
+                "description": "Lot optimization results",
+                "optimizer": lambda self: self.__class__.__name__,
+                "demand_variant": lambda self: self._get_variant_label(),
+                "optimization_metrics": lambda self: self.optimization_metrics,
+            },
+            "aliases": ["latest", "wagner-whitin-result"],
+            "tags": ["optimization-result", "wagner-whitin"],
+            "incremental": False,
+            "use_as": None,
+        }
+    )
     def output(self):
         return [
             luigi.LocalTarget(
@@ -533,19 +539,21 @@ class OptimizeLotsByWagnerWhitin(OptimizeLots):
 class OptimizeLotsBySilverMeal(OptimizeLots):
     abstract = False
 
-    @log_output({
-        "type": "output",
-        "metadata": {
-            "description": "Lot optimization results",
-            "optimizer": lambda self: self.__class__.__name__,
-            "demand_variant": lambda self: self._get_variant_label(),
-            "optimization_metrics": lambda self: self.optimization_metrics,
-        },
-        "aliases": ["latest", "silver-meal-result"],
-        "tags": ["optimization-result", "silver-meal"],
-        "incremental": False,
-        "use_as": None
-    })
+    @log_output(
+        {
+            "type": "output",
+            "metadata": {
+                "description": "Lot optimization results",
+                "optimizer": lambda self: self.__class__.__name__,
+                "demand_variant": lambda self: self._get_variant_label(),
+                "optimization_metrics": lambda self: self.optimization_metrics,
+            },
+            "aliases": ["latest", "silver-meal-result"],
+            "tags": ["optimization-result", "silver-meal"],
+            "incremental": False,
+            "use_as": None,
+        }
+    )
     def output(self):
         return [
             luigi.LocalTarget(
@@ -607,8 +615,6 @@ class OptimizeLotsByPartPeriod(OptimizeLots):
 
 
 if __name__ == "__main__":
-    config = luigi.configuration.get_config()
-
     target = OptimizeLots.return_type()
     repository = RepoMeta.repository
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes))
@@ -627,7 +633,15 @@ if __name__ == "__main__":
         print("Number of results after filtering", len(results))
         print("Run Pipelines")
         for pipeline in results[:1]:
-            run_luigi_pipeline_with_wandb(pipeline, "lot_sizing", config=config)
+            # Run the pipeline with W&B tracking, using named parameters
+            run_luigi_pipeline_with_wandb(
+                pipeline=pipeline,
+                project_name="lot_sizing",
+                tags=["lot_sizing", "optimization"],
+                job_type="production",
+                save_code=True,
+                debug_print=True,
+            )
 
     else:
         print("No results!")

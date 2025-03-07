@@ -5,11 +5,11 @@ from cls_luigi.utils.wandb.core import wandb_log_artifact, wandb_log_model
 
 def log_output(output_config=None, callback=None):
     """Decorator to log Luigi task outputs to Weights & Biases with custom configuration.
-    
+
     This decorator automatically logs the outputs of a Luigi task to Weights & Biases
     after the task has completed successfully. It patches the task's run method to
     perform logging only after all outputs have been written, ensuring data integrity.
-    
+
     Args:
         output_config: Configuration for how outputs should be logged to W&B:
             - None: Use default logging (type="output")
@@ -19,31 +19,31 @@ def log_output(output_config=None, callback=None):
             - Dict of configs: Mapping output names to their configurations for dict outputs
         callback: Optional function to execute after outputs are logged. The function
                  will receive the task outputs as its argument.
-    
+
     Returns:
         Decorated output method that handles W&B logging after task completion.
-    
+
     Examples:
         ```python
         # Default logging with automatic type detection
         @log_output()
         def output(self):
             return luigi.LocalTarget("output.csv")
-        
+
         # Specify artifact type for single output
         @log_output("dataset")
         def output(self):
             return luigi.LocalTarget("data.csv")
-        
+
         # Full configuration for single output
         @log_output({
-            "type": "model", 
+            "type": "model",
             "metadata": {"accuracy": 0.95},
             "aliases": ["best", "v1"]
         })
         def output(self):
             return luigi.LocalTarget("model.pkl")
-        
+
         # Configuration for list outputs
         @log_output([
             "dataset",
@@ -54,7 +54,7 @@ def log_output(output_config=None, callback=None):
                 luigi.LocalTarget("data.csv"),
                 luigi.LocalTarget("plot.png")
             ]
-        
+
         # Configuration for dictionary outputs
         @log_output({
             "data": "dataset",
@@ -66,7 +66,7 @@ def log_output(output_config=None, callback=None):
                 "visualization": luigi.LocalTarget("plot.png")
             }
         ```
-    
+
     Note:
         For model artifacts (type="model"), the decorator will automatically use
         wandb_log_model instead of wandb_log_artifact for proper model versioning.
@@ -131,15 +131,15 @@ def log_output(output_config=None, callback=None):
 
 def _log_to_wandb(task, outputs, output_config=None):
     """Helper function to log Luigi task outputs to Weights & Biases with specified configurations.
-    
+
     This internal function handles the actual logging of Luigi task outputs to W&B,
     creating properly configured artifacts for versioning and tracking. It supports
     various output formats (single, list, dictionary) and configuration options.
-    
+
     For model artifacts (type="model"), it automatically uses wandb_log_model instead
     of wandb_log_artifact for proper model versioning and tracking. It also automatically
     sets the use_as parameter based on common artifact types if not explicitly specified.
-    
+
     Args:
         task: The Luigi task instance that generated the outputs
         outputs: The output targets to log (single target, list of targets, or dict of targets)
@@ -149,10 +149,10 @@ def _log_to_wandb(task, outputs, output_config=None):
             - Dict: Full configuration for single output with type, metadata, etc.
             - List: List of configurations for list outputs (must match output list length)
             - Dict: Mapping output names to their configurations for dict outputs
-    
+
     Raises:
         ValueError: If the configuration list length doesn't match the outputs list length
-    
+
     Note:
         This function automatically adds task metadata to the artifact, including task_id
         and task_family. It also supports dynamic metadata through callable values that
@@ -161,11 +161,11 @@ def _log_to_wandb(task, outputs, output_config=None):
 
     def prepare_config(config, default_type="output"):
         """Normalize configuration input to a standard dictionary format.
-        
+
         Args:
             config: Configuration input (string type or dictionary)
             default_type: Default artifact type to use if none specified
-            
+
         Returns:
             Dictionary containing the normalized configuration
         """
@@ -177,7 +177,7 @@ def _log_to_wandb(task, outputs, output_config=None):
 
     def log_artifact(output, name=None, config=None):
         """Log a single Luigi target as a W&B artifact.
-        
+
         Args:
             output: Luigi target to log
             name: Name for the artifact (defaults to output string representation)
