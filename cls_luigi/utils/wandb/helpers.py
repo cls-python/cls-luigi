@@ -55,7 +55,7 @@ def run_luigi_pipeline_with_wandb(
     mode: Optional[str] = None,
     save_code: Optional[bool] = None,
     resume: Optional[Union[bool, str]] = None,
-    debug_print: bool = False,
+    debug_print: Optional[bool] = False,
 ) -> None:
     """Run a Luigi pipeline with Weights & Biases tracking.
 
