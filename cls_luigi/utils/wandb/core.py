@@ -241,7 +241,7 @@ def wandb_init(
 def wandb_log(
     data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log data to Weights & Biases with automatic type detection and handling.
 
@@ -740,7 +740,7 @@ def wandb_log_plot(
     data: Union[Dict[str, Any], Any],
     name: Optional[str] = None,
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
     format: Optional[str] = None,
     dpi: Optional[int] = None,
     width: Optional[int] = None,
@@ -1345,7 +1345,7 @@ def wandb_get_status() -> Dict[str, Any]:
 def _log_metric(
     metric: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log metrics to Weights & Biases.
 
@@ -1391,7 +1391,7 @@ def _log_metric(
 def _log_histogram(
     histogram_data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log histogram data to Weights & Biases.
 
@@ -1466,7 +1466,7 @@ def _log_histogram(
 def _log_table(
     table: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log tabular data to Weights & Biases.
 
@@ -1574,7 +1574,7 @@ def _log_table(
 def _log_image(
     image_data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log image data to Weights & Biases.
 
@@ -1696,7 +1696,7 @@ def _log_image(
 def _log_video(
     video_data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """
     Log video data to wandb
@@ -1762,7 +1762,7 @@ def _log_video(
 def _log_audio(
     audio_data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     """Log audio data to Weights & Biases.
 
@@ -1833,7 +1833,7 @@ def _log_audio(
 def _log_html(
     html_data: Dict[str, Any],
     step: Optional[int] = None,
-    commit: bool = True,
+    commit: Optional[bool] = True,
 ) -> None:
     try:
         processed = {}
