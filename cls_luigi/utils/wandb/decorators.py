@@ -25,7 +25,12 @@ def log_output(output_config=None, callback=None):
 
     Examples:
         ```python
-        # Default logging with automatic type detection
+        # Default logging with default type
+        @log_output
+        def output(self):
+            return luigi.LocalTarget("output.csv")
+
+        # Default logging with default type
         @log_output()
         def output(self):
             return luigi.LocalTarget("output.csv")
