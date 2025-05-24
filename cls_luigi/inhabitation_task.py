@@ -20,7 +20,6 @@
 import functools
 import importlib
 
-
 from typing import Any, TypeVar, Generic, Union, List, Dict, Tuple, Set
 from typing import Type as PyType
 from cls.fcl import FiniteCombinatoryLogic, InhabitationResult

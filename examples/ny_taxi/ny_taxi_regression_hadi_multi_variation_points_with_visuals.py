@@ -3,6 +3,9 @@ import pickle
 import warnings
 from pathlib import Path
 
+import sys
+sys.path.append('../..')
+
 import luigi
 import numpy as np
 import pandas as pd
@@ -15,16 +18,16 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, RobustScaler, MinMaxScaler
 from sklearn.exceptions import ConvergenceWarning
-from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
-from cls_python import FiniteCombinatoryLogic, Subtypes
+from cls_luigi.inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta
+from cls_python.cls.fcl import FiniteCombinatoryLogic, Subtypes
 from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from repo_visualizer.dynamic_json_repo import DynamicJSONRepo
-from repo_visualizer.static_json_repo import StaticJSONRepo
-from unique_task_pipeline_validator import UniqueTaskPipelineValidator
+from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+from cls_luigi.repo_visualizer.static_json_repo import StaticJSONRepo
+from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 sns.set_style('darkgrid')
 sns.set_context('talk')

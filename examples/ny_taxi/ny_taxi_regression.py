@@ -6,11 +6,16 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, InhabitationTask, TaskState, states
-from cls_python import FiniteCombinatoryLogic, Subtypes
+import sys
+sys.path.append('../..')
+
+from cls_luigi.inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, InhabitationTask, TaskState, states
+
+# Ensure the import comes after sys.path modifications
+from cls_python.cls.fcl import FiniteCombinatoryLogic, Subtypes
 
 from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
-from cls_python.debug_util import deep_str
+from cls_python.cls.debug_util import deep_str
 
 
 class WriteCSVRegressionSetupJson(WriteSetupJson):
