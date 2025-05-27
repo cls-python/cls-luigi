@@ -6,17 +6,21 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import sys
-sys.path.append('../..')
-
 from cls_luigi.inhabitation_task import LuigiCombinator, ClsParameter, RepoMeta, InhabitationTask, TaskState, states
-
-# Ensure the import comes after sys.path modifications
-from cls_python.cls.fcl import FiniteCombinatoryLogic, Subtypes
+from cls.fcl import FiniteCombinatoryLogic, Subtypes
 
 from cls_luigi_read_tabular_data import WriteSetupJson, ReadTabularData
-from cls_python.cls.debug_util import deep_str
+from cls.debug_util import deep_str
 
+from cls_luigi.grammar import ApplicativeTreeGrammarEncoder
+
+from os.path import join as pjoin
+
+from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
+
+from llm_suggester.pipeline_agent import PipelineAgent
+
+output_dir = "output"
 
 class WriteCSVRegressionSetupJson(WriteSetupJson):
     abstract = False
@@ -192,7 +196,10 @@ class FinalNode(luigi.WrapperTask, LuigiCombinator):
 
 
 if __name__ == '__main__':
-    target = FinalNode.return_type()
+
+    target_class = FinalNode
+
+    target = target_class.return_type()
     print("Collecting Repo")
     repository = RepoMeta.repository
     print("Build Repository...")
@@ -200,19 +207,38 @@ if __name__ == '__main__':
     print("Build Tree Grammar and inhabit Pipelines...")
 
     inhabitation_result = fcl.inhabit(target)
-    print("Enumerating results...")
-    max_tasks_when_infinite = 10
-    actual = inhabitation_result.size()
-    max_results = max_tasks_when_infinite
-    if actual > 0:
-        max_results = actual
-    results = [t() for t in inhabitation_result.evaluated[0:max_results]]
-    if results:
-        print("Number of results", max_results)
-        print("Run Pipelines")
-        luigi.build(results, local_scheduler=True)  # für luigid: local_scheduler = True weglassen!
-    else:
-        print("No results!")
+    rtg = inhabitation_result.rules
+    with open(pjoin(output_dir, "applicative_regular_tree_grammar.txt"), "w") as f:
+        f.write(deep_str(rtg))
+    tree_grammar = ApplicativeTreeGrammarEncoder(rtg, target_class.__name__).encode_into_tree_grammar()
+    with open(pjoin(output_dir, "regular_tree_grammar.json"), "w") as f:
+        json.dump(tree_grammar, f, indent=4)
+        
+    agent = PipelineAgent(tree_grammar)
+    response = agent.generate_response()
+    print("LLM response text:\n", response)
+    
+    suggestion_json = agent.extract_pipeline(response)
+    print("LLM pipeline suggestion:\n", json.dumps(suggestion_json, indent=4))
+
+    # print("Enumerating results...")
+    # max_tasks_when_infinite = 10
+    # actual = inhabitation_result.size()
+    # max_results = max_tasks_when_infinite
+    # if actual > 0:
+    #     max_results = actual
+    # results = [t() for t in inhabitation_result.evaluated[0:max_results]]
+    # if results:
+    #     DynamicJSONRepo(results).dump_dynamic_pipeline_json()
+    #     print("Number of results", max_results)
+    #     # with open(pjoin(output_dir, "regular_tree_grammar.json"), "w") as f:
+    #     #     json.dump(tree_grammar, f, indent=4)
+    #     print("Run Pipelines")
+    #     luigi.build(results, local_scheduler=True, detailed_summary=True)  # für luigid: local_scheduler = True weglassen!
+    # else:
+    #     print("No results!")
+        
+    
 
     # task = InhabitationTask()
     # states[task.task_id] = TaskState(fcl, target)

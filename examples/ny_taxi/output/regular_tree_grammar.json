@@ -1,0 +1,66 @@
+{
+    "start": "FinalNode",
+    "non_terminals": [
+        "ReadTabularData",
+        "WriteSetupJson",
+        "PreprocessDateFeature2",
+        "TrainLinearRegressionModel",
+        "PreprocessorSet",
+        "FinalNode",
+        "PreprocessDateFeature1"
+    ],
+    "terminals": [
+        "ReadTaxiData",
+        "PreprocessorDummy",
+        "PreprocessDateFeature2",
+        "TrainLinearRegressionModel",
+        "FinalNode",
+        "PreprocessorSet",
+        "WriteCSVRegressionSetupJson",
+        "PreprocessDateFeature1"
+    ],
+    "rules": {
+        "ReadTabularData": {
+            "ReadTaxiData": [
+                "WriteSetupJson"
+            ]
+        },
+        "PreprocessDateFeature2": {
+            "PreprocessorDummy": [
+                "ReadTabularData"
+            ],
+            "PreprocessDateFeature2": [
+                "ReadTabularData"
+            ]
+        },
+        "TrainLinearRegressionModel": {
+            "TrainLinearRegressionModel": [
+                "PreprocessorSet",
+                "WriteSetupJson"
+            ]
+        },
+        "FinalNode": {
+            "FinalNode": [
+                "WriteSetupJson",
+                "TrainLinearRegressionModel"
+            ]
+        },
+        "PreprocessorSet": {
+            "PreprocessorSet": [
+                "PreprocessDateFeature1",
+                "PreprocessDateFeature2"
+            ]
+        },
+        "WriteSetupJson": {
+            "WriteCSVRegressionSetupJson": []
+        },
+        "PreprocessDateFeature1": {
+            "PreprocessorDummy": [
+                "ReadTabularData"
+            ],
+            "PreprocessDateFeature1": [
+                "ReadTabularData"
+            ]
+        }
+    }
+}
