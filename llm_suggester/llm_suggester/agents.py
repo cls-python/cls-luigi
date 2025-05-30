@@ -74,8 +74,10 @@ class GrammarAgent:
         Your task is to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
         To remove a rule you should use the remove_rule tool. After each removal the tool will return the updated grammar.
         Your goal is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) meaningful and efficient pipelines for the regression task.
-        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not stop on your own!
+        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not stop on your own, by using the terminate tool.
         """
+        
+        # remove_rule tool
         def remove_rule(non_terminal1: str, terminal: str, non_terminal2: str) -> str: 
             """Removes the specified rule from the grammar and returns the updated grammar.
             To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
@@ -103,10 +105,16 @@ class GrammarAgent:
                     return str(self.grammar)
             return "ERROR"
 
+        # terminate tool
+        def terminate() -> None:
+            """Terminates the chat and notifys the user, that a good grammar has been generated."""
+            print("Termination requested. The grammar is now considered good enough.")
+            return
+
         self.config = {
             "system_instruction": self.instructions,
-            "tools": [remove_rule],
-            "automatic_function_calling": {"disable": True},
+            "tools": [remove_rule, terminate],
+            # "automatic_function_calling": {"disable": True},
             "tool_config": {"function_calling_config": {"mode": "any"}}
         }
 
@@ -115,17 +123,24 @@ class GrammarAgent:
         chat = self.client.chats.create(model=self.model, config=self.config)   
         return chat
     
+    def generate_next_response(self, chat, message):
+        print("Generating response...")
+        print("MESSAGE")
+        print(message)
+        return chat.send_message(message)
+    
     def save_current_grammar(self, path):
         with open(path, "w") as f:
             json.dump(self.grammar, f, indent=4)
         print("Current grammar saved to", path)
     
     def save_chat_history(self, chat, path):
-        count = 0
+        count = 0   
         with open(path, "a") as f:
-            for cont in chat.get_history():
-                part = cont.parts[0]
+            for content in chat.get_history():
+                part = content.parts[0]
                 f.write("# " + str(count) + '\n')
+                f.write("Role: " + str(content.role) + '\n')
                 f.write("Response text: " + str(part.text) + '\n')
                 f.write("Function call: " + str(part.function_call) + '\n')
                 f.write("Function response: " + str(part.function_response) + '\n\n')
