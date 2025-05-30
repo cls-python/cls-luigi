@@ -21,7 +21,7 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.agents import PipelineAgent
+from llm_suggester.agents import PipelineAgent, GrammarAgent
 
 
 class GlobalPipelineParameters(luigi.Config):
@@ -376,18 +376,24 @@ if __name__ == "__main__":
     tree_grammar = ApplicativeTreeGrammarEncoder(rtg, target_class.__name__).encode_into_tree_grammar()
     with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "regular_tree_grammar.json"), "w") as f:
         json.dump(tree_grammar, f, indent=4)
-
-
-    agent = PipelineAgent(tree_grammar)
-    response = agent.generate_response()
-    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_response.md"), "w") as f:
-        f.write(response)
-    print("LLM response text:\n", response)
+        
+    agent = GrammarAgent(tree_grammar)
     
-    suggested_pipeline = json.dumps(agent.extract_pipeline(response), indent=4)
-    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_suggested_pipeline.json"), "w") as f:
-        f.write(suggested_pipeline)
-    print("LLM pipeline suggestion:\n", suggested_pipeline)
+    chat = agent.start_chat()
+    response = chat.send_message("You can start now!")
+    
+    agent.save_chat_history(chat, pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
+
+    # agent = PipelineAgent(tree_grammar)
+    # response = agent.generate_response()
+    # with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_response.md"), "w") as f:
+    #     f.write(response)
+    # print("LLM response text:\n", response)
+    
+    # suggested_pipeline = json.dumps(agent.extract_pipeline(response), indent=4)
+    # with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_suggested_pipeline.json"), "w") as f:
+    #     f.write(suggested_pipeline)
+    # print("LLM pipeline suggestion:\n", suggested_pipeline)
     
 
     # hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
