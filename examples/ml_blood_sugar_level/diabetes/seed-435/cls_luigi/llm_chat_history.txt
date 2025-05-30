@@ -1,0 +1,10 @@
+# 0
+Response text: You can start now!
+Function call: None
+Function response: None
+
+# 1
+Response text: None
+Function call: id=None args={'non_terminal2': 'Reg', 'terminal': 'Evaluate', 'non_terminal1': 'Eval'} name='remove_rule'
+Function response: None
+

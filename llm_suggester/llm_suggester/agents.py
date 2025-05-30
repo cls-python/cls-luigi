@@ -62,6 +62,8 @@ class PipelineAgent:
 class GrammarAgent:
     
     def __init__(self, grammar):
+        
+        # TODO add task description to prompt
 
         self.grammar = grammar
         self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
@@ -70,41 +72,53 @@ class GrammarAgent:
         The following is a regular tree grammar, which describes a set of all possible pipelines.
         \n{self.grammar}\n
         Your task is to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
-        To remove a rule you should use the remove_rule tool. After each removal the tool will return the number of pipelines that can still be produced by the grammar.
-        When you get to 1, the final version of the grammar should produce an efficient and meaningful pipeline for the regression task.
+        To remove a rule you should use the remove_rule tool. After each removal the tool will return the updated grammar.
+        Your goal is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) meaningful and efficient pipelines for the regression task.
+        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not stop on your own!
         """
-        def remove_rule(non_terminal1: str, terminal: str, non_terminal2: str) -> int: 
-            """Removes the specified rule from the grammar and returns the number of pipelines, that can still be produced from the updated grammar.
+        def remove_rule(non_terminal1: str, terminal: str, non_terminal2: str) -> str: 
+            """Removes the specified rule from the grammar and returns the updated grammar.
             To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
             non_terminal1=SomeNonTerminalTask, terminal=SomeTerminalTask, non_terminal2=SomeOtherNonTerminalTask
-            If the arguments do not match any rule in the grammar, the function returns -1.
+            If the arguments do not match any rule in the grammar, the function returns "ERROR".
             
             Args:
                 non_terminal1: non-terminal left-hand side symbol
                 terminal: terminal right-hand side symbol
-                non_terminal2: non-terminal right-hand side symbol, should be None if the rule does not include a right-hand side non-terminal
+                non_terminal2: non-terminal right-hand side symbol, should be "" if the rule does not include a right-hand side non-terminal
+            
+            Returns:
+                str: Updated grammar as a string, or "ERROR" if the rule could not be found.
             """
             
+            # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
             for rule in self.grammar["rules"]:
                 if rule == non_terminal1:
-                    if non_terminal2 is None:
+                    if non_terminal2 is "":
                         self.grammar["rules"][rule].pop(terminal)
                         if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule, remove whole rule
                             self.grammar["rules"].pop(rule)
                     else:
                         self.grammar["rules"][rule][terminal].remove(non_terminal2) 
-                    num_pipelines = 3 # TODO should probably use cls to determine this
-                    return num_pipelines
-            return -1
+                    return str(self.grammar)
+            return "ERROR"
 
-        self.config = types.GenerateContentConfig(
-            system_instruction=self.instructions,
-            tools=[remove_rule])
+        self.config = {
+            "system_instruction": self.instructions,
+            "tools": [remove_rule],
+            "automatic_function_calling": {"disable": True},
+            "tool_config": {"function_calling_config": {"mode": "any"}}
+        }
 
     def start_chat(self):
         print("Starting LLM chat...")
         chat = self.client.chats.create(model=self.model, config=self.config)   
         return chat
+    
+    def save_current_grammar(self, path):
+        with open(path, "w") as f:
+            json.dump(self.grammar, f, indent=4)
+        print("Current grammar saved to", path)
     
     def save_chat_history(self, chat, path):
         count = 0

@@ -382,6 +382,9 @@ if __name__ == "__main__":
     chat = agent.start_chat()
     response = chat.send_message("You can start now!")
     
+    print(response)
+    
+    agent.save_current_grammar(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_proposed_grammar.json"))
     agent.save_chat_history(chat, pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
 
     # agent = PipelineAgent(tree_grammar)
