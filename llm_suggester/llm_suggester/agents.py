@@ -107,7 +107,7 @@ class GrammarAgent:
 
         # terminate tool
         def terminate() -> None:
-            """Terminates the chat and notifys the user, that a good grammar has been generated."""
+            """Terminates the chat and notifies the user, that a good grammar has been generated."""
             print("Termination requested. The grammar is now considered good enough.")
             return
 
