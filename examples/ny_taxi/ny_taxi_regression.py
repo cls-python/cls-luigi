@@ -18,7 +18,7 @@ from os.path import join as pjoin
 
 from cls_luigi.repo_visualizer.dynamic_json_repo import DynamicJSONRepo
 
-from llm_suggester.pipeline_agent import PipelineAgent
+from llm_suggester.agents import PipelineAgent
 
 output_dir = "output"
 

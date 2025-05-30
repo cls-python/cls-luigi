@@ -21,7 +21,7 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.pipeline_agent import PipelineAgent
+from llm_suggester.agents import PipelineAgent
 
 
 class GlobalPipelineParameters(luigi.Config):
@@ -380,10 +380,15 @@ if __name__ == "__main__":
 
     agent = PipelineAgent(tree_grammar)
     response = agent.generate_response()
+    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_response.md"), "w") as f:
+        f.write(response)
     print("LLM response text:\n", response)
     
-    suggestion_json = agent.extract_pipeline(response)
-    print("LLM pipeline suggestion:\n", json.dumps(suggestion_json, indent=4))
+    suggested_pipeline = json.dumps(agent.extract_pipeline(response), indent=4)
+    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_suggested_pipeline.json"), "w") as f:
+        f.write(suggested_pipeline)
+    print("LLM pipeline suggestion:\n", suggested_pipeline)
+    
 
     # hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
     # hypergraph = build_hypergraph(hypergraph_dict)

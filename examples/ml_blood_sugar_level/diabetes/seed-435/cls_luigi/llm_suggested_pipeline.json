@@ -1,0 +1,8 @@
+{
+    "pipeline": [
+        "LoadPklDataset",
+        "MinMax",
+        "RF",
+        "Evaluate"
+    ]
+}
