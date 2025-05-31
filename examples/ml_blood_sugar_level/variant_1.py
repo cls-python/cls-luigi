@@ -343,6 +343,10 @@ if __name__ == "__main__":
     LUIGI_OUTPUTS_DIR = pjoin(RUN_DIR, "luigi")
     LUIGI_PIPELINES_OUTPUTS_DIR = pjoin(LUIGI_OUTPUTS_DIR, "pipelines_outputs")
 
+    if os.path.exists(RUN_DIR):
+        print(f"Removing {RUN_DIR}...")
+        os.system("rm -rf " + RUN_DIR)
+
     set_seed(SEED)
     makedirs(OUTPUTS_DIR, exist_ok=True)
     makedirs(RUN_DIR, exist_ok=False)
@@ -376,20 +380,16 @@ if __name__ == "__main__":
     tree_grammar = ApplicativeTreeGrammarEncoder(rtg, target_class.__name__).encode_into_tree_grammar()
     with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "regular_tree_grammar.json"), "w") as f:
         json.dump(tree_grammar, f, indent=4)
+    
+    # TODO need the real description of the task here
+    # TODO maybe even an extra argument for description of the dataset alone
+    task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
+    agent = GrammarAgent(task, tree_grammar)
         
-    agent = GrammarAgent(tree_grammar)
+    for i in range(0, 3):
+        agent.generate_next_response()
     
-    chat = agent.start_chat()
-    response = chat.send_message("You can start now!")
-    
-    # while response is not None:
-    #     print(response)
-    #     response = agent.generate_next_response(chat, response.text)
-    #     print("LLM response text:\n", response.text)
-        
-    print(response)
-    
-    agent.save_chat_history(chat, pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
+    agent.save_chat_history(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
     agent.save_current_grammar(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_proposed_grammar.json"))
 
     # agent = PipelineAgent(tree_grammar)

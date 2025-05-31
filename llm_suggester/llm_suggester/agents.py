@@ -61,89 +61,168 @@ class PipelineAgent:
 
 class GrammarAgent:
     
-    def __init__(self, grammar):
+    def __init__(self, task, grammar):
         
         # TODO add task description to prompt
 
+        self.task = task
         self.grammar = grammar
+        
         self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
         self.model = "gemini-2.0-flash"
+        
         self.instructions = f"""
-        The following is a regular tree grammar, which describes a set of all possible pipelines.
+        You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
+        The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
         \n{self.grammar}\n
-        Your task is to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
+        You are now going to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
         To remove a rule you should use the remove_rule tool. After each removal the tool will return the updated grammar.
         Your goal is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) meaningful and efficient pipelines for the regression task.
-        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not stop on your own, by using the terminate tool.
+        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not, stop.
         """
         
-        # remove_rule tool
-        def remove_rule(non_terminal1: str, terminal: str, non_terminal2: str) -> str: 
-            """Removes the specified rule from the grammar and returns the updated grammar.
+        self.contents = [
+            types.Content(
+                role='user',
+                parts=[types.Part(text=self.instructions)],
+            )
+        ]
+        
+        remove_rule_declaration = types.FunctionDeclaration(
+            name='remove_rule',
+            description="""Removes the specified rule from the grammar and returns the updated grammar.
             To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
-            non_terminal1=SomeNonTerminalTask, terminal=SomeTerminalTask, non_terminal2=SomeOtherNonTerminalTask
-            If the arguments do not match any rule in the grammar, the function returns "ERROR".
-            
-            Args:
-                non_terminal1: non-terminal left-hand side symbol
-                terminal: terminal right-hand side symbol
-                non_terminal2: non-terminal right-hand side symbol, should be "" if the rule does not include a right-hand side non-terminal
-            
-            Returns:
-                str: Updated grammar as a string, or "ERROR" if the rule could not be found.
-            """
-            
-            # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
-            for rule in self.grammar["rules"]:
-                if rule == non_terminal1:
-                    if non_terminal2 is "":
-                        self.grammar["rules"][rule].pop(terminal)
-                        if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule, remove whole rule
-                            self.grammar["rules"].pop(rule)
-                    else:
-                        self.grammar["rules"][rule][terminal].remove(non_terminal2) 
-                    return str(self.grammar)
-            return "ERROR"
+            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask
+            If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
+            parameters=types.Schema(
+                type='OBJECT',
+                properties={
+                    'non_terminal_left': types.Schema(
+                        type='string',
+                        description='Non-terminal left-hand side symbol.',
+                    ),
+                    'terminal_right': types.Schema(
+                        type='string',
+                        description='Terminal right-hand side symbol.',
+                    ),
+                    'non_terminal_right': types.Schema(
+                        type='string',
+                        description='Non-terminal right-hand side symbol. Only required, if the rule contains a right-hand side non-terminal.',
+                    )
+                },
+                required=['non_terminal_left', 'terminal_right'],
+            ),
+        )
 
-        # terminate tool
-        def terminate() -> None:
-            """Terminates the chat and notifies the user, that a good grammar has been generated."""
-            print("Termination requested. The grammar is now considered good enough.")
-            return
-
+        # TODO play around with config options like temperature etc.
         self.config = {
             "system_instruction": self.instructions,
-            "tools": [remove_rule, terminate],
-            # "automatic_function_calling": {"disable": True},
-            "tool_config": {"function_calling_config": {"mode": "any"}}
+            "tools": [types.Tool(function_declarations=[remove_rule_declaration])],
+            # "tool_config": {"function_calling_config": {"mode": "any"}}
         }
 
-    def start_chat(self):
-        print("Starting LLM chat...")
-        chat = self.client.chats.create(model=self.model, config=self.config)   
-        return chat
+
+    # remove_rule tool
+    def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right):
+        # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
+        for rule in self.grammar["rules"]:
+            if rule == non_terminal_left:
+                if non_terminal_right is None:
+                    self.grammar["rules"][rule].pop(terminal_right)
+                    if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
+                        self.grammar["rules"].pop(rule) # remove whole rule
+                else:
+                    self.grammar["rules"][rule][terminal_right].remove(non_terminal_right) 
+                return str(self.grammar)
+        return "ERROR"
     
-    def generate_next_response(self, chat, message):
-        print("Generating response...")
-        print("MESSAGE")
-        print(message)
-        return chat.send_message(message)
+    def generate_next_response(self):
+        
+        response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
+        print("MODEL RESPONSE")
+        print(response)
+        self.contents.append(response.candidates[0].content)
+        
+        tool_call = response.candidates[0].content.parts[0].function_call
+        
+        if tool_call is not None:
+            
+            if tool_call.name == "remove_rule":
+                print("#### REMOVE_TOOL:", tool_call.args)
+                result = self.remove_rule(**tool_call.args)
+            # add further tools calls here
+
+            response_part = types.Part.from_function_response(
+                name=tool_call.name,
+                response={"result": result},
+            )
+        else:
+            response_part = types.Part.from_text(text="Continue")
+            
+        self.contents.append(types.Content(role="user", parts=[response_part]))
+            
     
     def save_current_grammar(self, path):
         with open(path, "w") as f:
             json.dump(self.grammar, f, indent=4)
         print("Current grammar saved to", path)
     
-    def save_chat_history(self, chat, path):
-        count = 0   
+    def save_chat_history(self, path):
+        print(self.contents)
+        count_mess = 1
         with open(path, "a") as f:
-            for content in chat.get_history():
-                part = content.parts[0]
-                f.write("# " + str(count) + '\n')
-                f.write("Role: " + str(content.role) + '\n')
-                f.write("Response text: " + str(part.text) + '\n')
-                f.write("Function call: " + str(part.function_call) + '\n')
-                f.write("Function response: " + str(part.function_response) + '\n\n')
-                count += 1
+            for content in self.contents:
+                count_part = 1
+                f.write("Message " + str(count_mess) + '\n')
+                for part in content.parts:
+                    f.write("Part " + str(count_part) + '\n')
+                    f.write("Role: " + str(content.role) + '\n')
+                    f.write("Response text: " + str(part.text) + '\n')
+                    f.write("Function call: " + str(part.function_call) + '\n')
+                    f.write("Function response: " + str(part.function_response) + '\n\n')
+                    count_part += 1
+                f.write("\n")
+                count_mess += 1
         print("Chat history saved to", path)
 
+
+# user_prompt_content = types.Content(
+#     role='user',
+#     parts=[types.Part.from_text(text='What is the weather like in Boston?')],
+# )
+# function_call_part = response.function_calls[0]
+# function_call_content = response.candidates[0].content
+
+
+# try:
+#     function_result = get_current_weather(
+#         **function_call_part.function_call.args
+#     )
+#     function_response = {'result': function_result}
+# except (
+#     Exception
+# ) as e:  # instead of raising the exception, you can let the model handle it
+#     function_response = {'error': str(e)}
+
+
+# function_response_part = types.Part.from_function_response(
+#     name=function_call_part.name,
+#     response=function_response,
+# )
+# function_response_content = types.Content(
+#     role='tool', parts=[function_response_part]
+# )
+
+# response = client.models.generate_content(
+#     model='gemini-2.0-flash-001',
+#     contents=[
+#         user_prompt_content,
+#         function_call_content,
+#         function_response_content,
+#     ],
+#     config=types.GenerateContentConfig(
+#         tools=[tool],
+#     ),
+# )
+
+# print(response.text)
