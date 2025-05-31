@@ -78,7 +78,7 @@ class GrammarAgent:
         You are now going to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
         To remove a rule you should use the remove_rule tool. After each removal the tool will return the updated grammar.
         Your goal is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) meaningful and efficient pipelines for the regression task.
-        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not, stop.
+        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not, stop by calling the terminate tool.
         """
         
         self.contents = [
@@ -113,18 +113,31 @@ class GrammarAgent:
                 required=['non_terminal_left', 'terminal_right'],
             ),
         )
+        
+        terminate_declaration = types.FunctionDeclaration(
+            name='terminate',
+            description="""Notifies the user, that the agent regards the current grammar as optimal and stops the chat.""",
+            parameters=types.Schema(
+                type='OBJECT',
+                properties={},
+                required=[],
+            ),
+        )
 
         # TODO play around with config options like temperature etc.
         self.config = {
             "system_instruction": self.instructions,
-            "tools": [types.Tool(function_declarations=[remove_rule_declaration])],
+            "tools": [types.Tool(function_declarations=[remove_rule_declaration, terminate_declaration])],
+            # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
+  
             # "tool_config": {"function_calling_config": {"mode": "any"}}
         }
 
 
     # remove_rule tool
-    def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right):
+    def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right=None):
         # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
+        # TODO maybe use try catch and pass error messages to the model
         for rule in self.grammar["rules"]:
             if rule == non_terminal_left:
                 if non_terminal_right is None:
@@ -136,6 +149,10 @@ class GrammarAgent:
                 return str(self.grammar)
         return "ERROR"
     
+    # terminate tool
+    def terminate(self):
+        return
+    
     def generate_next_response(self):
         
         response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
@@ -143,23 +160,24 @@ class GrammarAgent:
         print(response)
         self.contents.append(response.candidates[0].content)
         
-        tool_call = response.candidates[0].content.parts[0].function_call
+        tool_call = response.candidates[0].content.parts[1].function_call
         
         if tool_call is not None:
             
             if tool_call.name == "remove_rule":
-                print("#### REMOVE_TOOL:", tool_call.args)
                 result = self.remove_rule(**tool_call.args)
-            # add further tools calls here
+            if tool_call.name == "terminate":
+                return False
 
             response_part = types.Part.from_function_response(
                 name=tool_call.name,
                 response={"result": result},
             )
         else:
-            response_part = types.Part.from_text(text="Continue")
+            response_part = types.Part.from_text(text="No tool output")
             
         self.contents.append(types.Content(role="user", parts=[response_part]))
+        return True
             
     
     def save_current_grammar(self, path):
@@ -167,6 +185,8 @@ class GrammarAgent:
             json.dump(self.grammar, f, indent=4)
         print("Current grammar saved to", path)
     
+    # TODO append to history after each response instead
+    # TODO prettify
     def save_chat_history(self, path):
         print(self.contents)
         count_mess = 1
@@ -174,55 +194,13 @@ class GrammarAgent:
             for content in self.contents:
                 count_part = 1
                 f.write("Message " + str(count_mess) + '\n')
+                f.write("Role: " + str(content.role) + '\n')
                 for part in content.parts:
                     f.write("Part " + str(count_part) + '\n')
-                    f.write("Role: " + str(content.role) + '\n')
                     f.write("Response text: " + str(part.text) + '\n')
                     f.write("Function call: " + str(part.function_call) + '\n')
                     f.write("Function response: " + str(part.function_response) + '\n\n')
                     count_part += 1
-                f.write("\n")
+                f.write("-----------------------------------------------------\n\n")
                 count_mess += 1
         print("Chat history saved to", path)
-
-
-# user_prompt_content = types.Content(
-#     role='user',
-#     parts=[types.Part.from_text(text='What is the weather like in Boston?')],
-# )
-# function_call_part = response.function_calls[0]
-# function_call_content = response.candidates[0].content
-
-
-# try:
-#     function_result = get_current_weather(
-#         **function_call_part.function_call.args
-#     )
-#     function_response = {'result': function_result}
-# except (
-#     Exception
-# ) as e:  # instead of raising the exception, you can let the model handle it
-#     function_response = {'error': str(e)}
-
-
-# function_response_part = types.Part.from_function_response(
-#     name=function_call_part.name,
-#     response=function_response,
-# )
-# function_response_content = types.Content(
-#     role='tool', parts=[function_response_part]
-# )
-
-# response = client.models.generate_content(
-#     model='gemini-2.0-flash-001',
-#     contents=[
-#         user_prompt_content,
-#         function_call_content,
-#         function_response_content,
-#     ],
-#     config=types.GenerateContentConfig(
-#         tools=[tool],
-#     ),
-# )
-
-# print(response.text)

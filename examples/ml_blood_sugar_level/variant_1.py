@@ -386,8 +386,8 @@ if __name__ == "__main__":
     task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
     agent = GrammarAgent(task, tree_grammar)
         
-    for i in range(0, 3):
-        agent.generate_next_response()
+    while(agent.generate_next_response()):
+        continue
     
     agent.save_chat_history(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
     agent.save_current_grammar(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_proposed_grammar.json"))
