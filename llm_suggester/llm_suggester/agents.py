@@ -63,23 +63,22 @@ class GrammarAgent:
     
     def __init__(self, task, grammar):
         
-        # TODO add task description to prompt
-
+        # TODO add description of the dataset
+        
         self.task = task
         self.grammar = grammar
         
         self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
         self.model = "gemini-2.0-flash"
         
-        self.instructions = f"""
-        You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
-        The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
-        \n{self.grammar}\n
-        You are now going to iteratively chose which rule to eliminate, until the grammar can only produce one valid pipeline.
-        To remove a rule you should use the remove_rule tool. After each removal the tool will return the updated grammar.
-        Your goal is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) meaningful and efficient pipelines for the regression task.
-        This means, you should always think your decisions through and NOT guess! You should also always check, if an additional removal will be an improvement and if not, stop by calling the terminate tool.
-        """
+        self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
+The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
+\n{self.grammar}\n
+Your goal now is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) valid pipelines for the regression task.
+The pipelines should be efficient and well suited the task and the dataset.
+This means, you should always think your decisions through and NOT GUESS!
+To remove a rule you should use the "remove_rule" tool. After each removal the tool will return the updated grammar.
+You should also always consider, if an additional removal will be an improvement and if not, stop the process by calling the "terminate" tool."""
         
         self.contents = [
             types.Content(
@@ -128,9 +127,9 @@ class GrammarAgent:
         self.config = {
             "system_instruction": self.instructions,
             "tools": [types.Tool(function_declarations=[remove_rule_declaration, terminate_declaration])],
+            
             # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
-  
-            # "tool_config": {"function_calling_config": {"mode": "any"}}
+            # "tool_config": {"function_calling_config": {"mode": "any"}} -- the model should talk the decisions through, since thinking not supported
         }
 
 

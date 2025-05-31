@@ -381,8 +381,7 @@ if __name__ == "__main__":
     with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "regular_tree_grammar.json"), "w") as f:
         json.dump(tree_grammar, f, indent=4)
     
-    # TODO need the real description of the task here
-    # TODO maybe even an extra argument for description of the dataset alone
+    # TODO need the real (more detailed) description of the task here
     task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
     agent = GrammarAgent(task, tree_grammar)
         
