@@ -5,6 +5,8 @@ from google.genai import types
 # TODO could try to ask llm to only output the JSON block
 # TODO check if it's more effective to pass grammar as file
 
+# TODO try an agent, which directly suggests a sub grammar in one reponse
+
 class PipelineAgent:
     
     def __init__(self, grammar):
@@ -193,3 +195,4 @@ You should also always consider, if an additional removal will be an improvement
                 if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
             f.write("\n")
+            
