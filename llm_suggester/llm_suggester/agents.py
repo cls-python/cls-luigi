@@ -5,7 +5,7 @@ from google.genai import types
 # TODO could try to ask llm to only output the JSON block
 # TODO check if it's more effective to pass grammar as file
 
-# TODO try an agent, which directly suggests a sub grammar in one reponse
+# TODO try an agent, which directly suggests a sub grammar in one response
 
 class PipelineAgent:
     
@@ -72,6 +72,9 @@ class GrammarAgent:
         
         self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
         self.model = "gemini-2.0-flash"
+        
+        # TODO LLM sometimes has issues understanding, that it can remove the whole rule by passing non_terminal_right=None.
+        # need to think about a different way to represent the pipeline, or test with stringer LLM
         
         self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
 The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
