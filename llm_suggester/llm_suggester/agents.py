@@ -155,7 +155,7 @@ You should also always consider, if an additional removal will be an improvement
     
     # terminate tool
     def terminate(self):
-        return
+        print("Grammar agent terminated.")
     
     def generate_next_response(self):
         
@@ -163,14 +163,18 @@ You should also always consider, if an additional removal will be an improvement
         self.contents.append(response.candidates[0].content)
         self.save_response(response.candidates[0].content)
         
-        if len(response.candidates[0].content.parts) > 1:
-            tool_call = response.candidates[0].content.parts[1].function_call
-            if tool_call is not None:
-                if tool_call.name == "remove_rule":
-                    result = self.remove_rule(**tool_call.args)
-                if tool_call.name == "terminate":
-                    return False
-                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
+        tool_call = None
+        for part in response.candidates[0].content.parts:
+            if part.function_call is not None: 
+                tool_call = part.function_call
+                break
+        
+        if tool_call is not None:
+            if tool_call.name == "remove_rule":
+                result = self.remove_rule(**tool_call.args)
+            if tool_call.name == "terminate":
+                return False
+            response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
         else:
             response_part = types.Part.from_text(text="No tool output")
             
@@ -189,8 +193,7 @@ You should also always consider, if an additional removal will be an improvement
     def save_response(self, response_content):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
-            f.write(" " + str(response_content.role))
-            f.write("\n------------------------------------------\n\n")
+            f.write(str(response_content.role) + ":\n\n")
             for part in response_content.parts:
                 if part.text != None: f.write(str(part.text) + "\n")
                 if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
