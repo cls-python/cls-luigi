@@ -3,7 +3,7 @@ from google import genai
 from google.genai import types
 
 # TODO could try to ask llm to only output the JSON block
-# TODO check if it's better to pass grammar as file
+# TODO check if it's more effective to pass grammar as file
 
 class PipelineAgent:
     
@@ -61,7 +61,7 @@ class PipelineAgent:
 
 class GrammarAgent:
     
-    def __init__(self, task, grammar):
+    def __init__(self, task, grammar, path):
         
         # TODO add description of the dataset
         
@@ -131,6 +131,8 @@ You should also always consider, if an additional removal will be an improvement
             # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
             # "tool_config": {"function_calling_config": {"mode": "any"}} -- the model should talk the decisions through, since thinking not supported
         }
+        
+        self.history_file_path = path + "/grammar_agent_history.txt"
 
 
     # remove_rule tool
@@ -155,27 +157,25 @@ You should also always consider, if an additional removal will be an improvement
     def generate_next_response(self):
         
         response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
-        print("MODEL RESPONSE")
-        print(response)
         self.contents.append(response.candidates[0].content)
+        self.save_response(response.candidates[0].content)
         
-        tool_call = response.candidates[0].content.parts[1].function_call
-        
-        if tool_call is not None:
-            
-            if tool_call.name == "remove_rule":
-                result = self.remove_rule(**tool_call.args)
-            if tool_call.name == "terminate":
-                return False
+        if len(response.candidates[0].content.parts) > 1:
+            tool_call = response.candidates[0].content.parts[1].function_call
+            if tool_call is not None:
+                if tool_call.name == "remove_rule":
+                    result = self.remove_rule(**tool_call.args)
+                if tool_call.name == "terminate":
+                    return False
 
-            response_part = types.Part.from_function_response(
-                name=tool_call.name,
-                response={"result": result},
-            )
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
         else:
             response_part = types.Part.from_text(text="No tool output")
             
-        self.contents.append(types.Content(role="user", parts=[response_part]))
+        response_content = types.Content(role="user", parts=[response_part])
+        self.contents.append(response_content)
+        self.save_response(response_content)
+        
         return True
             
     
@@ -184,22 +184,13 @@ You should also always consider, if an additional removal will be an improvement
             json.dump(self.grammar, f, indent=4)
         print("Current grammar saved to", path)
     
-    # TODO append to history after each response instead
-    # TODO prettify
-    def save_chat_history(self, path):
-        print(self.contents)
-        count_mess = 1
-        with open(path, "a") as f:
-            for content in self.contents:
-                count_part = 1
-                f.write("Message " + str(count_mess) + '\n')
-                f.write("Role: " + str(content.role) + '\n')
-                for part in content.parts:
-                    f.write("Part " + str(count_part) + '\n')
-                    f.write("Response text: " + str(part.text) + '\n')
-                    f.write("Function call: " + str(part.function_call) + '\n')
-                    f.write("Function response: " + str(part.function_response) + '\n\n')
-                    count_part += 1
-                f.write("-----------------------------------------------------\n\n")
-                count_mess += 1
-        print("Chat history saved to", path)
+    def save_response(self, response_content):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n")
+            f.write(" " + str(response_content.role))
+            f.write("\n------------------------------------------\n\n")
+            for part in response_content.parts:
+                if part.text != None: f.write(str(part.text) + "\n")
+                if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
+                if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
+            f.write("\n")

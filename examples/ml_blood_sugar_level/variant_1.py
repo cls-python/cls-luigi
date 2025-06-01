@@ -383,12 +383,11 @@ if __name__ == "__main__":
     
     # TODO need the real (more detailed) description of the task here
     task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
-    agent = GrammarAgent(task, tree_grammar)
+    agent = GrammarAgent(task, tree_grammar, RUN_DIR)
         
     while(agent.generate_next_response()):
         continue
     
-    agent.save_chat_history(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_chat_history.txt"))
     agent.save_current_grammar(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_proposed_grammar.json"))
 
     # agent = PipelineAgent(tree_grammar)
