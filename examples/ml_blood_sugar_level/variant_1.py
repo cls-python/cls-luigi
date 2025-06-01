@@ -388,8 +388,6 @@ if __name__ == "__main__":
     while(agent.generate_next_response()):
         continue
     
-    agent.save_current_grammar(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_proposed_grammar.json"))
-
     # agent = PipelineAgent(tree_grammar)
     # response = agent.generate_response()
     # with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "llm_response.md"), "w") as f:

@@ -133,7 +133,7 @@ You should also always consider, if an additional removal will be an improvement
         }
         
         self.history_file_path = path + "/grammar_agent_history.txt"
-
+        self.grammar_file_path = path + "/suggested_grammar.json"
 
     # remove_rule tool
     def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right=None):
@@ -167,7 +167,6 @@ You should also always consider, if an additional removal will be an improvement
                     result = self.remove_rule(**tool_call.args)
                 if tool_call.name == "terminate":
                     return False
-
                 response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
         else:
             response_part = types.Part.from_text(text="No tool output")
@@ -176,13 +175,13 @@ You should also always consider, if an additional removal will be an improvement
         self.contents.append(response_content)
         self.save_response(response_content)
         
+        self.save_current_grammar()
         return True
             
     
-    def save_current_grammar(self, path):
-        with open(path, "w") as f:
+    def save_current_grammar(self):
+        with open(self.grammar_file_path, "w") as f:
             json.dump(self.grammar, f, indent=4)
-        print("Current grammar saved to", path)
     
     def save_response(self, response_content):
         with open(self.history_file_path, "a") as f:
