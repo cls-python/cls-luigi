@@ -16,16 +16,13 @@
     ],
     "rules": {
         "Scale": {
-            "MinMax": [
-                "LoadDataset"
-            ],
+            "MinMax": [],
             "Robust": [
                 "LoadDataset"
             ]
         },
         "Reg": {
             "LR": [
-                "Scale",
                 "LoadDataset"
             ],
             "RF": [

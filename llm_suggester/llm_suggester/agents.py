@@ -93,7 +93,9 @@ You should also always consider, if an additional removal will be an improvement
             name='remove_rule',
             description="""Removes the specified rule from the grammar and returns the updated grammar.
             To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
-            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask
+            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask.
+            To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": [...and any non-terminal in here...]}' the arguments would be:
+            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=None (meaning every non-terminal inside the terminal will be removed with the terminal).
             If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
             parameters=types.Schema(
                 type='OBJECT',
@@ -140,7 +142,6 @@ You should also always consider, if an additional removal will be an improvement
     # remove_rule tool
     def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right=None):
         # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
-        # TODO maybe use try catch and pass error messages to the model
         for rule in self.grammar["rules"]:
             if rule == non_terminal_left:
                 if non_terminal_right is None:
@@ -148,7 +149,7 @@ You should also always consider, if an additional removal will be an improvement
                     if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
                         self.grammar["rules"].pop(rule) # remove whole rule
                 else:
-                    self.grammar["rules"][rule][terminal_right].remove(non_terminal_right) 
+                    self.grammar["rules"][rule][terminal_right].remove(non_terminal_right)
                 return str(self.grammar)
         return "ERROR"
     
