@@ -1,13 +1,14 @@
 import json
 from google import genai
 from google.genai import types
+import os
 
 # TODO could try to ask llm to only output the JSON block
 # TODO check if it's more effective to pass grammar as file
 
 # TODO implement an agent, which directly suggests a sub grammar in one response
 
-# TODO try groq
+API_KEY = os.environ.get("GEMINI_API_KEY")
 
 class PipelineAgent:
     
@@ -62,7 +63,6 @@ class PipelineAgent:
         # TODO implement if this approach is reasonable
         return True
 
-
 class GrammarAgent:
     
     def __init__(self, task, grammar, path):
@@ -72,7 +72,7 @@ class GrammarAgent:
         self.task = task
         self.grammar = grammar
         
-        self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
+        self.client = genai.Client(api_key=API_KEY)
         self.model = "gemini-2.0-flash"
         
         # TODO LLM sometimes has issues understanding, that it can remove the whole rule by passing non_terminal_right=None.

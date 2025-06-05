@@ -1,0 +1,40 @@
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='{"tool_calls": [{"id": "pending", "type": "function", "function": {"name": "remove_rule"}, "parameters": {"non_terminal_left": "Reg", "terminal_right": "LR", "non_terminal_right": None}}]}', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='{"tool_calls": [{"id": "pending", "type": "function", "function": {"name": "remove_rule"}, "parameters": {"non_terminal_left": "Reg", "terminal_right": "RF", "non_terminal_right": None}}]}', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='{"tool_calls": [{"id": "pending", "type": "function", "function": {"name": "remove_rule"}, "parameters": {"non_terminal_left": "Scale", "terminal_right": "MinMax", "non_terminal_right": None}}]}', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='{"tool_calls": [{"id": "pending", "type": "function", "function": {"name": "remove_rule"}, "parameters": {"non_terminal_left": "Scale", "terminal_right": "Robust", "non_terminal_right": None}}]}', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+
+------------------------------------------
+assistant:
+
+ChatCompletionMessage(content='', role='assistant', executed_tools=None, function_call=None, reasoning=None, tool_calls=None)
+

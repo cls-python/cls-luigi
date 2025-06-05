@@ -1,6 +1,9 @@
 import json
 from groq import Groq
 
+import os
+
+API_KEY = os.environ.get("GROQ_API_KEY")
 
 class GrammarAgent:
     
@@ -9,7 +12,7 @@ class GrammarAgent:
         self.grammar = grammar
         self.path = path
         self.model = "llama3-8b-8192"
-        self.client = Groq(api_key="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",)
+        self.client = Groq(api_key=API_KEY)
         
         self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
 The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
@@ -51,7 +54,7 @@ If the arguments do not match any rule in the grammar, the function returns "ERR
                             "description": "Non-terminal right-hand side symbol. Only required, if the rule contains a right-hand side non-terminal.",
                         }
                     },
-                    "required": ["non_terminal_left", "terminal_right"]
+                    "re quired": ["non_terminal_left", "terminal_right"]
                 }
             }
         },
@@ -96,15 +99,18 @@ If the arguments do not match any rule in the grammar, the function returns "ERR
             tools=self.tools,
         )
         response = chat_completion.choices[0].message
+        print("RESPONSE")
+        print(response)
         self.messages.append(response)
         tool_calls = response.tool_calls
         if tool_calls:
             self.messages.append(response)
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
-                print("TOOL CALL:", function_name, tool_call.args)
+                print("TOOL CALL:", function_name, tool_call)
                 if function_name == "remove_rule":
-                    result = self.remove_rule(**tool_call.args)
+                    print("HERE")
+                    result = self.remove_rule(**tool_call.function.arguments)
                 elif function_name == "terminate":
                     return False
                 self.messages.append({
