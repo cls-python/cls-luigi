@@ -21,7 +21,8 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.agents import PipelineAgent, GrammarAgent
+# from llm_suggester.gemini import PipelineAgent, GrammarAgent
+from llm_suggester.groq import GrammarAgent
 
 
 class GlobalPipelineParameters(luigi.Config):

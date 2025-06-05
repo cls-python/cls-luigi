@@ -5,7 +5,9 @@ from google.genai import types
 # TODO could try to ask llm to only output the JSON block
 # TODO check if it's more effective to pass grammar as file
 
-# TODO try an agent, which directly suggests a sub grammar in one response
+# TODO implement an agent, which directly suggests a sub grammar in one response
+
+# TODO try groq
 
 class PipelineAgent:
     
@@ -95,11 +97,11 @@ You should also always consider, if an additional removal will be an improvement
         remove_rule_declaration = types.FunctionDeclaration(
             name='remove_rule',
             description="""Removes the specified rule from the grammar and returns the updated grammar.
-            To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
-            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask.
-            To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": [...and any non-terminal in here...]}' the arguments would be:
-            non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=None (meaning every non-terminal inside the terminal will be removed with the terminal).
-            If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
+To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
+non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask.
+To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": [...and any non-terminal in here...]}' the arguments would be:
+non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=None (meaning every non-terminal inside the terminal will be removed with the terminal).
+If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
             parameters=types.Schema(
                 type='OBJECT',
                 properties={
@@ -184,7 +186,6 @@ You should also always consider, if an additional removal will be an improvement
         response_content = types.Content(role="user", parts=[response_part])
         self.contents.append(response_content)
         self.save_response(response_content)
-        
         self.save_current_grammar()
         return True
             
