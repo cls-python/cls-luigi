@@ -10,6 +10,53 @@ import os
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
+grammar = {
+    "grammar_name": "ComponentRepositoryGrammar",   
+    "start_symbol": "Classifier",
+    "non_terminals": [
+        "Classifier",
+        "Data",
+    ],
+    "terminals": [
+        "minmaxscaler",
+        "standardscaler",
+        "rf",
+        "svm",
+        "IRIS Dataloader"
+    ],
+    "rules": {
+        "Classifier": [
+            {
+                "type": "function_call",
+                "name": "svm",
+                "args": ["Data"]
+            },
+            {
+                "type": "function_call",
+                "name": "rf",
+                "args": ["Data"]
+            }    
+        ],  
+        "Data": [
+            {
+                "type": "function_call",
+                "name": "minmaxscaler",
+                "args": ["IRIS Dataloader"] 
+            },
+            {
+                "type": "function_call",
+                "name": "standardscaler",
+                "args": ["IRIS Dataloader"]
+            },
+            {
+                "type": "function_call",
+                "name": "IRIS Dataloader",
+                "args": []
+            } 
+        ],
+    }
+}
+
 class PipelineAgent:
     
     def __init__(self, grammar):

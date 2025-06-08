@@ -18,7 +18,7 @@ class GrammarAgent:
 The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
 \n{self.grammar}\n
 Your goal now is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) valid pipelines for the regression task.
-The pipelines should be efficient and well suited the task and the dataset.
+The pipelines should be efficient and well-suited for the task and the dataset.
 This means, you should always think your decisions through and NOT GUESS!
 To remove a rule you should use the "remove_rule" tool. After each removal the tool will return the updated grammar.
 You should also always consider, if an additional removal will be an improvement and if not, stop the process by calling the "terminate" tool."""
