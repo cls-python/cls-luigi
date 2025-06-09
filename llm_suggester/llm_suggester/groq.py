@@ -14,18 +14,23 @@ class GrammarAgent:
         self.model = "llama3-8b-8192"
         self.client = Groq(api_key=API_KEY)
         
-        self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
-The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
-\n{self.grammar}\n
-Your goal now is to remove as many rules, as necessary, to produce a grammar, that describes just a few (or even just one) valid pipelines for the regression task.
+        self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for regression tasks.
+You will be provided with a regular tree grammar, which describes a set of all possible pipelines for the a task, that will be specified by user.
+Your goal is to remove as many rules, as necessary, to get to a grammar, that describes just a few (or even just one) valid pipelines for the regression task.
 The pipelines should be efficient and well-suited for the task and the dataset.
 This means, you should always think your decisions through and NOT GUESS!
 To remove a rule you should use the "remove_rule" tool. After each removal the tool will return the updated grammar.
-You should also always consider, if an additional removal will be an improvement and if not, stop the process by calling the "terminate" tool."""
+You should also always consider, if an additional removal will be an improvement and if not, stop the process by calling the "terminate" tool. Feel free to ."""
+
+        self.first_user_message = f"Task: {self.task}\n\nGrammar:\n{self.grammar}"
 
         self.messages = [{
                     "role": "system",
                     "content": self.instructions,
+                },
+                {
+                    "role": "user",
+                    "content": self.first_user_message         
                 }]
         
         self.tools = [{
@@ -76,9 +81,8 @@ If the parameters do not match any rule in the grammar, the function returns "ER
                 if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
                     self.grammar["rules"].pop(rule) # remove whole rule
                     if "\"" + non_terminal + "\"" not in str(self.grammar["rules"]): # if non_terminal no longer appears in rules
-                        self.grammar["non_terminals"].pop(non_terminal) # remove from non_terminals
+                        self.grammar["non_terminals"].remove(non_terminal) # remove from non_terminals
                 if "\"" + terminal + "\"" not in str(self.grammar["rules"]): # if terminal no longer appears in rules
-                    print(self.grammar["terminals"])
                     self.grammar["terminals"].remove(terminal) # remove from terminals
                 return str(self.grammar)
         return "ERROR"
@@ -86,47 +90,49 @@ If the parameters do not match any rule in the grammar, the function returns "ER
     # terminate tool
     def terminate(self):
         print("Grammar agent terminated.")
-
+    
     def generate_next_response(self):
+        
         chat_completion = self.client.chat.completions.create(
             messages=self.messages,
             model=self.model,
             stream=False,
             tools=self.tools,
+            tool_choice="auto"
         )
-        response = chat_completion.choices[0].message
-        print("RESPONSE")
-        print(response)
-        self.messages.append(response)
-        tool_calls = response.tool_calls
+        tool_calls = chat_completion.choices[0].message.tool_calls
+        llm_message = {
+            "role": "assistant",
+            "content": chat_completion.choices[0].message.content,
+        }
+        self.messages.append(llm_message)
+        self.save_message(llm_message)
         if tool_calls:
-            self.messages.append(response)
-            for tool_call in tool_calls:
-                function_name = tool_call.function.name
-                print("TOOL CALL:", function_name, tool_call)
-                if function_name == "remove_rule":
-                    print("HERE")
-                    result = self.remove_rule(**tool_call.function.arguments)
-                elif function_name == "terminate":
-                    return False
-                self.messages.append({
-                    "tool_call_id": tool_call.id, 
+            llm_message["tool_calls"] = tool_calls
+            tool_call = tool_calls[0]
+            function_name = tool_call.function.name
+            if function_name == "remove_rule":
+                result = self.remove_rule(**json.loads(tool_call.function.arguments))
+                tool_message = {
                     "role": "tool",
+                    "tool_call_id": tool_call.id,
                     "name": function_name,
-                    "content": result,
-                })
-        self.save_response(response)
-        self.save_current_grammar()
+                    "content": result
+                }
+                self.messages.append(tool_message)
+                self.save_message(tool_message)
+            elif function_name == "terminate":
+                return False
         return True
-    
+
     def save_current_grammar(self):
         with open(self.grammar_file_path, "w") as f:
             json.dump(self.grammar, f, indent=4)
     
-    def save_response(self, response_content):
-        print("RESPONSE:", response_content)
+    def save_message(self, message):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
-            f.write(str(response_content.role) + ":\n\n")
-            if response_content != None: f.write(str(response_content) + "\n")
+            f.write(str(message["role"]) + ":\n\n")
+            if message["content"]: f.write(str(message["content"]) + "\n")
+            if "tool_calls" in message: f.write(str(message["tool_calls"]) + "\n")
             f.write("\n")

@@ -186,9 +186,8 @@ If the parameters do not match any rule in the grammar, the function returns "ER
                 if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
                     self.grammar["rules"].pop(rule) # remove whole rule
                     if "\"" + non_terminal + "\"" not in str(self.grammar["rules"]): # if non_terminal no longer appears in rules
-                        self.grammar["non_terminals"].pop(non_terminal) # remove from non_terminals
+                        self.grammar["non_terminals"].remove(non_terminal) # remove from non_terminals
                 if "\"" + terminal + "\"" not in str(self.grammar["rules"]): # if terminal no longer appears in rules
-                    print(self.grammar["terminals"])
                     self.grammar["terminals"].remove(terminal) # remove from terminals
                 return str(self.grammar)
         return "ERROR"
