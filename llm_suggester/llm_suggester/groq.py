@@ -71,7 +71,7 @@ If the parameters do not match any rule in the grammar, the function returns "ER
         }]
         
         self.history_file_path = path + "/grammar_agent_history.txt"
-        self.grammar_file_path = path + "/suggested_grammar.json"
+        self.grammar_file_path = path + "/llm_reduced_grammar.json"
     
     # remove_rule tool
     def remove_rule(self, non_terminal, terminal):
@@ -98,7 +98,8 @@ If the parameters do not match any rule in the grammar, the function returns "ER
             model=self.model,
             stream=False,
             tools=self.tools,
-            tool_choice="auto"
+            tool_choice="auto",
+            
         )
         tool_calls = chat_completion.choices[0].message.tool_calls
         llm_message = {

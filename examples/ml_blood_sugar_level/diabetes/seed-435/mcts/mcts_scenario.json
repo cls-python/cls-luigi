@@ -1,0 +1,18 @@
+{
+      "type": "RecursiveSinglePlayerMCTS",
+      "mcts_parameters": {
+            "max_seconds": 10,
+            "exploration_param": 2
+      },
+      "prog_widening_params": null,
+      "policies": {
+            "selection": "UCT",
+            "expansion": "RandomExpansion",
+            "simulation": null
+      },
+      "filters": [],
+      "sense": "MINIMIZE",
+      "pipeline_metric": "root_mean_squared_error",
+      "component_timeout": null,
+      "pipeline_timeout": 5
+}

@@ -176,7 +176,7 @@ If the parameters do not match any rule in the grammar, the function returns "ER
         }
         
         self.history_file_path = path + "/grammar_agent_history.txt"
-        self.grammar_file_path = path + "/suggested_grammar.json"
+        self.grammar_file_path = path + "/llm_reduced_grammar.json"
 
     # remove_rule tool
     def remove_rule(self, non_terminal, terminal):
@@ -198,37 +198,40 @@ If the parameters do not match any rule in the grammar, the function returns "ER
     
     def generate_next_response(self):
         
-        response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
-        self.contents.append(response.candidates[0].content)
-        self.save_response(response.candidates[0].content)
-        
-        tool_call = None
-        for part in response.candidates[0].content.parts:
-            if part.function_call is not None: 
-                tool_call = part.function_call
-                break
-        
-        if tool_call is not None:
-            if tool_call.name == "remove_rule":
-                result = self.remove_rule(**tool_call.args)
-            if tool_call.name == "terminate":
-                return False
-            response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
-        else:
-            response_part = types.Part.from_text(text="No tool output")
+        try:
+            response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
+            self.contents.append(response.candidates[0].content)
+            self.save_message(response.candidates[0].content)
             
-        response_content = types.Content(role="user", parts=[response_part])
-        self.contents.append(response_content)
-        self.save_response(response_content)
-        self.save_current_grammar()
-        return True
+            tool_call = None
+            for part in response.candidates[0].content.parts:
+                if part.function_call is not None: 
+                    tool_call = part.function_call
+                    break
             
+            if tool_call is not None:
+                if tool_call.name == "remove_rule":
+                    result = self.remove_rule(**tool_call.args)
+                if tool_call.name == "terminate":
+                    return False
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
+            else:
+                response_part = types.Part.from_text(text="No tool output")
+                
+            response_content = types.Content(role="user", parts=[response_part])
+            self.contents.append(response_content)
+            self.save_message(response_content)
+            self.save_current_grammar()
+            return True
+        except:
+            print("Retrying generating next response...")
+            self.generate_next_response(self)
     
     def save_current_grammar(self):
         with open(self.grammar_file_path, "w") as f:
             json.dump(self.grammar, f, indent=4)
     
-    def save_response(self, response_content):
+    def save_message(self, response_content):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
             f.write(str(response_content.role) + ":\n\n")
@@ -237,4 +240,11 @@ If the parameters do not match any rule in the grammar, the function returns "ER
                 if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
             f.write("\n")
+            
+    def generate_reduced_grammar(self):
+        print("Running grammar LLM agent...")
+        while(self.generate_next_response()):
+            continue
+        print("Grammar LLM agent stopped.")
+        
             

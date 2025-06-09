@@ -1,0 +1,38 @@
+{
+      "mcts_path": [
+            [
+                  "Eval"
+            ],
+            [
+                  "Evaluate"
+            ],
+            [
+                  "Reg",
+                  "Scale",
+                  "LoadDataset"
+            ],
+            [
+                  "RF",
+                  "Robust",
+                  "LoadPklDataset"
+            ],
+            [
+                  "Scale",
+                  "LoadDataset",
+                  "LoadDataset"
+            ],
+            [
+                  "Robust",
+                  "LoadPklDataset",
+                  "LoadPklDataset"
+            ],
+            [
+                  "LoadDataset"
+            ],
+            [
+                  "LoadPklDataset"
+            ]
+      ],
+      "luigi_pipeline_id": "Evaluate______type______cl_____type______cl_da1460dcae",
+      "validation_score": -100
+}

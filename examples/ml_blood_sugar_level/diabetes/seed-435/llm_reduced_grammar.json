@@ -9,8 +9,6 @@
     "terminals": [
         "Evaluate",
         "RF",
-        "LR",
-        "MinMax",
         "Robust",
         "LoadPklDataset"
     ],
@@ -26,16 +24,9 @@
             "RF": [
                 "Scale",
                 "LoadDataset"
-            ],
-            "LR": [
-                "Scale",
-                "LoadDataset"
             ]
         },
         "Scale": {
-            "MinMax": [
-                "LoadDataset"
-            ],
             "Robust": [
                 "LoadDataset"
             ]
