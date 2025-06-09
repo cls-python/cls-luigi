@@ -10,52 +10,48 @@ import os
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
-grammar = {
-    "grammar_name": "ComponentRepositoryGrammar",   
-    "start_symbol": "Classifier",
-    "non_terminals": [
-        "Classifier",
-        "Data",
-    ],
-    "terminals": [
-        "minmaxscaler",
-        "standardscaler",
-        "rf",
-        "svm",
-        "IRIS Dataloader"
-    ],
-    "rules": {
-        "Classifier": [
-            {
-                "type": "function_call",
-                "name": "svm",
-                "args": ["Data"]
-            },
-            {
-                "type": "function_call",
-                "name": "rf",
-                "args": ["Data"]
-            }    
-        ],  
-        "Data": [
-            {
-                "type": "function_call",
-                "name": "minmaxscaler",
-                "args": ["IRIS Dataloader"] 
-            },
-            {
-                "type": "function_call",
-                "name": "standardscaler",
-                "args": ["IRIS Dataloader"]
-            },
-            {
-                "type": "function_call",
-                "name": "IRIS Dataloader",
-                "args": []
-            } 
-        ],
-    }
-}
+# grammar structure suggested by Groq
+# grammar = {
+#     "grammar_name": "ComponentRepositoryGrammar",   
+#     "start_symbol": "Classifier",
+#     "non_terminals": [
+#         "Classifier",
+#         "Data",
+#     ],
+#     "terminals": [
+#         "minmaxscaler",
+#         "standardscaler",
+#         "rf",
+#         "svm",
+#         "IRIS Dataloader"
+#     ],
+#     "rules": {
+#         "Classifier": [
+#             {
+#                 "name": "svm",
+#                 "args": ["Data"]
+#             },
+#             {
+#                 "name": "rf",
+#                 "args": ["Data"]
+#             }
+#         ],
+#         "Data": [
+#             {
+#                 "name": "minmaxscaler",
+#                 "args": ["IRIS Dataloader"] 
+#             },
+#             {
+#                 "name": "standardscaler",
+#                 "args": ["IRIS Dataloader"]
+#             },
+#             {
+#                 "name": "IRIS Dataloader",
+#                 "args": []
+#             }
+#         ],
+#     }
+# }
 
 class PipelineAgent:
     
@@ -122,9 +118,6 @@ class GrammarAgent:
         self.client = genai.Client(api_key=API_KEY)
         self.model = "gemini-2.0-flash"
         
-        # TODO LLM sometimes has issues understanding, that it can remove the whole rule by passing non_terminal_right=None.
-        # need to think about a different way to represent the pipeline, or test with stringer LLM
-        
         self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
 The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
 \n{self.grammar}\n
@@ -144,28 +137,22 @@ You should also always consider, if an additional removal will be an improvement
         remove_rule_declaration = types.FunctionDeclaration(
             name='remove_rule',
             description="""Removes the specified rule from the grammar and returns the updated grammar.
-To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
-non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask.
-To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": [...and any non-terminal in here...]}' the arguments would be:
-non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=None (meaning every non-terminal inside the terminal will be removed with the terminal).
-If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
+To remove the rule '"SomeNonTerminalSymbol": {"SomeTerminalSymbol": [...arguments...]}' the parameters would be:
+non_terminal=SomeNonTerminalTask, terminal=SomeTerminalTask.
+If the parameters do not match any rule in the grammar, the function returns "ERROR".""",
             parameters=types.Schema(
                 type='OBJECT',
                 properties={
-                    'non_terminal_left': types.Schema(
+                    'non_terminal': types.Schema(
                         type='string',
                         description='Non-terminal left-hand side symbol.',
                     ),
-                    'terminal_right': types.Schema(
+                    'terminal': types.Schema(
                         type='string',
                         description='Terminal right-hand side symbol.',
-                    ),
-                    'non_terminal_right': types.Schema(
-                        type='string',
-                        description='Non-terminal right-hand side symbol. Only required, if the rule contains a right-hand side non-terminal.',
                     )
                 },
-                required=['non_terminal_left', 'terminal_right'],
+                required=['non_terminal', 'terminal'],
             ),
         )
         
@@ -192,16 +179,17 @@ If the arguments do not match any rule in the grammar, the function returns "ERR
         self.grammar_file_path = path + "/suggested_grammar.json"
 
     # remove_rule tool
-    def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right=None):
-        # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
+    def remove_rule(self, non_terminal, terminal):
         for rule in self.grammar["rules"]:
-            if rule == non_terminal_left:
-                if non_terminal_right is None:
-                    self.grammar["rules"][rule].pop(terminal_right)
-                    if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
-                        self.grammar["rules"].pop(rule) # remove whole rule
-                else:
-                    self.grammar["rules"][rule][terminal_right].remove(non_terminal_right)
+            if rule == non_terminal:
+                self.grammar["rules"][rule].pop(terminal)
+                if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
+                    self.grammar["rules"].pop(rule) # remove whole rule
+                    if "\"" + non_terminal + "\"" not in str(self.grammar["rules"]): # if non_terminal no longer appears in rules
+                        self.grammar["non_terminals"].pop(non_terminal) # remove from non_terminals
+                if "\"" + terminal + "\"" not in str(self.grammar["rules"]): # if terminal no longer appears in rules
+                    print(self.grammar["terminals"])
+                    self.grammar["terminals"].remove(terminal) # remove from terminals
                 return str(self.grammar)
         return "ERROR"
     

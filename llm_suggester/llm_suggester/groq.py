@@ -33,28 +33,22 @@ You should also always consider, if an additional removal will be an improvement
             "function": {
                 "name": "remove_rule",
                 "description": """Removes the specified rule from the grammar and returns the updated grammar.
-To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": ["SomeOtherNonTerminalTask"]}' the arguments would be:
-non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=SomeOtherNonTerminalTask.
-To remove the rule '"SomeNonTerminalTask": {"SomeTerminalTask": [...and any non-terminal in here...]}' the arguments would be:
-non_terminal_left=SomeNonTerminalTask, terminal_right=SomeTerminalTask, non_terminal_right=None (meaning every non-terminal inside the terminal will be removed with the terminal).
-If the arguments do not match any rule in the grammar, the function returns "ERROR".""",
+To remove the rule '"SomeNonTerminalSymbol": {"SomeTerminalSymbol": [...arguments...]}' the parameters would be:
+non_terminal=SomeNonTerminalTask, terminal=SomeTerminalTask.
+If the parameters do not match any rule in the grammar, the function returns "ERROR".""",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "non_terminal_left": {
+                        "non_terminal": {
                             "type": "string",
                             "description": "Non-terminal left-hand side symbol."
                         },
-                        "terminal_right": {
+                        "terminal": {
                             "type": "string",
                             "description": "Terminal right-hand side symbol."
-                        },
-                        "non_terminal_right": {
-                            "type": "string",
-                            "description": "Non-terminal right-hand side symbol. Only required, if the rule contains a right-hand side non-terminal.",
                         }
                     },
-                    "re quired": ["non_terminal_left", "terminal_right"]
+                    "required": ["non_terminal", "terminal"]
                 }
             }
         },
@@ -75,18 +69,20 @@ If the arguments do not match any rule in the grammar, the function returns "ERR
         self.grammar_file_path = path + "/suggested_grammar.json"
     
     # remove_rule tool
-    def remove_rule(self, non_terminal_left, terminal_right, non_terminal_right=None):
-        # TODO remove symbols from terminals and non_terminals also, if they do not occur in rules anymore
+    def remove_rule(self, non_terminal, terminal):
         for rule in self.grammar["rules"]:
-            if rule == non_terminal_left:
-                if non_terminal_right is None:
-                    self.grammar["rules"][rule].pop(terminal_right)
-                    if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
-                        self.grammar["rules"].pop(rule) # remove whole rule
-                else:
-                    self.grammar["rules"][rule][terminal_right].remove(non_terminal_right)
+            if rule == non_terminal:
+                self.grammar["rules"][rule].pop(terminal)
+                if self.grammar["rules"][rule] == {}: # if the terminal was the last for this rule
+                    self.grammar["rules"].pop(rule) # remove whole rule
+                    if "\"" + non_terminal + "\"" not in str(self.grammar["rules"]): # if non_terminal no longer appears in rules
+                        self.grammar["non_terminals"].pop(non_terminal) # remove from non_terminals
+                if "\"" + terminal + "\"" not in str(self.grammar["rules"]): # if terminal no longer appears in rules
+                    print(self.grammar["terminals"])
+                    self.grammar["terminals"].remove(terminal) # remove from terminals
                 return str(self.grammar)
         return "ERROR"
+    
     # terminate tool
     def terminate(self):
         print("Grammar agent terminated.")
