@@ -9,6 +9,7 @@ import os
 # TODO implement an agent, which directly suggests a sub grammar in one response
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
+MODEL_NAME = "gemini-2.0-flash"
 
 # grammar structure suggested by Groq
 # grammar = {
@@ -57,20 +58,37 @@ class PipelineAgent:
     
     def __init__(self, grammar):
         self.grammar = grammar
-        self.client = genai.Client(api_key="AIzaSyBzCMnDmfR9TLyvTBchKM6frGnHd3nxMHk")
-        self.model = "gemini-2.0-flash"
-        self.instructions = f"""Suggest a meaningful and efficient pipeline for a regression task based on the following regular tree grammar:\n\n{self.grammar}\n\n
-            Provide the pipeline inside one single JSON block (```json...) in the following format: \n\n
-            {{
-                "pipeline": [
-                        "Task1Name",
-                        "Task2Name",
-                    ...
-                ]
-            }}\n\n
-            Ensure that the pipeline is consistent. Use reasoning.
-        """
+        self.client = genai.Client(api_key=API_KEY)
+        self.model = MODEL_NAME
+        self.instructions = f"""You are a helpful and rational agent, who helps to develop pipelines for the following regression task: "{self.task}".\n
+The following is a regular tree grammar, which defines the pipeline tasks and the rules for combining them, to build all possible pipelines for the above-mentioned task.\n{self.grammar}\n
+Your goal now is to suggest one valid pipeline, which you perceive as the most well-suited for the task and the dataset. To suggest a pipeline you should use the "suggest_pipeline" tool.
+You should think all your decisions through."""
+        
+        self.contents = [
+                types.Content(
+                    role='user',
+                    parts=[types.Part(text=self.instructions)],
+                )
+            ]
 
+            
+        suggest_pipeline_declaration = types.FunctionDeclaration(
+            name='remove_rule',
+            description="""Use this tool to suggest a pipeline in the following format:
+()""", # TODO provide proper notation (account for non-linearity)
+            parameters=types.Schema(
+                type='OBJECT',
+                properties={
+                    'pipeline': types.Schema(
+                        type='string',
+                        description='Suggested pipline',
+                    )
+                },
+                required=['pipeline'],
+            ),
+        )
+        
     def generate_response(self):
         print(self.instructions)
         response = self.client.models.generate_content(
@@ -84,29 +102,39 @@ class PipelineAgent:
         chat = self.client.chats.create(model=self.model)
         return chat
     
-    def extract_pipeline(self, response_text):
-        """
-        Extract the pipeline JSON from the LLM response text.
-        Throw error if the response does not contain a valid pipeline structure.
-        """
+    # def extract_pipeline(self, response_text):
+    #     """
+    #     Extract the pipeline JSON from the LLM response text.
+    #     Throw error if the response does not contain a valid pipeline structure.
+    #     """
     
-        import json
+    #     import json
         
-        response_text = response_text.split("```json", 1)[-1].split("```", 1)[0].strip()
-        if "\"pipeline\":" not in response_text: # or "\"task\":" not in response_text or "\"parameters\":" not in response_text:
-            raise ValueError("Response does not contain a valid pipeline JSON structure.")
-        else:
-            return json.loads(response_text)
+    #     response_text = response_text.split("```json", 1)[-1].split("```", 1)[0].strip()
+    #     if "\"pipeline\":" not in response_text: # or "\"task\":" not in response_text or "\"parameters\":" not in response_text:
+    #         raise ValueError("Response does not contain a valid pipeline JSON structure.")
+    #     else:
+    #         return json.loads(response_text)
         
         
-    def check_pipeline(pipeline, grammar):
-        """
-        Check if the suggested pipeline is compliant with the expected grammar.
-        """
-        # TODO implement if this approach is reasonable
-        return True
+    # def check_pipeline(pipeline, grammar):
+    #     """
+    #     Check if the suggested pipeline is compliant with the expected grammar.
+    #     """
+    #     # TODO implement if this approach is reasonable
+    #     return True
 
-class GrammarAgent:
+class DirectGrammarAgent:
+    
+    def __init__(self, task, grammar, path):
+        
+        self.task = task
+        self.grammar = grammar
+        
+        # TODO implement
+        
+
+class IterativeGrammarAgent:
     
     def __init__(self, task, grammar, path):
         
@@ -116,7 +144,7 @@ class GrammarAgent:
         self.grammar = grammar
         
         self.client = genai.Client(api_key=API_KEY)
-        self.model = "gemini-2.0-flash"
+        self.model = MODEL_NAME
         
         self.instructions = f"""You are a rational and well-informed agent, who helps to develop pipelines for the following regression task: "{self.task}".
 The following is a regular tree grammar, which describes a set of all possible pipelines for the above-mentioned task.
