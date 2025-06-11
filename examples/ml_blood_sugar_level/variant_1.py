@@ -21,7 +21,7 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.gemini import GrammarAgent
+from llm_suggester.gemini import DirectGrammarAgent
 # from llm_suggester.groq import GrammarAgent
 
 
@@ -384,47 +384,47 @@ if __name__ == "__main__":
     
     # TODO need the real (more detailed) description of the task here
     task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
-    agent = GrammarAgent(task, tree_grammar, RUN_DIR)
+    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
     agent.generate_reduced_grammar()
     
     with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
         llm_reduced_grammar = json.load(f)    
 
-    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_reduced_grammar)
-    hypergraph = build_hypergraph(hypergraph_dict)
-    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.pkl"), "wb") as f:
-        pickle.dump(hypergraph, f)
+    # hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_reduced_grammar)
+    # hypergraph = build_hypergraph(hypergraph_dict)
+    # with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.pkl"), "wb") as f:
+    #     pickle.dump(hypergraph, f)
 
-    nx.write_graphml(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.graphml"))
-    render_hypergraph_components(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_hypergraph.png"), node_size=5000,
-                                 node_font_size=11)
+    # nx.write_graphml(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.graphml"))
+    # render_hypergraph_components(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_hypergraph.png"), node_size=5000,
+    #                              node_font_size=11)
 
-    _luigi_pipeline_params = {
-        "x_train_path": X_train_path,
-        "x_test_path": X_test_path,
-        "y_train_path": y_train_path,
-        "y_test_path": y_test_path,
-        "luigi_outputs_dir": LUIGI_OUTPUTS_DIR,
-        "pipelines_outputs_dir": LUIGI_PIPELINES_OUTPUTS_DIR,
-        "seed": SEED,
-        "n_jobs": N_JOBS
-    }
-    luigi_pipeline_params = GlobalPipelineParameters().set_parameters(_luigi_pipeline_params)
-    dump_json(pjoin(LUIGI_OUTPUTS_DIR, "luigi_pipeline_params.json"), _luigi_pipeline_params)
+    # _luigi_pipeline_params = {
+    #     "x_train_path": X_train_path,
+    #     "x_test_path": X_test_path,
+    #     "y_train_path": y_train_path,
+    #     "y_test_path": y_test_path,
+    #     "luigi_outputs_dir": LUIGI_OUTPUTS_DIR,
+    #     "pipelines_outputs_dir": LUIGI_PIPELINES_OUTPUTS_DIR,
+    #     "seed": SEED,
+    #     "n_jobs": N_JOBS
+    # }
+    # luigi_pipeline_params = GlobalPipelineParameters().set_parameters(_luigi_pipeline_params)
+    # dump_json(pjoin(LUIGI_OUTPUTS_DIR, "luigi_pipeline_params.json"), _luigi_pipeline_params)
 
-    pipeline_objects = [pipeline() for pipeline in pipelines_classes]
-    mcts_manager = mcts_manager.MCTSManager(
-        run_dir=RUN_DIR,
-        pipeline_objects=pipeline_objects,
-        mcts_params=MCTS_PARAMS,
-        hypergraph=hypergraph,
-        game_sense=SENSE,
-        pipeline_metric=PIPELINE_METRIC,
-        evaluator_punishment_value=PUNISHMENT_VALUE,
-        pipeline_timeout=PIPELINE_TIMEOUT,
-        component_timeout=COMPONENT_TIMEOUT,
-        # pipeline_filters=[FILTER],
-    )
+    # pipeline_objects = [pipeline() for pipeline in pipelines_classes]
+    # mcts_manager = mcts_manager.MCTSManager(
+    #     run_dir=RUN_DIR,
+    #     pipeline_objects=pipeline_objects,
+    #     mcts_params=MCTS_PARAMS,
+    #     hypergraph=hypergraph,
+    #     game_sense=SENSE,
+    #     pipeline_metric=PIPELINE_METRIC,
+    #     evaluator_punishment_value=PUNISHMENT_VALUE,
+    #     pipeline_timeout=PIPELINE_TIMEOUT,
+    #     component_timeout=COMPONENT_TIMEOUT,
+    #     # pipeline_filters=[FILTER],
+    # )
 
-    inc = mcts_manager.run_mcts()
-    mcts_manager.save_results()
+    # inc = mcts_manager.run_mcts()
+    # mcts_manager.save_results()

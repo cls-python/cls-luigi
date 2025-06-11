@@ -1,34 +1,31 @@
 {
     "start": "Eval",
     "non_terminals": [
-        "Eval",
-        "Reg",
         "Scale",
-        "LoadDataset"
+        "LoadDataset",
+        "Reg",
+        "Eval"
     ],
     "terminals": [
-        "Evaluate",
-        "RF",
         "Robust",
+        "RF",
+        "Evaluate",
         "LoadPklDataset"
     ],
     "rules": {
-        "Eval": {
-            "Evaluate": [
-                "Reg",
-                "Scale",
+        "Scale": {
+            "Robust": [
                 "LoadDataset"
             ]
         },
         "Reg": {
             "RF": [
-                "Scale",
-                "LoadDataset"
+                "Scale"
             ]
         },
-        "Scale": {
-            "Robust": [
-                "LoadDataset"
+        "Eval": {
+            "Evaluate": [
+                "Reg"
             ]
         },
         "LoadDataset": {

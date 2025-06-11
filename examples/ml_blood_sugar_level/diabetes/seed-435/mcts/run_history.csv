@@ -1,2 +1,0 @@
-iteration,luigi_id,mcts_path,status,score,cum_elapsed_seconds
-0,Evaluate______type______cl_____type______cl_da1460dcae,"[Node: ('Eval',), Node: ('Evaluate',), Node: ('Reg', 'Scale', 'LoadDataset'), Node: ('RF', 'Robust', 'LoadPklDataset'), Node: ('Scale', 'LoadDataset', 'LoadDataset'), Node: ('Robust', 'LoadPklDataset', 'LoadPklDataset'), Node: ('LoadDataset',), Node: ('LoadPklDataset',)]",FAILED,-100,0.18233609199523926
