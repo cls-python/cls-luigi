@@ -387,8 +387,10 @@ if __name__ == "__main__":
     agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
     agent.generate_reduced_grammar()
     
-    with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
-        llm_reduced_grammar = json.load(f)    
+    llm_reduced_grammar_path = pjoin(RUN_DIR, "llm_reduced_grammar.json")
+    if os.path.exists(llm_reduced_grammar_path):
+        with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
+            llm_reduced_grammar = json.load(f)
 
     # hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_reduced_grammar)
     # hypergraph = build_hypergraph(hypergraph_dict)

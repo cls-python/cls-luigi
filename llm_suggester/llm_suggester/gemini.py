@@ -134,7 +134,10 @@ class DirectGrammarAgent:
         self.client = genai.Client(api_key=API_KEY)
         self.model = MODEL_NAME
         
-        self.instructions = f"""You are a helpful and rational agent, who helps to develop pipelines for the following machine learning task: "{self.task}".\n
+        self.history_file_path = path + "/grammar_agent_history.txt"
+        self.grammar_file_path = path + "/llm_reduced_grammar.json"
+        
+        self.instructions = f"""You are a helpful and rational agent, and your goal is to create a pipeline for the following machine learning task: "{self.task}".\n
 The following is a regular tree grammar, which defines the pipeline tasks and the rules for combining them, to build all possible pipelines for the above-mentioned task.\n{self.grammar}\n
 Your goal is to reduce the grammar, so that it produces only one valid pipeline, which you regard as the most well-suited for the task and the dataset. To suggest the modified grammar you should use the "suggest_grammar" tool.
 All your choices should be well thought out, so do not hesitate to explain your thinking process in the response."""
@@ -145,9 +148,8 @@ All your choices should be well thought out, so do not hesitate to explain your 
                 parts=[types.Part(text=self.instructions)],
             )
         ]
-                
-        self.history_file_path = path + "/grammar_agent_history.txt"
-        self.grammar_file_path = path + "/llm_reduced_grammar.json"
+        
+        self.save_message(self.contents[0])
 
         suggest_grammar_declaration = types.FunctionDeclaration(
             name='suggest_grammar',
@@ -166,7 +168,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
 
         # TODO play around with config options like temperature etc.
         self.config = {
-            "system_instruction": self.instructions,
+            # "system_instruction": self.instructions,
             "tools": [types.Tool(function_declarations=[suggest_grammar_declaration])],
             # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
             # "tool_config": {"function_calling_config": {"mode": "any"}} -- the model should talk the decisions through, since thinking not supported
@@ -198,11 +200,10 @@ All your choices should be well thought out, so do not hesitate to explain your 
                 response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
             else:
                 response_part = types.Part.from_text(text="No tool output")
-                
+                print("Direct grammar agent stopped without producing a grammar.")
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
             self.save_message(response_content)
-            return True
         except Exception as e:
             print("Error occurred while generating reduced grammar:", e)
             print("Retrying generating next response...")
@@ -213,11 +214,11 @@ All your choices should be well thought out, so do not hesitate to explain your 
             json.dump(json.loads(new_grammar), f, indent=4)
         print("Reduced grammar saved to", self.grammar_file_path)
             
-    def save_message(self, response_content):
+    def save_message(self, message):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
-            f.write(str(response_content.role) + ":\n\n")
-            for part in response_content.parts:
+            f.write(str(message.role) + ":\n\n")
+            for part in message.parts:
                 if part.text != None: f.write(str(part.text) + "\n")
                 if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
