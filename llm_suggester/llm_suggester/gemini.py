@@ -178,7 +178,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
     def suggest_grammar(self, grammar):
         print("Suggested grammar:", grammar)
         grammar = grammar.replace("'", "\"") # replace single quotes with double quotes to make it valid JSON
-        # TODO check the grammar (?)
+        # TODO (?) check if grammar produces valid pipeline via cls(?)
         self.save_grammar(grammar)
         return True
         
