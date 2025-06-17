@@ -10,9 +10,9 @@
         "Evaluate",
         "MinMax",
         "Robust",
-        "LR",
+        "LoadPklDataset",
         "RF",
-        "LoadPklDataset"
+        "LR"
     ],
     "rules": {
         "Eval": {
@@ -27,14 +27,14 @@
                 "LoadDataset"
             ]
         },
+        "LoadDataset": {
+            "LoadPklDataset": []
+        },
         "Reg": {
             "RF": [
                 "Scale",
                 "LoadDataset"
             ]
-        },
-        "LoadDataset": {
-            "LoadPklDataset": []
         }
     }
 }

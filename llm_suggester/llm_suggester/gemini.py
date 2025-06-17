@@ -6,8 +6,6 @@ import os
 # TODO could try to ask llm to only output the JSON block
 # TODO check if it's more effective to pass grammar as file
 
-# TODO implement an agent, which directly suggests a sub grammar in one response
-
 API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL_NAME = "gemini-2.0-flash"
 
