@@ -4,7 +4,6 @@ from google.genai import types
 import os
 
 # TODO could try to ask llm to only output the JSON block
-# TODO check if it's more effective to pass grammar as file
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL_NAME = "gemini-2.0-flash"
@@ -54,14 +53,72 @@ MODEL_NAME = "gemini-2.0-flash"
 
 class PipelineAgent:
     
-    def __init__(self, grammar):
+    def __init__(self, task, grammar, path):
+        
+        self.task = task
         self.grammar = grammar
+        
+        self.example_pipeline = """{
+    "nodes": [
+        {
+            "name": "JSONLoader",
+        },
+        {
+            "name": "MissingValueImputation",
+            "inputs": ["JSONLoader"]
+        },
+        {
+            "name": "OneHotEncoding",
+            "inputs": ["MissingValueImputation"]
+        },
+        {
+            "name": "StandardScaler",
+            "inputs": ["MissingValueImputation"]
+        },
+        {
+            "name": "RF",
+            "inputs": ["OneHotEncoding", "StandardScaler"]
+        },
+        {
+            "name": "LR",
+            "inputs": ["StandardScaler"]
+        },
+        {
+            "name": "VotingClassifier",
+            "inputs": ["RF", "LR"]
+        },
+        {
+            "name": "Eval",
+            "inputs": ["VotingClassifier"]
+        }
+    ]
+}"""
+        
         self.client = genai.Client(api_key=API_KEY)
         self.model = MODEL_NAME
-        self.instructions = f"""You are a helpful and rational agent, who helps to develop pipelines for the following regression task: "{self.task}".\n
-The following is a regular tree grammar, which defines the pipeline tasks and the rules for combining them, to build all possible pipelines for the above-mentioned task.\n{self.grammar}\n
-Your goal now is to suggest one valid pipeline, which you perceive as the most well-suited for the task and the dataset. To suggest a pipeline you should use the "suggest_pipeline" tool.
-You should think all your decisions through."""
+        
+        self.history_file_path = path + "/grammar_agent_history.txt"
+        self.pipeline_file_path = path + "/llm_suggested_pipeline.json"
+        
+        self.instructions = f"""You are a helpful agent, who will help to develop a pipeline for the following regression task: "{self.task}".
+
+The following is a regular tree grammar, which defines the pipeline tasks and rules for combining them, to build all possible pipelines for the above-mentioned task.
+
+{self.grammar}
+
+Based on that you will now produce one pipeline, which is the most well-suited for the task and the dataset. To suggest a pipeline you will use the "suggest_pipeline" tool.
+
+You will suggest the pipeline in JSON format. Here is an example for a pipeline:
+
+{self.example_pipeline}
+
+Each node is a terminal and has a name and inputs from other nodes.
+
+The pipeline is not linear in general. You will produce a pipeline with branching and merging paths, if it is required by the task and data.
+
+You will think all your decisions through by using thorough reasoning, to produce the best possible result.
+
+Now start!"""
         
         self.contents = [
                 types.Content(
@@ -70,35 +127,78 @@ You should think all your decisions through."""
                 )
             ]
 
-            
         suggest_pipeline_declaration = types.FunctionDeclaration(
-            name='remove_rule',
-            description="""Use this tool to suggest a pipeline in the following format:
-()""", # TODO provide proper notation (account for non-linearity)
+            name='suggest_pipeline',
+            description='This tool is used to suggest a pipeline.',
             parameters=types.Schema(
                 type='OBJECT',
                 properties={
                     'pipeline': types.Schema(
                         type='string',
-                        description='Suggested pipline',
+                        description='Suggested pipeline in the correct format',
                     )
                 },
                 required=['pipeline'],
             ),
         )
-        
-    def generate_response(self):
-        print(self.instructions)
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=self.instructions,
-        )
-        return response.text
+            
+        self.config = {
+            # "system_instruction": self.instructions,
+            "tools": [types.Tool(function_declarations=[suggest_pipeline_declaration])],
+            # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
+            # "tool_config": {"function_calling_config": {"mode": "any"}} -- the model should talk the decisions through, since thinking not supported
+        }
     
-    def start_chat(self):
-        print("Starting LLM chat...")
-        chat = self.client.chats.create(model=self.model)
-        return chat
+    
+    def suggest_pipeline(self, pipeline):
+    
+        print("Suggested pipeline:", pipeline)
+        pipeline = pipeline.replace("'", "\"") # replace single quotes with double quotes to make it valid JSON
+        # TODO check if pipeline is valid via cls(?) (or do it outside the agent class)
+        self.save_pipeline(pipeline)
+        return True
+    
+    def generate_pipeline(self):
+        
+        try:
+            response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
+            self.contents.append(response.candidates[0].content)
+            self.save_message(response.candidates[0].content)            
+            tool_call = None
+            for part in response.candidates[0].content.parts:
+                if part.function_call is not None: 
+                    tool_call = part.function_call
+                    break
+            if tool_call is not None and tool_call.name == "suggest_pipeline":
+                result = self.suggest_pipeline(**tool_call.args)
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
+            else:
+                response_part = types.Part.from_text(text="No tool output")
+                print("Pipeline agent stopped without producing a pipeline.")
+            response_content = types.Content(role="user", parts=[response_part])
+            self.contents.append(response_content)
+            self.save_message(response_content)
+        except Exception as e:
+            print("Error occurred while generating pipeline:", e)
+            print("Retrying generating next response...")
+            self.generate_pipeline()
+    
+    def save_pipeline(self, new_pipeline):
+        with open(self.pipeline_file_path, "w") as f:
+            json.dump(json.loads(new_pipeline), f, indent=4)
+        print("Suggested Pipeline saved to", self.pipeline_file_path)
+            
+    def save_message(self, message):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n")
+            f.write(str(message.role) + ":\n\n")
+            for part in message.parts:
+                if part.text != None: f.write(str(part.text) + "\n")
+                if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
+                if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
+            f.write("\n")
+
+    
     
     # def extract_pipeline(self, response_text):
     #     """

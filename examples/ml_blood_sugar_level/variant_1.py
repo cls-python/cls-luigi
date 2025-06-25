@@ -21,7 +21,7 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.gemini import DirectGrammarAgent
+from llm_suggester.gemini import DirectGrammarAgent, PipelineAgent
 # from llm_suggester.groq import GrammarAgent
 
 
@@ -384,13 +384,23 @@ if __name__ == "__main__":
     
     # TODO need the real (more detailed) description of the task here
     task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
-    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
-    agent.generate_reduced_grammar()
     
-    llm_reduced_grammar_path = pjoin(RUN_DIR, "llm_reduced_grammar.json")
-    if os.path.exists(llm_reduced_grammar_path):
-        with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
-            llm_reduced_grammar = json.load(f)
+    # agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
+    # agent.generate_reduced_grammar()
+    
+    # llm_reduced_grammar_path = pjoin(RUN_DIR, "llm_reduced_grammar.json")
+    # if os.path.exists(llm_reduced_grammar_path):
+        # with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
+            # llm_reduced_grammar = json.load(f)
+            
+    agent = PipelineAgent(task, tree_grammar, RUN_DIR)
+    agent.generate_pipeline()
+    
+    llm_suggested_pipeline_path = pjoin(RUN_DIR, "llm_suggested_pipeline.json")
+    if os.path.exists(llm_suggested_pipeline_path):
+        with open(pjoin(RUN_DIR, "llm_suggested_pipeline.json"), "r") as f:
+            llm_suggested_pipeline_path = json.load(f)
+                  
 
     # hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_reduced_grammar)
     # hypergraph = build_hypergraph(hypergraph_dict)

@@ -1,0 +1,25 @@
+{
+    "nodes": [
+        {
+            "name": "LoadPklDataset"
+        },
+        {
+            "name": "MinMax",
+            "inputs": [
+                "LoadPklDataset"
+            ]
+        },
+        {
+            "name": "RF",
+            "inputs": [
+                "MinMax"
+            ]
+        },
+        {
+            "name": "Evaluate",
+            "inputs": [
+                "RF"
+            ]
+        }
+    ]
+}
