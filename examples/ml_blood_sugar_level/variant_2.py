@@ -227,14 +227,27 @@ class eval(Eval):
 
 
 if __name__ == "__main__":
+    import json
     import os
     os.makedirs(RESULTUS_DIR, exist_ok=True)
+    from os.path import join as pjoin
+    from os import makedirs, getcwd
+    from llm_suggester.gemini import DirectGrammarAgent
 
     logging.basicConfig(level=logging.DEBUG)
     target_class = Eval
 
     target = target_class.return_type()
     repository = RepoMeta.repository
+    
+    DS_NAME = "diabetes"
+    CWD = getcwd()
+    OUTPUTS_DIR = pjoin(CWD, DS_NAME)
+    RUN_DIR = pjoin(OUTPUTS_DIR)
+    CLS_LUIGI_OUTPUTS_DIR = pjoin(RUN_DIR, "cls_luigi")
+    CLS_LUIGI_PIPELINES_DIR = pjoin(CLS_LUIGI_OUTPUTS_DIR, "pipelines")
+    LUIGI_OUTPUTS_DIR = pjoin(RUN_DIR, "luigi")
+    LUIGI_PIPELINES_OUTPUTS_DIR = pjoin(LUIGI_OUTPUTS_DIR, "pipelines_outputs")
     fcl = FiniteCombinatoryLogic(repository, Subtypes(RepoMeta.subtypes), processes=1)
 
     inhabitation_result = fcl.inhabit(target)
@@ -246,13 +259,28 @@ if __name__ == "__main__":
     max_results = max_tasks_when_infinite
     if actual > 0:
         max_results = actual
-
     results = [t() for t in inhabitation_result.evaluated[0:max_results]]
 
-
     tree_grammar = ApplicativeTreeGrammarEncoder(rules, target_class.__name__).encode_into_tree_grammar()
-
-    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(tree_grammar)
+    
+    with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "regular_tree_grammar.json"), "w") as f:
+        json.dump(tree_grammar, f, indent=4)
+    
+    # TODO need the real (more detailed) description of the task here
+    task = "Predict the blood sugar level of patients based on their personal data like age, body weight etc." 
+    
+    # agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
+    # agent.generate_reduced_grammar()
+    
+    # llm_reduced_grammar_path = pjoin(RUN_DIR, "llm_reduced_grammar.json")
+    # if os.path.exists(llm_reduced_grammar_path):
+        # with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
+            # llm_reduced_grammar = json.load(f)
+            
+    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
+    llm_suggested_grammar = agent.generate_reduced_grammar()
+                  
+    hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_suggested_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
     # plot_hypergraph_components(hypergraph, "binary_clf.png", start_node="CLF", node_size=5000, node_font_size=11)
 

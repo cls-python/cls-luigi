@@ -24,15 +24,15 @@
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>
-    <node id="LoadPklDataset">
-      <data key="d0">True</data>
-      <data key="d1">False</data>
-    </node>
     <node id="RF">
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>
     <node id="MinMax">
+      <data key="d0">True</data>
+      <data key="d1">False</data>
+    </node>
+    <node id="LoadPklDataset">
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>

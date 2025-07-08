@@ -395,7 +395,7 @@ if __name__ == "__main__":
             
     agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
     llm_suggested_grammar = agent.generate_reduced_grammar()
-                  
+    
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_suggested_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
     with open(pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.pkl"), "wb") as f:
