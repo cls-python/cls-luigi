@@ -1,0 +1,1 @@
+{"csv_file": "data/taxy_trips_ny_2016-06-01to03_3%sample.csv", "date_column": ["pickup_datetime", "dropoff_datetime"], "target_column": "trip_duration"}

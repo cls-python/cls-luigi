@@ -12,10 +12,9 @@
     "terminals": [
         "ReadTaxiData",
         "PreprocessDateFeature1",
-        "PreprocessorDummy",
-        "TrainLinearRegressionModel",
         "PreprocessDateFeature2",
         "PreprocessorSet",
+        "TrainLinearRegressionModel",
         "FinalNode",
         "WriteCSVRegressionSetupJson"
     ],
@@ -28,22 +27,10 @@
         "PreprocessDateFeature1": {
             "PreprocessDateFeature1": [
                 "ReadTabularData"
-            ],
-            "PreprocessorDummy": [
-                "ReadTabularData"
-            ]
-        },
-        "TrainLinearRegressionModel": {
-            "TrainLinearRegressionModel": [
-                "PreprocessorSet",
-                "WriteSetupJson"
             ]
         },
         "PreprocessDateFeature2": {
             "PreprocessDateFeature2": [
-                "ReadTabularData"
-            ],
-            "PreprocessorDummy": [
                 "ReadTabularData"
             ]
         },
@@ -51,6 +38,12 @@
             "PreprocessorSet": [
                 "PreprocessDateFeature1",
                 "PreprocessDateFeature2"
+            ]
+        },
+        "TrainLinearRegressionModel": {
+            "TrainLinearRegressionModel": [
+                "PreprocessorSet",
+                "WriteSetupJson"
             ]
         },
         "FinalNode": {

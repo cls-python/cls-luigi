@@ -25,8 +25,6 @@ from cls_luigi.unique_task_pipeline_validator import UniqueTaskPipelineValidator
 
 RESULTUS_DIR = "results"
 
-
-
 class Data(luigi.Task, LuigiCombinator):
     abstract = True
 

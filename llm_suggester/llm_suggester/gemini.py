@@ -308,7 +308,8 @@ All your choices should be well thought out, so do not hesitate to explain your 
         except Exception as e:
             print("Error occurred while generating reduced grammar:", e)
             print("Retrying generating next response...")
-            self.generate_reduced_grammar()
+            self.save_retry_message()
+            return self.generate_reduced_grammar()
     
     def save_grammar(self, new_grammar):
         with open(self.grammar_file_path, "w") as f:
@@ -332,6 +333,12 @@ All your choices should be well thought out, so do not hesitate to explain your 
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
             f.write("\n")
     
+    def save_retry_message(self):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n")
+            f.write("")
+            f.write("Retrying generating next response...\n\n")
+            f.write("\n")
 
 class IterativeGrammarAgent:
     
