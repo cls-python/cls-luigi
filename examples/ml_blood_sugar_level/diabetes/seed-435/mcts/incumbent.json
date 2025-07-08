@@ -1,0 +1,38 @@
+{
+      "mcts_path": [
+            [
+                  "Eval"
+            ],
+            [
+                  "Evaluate"
+            ],
+            [
+                  "Reg",
+                  "Scale",
+                  "LoadDataset"
+            ],
+            [
+                  "RF",
+                  "MinMax",
+                  "LoadPklDataset"
+            ],
+            [
+                  "Scale",
+                  "LoadDataset",
+                  "LoadDataset"
+            ],
+            [
+                  "MinMax",
+                  "LoadPklDataset",
+                  "LoadPklDataset"
+            ],
+            [
+                  "LoadDataset"
+            ],
+            [
+                  "LoadPklDataset"
+            ]
+      ],
+      "luigi_pipeline_id": "Evaluate______type______cl_____type______cl_23717e73f7",
+      "validation_score": -100
+}

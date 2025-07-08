@@ -1,0 +1,2 @@
+iteration,luigi_id,mcts_path,status,score,cum_elapsed_seconds
+0,Evaluate______type______cl_____type______cl_23717e73f7,"[Node: ('Eval',), Node: ('Evaluate',), Node: ('Reg', 'Scale', 'LoadDataset'), Node: ('RF', 'MinMax', 'LoadPklDataset'), Node: ('Scale', 'LoadDataset', 'LoadDataset'), Node: ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), Node: ('LoadDataset',), Node: ('LoadPklDataset',)]",FAILED,-100,0.4744091033935547

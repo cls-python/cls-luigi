@@ -1,0 +1,10 @@
+{
+      "x_train_path": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/dataset/diabetes/X_train.pkl",
+      "x_test_path": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/dataset/diabetes/X_test.pkl",
+      "y_train_path": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/dataset/diabetes/y_train.pkl",
+      "y_test_path": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/dataset/diabetes/y_test.pkl",
+      "luigi_outputs_dir": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/diabetes/seed-435/luigi",
+      "pipelines_outputs_dir": "/home/ilja/IMI/cls-luigi/examples/ml_blood_sugar_level/diabetes/seed-435/luigi/pipelines_outputs",
+      "seed": 435,
+      "n_jobs": 1
+}

@@ -1,0 +1,20 @@
+{
+      "metrics": "root_mean_squared_error",
+      "punishment_value": 100,
+      "pipeline_map": {
+            "(('Evaluate',), ('RF', 'MinMax', 'LoadPklDataset'), ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_23717e73f7",
+            "(('Evaluate',), ('RF', 'Robust', 'LoadPklDataset'), ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_e9459381fd",
+            "(('Evaluate',), ('RF', 'MinMax', 'LoadPklDataset'), ('Robust', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_b3abc2aa60",
+            "(('Evaluate',), ('RF', 'Robust', 'LoadPklDataset'), ('Robust', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_da1460dcae",
+            "(('Evaluate',), ('LR', 'MinMax', 'LoadPklDataset'), ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_c063b09434",
+            "(('Evaluate',), ('LR', 'Robust', 'LoadPklDataset'), ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_89a556ee7b",
+            "(('Evaluate',), ('LR', 'MinMax', 'LoadPklDataset'), ('Robust', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_bb01898d3b",
+            "(('Evaluate',), ('LR', 'Robust', 'LoadPklDataset'), ('Robust', 'LoadPklDataset', 'LoadPklDataset'), ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_01ff67ccbc"
+      },
+      "evaluated": {},
+      "failed": {
+            "(Node: ('Eval',), Node: ('Evaluate',), Node: ('Reg', 'Scale', 'LoadDataset'), Node: ('RF', 'MinMax', 'LoadPklDataset'), Node: ('Scale', 'LoadDataset', 'LoadDataset'), Node: ('MinMax', 'LoadPklDataset', 'LoadPklDataset'), Node: ('LoadDataset',), Node: ('LoadPklDataset',))": "Evaluate______type______cl_____type______cl_23717e73f7"
+      },
+      "timed_out": {},
+      "not_found": []
+}

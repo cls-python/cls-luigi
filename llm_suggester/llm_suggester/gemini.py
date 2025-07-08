@@ -273,14 +273,13 @@ All your choices should be well thought out, so do not hesitate to explain your 
         }
         
     # suggest_grammar tool
-    # takes the suggested rgular tree grammar
+    # takes the suggested regular tree grammar
     # if it's valid, saves it to llm_reduced_grammar.json and returns True, else returns False
     def suggest_grammar(self, grammar):
         print("Suggested grammar:", grammar)
         grammar = grammar.replace("'", "\"") # replace single quotes with double quotes to make it valid JSON
         # TODO (?) check if grammar produces valid pipeline via cls(?)
-        self.save_grammar(grammar)
-        return True
+        return grammar
         
     def generate_reduced_grammar(self):
         try:
@@ -294,14 +293,18 @@ All your choices should be well thought out, so do not hesitate to explain your 
                     tool_call = part.function_call
                     break
             if tool_call is not None and tool_call.name == "suggest_grammar":
-                result = self.suggest_grammar(**tool_call.args)
-                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
+                grammar_str = self.suggest_grammar(**tool_call.args)
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": grammar_str})
+                grammar = self.grammar_str_to_json(grammar_str)
+                self.save_grammar(grammar)
             else:
+                grammar = None
                 response_part = types.Part.from_text(text="No tool output")
                 print("Direct grammar agent stopped without producing a grammar.")
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
             self.save_message(response_content)
+            return grammar
         except Exception as e:
             print("Error occurred while generating reduced grammar:", e)
             print("Retrying generating next response...")
@@ -309,8 +312,15 @@ All your choices should be well thought out, so do not hesitate to explain your 
     
     def save_grammar(self, new_grammar):
         with open(self.grammar_file_path, "w") as f:
-            json.dump(json.loads(new_grammar), f, indent=4)
-        print("Reduced grammar saved to", self.grammar_file_path)
+            json.dump(new_grammar, f, indent=4)
+        print("Grammar saved to", self.grammar_file_path)
+            
+    def grammar_str_to_json(self, grammar_str):
+        try:
+            return json.loads(grammar_str)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return None
             
     def save_message(self, message):
         with open(self.history_file_path, "a") as f:
