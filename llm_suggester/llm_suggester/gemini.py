@@ -557,6 +557,7 @@ All your choices should be well thought out, so you should explain your thinking
         print("Grammar agent terminated.")
         return True
         
+    # TODO adjust to iterative logic
     def generate_reduced_grammar(self):
         try:
             response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
