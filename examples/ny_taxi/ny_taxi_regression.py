@@ -226,6 +226,7 @@ if __name__ == '__main__':
 
     inhabitation_result = fcl.inhabit(target)
     rtg = inhabitation_result.rules
+    
     with open(pjoin(output_dir, "applicative_regular_tree_grammar.txt"), "w") as f:
         f.write(deep_str(rtg))
     tree_grammar = ApplicativeTreeGrammarEncoder(rtg, target_class.__name__).encode_into_tree_grammar()
@@ -233,9 +234,9 @@ if __name__ == '__main__':
         json.dump(tree_grammar, f, indent=4)
 
     task = "A regression task to analyze the New York City traffic data based on a dataset of NYC taxi trips."
-
     agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
     llm_suggested_grammar = agent.generate_reduced_grammar()
+
     print("Enumerating results...")
     max_tasks_when_infinite = 10
     actual = inhabitation_result.size()
@@ -253,7 +254,7 @@ if __name__ == '__main__':
     else:
         print("No results!")
         
-    
+
 
     task = InhabitationTask()
     states[task.task_id] = TaskState(fcl, target)

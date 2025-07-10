@@ -484,3 +484,134 @@ If the parameters do not match any rule in the grammar, the function returns "ER
         print("Grammar LLM agent stopped.")
         
             
+class IterativeFeedbackGrammarAgent:
+    
+    def __init__(self, task, grammar, path):
+        
+        self.task = task
+        self.grammar = grammar
+        
+        self.client = genai.Client(api_key=API_KEY)
+        self.model = MODEL_NAME
+        
+        self.history_file_path = path + "/grammar_agent_history.txt"
+        self.grammar_file_path = path + "/llm_reduced_grammar.json"
+        
+        self.instructions = f"""You are a helpful and rational agent, and you create a pipeline for the following machine learning task: "{self.task}".\n
+The following is a regular tree grammar, which defines the pipeline tasks and the rules for combining them, to build all possible pipelines for the above-mentioned task.\n{self.grammar}\n
+You reduce the grammar, so that it produces only one valid pipeline, which you regard as well-suited for the task and the dataset. To suggest the modified grammar you use the "suggest_grammar" tool. After you suggest the grammar, the tool will return the performance score of the pipeline, which is produced by the grammar. You then suggest a new grammar to improve the next score. You repeat this process until you see no way to further improve any of the suggested grammars and stop the process by calling the "terminate" tool.\n
+All your choices should be well thought out, so you should explain your thinking process in each response."""
+
+        self.contents = [
+            types.Content(
+                role='user',
+                parts=[types.Part(text=self.instructions)],
+            )
+        ]
+        
+        self.save_message(self.contents[0])
+
+        suggest_grammar_declaration = types.FunctionDeclaration(
+            name='suggest_grammar',
+            description="""Passes the suggested grammar to the user. """,
+            parameters=types.Schema(
+                type='OBJECT',
+                properties={
+                    'grammar': types.Schema(
+                        type='string',
+                        description='The regular tree grammar in string format.',
+                    ),
+                },
+                required=['grammar'],
+            ),
+        )
+        
+        terminate_declaration = types.FunctionDeclaration(
+            name='terminate',
+            description="""Notifies the user, that the agent sees no way to further improve the grammar and stops the chat.""",
+            parameters=types.Schema(
+                type='OBJECT',
+                properties={},
+                required=[],
+            ),
+        )
+
+        # TODO play around with config options like temperature etc.
+        self.config = {
+            # "system_instruction": self.instructions,
+            "tools": [types.Tool(function_declarations=[suggest_grammar_declaration, terminate_declaration])],
+            # "thinking_config": types.ThinkingConfig(include_thoughts=True), -- not supported for gemini-2.0-flash
+            # "tool_config": {"function_calling_config": {"mode": "any"}} -- the model should talk the decisions through, since thinking not supported
+        }
+        
+    # suggest_grammar tool
+    # takes the suggested regular tree grammar
+    # if it's valid, saves it to llm_reduced_grammar.json and returns True, else returns False
+    def suggest_grammar(self, grammar):
+        print("Suggested grammar:", grammar)
+        grammar = grammar.replace("'", "\"") # replace single quotes with double quotes to make it valid JSON
+        # TODO (?) check if grammar produces valid pipeline via cls(?)
+        return grammar
+        
+    def terminate(self):
+        print("Grammar agent terminated.")
+        return True
+        
+    def generate_reduced_grammar(self):
+        try:
+            response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
+            self.contents.append(response.candidates[0].content)
+            self.save_message(response.candidates[0].content)
+            
+            tool_call = None
+            for part in response.candidates[0].content.parts:
+                if part.function_call is not None: 
+                    tool_call = part.function_call
+                    break
+            if tool_call is not None and tool_call.name == "suggest_grammar":
+                grammar_str = self.suggest_grammar(**tool_call.args)
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": grammar_str})
+                grammar = self.grammar_str_to_json(grammar_str)
+                self.save_grammar(grammar)
+            else:
+                grammar = None
+                response_part = types.Part.from_text(text="No tool output")
+                print("Iterative feedback grammar agent stopped without producing a grammar.")
+            response_content = types.Content(role="user", parts=[response_part])
+            self.contents.append(response_content)
+            self.save_message(response_content)
+            return grammar
+        except Exception as e:
+            print("Error occurred while generating reduced grammar:", e)
+            print("Retrying generating next response...")
+            self.save_retry_message()
+            return self.generate_reduced_grammar()
+    
+    def save_grammar(self, new_grammar):
+        with open(self.grammar_file_path, "w") as f:
+            json.dump(new_grammar, f, indent=4)
+        print("Grammar saved to", self.grammar_file_path)
+            
+    def grammar_str_to_json(self, grammar_str):
+        try:
+            return json.loads(grammar_str)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return None
+            
+    def save_message(self, message):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n")
+            f.write(str(message.role) + ":\n\n")
+            for part in message.parts:
+                if part.text != None: f.write(str(part.text) + "\n")
+                if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
+                if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
+            f.write("\n")
+    
+    def save_retry_message(self):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n")
+            f.write("")
+            f.write("Retrying generating next response...\n\n")
+            f.write("\n")

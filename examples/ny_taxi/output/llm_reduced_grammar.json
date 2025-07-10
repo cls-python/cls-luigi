@@ -1,49 +1,35 @@
 {
     "start": "FinalNode",
     "non_terminals": [
-        "ReadTabularData",
-        "WriteSetupJson",
         "PreprocessDateFeature1",
-        "TrainLinearRegressionModel",
-        "PreprocessorSet",
+        "ReadTaxiData",
+        "WriteSetupJson",
         "PreprocessDateFeature2",
-        "FinalNode"
+        "FinalNode",
+        "TrainLinearRegressionModel",
+        "PreprocessorSet"
     ],
     "terminals": [
-        "ReadTaxiData",
         "PreprocessDateFeature1",
+        "WriteCSVRegressionSetupJson",
         "PreprocessDateFeature2",
-        "PreprocessorSet",
-        "TrainLinearRegressionModel",
         "FinalNode",
-        "WriteCSVRegressionSetupJson"
+        "TrainLinearRegressionModel",
+        "ReadTaxiData",
+        "PreprocessorSet"
     ],
     "rules": {
-        "ReadTabularData": {
-            "ReadTaxiData": [
-                "WriteSetupJson"
-            ]
-        },
         "PreprocessDateFeature1": {
             "PreprocessDateFeature1": [
-                "ReadTabularData"
+                "ReadTaxiData"
             ]
+        },
+        "WriteSetupJson": {
+            "WriteCSVRegressionSetupJson": []
         },
         "PreprocessDateFeature2": {
             "PreprocessDateFeature2": [
-                "ReadTabularData"
-            ]
-        },
-        "PreprocessorSet": {
-            "PreprocessorSet": [
-                "PreprocessDateFeature1",
-                "PreprocessDateFeature2"
-            ]
-        },
-        "TrainLinearRegressionModel": {
-            "TrainLinearRegressionModel": [
-                "PreprocessorSet",
-                "WriteSetupJson"
+                "ReadTaxiData"
             ]
         },
         "FinalNode": {
@@ -52,8 +38,20 @@
                 "TrainLinearRegressionModel"
             ]
         },
-        "WriteSetupJson": {
-            "WriteCSVRegressionSetupJson": []
+        "TrainLinearRegressionModel": {
+            "TrainLinearRegressionModel": [
+                "PreprocessorSet",
+                "WriteSetupJson"
+            ]
+        },
+        "ReadTaxiData": {
+            "ReadTaxiData": []
+        },
+        "PreprocessorSet": {
+            "PreprocessorSet": [
+                "PreprocessDateFeature1",
+                "PreprocessDateFeature2"
+            ]
         }
     }
 }
