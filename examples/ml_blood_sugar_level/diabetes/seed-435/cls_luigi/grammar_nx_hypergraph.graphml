@@ -4,10 +4,6 @@
   <key id="d1" for="node" attr.name="start_node" attr.type="boolean" />
   <key id="d0" for="node" attr.name="terminal_node" attr.type="boolean" />
   <graph edgedefault="directed">
-    <node id="Eval">
-      <data key="d0">False</data>
-      <data key="d1">True</data>
-    </node>
     <node id="Reg">
       <data key="d0">False</data>
       <data key="d1">False</data>
@@ -20,11 +16,15 @@
       <data key="d0">False</data>
       <data key="d1">False</data>
     </node>
-    <node id="Evaluate">
+    <node id="Eval">
+      <data key="d0">False</data>
+      <data key="d1">True</data>
+    </node>
+    <node id="RF">
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>
-    <node id="RF">
+    <node id="Evaluate">
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>
@@ -36,9 +36,6 @@
       <data key="d0">True</data>
       <data key="d1">False</data>
     </node>
-    <edge source="Eval" target="Evaluate" id="0">
-      <data key="d2">False</data>
-    </edge>
     <edge source="Reg" target="RF" id="0">
       <data key="d2">False</data>
     </edge>
@@ -48,19 +45,16 @@
     <edge source="LoadDataset" target="LoadPklDataset" id="0">
       <data key="d2">False</data>
     </edge>
-    <edge source="Evaluate" target="Reg" id="0">
-      <data key="d2">True</data>
-    </edge>
-    <edge source="Evaluate" target="Scale" id="0">
-      <data key="d2">True</data>
-    </edge>
-    <edge source="Evaluate" target="LoadDataset" id="0">
-      <data key="d2">True</data>
+    <edge source="Eval" target="Evaluate" id="0">
+      <data key="d2">False</data>
     </edge>
     <edge source="RF" target="Scale" id="0">
       <data key="d2">True</data>
     </edge>
     <edge source="RF" target="LoadDataset" id="0">
+      <data key="d2">True</data>
+    </edge>
+    <edge source="Evaluate" target="Reg" id="0">
       <data key="d2">True</data>
     </edge>
     <edge source="MinMax" target="LoadDataset" id="0">

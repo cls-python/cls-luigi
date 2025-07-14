@@ -21,10 +21,6 @@ import logging
 from cls_luigi.search import UniqueActionFilter
 from cls_luigi.tools.io_functions import dump_json
 
-from llm_suggester.gemini import DirectGrammarAgent, PipelineAgent
-# from llm_suggester.groq import GrammarAgent
-
-
 class GlobalPipelineParameters(luigi.Config):
     x_train_path = luigi.OptionalStrParameter(default=None)
     x_test_path = luigi.OptionalStrParameter(default=None)
@@ -321,6 +317,8 @@ if __name__ == "__main__":
     from os import makedirs, getcwd
     from cls.fcl import FiniteCombinatoryLogic
     from cls.subtypes import Subtypes
+    
+    from llm_suggester.gemini import IterativeFeedbackGrammarAgent
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -393,8 +391,8 @@ if __name__ == "__main__":
         # with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
             # llm_reduced_grammar = json.load(f)
             
-    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
-    llm_suggested_grammar = agent.generate_reduced_grammar()
+    agent = IterativeFeedbackGrammarAgent(task, tree_grammar, RUN_DIR)
+    llm_suggested_grammar = agent.generate_grammar()
     
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_suggested_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
@@ -404,33 +402,33 @@ if __name__ == "__main__":
     nx.write_graphml(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_nx_hypergraph.graphml"))
     render_hypergraph_components(hypergraph, pjoin(CLS_LUIGI_OUTPUTS_DIR, "grammar_hypergraph.png"), node_size=5000, node_font_size=11)
 
-    _luigi_pipeline_params = {
-        "x_train_path": X_train_path,
-        "x_test_path": X_test_path,
-        "y_train_path": y_train_path,
-        "y_test_path": y_test_path,
-        "luigi_outputs_dir": LUIGI_OUTPUTS_DIR,
-        "pipelines_outputs_dir": LUIGI_PIPELINES_OUTPUTS_DIR,
-        "seed": SEED,
-        "n_jobs": N_JOBS
-    }
+    # _luigi_pipeline_params = {
+    #     "x_train_path": X_train_path,
+    #     "x_test_path": X_test_path,
+    #     "y_train_path": y_train_path,
+    #     "y_test_path": y_test_path,
+    #     "luigi_outputs_dir": LUIGI_OUTPUTS_DIR,
+    #     "pipelines_outputs_dir": LUIGI_PIPELINES_OUTPUTS_DIR,
+    #     "seed": SEED,
+    #     "n_jobs": N_JOBS
+    # }
     
-    luigi_pipeline_params = GlobalPipelineParameters().set_parameters(_luigi_pipeline_params)
-    dump_json(pjoin(LUIGI_OUTPUTS_DIR, "luigi_pipeline_params.json"), _luigi_pipeline_params)
+    # luigi_pipeline_params = GlobalPipelineParameters().set_parameters(_luigi_pipeline_params)
+    # dump_json(pjoin(LUIGI_OUTPUTS_DIR, "luigi_pipeline_params.json"), _luigi_pipeline_params)
 
-    pipeline_objects = [pipeline() for pipeline in pipelines_classes]
-    mcts_manager = mcts_manager.MCTSManager(
-        run_dir=RUN_DIR,
-        pipeline_objects=pipeline_objects,
-        mcts_params=MCTS_PARAMS,
-        hypergraph=hypergraph,
-        game_sense=SENSE,
-        pipeline_metric=PIPELINE_METRIC,
-        evaluator_punishment_value=PUNISHMENT_VALUE,
-        pipeline_timeout=PIPELINE_TIMEOUT,
-        component_timeout=COMPONENT_TIMEOUT,
-        # pipeline_filters=[FILTER],
-    )
+    # pipeline_objects = [pipeline() for pipeline in pipelines_classes]
+    # mcts_manager = mcts_manager.MCTSManager(
+    #     run_dir=RUN_DIR,
+    #     pipeline_objects=pipeline_objects,
+    #     mcts_params=MCTS_PARAMS,
+    #     hypergraph=hypergraph,
+    #     game_sense=SENSE,
+    #     pipeline_metric=PIPELINE_METRIC,
+    #     evaluator_punishment_value=PUNISHMENT_VALUE,
+    #     pipeline_timeout=PIPELINE_TIMEOUT,
+    #     component_timeout=COMPONENT_TIMEOUT,
+    #     # pipeline_filters=[FILTER],
+    # )
 
-    inc = mcts_manager.run_mcts()
-    mcts_manager.save_results()
+    # inc = mcts_manager.run_mcts()
+    # mcts_manager.save_results()

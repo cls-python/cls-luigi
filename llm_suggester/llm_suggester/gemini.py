@@ -163,7 +163,7 @@ Now start!"""
         try:
             response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
             self.contents.append(response.candidates[0].content)
-            self.save_message(response.candidates[0].content)            
+            self.log_message(response.candidates[0].content)            
             tool_call = None
             for part in response.candidates[0].content.parts:
                 if part.function_call is not None: 
@@ -177,7 +177,7 @@ Now start!"""
                 print("Pipeline agent stopped without producing a pipeline.")
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
-            self.save_message(response_content)
+            self.log_message(response_content)
         except Exception as e:
             print("Error occurred while generating pipeline:", e)
             print("Retrying generating next response...")
@@ -188,7 +188,7 @@ Now start!"""
             json.dump(json.loads(new_pipeline), f, indent=4)
         print("Suggested Pipeline saved to", self.pipeline_file_path)
             
-    def save_message(self, message):
+    def log_message(self, message):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
             f.write(str(message.role) + ":\n\n")
@@ -247,7 +247,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
             )
         ]
         
-        self.save_message(self.contents[0])
+        self.log_message(self.contents[0])
 
         suggest_grammar_declaration = types.FunctionDeclaration(
             name='suggest_grammar',
@@ -285,7 +285,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
         try:
             response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
             self.contents.append(response.candidates[0].content)
-            self.save_message(response.candidates[0].content)
+            self.log_message(response.candidates[0].content)
             
             tool_call = None
             for part in response.candidates[0].content.parts:
@@ -303,12 +303,12 @@ All your choices should be well thought out, so do not hesitate to explain your 
                 print("Direct grammar agent stopped without producing a grammar.")
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
-            self.save_message(response_content)
+            self.log_message(response_content)
             return grammar
         except Exception as e:
             print("Error occurred while generating reduced grammar:", e)
             print("Retrying generating next response...")
-            self.save_retry_message()
+            self.log_retry_message()
             return self.generate_reduced_grammar()
     
     def save_grammar(self, new_grammar):
@@ -323,7 +323,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
             print("Error decoding JSON:", e)
             return None
             
-    def save_message(self, message):
+    def log_message(self, message):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
             f.write(str(message.role) + ":\n\n")
@@ -333,7 +333,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
             f.write("\n")
     
-    def save_retry_message(self):
+    def log_retry_message(self):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
             f.write("")
@@ -433,11 +433,11 @@ If the parameters do not match any rule in the grammar, the function returns "ER
         print("Grammar agent terminated.")
     
     def generate_next_response(self):
-        
+
         try:
             response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
             self.contents.append(response.candidates[0].content)
-            self.save_message(response.candidates[0].content)
+            self.log_message(response.candidates[0].content)
             
             tool_call = None
             for part in response.candidates[0].content.parts:
@@ -456,7 +456,7 @@ If the parameters do not match any rule in the grammar, the function returns "ER
                 
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
-            self.save_message(response_content)
+            self.log_message(response_content)
             self.save_current_grammar()
             return True
         except:
@@ -467,7 +467,7 @@ If the parameters do not match any rule in the grammar, the function returns "ER
         with open(self.grammar_file_path, "w") as f:
             json.dump(self.grammar, f, indent=4)
     
-    def save_message(self, response_content):
+    def log_message(self, response_content):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
             f.write(str(response_content.role) + ":\n\n")
@@ -495,7 +495,7 @@ class IterativeFeedbackGrammarAgent:
         self.model = MODEL_NAME
         
         self.history_file_path = path + "/grammar_agent_history.txt"
-        self.grammar_file_path = path + "/llm_reduced_grammar.json"
+        self.grammar_file_path = path + "/llm_suggested_grammar.json"
         
         self.instructions = f"""You are a helpful and rational agent, and you create a pipeline for the following machine learning task: "{self.task}".\n
 The following is a regular tree grammar, which defines the pipeline tasks and the rules for combining them, to build all possible pipelines for the above-mentioned task.\n{self.grammar}\n
@@ -509,7 +509,7 @@ All your choices should be well thought out, so you should explain your thinking
             )
         ]
         
-        self.save_message(self.contents[0])
+        self.log_message(self.contents[0])
 
         suggest_grammar_declaration = types.FunctionDeclaration(
             name='suggest_grammar',
@@ -536,7 +536,6 @@ All your choices should be well thought out, so you should explain your thinking
             ),
         )
 
-        # TODO play around with config options like temperature etc.
         self.config = {
             # "system_instruction": self.instructions,
             "tools": [types.Tool(function_declarations=[suggest_grammar_declaration, terminate_declaration])],
@@ -549,49 +548,47 @@ All your choices should be well thought out, so you should explain your thinking
     # if it's valid, saves it to llm_reduced_grammar.json and returns True, else returns False
     def suggest_grammar(self, grammar):
         print("Suggested grammar:", grammar)
-        grammar = grammar.replace("'", "\"") # replace single quotes with double quotes to make it valid JSON
+        self.grammar = grammar.replace("'", "\"")
+        self.save_current_grammar()
         # TODO (?) check if grammar produces valid pipeline via cls(?)
-        return grammar
+        
+        # TODO find out how to extract the performance score
+        return 0.7
         
     def terminate(self):
         print("Grammar agent terminated.")
-        return True
         
-    # TODO adjust to iterative logic
-    def generate_reduced_grammar(self):
+    def generate_next_response(self):
         try:
             response = self.client.models.generate_content(model=self.model, config=self.config, contents=self.contents)
             self.contents.append(response.candidates[0].content)
-            self.save_message(response.candidates[0].content)
+            self.log_message(response.candidates[0].content)
             
             tool_call = None
             for part in response.candidates[0].content.parts:
                 if part.function_call is not None: 
                     tool_call = part.function_call
                     break
-            if tool_call is not None and tool_call.name == "suggest_grammar":
-                grammar_str = self.suggest_grammar(**tool_call.args)
-                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": grammar_str})
-                grammar = self.grammar_str_to_json(grammar_str)
-                self.save_grammar(grammar)
+            
+            if tool_call is not None:
+                if tool_call.name == "suggest_grammar":
+                    result = self.suggest_grammar(**tool_call.args)
+                if tool_call.name == "terminate":
+                    self.log_terminate_message()
+                    return False
+                response_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
             else:
-                grammar = None
                 response_part = types.Part.from_text(text="No tool output")
-                print("Iterative feedback grammar agent stopped without producing a grammar.")
+                
             response_content = types.Content(role="user", parts=[response_part])
             self.contents.append(response_content)
-            self.save_message(response_content)
-            return grammar
+            self.log_message(response_content)
+            return True
         except Exception as e:
-            print("Error occurred while generating reduced grammar:", e)
+            print("Error occurred while generating grammar:", e)
             print("Retrying generating next response...")
-            self.save_retry_message()
-            return self.generate_reduced_grammar()
-    
-    def save_grammar(self, new_grammar):
-        with open(self.grammar_file_path, "w") as f:
-            json.dump(new_grammar, f, indent=4)
-        print("Grammar saved to", self.grammar_file_path)
+            self.log_retry_message()
+            self.generate_next_response()
             
     def grammar_str_to_json(self, grammar_str):
         try:
@@ -600,19 +597,39 @@ All your choices should be well thought out, so you should explain your thinking
             print("Error decoding JSON:", e)
             return None
             
-    def save_message(self, message):
+    def generate_grammar(self):
+        print("Running iterative feedback grammar agent...")
+        while(self.generate_next_response()):
+            continue
+        print("Agent stopped.")
+        return self.get_current_grammar()
+
+    def save_current_grammar(self):
+        print("GRAMMAR")
+        print(self.grammar)
+        with open(self.grammar_file_path, "w") as f:
+            json.dump(json.loads(self.grammar), f, indent=4)
+
+    def get_current_grammar(self):
+        with open(self.grammar_file_path, "r") as f:
+            return json.load(f)
+    
+    def log_message(self, response_content):
         with open(self.history_file_path, "a") as f:
             f.write("------------------------------------------\n")
-            f.write(str(message.role) + ":\n\n")
-            for part in message.parts:
+            f.write(str(response_content.role) + ":\n\n")
+            for part in response_content.parts:
                 if part.text != None: f.write(str(part.text) + "\n")
                 if part.function_call != None: f.write("> Function call: " + str(part.function_call) + "\n")
                 if part.function_response != None: f.write("> Function response: " + str(part.function_response) + "\n")
             f.write("\n")
     
-    def save_retry_message(self):
+    def log_retry_message(self):
         with open(self.history_file_path, "a") as f:
-            f.write("------------------------------------------\n")
-            f.write("")
+            f.write("------------------------------------------\n\n")
             f.write("Retrying generating next response...\n\n")
-            f.write("\n")
+            
+    def log_terminate_message(self):
+        with open(self.history_file_path, "a") as f:
+            f.write("------------------------------------------\n\n")
+            f.write("Agent called terminate.\n\n")

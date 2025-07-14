@@ -230,7 +230,7 @@ if __name__ == "__main__":
     os.makedirs(RESULTUS_DIR, exist_ok=True)
     from os.path import join as pjoin
     from os import makedirs, getcwd
-    from llm_suggester.gemini import DirectGrammarAgent
+    from llm_suggester.gemini import IterativeFeedbackGrammarAgent
 
     logging.basicConfig(level=logging.DEBUG)
     target_class = Eval
@@ -275,8 +275,9 @@ if __name__ == "__main__":
         # with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
             # llm_reduced_grammar = json.load(f)
             
-    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
-    llm_suggested_grammar = agent.generate_reduced_grammar()
+    # agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
+    agent = IterativeFeedbackGrammarAgent(task, tree_grammar, RUN_DIR)
+    llm_suggested_grammar = agent.generate_grammar()
                   
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_suggested_grammar)
     hypergraph = build_hypergraph(hypergraph_dict)
