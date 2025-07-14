@@ -545,14 +545,14 @@ All your choices should be well thought out, so you should explain your thinking
         
     # suggest_grammar tool
     # takes the suggested regular tree grammar
-    # if it's valid, saves it to llm_reduced_grammar.json and returns True, else returns False
+    # returns grammar score
     def suggest_grammar(self, grammar):
         print("Suggested grammar:", grammar)
         self.grammar = grammar.replace("'", "\"")
         self.save_current_grammar()
-        # TODO (?) check if grammar produces valid pipeline via cls(?)
         
         # TODO find out how to extract the performance score
+        # TODO maybe set score to -1 if pipeline invalid (and add this convention to tool description)
         return 0.7
         
     def terminate(self):
@@ -605,7 +605,6 @@ All your choices should be well thought out, so you should explain your thinking
         return self.get_current_grammar()
 
     def save_current_grammar(self):
-        print("GRAMMAR")
         print(self.grammar)
         with open(self.grammar_file_path, "w") as f:
             json.dump(json.loads(self.grammar), f, indent=4)
