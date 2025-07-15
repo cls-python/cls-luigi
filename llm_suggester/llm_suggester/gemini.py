@@ -251,7 +251,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
 
         suggest_grammar_declaration = types.FunctionDeclaration(
             name='suggest_grammar',
-            description="""Passes the suggested grammar to the user. """,
+            description="""Passes the suggested grammar to the user.""",
             parameters=types.Schema(
                 type='OBJECT',
                 properties={
