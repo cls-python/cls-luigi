@@ -316,6 +316,7 @@ All your choices should be well thought out, so do not hesitate to explain your 
             json.dump(new_grammar, f, indent=4)
         print("Grammar saved to", self.grammar_file_path)
             
+    # TODO remove (redundant)
     def grammar_str_to_json(self, grammar_str):
         try:
             return json.loads(grammar_str)

@@ -1,29 +1,22 @@
 {
     "start": "Eval",
     "non_terminals": [
-        "Reg",
-        "Scale",
         "LoadDataset",
-        "Eval"
+        "Eval",
+        "Reg",
+        "Scale"
     ],
     "terminals": [
-        "LR",
-        "RF",
+        "LoadPklDataset",
         "Evaluate",
-        "Robust",
         "MinMax",
-        "LoadPklDataset"
+        "Robust",
+        "RF",
+        "LR"
     ],
     "rules": {
-        "Reg": {
-            "LR": [
-                "Scale",
-                "LoadDataset"
-            ],
-            "RF": [
-                "Scale",
-                "LoadDataset"
-            ]
+        "LoadDataset": {
+            "LoadPklDataset": []
         },
         "Eval": {
             "Evaluate": [
@@ -33,15 +26,22 @@
             ]
         },
         "Scale": {
-            "Robust": [
+            "MinMax": [
                 "LoadDataset"
             ],
-            "MinMax": [
+            "Robust": [
                 "LoadDataset"
             ]
         },
-        "LoadDataset": {
-            "LoadPklDataset": []
+        "Reg": {
+            "RF": [
+                "Scale",
+                "LoadDataset"
+            ],
+            "LR": [
+                "Scale",
+                "LoadDataset"
+            ]
         }
     }
 }

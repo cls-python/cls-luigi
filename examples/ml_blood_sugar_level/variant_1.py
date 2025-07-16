@@ -318,7 +318,8 @@ if __name__ == "__main__":
     from cls.fcl import FiniteCombinatoryLogic
     from cls.subtypes import Subtypes
     
-    from llm_suggester.gemini import IterativeFeedbackGrammarAgent
+    # from llm_suggester.gemini import IterativeFeedbackGrammarAgent
+    from llm_suggester.ollama import DirectGrammarAgent
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -391,7 +392,7 @@ if __name__ == "__main__":
         # with open(pjoin(RUN_DIR, "llm_reduced_grammar.json"), "r") as f:
             # llm_reduced_grammar = json.load(f)
             
-    agent = IterativeFeedbackGrammarAgent(task, tree_grammar, RUN_DIR)
+    agent = DirectGrammarAgent(task, tree_grammar, RUN_DIR)
     llm_suggested_grammar = agent.generate_grammar()
     
     hypergraph_dict = get_hypergraph_dict_from_tree_grammar(llm_suggested_grammar)
